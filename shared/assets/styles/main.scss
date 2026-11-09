@@ -1,0 +1,136 @@
+// ==========================================
+// Unity Medical Mobile Design System & Themes
+// ==========================================
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Alexandria:wght@400;500;600;700&display=swap');
+
+:root, [data-theme='emerald'] {
+  --unity-primary: #047857;           // Deep Emerald Green (from user mockups)
+  --unity-primary-dark: #064e3b;      // Dark Forest Green
+  --unity-primary-hover: #065f46;
+  --unity-primary-light: #ecfdf5;     // Soft mint background
+  --unity-primary-tint: #d1fae5;
+  --unity-primary-gradient: linear-gradient(135deg, #047857 0%, #064e3b 100%);
+  
+  --unity-accent: #10b981;            // Bright Mint / Status indicator
+  --unity-accent-glow: rgba(16, 185, 129, 0.25);
+  
+  --unity-bg: #f8fafc;                // Clean mobile background
+  --unity-surface: #ffffff;           // Card surface
+  --unity-surface-soft: #f1f5f9;
+  
+  --unity-text-main: #0f172a;         // Slate 900
+  --unity-text-muted: #64748b;        // Slate 500
+  --unity-text-dim: #94a3b8;
+  --unity-border: #e2e8f0;            // Crisp border
+  --unity-border-light: #f1f5f9;
+  
+  --unity-success: #10b981;
+  --unity-warning: #f59e0b;
+  --unity-danger: #ef4444;
+  --unity-info: #0284c7;
+
+  --unity-shadow-subtle: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
+  --unity-shadow-card: 0 4px 14px -3px rgba(15, 23, 42, 0.08);
+  --unity-shadow-elevated: 0 10px 25px -5px rgba(4, 120, 87, 0.25);
+
+  --unity-radius-xs: 8px;
+  --unity-radius-sm: 12px;
+  --unity-radius-md: 18px;
+  --unity-radius-lg: 24px;
+  --unity-radius-full: 9999px;
+  
+  --web-outer-bg: #090e17;            // Desktop preview container backdrop
+}
+
+[data-theme='teal'] {
+  --unity-primary: #0f766e;
+  --unity-primary-dark: #134e4a;
+  --unity-primary-hover: #115e59;
+  --unity-primary-light: #f0fdfa;
+  --unity-primary-tint: #ccfbf1;
+  --unity-primary-gradient: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+  --unity-accent: #14b8a6;
+  --unity-accent-glow: rgba(20, 184, 166, 0.25);
+  --unity-shadow-elevated: 0 10px 25px -5px rgba(15, 118, 110, 0.25);
+}
+
+[data-theme='dark'] {
+  --unity-bg: #090d16;
+  --unity-surface: #111827;
+  --unity-surface-soft: #1f2937;
+  --unity-text-main: #f9fafb;
+  --unity-text-muted: #9ca3af;
+  --unity-text-dim: #6b7280;
+  --unity-border: #1f2937;
+  --unity-border-light: #374151;
+  --unity-primary-light: rgba(4, 120, 87, 0.18);
+  --unity-primary-tint: rgba(4, 120, 87, 0.3);
+  --unity-shadow-subtle: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+  --unity-shadow-card: 0 4px 14px -3px rgba(0, 0, 0, 0.5);
+  --web-outer-bg: #030712;
+}
+
+// Global typography & reset
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  font-family: 'Cairo', 'Alexandria', system-ui, -apple-system, sans-serif;
+  background-color: var(--web-outer-bg);
+  color: var(--unity-text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+// Scrollbar styling
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--unity-border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--unity-text-dim);
+}
+
+// Helper utilities
+.text-primary { color: var(--unity-primary) !important; }
+.text-accent { color: var(--unity-accent) !important; }
+.text-muted { color: var(--unity-text-muted) !important; }
+.text-dim { color: var(--unity-text-dim) !important; }
+.text-success { color: var(--unity-success) !important; }
+.text-danger { color: var(--unity-danger) !important; }
+.text-warning { color: var(--unity-warning) !important; }
+
+.bg-primary { background-color: var(--unity-primary) !important; color: #fff; }
+.bg-primary-light { background-color: var(--unity-primary-light) !important; }
+.bg-surface { background-color: var(--unity-surface) !important; }
+
+// Animated transitions
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active, .slide-up-leave-active {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+.slide-up-enter-from, .slide-up-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
+}

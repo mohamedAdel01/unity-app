@@ -1,0 +1,31 @@
+// ==========================================
+// RTL & Logical Positioning Styles
+// ==========================================
+
+[dir='rtl'] {
+  text-align: right;
+  
+  .ms-auto {
+    margin-left: unset;
+    margin-right: auto;
+  }
+  
+  .me-auto {
+    margin-right: unset;
+    margin-left: auto;
+  }
+  
+  // Flip directional navigation chevrons
+  .icon-arrow-next {
+    transform: rotate(180deg);
+  }
+  
+  .icon-arrow-prev {
+    transform: rotate(0deg);
+  }
+}
+
+[dir='ltr'] {
+  text-align: left;
+}
+

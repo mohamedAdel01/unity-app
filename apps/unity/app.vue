@@ -1,0 +1,18 @@
+<template>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+</template>
+
+<script setup lang="ts">
+import { useHead } from '#imports';
+
+useHead({
+  title: 'Unity — الرعاية الصحية والطبية المتكاملة',
+  meta: [
+    { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' },
+    { name: 'theme-color', content: '#047857' },
+  ],
+});
+</script>
+
