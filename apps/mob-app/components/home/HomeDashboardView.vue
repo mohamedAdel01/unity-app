@@ -3,6 +3,9 @@
     <!-- Top Greeting Header -->
     <HomeHeader />
 
+    <!-- Upcoming Appointment Card (Positioned first in Home as requested) -->
+    <HomeUpcomingCard />
+
     <!-- Hero Title -->
     <HomeHeroHeadline />
 
@@ -17,9 +20,6 @@
 
     <!-- 6 Categories Grid -->
     <HomeCategoriesGrid />
-
-    <!-- Upcoming Appointment Card (Image 2 style) -->
-    <HomeUpcomingCard />
 
     <!-- Certified Top Doctors (Image 1 style) -->
     <HomeTopDoctors 

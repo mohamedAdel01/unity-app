@@ -1,8 +1,11 @@
-import services from '../services';
+import services from '@/services';
 
 const storeMap: Record<string, () => Promise<any>> = {
-  global: () => import('../stores/global').then((m) => m.useGlobalStore),
-  auth: () => import('../stores/auth').then((m) => m.useAuthStore),
+  global: () => import('@/stores/global').then((m) => m.useGlobalStore),
+  auth: () => import('@/stores/auth').then((m) => m.useAuthStore),
+  // advertisement: () => import('@/stores/advertisement').then((m) => m.useAdvertisementStore),
+  // setting: () => import('@/stores/setting').then((m) => m.useSettingStore),
+  // account: () => import('@/stores/account').then((m) => m.useAccountStore),
 };
 
 export interface ApiRequestOptions {
@@ -11,7 +14,6 @@ export interface ApiRequestOptions {
   payload?: any;
   filter?: any;
   pinia?: boolean;
-  loadingKey?: string;
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
@@ -23,7 +25,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     payload,
     filter,
     pinia,
-    loadingKey,
   }: ApiRequestOptions) => {
     const globalStore = (await storeMap.global())();
 
@@ -32,21 +33,24 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
 
     try {
-      globalStore.setLoading([loadingKey ?? service, true]);
+      globalStore.setLoading([service, true]);
 
-      // Execute request via services layer
-      const response = await services[service]({ API, payload, filter });
+      // Call Request
+      let response = await services[service]({ API, payload, filter });
 
-      // Handle Pinia Store sync if requested (matching Bya3 pattern)
+      // Handle Store
       if (pinia && storeMap[module]) {
-        const store = (await storeMap[module]())();
-        if (typeof store.MAIN === 'function') {
-          await store.MAIN({
-            service,
-            payload,
-            filter,
-            response,
-          });
+        const storeGetter = storeMap[module];
+        if (storeGetter) {
+          const store = (await storeGetter())();
+          if (typeof store?.MAIN === 'function') {
+            await store.MAIN({
+              service,
+              payload,
+              filter,
+              response,
+            });
+          }
         }
       }
 
@@ -54,7 +58,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     } catch (error) {
       throw error;
     } finally {
-      globalStore.setLoading([loadingKey ?? service, false]);
+      globalStore.setLoading([service, false]);
     }
   };
 

@@ -1,85 +1,6 @@
 <template>
   <div class="profile-menu-groups">
-    <!-- Group 1: الرعاية الصحية والعائلة -->
-    <div class="menu-group">
-      <span class="group-title">{{ t('Health Care & Family') }}</span>
-      <div class="group-card">
-        <!-- Item 1: أفراد الأسرة -->
-        <button class="menu-item-row" @click="emit('action', 'family')">
-          <div class="item-icon-box mint">
-            <i class="pi pi-users"></i>
-          </div>
-          <div class="item-text-box">
-            <h6>{{ t('Family Members Management') }}</h6>
-            <small>{{ t('Add or manage dependents health profiles') }}</small>
-          </div>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
-        </button>
-
-        <div class="item-divider"></div>
-
-        <!-- Item 2: بطاقة التأمين -->
-        <button class="menu-item-row" @click="emit('action', 'insurance')">
-          <div class="item-icon-box teal">
-            <i class="pi pi-credit-card"></i>
-          </div>
-          <div class="item-text-box">
-            <h6>{{ t('Health Insurance Card') }}</h6>
-            <small>{{ t('View & update insurance and claim submissions') }}</small>
-          </div>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
-        </button>
-
-        <div class="item-divider"></div>
-
-        <!-- Item 3: تنبيهات المواعيد والأدوية -->
-        <button class="menu-item-row" @click="emit('action', 'reminders')">
-          <div class="item-icon-box green">
-            <i class="pi pi-bell"></i>
-          </div>
-          <div class="item-text-box">
-            <h6>{{ t('Appointments & Medication Alerts') }}</h6>
-            <small>{{ t('Customize notifications & dosage reminders') }}</small>
-          </div>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Group 2: المدفوعات والأمان -->
-    <div class="menu-group">
-      <span class="group-title">{{ t('Payments & Security') }}</span>
-      <div class="group-card">
-        <!-- Item 1: طرق الدفع والمحفظة -->
-        <button class="menu-item-row" @click="emit('action', 'wallet')">
-          <div class="item-icon-box emerald">
-            <i class="pi pi-wallet"></i>
-          </div>
-          <div class="item-text-box">
-            <h6>{{ t('Payment Methods & Wallet') }}</h6>
-            <small>{{ t('Saved cards & cashback balance') }}</small>
-          </div>
-          <span v-if="walletBalance" class="balance-pill">{{ walletBalance }} {{ t('SAR') }}</span>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
-        </button>
-
-        <div class="item-divider"></div>
-
-        <!-- Item 2: الخصوصية والأمان -->
-        <button class="menu-item-row" @click="emit('action', 'privacy')">
-          <div class="item-icon-box cyan">
-            <i class="pi pi-lock"></i>
-          </div>
-          <div class="item-text-box">
-            <h6>{{ t('Privacy & Security') }}</h6>
-            <small>{{ t('Face ID / Quick access & change password') }}</small>
-          </div>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- Group 3: المساعدة والمعلومات القانونية -->
+    <!-- Group: المساعدة والمعلومات القانونية -->
     <div class="menu-group">
       <span class="group-title">{{ t('Help & Legal Information') }}</span>
       <div class="group-card">
@@ -112,26 +33,30 @@
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
 
-        <div class="item-divider"></div>
+        <!-- Item 3: لوحة تحكم الإشراف (تظهر فقط إذا كان المستخدم أدمن) -->
+        <template v-if="isAdmin">
+          <div class="item-divider"></div>
 
-        <!-- Item 3: لوحة تحكم الإشراف (سجلات المرضى) -->
-        <button class="menu-item-row" @click="emit('action', 'admin')">
-          <div class="item-icon-box green">
-            <i class="pi pi-users"></i>
-          </div>
-          <div class="item-text-box">
-            <h6>{{ isRtl ? 'لوحة المشرف • سجلات المرضى' : 'Admin Panel • Patient Records' }}</h6>
-            <small>{{ isRtl ? 'إدارة سجلات المرضى والملفات الطبية' : 'Manage patients records and files' }}</small>
-          </div>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
-        </button>
+          <button class="menu-item-row" @click="emit('action', 'admin')">
+            <div class="item-icon-box green">
+              <i class="pi pi-users"></i>
+            </div>
+            <div class="item-text-box">
+              <h6>{{ isRtl ? 'لوحة المشرف • سجلات المرضى' : 'Admin Panel • Patient Records' }}</h6>
+              <small>{{ isRtl ? 'إدارة سجلات المرضى والملفات الطبية' : 'Manage patients records and files' }}</small>
+            </div>
+            <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+          </button>
+        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import { useAuthStore } from '../../stores/auth';
 
 defineProps<{
   walletBalance?: string | number;
@@ -142,6 +67,8 @@ const emit = defineEmits<{
 }>();
 
 const { t, isRtl } = useI18n();
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.isAdmin || authStore.user?.role === 'admin');
 </script>
 
 <style scoped lang="scss">

@@ -304,13 +304,20 @@ export default {
   "Phone Number": "Phone Number",
   "Quick Login with OTP": "Quick Login with OTP",
 
-  // Onboarding Slides
-  "Elite Doctors & Specialists": "Elite Doctors & Specialists",
-  "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.": "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.",
-  "Latest Medical Technologies & Diagnostics": "Latest Medical Technologies & Diagnostics",
-  "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.": "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.",
-  "Exclusive Health Packages & Special Discounts": "Exclusive Health Packages & Special Discounts",
-  "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.": "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.",
+  // Onboarding Slides (Short & Simple)
+  "onboarding.slide1.title": "Elite Doctors",
+  "onboarding.slide1.desc": "Book easily with top medical consultants",
+  "onboarding.slide2.title": "Comprehensive Healthcare",
+  "onboarding.slide2.desc": "Advanced technologies for your health and safety",
+  "onboarding.slide3.title": "Exclusive Packages",
+  "onboarding.slide3.desc": "Best services and discounts for your family",
+
+  "Elite Doctors & Specialists": "Elite Doctors",
+  "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.": "Book easily with top medical consultants",
+  "Latest Medical Technologies & Diagnostics": "Comprehensive Healthcare",
+  "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.": "Advanced technologies for your health and safety",
+  "Exclusive Health Packages & Special Discounts": "Exclusive Packages",
+  "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.": "Best services and discounts for your family",
 
   // Categories Grid
   "Instant": "Instant",

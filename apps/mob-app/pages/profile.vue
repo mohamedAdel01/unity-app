@@ -37,6 +37,10 @@ const onMenuAction = (key: string) => {
     router.push('/appointments');
   } else if (key === 'admin') {
     router.push('/admin/patients');
+  } else if (key === 'terms') {
+    router.push('/terms');
+  } else if (key === 'delete-account') {
+    router.push('/delete-account');
   }
 };
 </script>

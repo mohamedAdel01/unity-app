@@ -16,6 +16,9 @@
         <span>{{ isRtl ? 'عيادات يونيتي التخصصية • معتمد رسمياً' : 'Unity Specialized Clinics • Officially Certified' }}</span>
       </div>
       <p class="build-version">{{ t('profile.appVersion') }}</p>
+      <NuxtLink to="/delete-account" class="delete-account-link">
+        {{ isRtl ? 'طلب حذف الحساب' : 'Request Account Deletion' }}
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -106,6 +109,20 @@ const handleLogout = async () => {
     .build-version {
       font-size: 0.68rem;
       color: var(--unity-text-dim);
+    }
+
+    .delete-account-link {
+      font-size: 0.74rem;
+      color: #ef4444;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 4px;
+      opacity: 0.85;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 1;
+      }
     }
   }
 }

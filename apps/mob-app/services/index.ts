@@ -71,6 +71,19 @@ export default {
     });
   },
 
+  async DOCTOR_BY_ID({ API, filter }: { API: any; filter: { id: string } }) {
+    return await API(`client/doctors/${filter.id}`, {
+      method: 'GET',
+    });
+  },
+
+  async DOCTOR_SLOTS({ API, filter }: { API: any; filter: { id: string; date: string } }) {
+    const query = filter?.date ? `?date=${encodeURIComponent(filter.date)}` : '';
+    return await API(`client/doctors/${filter.id}/slots${query}`, {
+      method: 'GET',
+    });
+  },
+
   // ==========================================
   // 3. APPOINTMENTS & BOOKING
   // ==========================================
@@ -87,8 +100,14 @@ export default {
     });
   },
 
+  async CANCEL_APPOINTMENT({ API, payload }: { API: any; payload: { id: string } }) {
+    return await API(`client/appointments/${payload.id}/cancel`, {
+      method: 'PATCH',
+    });
+  },
+
   // ==========================================
-  // 4. PATIENT RECORDS & INVOICES
+  // 4. PATIENT RECORDS, INVOICES & NOTIFICATIONS
   // ==========================================
   async PATIENT_RECORDS({ API }: { API: any }) {
     return await API('client/patient/records', {
@@ -107,5 +126,50 @@ export default {
       method: 'GET',
     });
   },
-} as Record<string, (args: { API: any; payload?: any; filter?: any }) => Promise<any>>;
 
+  async MARK_NOTIFICATION_READ({ API, payload }: { API: any; payload: { id: string } }) {
+    return await API(`client/notifications/${payload.id}/read`, {
+      method: 'PATCH',
+    });
+  },
+
+  async MARK_ALL_NOTIFICATIONS_READ({ API }: { API: any }) {
+    return await API('client/notifications/read-all', {
+      method: 'PATCH',
+    });
+  },
+
+  async PAYMOB_INITIATE({ API, payload }: { API: any; payload: { invoice_id: string } }) {
+    return await API('client/payments/paymob/initiate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  // ==========================================
+  // 5. ADMIN SERVICES
+  // ==========================================
+  async ADMIN_PATIENTS({ API }: { API: any }) {
+    return await API('admin/patients', {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_DOCTORS({ API }: { API: any }) {
+    return await API('admin/doctors', {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_APPOINTMENTS({ API }: { API: any }) {
+    return await API('admin/appointments', {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_CLINICS({ API }: { API: any }) {
+    return await API('admin/clinics', {
+      method: 'GET',
+    });
+  },
+} as Record<string, (args: { API: any; payload?: any; filter?: any }) => Promise<any>>;

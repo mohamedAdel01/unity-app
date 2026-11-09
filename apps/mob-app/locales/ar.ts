@@ -304,13 +304,20 @@ export default {
   "Phone Number": "رقم الجوال",
   "Quick Login with OTP": "الدخول السريع عبر رمز التحقق (OTP)",
 
-  // Onboarding Slides
-  "Elite Doctors & Specialists": "نخبة من أمهر الأطباء والاستشاريين",
-  "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.": "تواصل واحجز كشفك الطبي حضورياً أو عن بعد مع أمهر الأطباء في مختلف التخصصات الطبية.",
-  "Latest Medical Technologies & Diagnostics": "أحدث التقنيات والتجهيزات الطبية",
-  "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.": "فحوصات دقيقة، تحاليل مخبرية فورية، وأشعة تشخيصية متطورة تضمن لك أعلى دقة وأمان.",
-  "Exclusive Health Packages & Special Discounts": "عروض وباقات صحية وخصومات حصرية",
-  "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.": "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.",
+  // Onboarding Slides (Short & Simple)
+  "onboarding.slide1.title": "نخبة من أمهر الأطباء",
+  "onboarding.slide1.desc": "احجز موعدك بسهولة مع أفضل الاستشاريين",
+  "onboarding.slide2.title": "رعاية طبية متكاملة",
+  "onboarding.slide2.desc": "أحدث التقنيات لخدمتك وسلامتك دائماً",
+  "onboarding.slide3.title": "باقات وعروض حصرية",
+  "onboarding.slide3.desc": "أفضل الخدمات والخصومات لك ولعائلتك",
+
+  "Elite Doctors & Specialists": "نخبة من أمهر الأطباء",
+  "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.": "احجز موعدك بسهولة مع أفضل الاستشاريين",
+  "Latest Medical Technologies & Diagnostics": "رعاية طبية متكاملة",
+  "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.": "أحدث التقنيات لخدمتك وسلامتك دائماً",
+  "Exclusive Health Packages & Special Discounts": "باقات وعروض حصرية",
+  "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.": "أفضل الخدمات والخصومات لك ولعائلتك",
 
   // Categories Grid
   "Instant": "فوري",

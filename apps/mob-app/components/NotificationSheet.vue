@@ -39,6 +39,15 @@
               <span>{{ t('notifications.loading') }}</span>
             </div>
 
+            <!-- Not logged in State -->
+            <div v-else-if="!authStore.isAuthenticated" class="state-empty">
+              <div class="empty-icon">
+                <i class="pi pi-lock"></i>
+              </div>
+              <h4>{{ isRtl ? 'تسجيل الدخول مطلوب' : 'Login Required' }}</h4>
+              <p>{{ isRtl ? 'يرجى تسجيل الدخول لعرض التنبيهات والإشعارات الخاصة بك.' : 'Please log in to view your notifications and alerts.' }}</p>
+            </div>
+
             <!-- Empty State -->
             <div v-else-if="notifications.length === 0" class="state-empty">
               <div class="empty-icon">
@@ -81,6 +90,8 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
+import { useGlobalStore } from '../stores/global';
+import { useAuthStore } from '../stores/auth';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -93,19 +104,29 @@ const emit = defineEmits<{
 
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
+const globalStore = useGlobalStore();
+const authStore = useAuthStore();
 
-const loading = ref(false);
 const notifications = ref<any[]>([]);
+
+// Use globalStore loading tracker for NOTIFICATIONS service
+const loading = computed(() => globalStore.loading.includes('NOTIFICATIONS'));
 
 const unreadCount = computed(() => {
   return notifications.value.filter(n => !n.is_read).length;
 });
 
+// Fetch notifications only if user is logged in
 const loadNotifications = async () => {
+  if (!authStore.isAuthenticated) {
+    notifications.value = [];
+    emit('count-changed', 0);
+    return;
+  }
+
   try {
-    loading.value = true;
     const res = await api.getNotifications();
-    if (res.status && Array.isArray(res.data)) {
+    if (res?.status && Array.isArray(res.data)) {
       notifications.value = res.data;
     } else {
       notifications.value = [];
@@ -113,7 +134,6 @@ const loadNotifications = async () => {
   } catch (err) {
     notifications.value = [];
   } finally {
-    loading.value = false;
     emit('count-changed', unreadCount.value);
   }
 };
@@ -122,7 +142,7 @@ const markRead = async (item: any) => {
   if (item.is_read) return;
   item.is_read = true;
   try {
-    if (!item.id.startsWith('mock-')) {
+    if (authStore.isAuthenticated && item.id) {
       await api.markNotificationRead(item.id);
     }
   } catch (err) {
@@ -134,7 +154,9 @@ const markRead = async (item: any) => {
 const markAllRead = async () => {
   notifications.value.forEach(n => (n.is_read = true));
   try {
-    await api.markAllNotificationsRead();
+    if (authStore.isAuthenticated) {
+      await api.markAllNotificationsRead();
+    }
   } catch (err) {
     // Silent
   }
@@ -181,13 +203,24 @@ const formatTime = (isoString: string) => {
 };
 
 watch(() => props.modelValue, (newVal) => {
-  if (newVal) {
+  if (newVal && authStore.isAuthenticated) {
     loadNotifications();
   }
 });
 
+watch(() => authStore.isAuthenticated, (isAuth) => {
+  if (isAuth) {
+    loadNotifications();
+  } else {
+    notifications.value = [];
+    emit('count-changed', 0);
+  }
+});
+
 onMounted(() => {
-  loadNotifications();
+  if (authStore.isAuthenticated) {
+    loadNotifications();
+  }
 });
 </script>
 

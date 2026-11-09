@@ -2,262 +2,74 @@ import { computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import type { ApiRequestOptions } from '../plugins/02.api-request';
 
+/**
+ * Clean Unity API Composable
+ * Thin adapter exposing $apiRequest and reactive auth state.
+ * All actual network calls flow through the Services Layer (@/services) via $apiRequest.
+ */
 export function useUnityApi() {
   const nuxtApp = useNuxtApp();
   const authStore = useAuthStore();
-  authStore.initAuth();
-
-  const token = computed(() => authStore.token);
-  const currentUser = computed(() => authStore.user);
-
-  // Centralized Bya3 $fetch and $apiRequest instances
-  const fetchInstance = (nuxtApp as any).$fetch as (endpoint: string, options?: any) => Promise<any>;
   const apiRequest = (nuxtApp as any).$apiRequest as (options: ApiRequestOptions) => Promise<any>;
 
-  // Fallback direct request helper using injected $fetch
-  const request = async <T = any>(endpoint: string, options: any = {}): Promise<T> => {
-    return await fetchInstance(endpoint, options);
-  };
-
-  // ==========================================
-  // AUTH (Via Bya3 apiRequest Pattern)
-  // ==========================================
-  const login = async (credential: string | { email?: string; phone?: string }, password?: string) => {
-    let payload: any = {};
-    if (typeof credential === 'string') {
-      const isEmail = credential.includes('@');
-      payload = isEmail ? { email: credential, password } : { phone: credential, password };
-    } else {
-      payload = credential;
-    }
-
-    return await apiRequest({
-      module: 'auth',
-      service: 'LOGIN',
-      payload,
-      pinia: true,
-      loadingKey: 'login',
-    });
-  };
-
-  const register = async (payload: {
-    name: string;
-    phone: string;
-    password: string;
-    email?: string;
-    gender?: string;
-    date_of_birth?: string;
-  }) => {
-    return await apiRequest({
-      module: 'auth',
-      service: 'REGISTER',
-      payload,
-      pinia: true,
-      loadingKey: 'register',
-    });
-  };
-
-  const updateProfile = async (data: {
-    name?: string;
-    phone?: string;
-    avatar?: string;
-    gender?: string;
-    date_of_birth?: string;
-  }) => {
-    return await apiRequest({
-      module: 'auth',
-      service: 'UPDATE_PROFILE',
-      payload: data,
-      pinia: true,
-      loadingKey: 'updateProfile',
-    });
-  };
-
-  const completeRegistration = updateProfile;
-  const registerPatient = register;
-
-  const loginWithGoogle = async (payload: {
-    idToken?: string;
-    accessToken?: string;
-    email?: string;
-    name?: string;
-    avatar?: string;
-    googleId?: string;
-  }) => {
-    return await apiRequest({
-      module: 'auth',
-      service: 'GOOGLE_TOKEN_LOGIN',
-      payload,
-      pinia: true,
-      loadingKey: 'loginWithGoogle',
-    });
-  };
-
-  const loginWithApple = async (payload: {
-    identityToken: string;
-    email?: string;
-    givenName?: string;
-    familyName?: string;
-    userIdentifier?: string;
-  }) => {
-    return await apiRequest({
-      module: 'auth',
-      service: 'APPLE_LOGIN',
-      payload,
-      pinia: true,
-      loadingKey: 'loginWithApple',
-    });
-  };
-
-  const logout = async () => {
-    try {
-      await apiRequest({
-        module: 'auth',
-        service: 'LOGOUT',
-        pinia: true,
-        loadingKey: 'logout',
-      });
-    } catch {
-      authStore.logout();
-    }
-  };
-
-  // ==========================================
-  // CLINICS & MEDICAL
-  // ==========================================
-  const getClinics = async () => {
-    return await apiRequest({
-      service: 'CLINICS',
-      loadingKey: 'clinics',
-    });
-  };
-
-  const getServices = async () => {
-    return await apiRequest({
-      service: 'SERVICES',
-      loadingKey: 'services',
-    });
-  };
-
-  const getDoctors = async (clinicId?: string) => {
-    return await apiRequest({
-      service: 'DOCTORS',
-      filter: clinicId ? { clinic_id: clinicId } : undefined,
-      loadingKey: 'doctors',
-    });
-  };
-
-  const getDoctorById = async (id: string) => {
-    return await request(`client/doctors/${id}`);
-  };
-
-  const getDoctorSlots = async (doctorId: string, date: string) => {
-    return await request(`client/doctors/${doctorId}/slots?date=${encodeURIComponent(date)}`);
-  };
-
-  // ==========================================
-  // APPOINTMENTS & BOOKINGS
-  // ==========================================
-  const bookAppointment = async (payload: {
-    doctor_id: string;
-    service_id?: string;
-    date: string;
-    start_time: string;
-    end_time: string;
-    notes?: string;
-    payment_method?: 'paymob' | 'cash' | 'card';
-  }) => {
-    return await apiRequest({
-      service: 'BOOK_APPOINTMENT',
-      payload,
-      loadingKey: 'bookAppointment',
-    });
-  };
-
-  const getMyAppointments = async () => {
-    return await apiRequest({
-      service: 'PATIENT_APPOINTMENTS',
-      loadingKey: 'myAppointments',
-    });
-  };
-
-  const cancelAppointment = async (id: string) => {
-    return await request(`client/appointments/${id}/cancel`, {
-      method: 'PATCH',
-    });
-  };
-
-  // ==========================================
-  // PATIENT RECORDS, INVOICES & PAYMENTS
-  // ==========================================
-  const getMedicalRecords = async () => {
-    return await apiRequest({
-      service: 'PATIENT_RECORDS',
-      loadingKey: 'medicalRecords',
-    });
-  };
-
-  const getInvoices = async () => {
-    return await apiRequest({
-      service: 'PATIENT_INVOICES',
-      loadingKey: 'invoices',
-    });
-  };
-
-  const getNotifications = async () => {
-    return await apiRequest({
-      service: 'NOTIFICATIONS',
-      loadingKey: 'notifications',
-    });
-  };
-
-  const markNotificationRead = async (id: string) => {
-    return await request(`client/notifications/${id}/read`, {
-      method: 'PATCH',
-    });
-  };
-
-  const markAllNotificationsRead = async () => {
-    return await request('client/notifications/read-all', {
-      method: 'PATCH',
-    });
-  };
-
-  const initiatePaymobPayment = async (invoiceId: string) => {
-    return await request('client/payments/paymob/initiate', {
-      method: 'POST',
-      body: JSON.stringify({ invoice_id: invoiceId }),
-    });
-  };
-
   return {
-    token,
-    currentUser,
-    fetch: fetchInstance,
-    $fetch: fetchInstance,
     apiRequest,
     $apiRequest: apiRequest,
-    login,
-    register,
-    completeRegistration,
-    registerPatient,
-    loginWithGoogle,
-    loginWithApple,
-    logout,
-    updateProfile,
-    getClinics,
-    getServices,
-    getDoctors,
-    getDoctorById,
-    getDoctorSlots,
-    bookAppointment,
-    getMyAppointments,
-    cancelAppointment,
-    initiatePaymobPayment,
-    getNotifications,
-    markNotificationRead,
-    markAllNotificationsRead,
-    getMedicalRecords,
-    getInvoices,
+    token: computed(() => authStore.token),
+    currentUser: computed(() => authStore.user),
+
+    // Generic invocation
+    call: (service: string, payload?: any, filter?: any, module = 'global', pinia = false) =>
+      apiRequest({ module, service, payload, filter, pinia }),
+
+    // Auth actions delegating to services layer + pinia store sync
+    login: (phoneOrPayload: any, password?: string) => {
+      const payload = typeof phoneOrPayload === 'string'
+        ? { phone: phoneOrPayload, password }
+        : phoneOrPayload;
+      return apiRequest({ module: 'auth', service: 'LOGIN', payload, pinia: true });
+    },
+    register: (payload: any) =>
+      apiRequest({ module: 'auth', service: 'REGISTER', payload, pinia: true }),
+    logout: () =>
+      apiRequest({ module: 'auth', service: 'LOGOUT', pinia: true }),
+    updateProfile: (payload: any) =>
+      apiRequest({ module: 'auth', service: 'UPDATE_PROFILE', payload, pinia: true }),
+    completeRegistration: (payload: any) =>
+      apiRequest({ module: 'auth', service: 'UPDATE_PROFILE', payload, pinia: true }),
+    loginWithGoogle: (payload: any) =>
+      apiRequest({ module: 'auth', service: 'GOOGLE_TOKEN_LOGIN', payload, pinia: true }),
+    loginWithApple: (payload: any) =>
+      apiRequest({ module: 'auth', service: 'APPLE_LOGIN', payload, pinia: true }),
+
+    // Medical & Clinical Services
+    getClinics: () => apiRequest({ service: 'CLINICS' }),
+    getServices: () => apiRequest({ service: 'SERVICES' }),
+    getDoctors: (clinicId?: string) =>
+      apiRequest({ service: 'DOCTORS', filter: clinicId ? { clinic_id: clinicId } : undefined }),
+    getDoctorById: (id: string) =>
+      apiRequest({ service: 'DOCTOR_BY_ID', filter: { id } }),
+    getDoctorSlots: (id: string, date: string) =>
+      apiRequest({ service: 'DOCTOR_SLOTS', filter: { id, date } }),
+
+    // Appointments & Records
+    bookAppointment: (payload: any) =>
+      apiRequest({ service: 'BOOK_APPOINTMENT', payload }),
+    getMyAppointments: () =>
+      apiRequest({ service: 'PATIENT_APPOINTMENTS' }),
+    cancelAppointment: (id: string) =>
+      apiRequest({ service: 'CANCEL_APPOINTMENT', payload: { id } }),
+    getMedicalRecords: () =>
+      apiRequest({ service: 'PATIENT_RECORDS' }),
+    getInvoices: () =>
+      apiRequest({ service: 'PATIENT_INVOICES' }),
+    getNotifications: () =>
+      apiRequest({ service: 'NOTIFICATIONS' }),
+    markNotificationRead: (id: string) =>
+      apiRequest({ service: 'MARK_NOTIFICATION_READ', payload: { id } }),
+    markAllNotificationsRead: () =>
+      apiRequest({ service: 'MARK_ALL_NOTIFICATIONS_READ' }),
+    initiatePaymobPayment: (invoice_id: string) =>
+      apiRequest({ service: 'PAYMOB_INITIATE', payload: { invoice_id } }),
   };
 }

@@ -95,18 +95,18 @@ const currentSlide = ref(0);
 const slides = [
   {
     image: slide1,
-    titleKey: 'Elite Doctors & Specialists',
-    descKey: 'Connect and book consultations in-person or telehealth with top medical consultants across all specialties.',
+    titleKey: 'onboarding.slide1.title',
+    descKey: 'onboarding.slide1.desc',
   },
   {
     image: slide2,
-    titleKey: 'Latest Medical Technologies & Diagnostics',
-    descKey: 'Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.',
+    titleKey: 'onboarding.slide2.title',
+    descKey: 'onboarding.slide2.desc',
   },
   {
     image: slide3,
-    titleKey: 'Exclusive Health Packages & Special Discounts',
-    descKey: 'Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.',
+    titleKey: 'onboarding.slide3.title',
+    descKey: 'onboarding.slide3.desc',
   },
 ];
 
@@ -146,14 +146,14 @@ const onTouchEnd = (e: TouchEvent) => {
 .onboarding-container {
   --ob-bg: #f8fafc;
   --ob-bg-rgb: 248, 250, 252;
-  --ob-title-color: #0f172a;
-  --ob-subtitle-color: #475569;
+  --ob-title-color: #ffffff;
+  --ob-subtitle-color: rgba(255, 255, 255, 0.92);
   --ob-skip-bg: rgba(255, 255, 255, 0.88);
   --ob-skip-text: #0f172a;
   --ob-skip-border: rgba(15, 23, 42, 0.14);
-  --ob-dot-inactive: #cbd5e1;
-  --ob-auth-muted: #64748b;
-  --ob-title-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
+  --ob-dot-inactive: rgba(255, 255, 255, 0.35);
+  --ob-auth-muted: rgba(255, 255, 255, 0.78);
+  --ob-title-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
 
   position: absolute;
   top: 0;
@@ -177,13 +177,13 @@ const onTouchEnd = (e: TouchEvent) => {
     --ob-bg: #090d16;
     --ob-bg-rgb: 9, 13, 22;
     --ob-title-color: #ffffff;
-    --ob-subtitle-color: rgba(255, 255, 255, 0.82);
+    --ob-subtitle-color: rgba(255, 255, 255, 0.88);
     --ob-skip-bg: rgba(9, 14, 23, 0.65);
     --ob-skip-text: #ffffff;
     --ob-skip-border: rgba(255, 255, 255, 0.22);
     --ob-dot-inactive: #4b5563;
     --ob-auth-muted: #9ca3af;
-    --ob-title-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    --ob-title-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
   }
 }
 
@@ -269,15 +269,14 @@ const onTouchEnd = (e: TouchEvent) => {
       inset: 0;
       background: linear-gradient(180deg,
           rgba(var(--ob-bg-rgb), 0.98) 0%,
-          rgba(var(--ob-bg-rgb), 0.88) 10%,
-          rgba(var(--ob-bg-rgb), 0.45) 20%,
-          rgba(var(--ob-bg-rgb), 0.10) 32%,
-          rgba(var(--ob-bg-rgb), 0.00) 44%,
-          rgba(var(--ob-bg-rgb), 0.00) 56%,
-          rgba(var(--ob-bg-rgb), 0.25) 68%,
-          rgba(var(--ob-bg-rgb), 0.70) 80%,
-          rgba(var(--ob-bg-rgb), 0.94) 90%,
-          var(--ob-bg) 100%);
+          rgba(var(--ob-bg-rgb), 0.75) 10%,
+          rgba(var(--ob-bg-rgb), 0.15) 22%,
+          rgba(0, 0, 0, 0.00) 42%,
+          rgba(0, 0, 0, 0.00) 52%,
+          rgba(9, 14, 23, 0.35) 64%,
+          rgba(9, 14, 23, 0.76) 76%,
+          rgba(9, 14, 23, 0.94) 88%,
+          rgba(9, 14, 23, 0.98) 100%);
       transition: background 0.3s ease;
     }
   }
@@ -329,7 +328,7 @@ const onTouchEnd = (e: TouchEvent) => {
   gap: 18px;
 
   .slide-text-block {
-    min-height: 120px;
+    min-height: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -337,21 +336,22 @@ const onTouchEnd = (e: TouchEvent) => {
 
     .slide-title {
       color: var(--ob-title-color);
-      font-size: 1.55rem;
-      font-weight: 700;
-      margin: 0 0 12px;
-      line-height: 1.35;
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin: 0 0 8px;
+      line-height: 1.3;
       text-shadow: var(--ob-title-shadow);
       transition: color 0.3s ease;
     }
 
     .slide-subtitle {
       color: var(--ob-subtitle-color);
-      font-size: 0.90rem;
-      font-weight: 400;
-      line-height: 1.6;
+      font-size: 0.98rem;
+      font-weight: 500;
+      line-height: 1.5;
       margin: 0 auto;
-      max-width: 330px;
+      max-width: 320px;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
       transition: color 0.3s ease;
     }
   }
