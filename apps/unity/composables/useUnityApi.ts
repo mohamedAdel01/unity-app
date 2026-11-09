@@ -1,24 +1,14 @@
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { useAuthStore } from '../stores/auth';
 
 export function useUnityApi() {
   const config = useRuntimeConfig();
   const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  const authStore = useAuthStore();
+  authStore.initAuth();
 
-  const token = ref<string | null>(null);
-  const currentUser = ref<any>(null);
-
-  // Initialize token and user from localStorage on client side
-  if (typeof window !== 'undefined') {
-    token.value = localStorage.getItem('unity_token');
-    const savedUser = localStorage.getItem('unity_user');
-    if (savedUser) {
-      try {
-        currentUser.value = JSON.parse(savedUser);
-      } catch (e) {
-        currentUser.value = null;
-      }
-    }
-  }
+  const token = computed(() => authStore.token);
+  const currentUser = computed(() => authStore.user);
 
   const getHeaders = () => {
     const headers: Record<string, string> = {
@@ -47,19 +37,21 @@ export function useUnityApi() {
     return data;
   };
 
-  // Auth (Supports Email OR Mobile Phone)
-  const login = async (identifier: string, password: string) => {
+  // Auth (Strictly Email OR Phone)
+  const login = async (credential: string | { email?: string; phone?: string }, password?: string) => {
+    let payload: any = {};
+    if (typeof credential === 'string') {
+      const isEmail = credential.includes('@');
+      payload = isEmail ? { email: credential, password } : { phone: credential, password };
+    } else {
+      payload = credential;
+    }
     const res = await request('/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ identifier, password }),
+      body: JSON.stringify(payload),
     });
     if (res.status && res.data?.token) {
-      token.value = res.data.token;
-      currentUser.value = res.data.user;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('unity_token', res.data.token);
-        localStorage.setItem('unity_user', JSON.stringify(res.data.user));
-      }
+      authStore.setAuth(res.data.user, res.data.token);
     }
     return res;
   };
@@ -78,12 +70,7 @@ export function useUnityApi() {
       body: JSON.stringify(payload),
     });
     if (res.status && res.data?.token) {
-      token.value = res.data.token;
-      currentUser.value = res.data.user;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('unity_token', res.data.token);
-        localStorage.setItem('unity_user', JSON.stringify(res.data.user));
-      }
+      authStore.setAuth(res.data.user, res.data.token);
     }
     return res;
   };
@@ -139,12 +126,7 @@ export function useUnityApi() {
   };
 
   const logout = () => {
-    token.value = null;
-    currentUser.value = null;
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('unity_token');
-      localStorage.removeItem('unity_user');
-    }
+    authStore.logout();
   };
 
   // Clinics

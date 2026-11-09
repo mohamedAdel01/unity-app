@@ -6,9 +6,121 @@ export type LocaleCode = 'ar' | 'en';
 
 const currentLocale = ref<LocaleCode>('ar');
 
-const dictionaries: Record<LocaleCode, any> = {
+const dictionaries: Record<LocaleCode, Record<string, string>> = {
   ar,
   en,
+};
+
+// Aliases mapping old dot notation to clean English strings
+const legacyDotAliases: Record<string, string> = {
+  'common.close': 'Close',
+  'common.cancel': 'Cancel',
+  'common.confirm': 'Confirm',
+  'common.save': 'Save',
+  'common.search': 'Search',
+  'common.viewAll': 'View All',
+  'common.loading': 'Loading...',
+  'common.back': 'Back',
+  'common.now': 'Now',
+  'common.time': 'Time',
+  'common.date': 'Date',
+  'common.currency': 'SAR',
+  'common.appName': 'Unity Medical',
+
+  'nav.home': 'Home',
+  'nav.services': 'Services',
+  'nav.appointments': 'Appointments',
+  'nav.records': 'Records',
+  'nav.profile': 'Profile',
+  'nav.doctors': 'Doctors',
+  'nav.quickBookAria': 'What would you like to book today?',
+
+  'records.pageTitle': 'Medical Records & Lab Tests',
+  'records.tabReports': 'Visit Reports',
+  'records.tabLabs': 'Lab Results',
+  'records.tabPrescriptions': 'Prescriptions',
+  'records.downloadPdf': 'Download Report (PDF)',
+  'records.viewPrescription': 'View Prescription',
+  'records.emptyTitle': 'No medical records found',
+  'records.emptySub': 'Your medical visit reports, lab diagnostics and doctor prescriptions will appear here.',
+
+  'quickBook.modalTitle': 'What would you like to book today?',
+  'quickBook.modalSubtitle': 'Choose a medical service or doctor for immediate assistance',
+  'quickBook.doctorTitle': 'Doctor Consultation',
+  'quickBook.doctorBadge': 'Certified Care',
+  'quickBook.doctorDesc': 'Book an appointment with top specialist consultants across all disciplines',
+  'quickBook.doctorImmediate': 'Instant slots',
+  'quickBook.doctorFormat': 'In-person or Video',
+  'quickBook.serviceTitle': 'Medical Service or Lab Test',
+  'quickBook.serviceBadge': 'All-in-One',
+  'quickBook.serviceDesc': 'Comprehensive lab packages, X-rays, home nursing, and physiotherapy',
+  'quickBook.serviceHomeVisit': 'Home visit available',
+  'quickBook.serviceFastResult': 'Rapid results',
+
+  'home.location': 'Riyadh, Al-Nakheel District',
+  'home.welcomePrefix': 'Welcome,',
+  'home.heroTitle': 'How are you feeling today?',
+  'home.heroSubtitle': 'Get the finest healthcare for you and your family at your fingertips',
+  'home.searchPlaceholder': 'Search for doctor, test, scan, or service...',
+  'home.liveBanner': 'Instant consultations available now with certified doctors • 24/7 Service',
+  'home.categoriesTitle': 'What are you looking for today?',
+  'home.browseServices': 'Browse Services',
+  'home.upcomingTitle': 'Upcoming Appointments',
+  'home.topDoctorsTitle': 'Certified Top Doctors',
+  'home.pastRecordsTitle': 'My Past Bookings',
+  'home.visitHistory': 'Visit History',
+  'home.bookAppointment': 'Book Slot',
+  'home.reschedule': 'Reschedule',
+  'home.viewProfile': 'View Profile',
+  'home.viewReport': 'View Report',
+  'home.rebook': 'Rebook',
+  'home.downloadResult': 'Download Results',
+  'home.requestAgain': 'Request Again',
+
+  'auth.loginTitle': 'Sign In',
+  'auth.registerTitle': 'Create New Account',
+  'auth.quickAccessDivider': 'Or via quick access',
+  'auth.nafathLogin': 'National Nafath',
+  'auth.biometricLogin': 'Biometric Access',
+  'auth.noAccountYet': "Don't have an account?",
+  'auth.createNewAccount': 'Create New Account',
+  'auth.haveAccount': 'Already have an account?',
+  'auth.loginNow': 'Sign In',
+  'auth.otpTitle': 'Auth Confirm Otp',
+  'auth.otpHeaderBadge': 'Secure Verify',
+  'auth.confirmAndContinue': 'Confirm & Continue',
+  'auth.clear': 'Clear',
+  'auth.otpSecurityNotice': 'Verification code is for your use only, do not share it with anyone.',
+  'auth.otpSentTo': 'Enter the verification code sent to',
+  'auth.resendCode': 'Resend Code',
+  'auth.resendIn': 'Resend in',
+  'auth.enterCode': 'Enter Code',
+
+  'profile.pageTitle': 'Profile & Settings',
+  'profile.headerBadge': 'Sehaty Care',
+  'profile.fileNumber': 'File No:',
+  'profile.groupHealthAndFamily': 'Health Care & Family',
+  'profile.familyMembers': 'Family Members Management',
+  'profile.familyMembersSub': 'Add or manage dependents health profiles',
+  'profile.insuranceCard': 'Health Insurance Card',
+  'profile.insuranceCardSub': 'View & update insurance and claim submissions',
+  'profile.medicationAlerts': 'Appointments & Medication Alerts',
+  'profile.medicationAlertsSub': 'Customize notifications & dosage reminders',
+  'profile.groupPaymentsAndSecurity': 'Payments & Security',
+  'profile.paymentsAndWallet': 'Payment Methods & Wallet',
+  'profile.paymentsAndWalletSub': 'Saved cards & cashback balance',
+  'profile.privacyAndSecurity': 'Privacy & Security',
+  'profile.privacyAndSecuritySub': 'Face ID / Quick access & change password',
+  'profile.groupHelpAndLegal': 'Help & Legal Information',
+  'profile.helpAndSupport': 'Help & Technical Support',
+  'profile.helpAndSupportSub': 'Instant chat with customer care 24/7',
+  'profile.termsAndPolicies': 'Terms & Medical Use Policies',
+  'profile.termsAndPoliciesSub': 'Data protection & health records privacy',
+  'profile.mohCompliance': 'Compliant with Saudi Ministry of Health standards',
+  'profile.appVersion': 'Sehaty Care App • Version 2.4.1 (Build 890)',
+  'profile.logout': 'Log Out of Account',
+  'profile.emailOrPhone': 'Email or Mobile Phone',
+  'profile.password': 'Password',
 };
 
 export function useI18n() {
@@ -34,39 +146,30 @@ export function useI18n() {
     }
   };
 
-  const t = (path: string, fallback?: string): string => {
+  /**
+   * Bya3 Flat Translation function:
+   * t("Medical Records & Lab Tests") -> returns Arabic translation in 'ar', English text in 'en'.
+   */
+  const t = (key: string, fallback?: string): string => {
+    if (!key) return '';
+
+    // Resolve legacy dot paths if any are passed
+    const resolvedKey = legacyDotAliases[key] || key;
+
     const dict = dictionaries[currentLocale.value] || dictionaries.ar;
-    const parts = path.split('.');
-    let cur: any = dict;
 
-    for (const p of parts) {
-      if (cur && typeof cur === 'object' && p in cur) {
-        cur = cur[p];
-      } else {
-        cur = undefined;
-        break;
-      }
+    // Flat lookup: "English Key": "Arabic Translation"
+    if (dict && typeof dict === 'object' && resolvedKey in dict && typeof dict[resolvedKey] === 'string') {
+      return dict[resolvedKey];
     }
 
-    if (cur !== undefined && typeof cur === 'string') {
-      return cur;
+    // In English mode, if not in dict, the key itself is already English!
+    if (currentLocale.value === 'en') {
+      return fallback || resolvedKey;
     }
 
-    // Try fallback to Arabic if missing in English
-    if (currentLocale.value !== 'ar') {
-      let arCur: any = dictionaries.ar;
-      for (const p of parts) {
-        if (arCur && typeof arCur === 'object' && p in arCur) {
-          arCur = arCur[p];
-        } else {
-          arCur = undefined;
-          break;
-        }
-      }
-      if (arCur !== undefined && typeof arCur === 'string') return arCur;
-    }
-
-    return fallback || path;
+    // In Arabic mode, if missing, check English dictionary or return key
+    return fallback || resolvedKey;
   };
 
   return {
@@ -77,4 +180,3 @@ export function useI18n() {
     t,
   };
 }
-

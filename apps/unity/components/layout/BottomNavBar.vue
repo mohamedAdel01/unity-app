@@ -1,34 +1,39 @@
 <template>
   <nav class="bottom-nav-bar">
+    <!-- Tab 1: Home -->
     <NuxtLink to="/" class="nav-btn" :class="{ 'active': route.path === '/' }">
       <i class="pi pi-home"></i>
-      <span>{{ t('nav.home') }}</span>
+      <span>{{ t('Home') }}</span>
     </NuxtLink>
 
-    <NuxtLink to="/services" class="nav-btn" :class="{ 'active': route.path === '/services' }">
-      <i class="pi pi-th-large"></i>
-      <span>{{ t('nav.services') }}</span>
+    <!-- Tab 2: Appointments -->
+    <NuxtLink to="/appointments" class="nav-btn" :class="{ 'active': route.path === '/appointments' }">
+      <i class="pi pi-calendar"></i>
+      <span>{{ t('Appointments') }}</span>
     </NuxtLink>
 
-    <!-- Center Floating Plus (+) Button -->
+    <!-- Tab 3: Center Floating Plus (+) Button -->
     <div class="center-fab-wrapper">
       <button 
         class="center-fab-btn" 
-        :aria-label="t('nav.quickBookAria')"
+        :aria-label="t('What would you like to book today?')"
         @click="bookingModal.openQuickBook"
       >
         <i class="pi pi-plus"></i>
       </button>
+      <span class="fab-label">{{ t('Doctors') }}</span>
     </div>
 
-    <NuxtLink to="/appointments" class="nav-btn" :class="{ 'active': route.path === '/appointments' }">
-      <i class="pi pi-calendar"></i>
-      <span>{{ t('nav.appointments') }}</span>
+    <!-- Tab 4: Records -->
+    <NuxtLink to="/records" class="nav-btn" :class="{ 'active': route.path === '/records' }">
+      <i class="pi pi-file"></i>
+      <span>{{ t('Records') }}</span>
     </NuxtLink>
 
+    <!-- Tab 5: Profile -->
     <NuxtLink to="/profile" class="nav-btn" :class="{ 'active': route.path === '/profile' }">
       <i class="pi pi-user"></i>
-      <span>{{ t('nav.profile') }}</span>
+      <span>{{ t('Profile') }}</span>
     </NuxtLink>
   </nav>
 </template>
@@ -97,36 +102,43 @@ const bookingModal = useBookingModal();
   // Center FAB Button (+)
   .center-fab-wrapper {
     position: relative;
-    top: -18px;
-    width: 60px;
+    top: -14px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
 
     .center-fab-btn {
-      width: 54px;
-      height: 54px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      background: var(--unity-primary-gradient);
-      border: 3.5px solid var(--unity-surface);
-      color: #fff;
+      background: var(--unity-primary);
+      color: #ffffff;
+      border: 4px solid var(--unity-surface);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.35rem;
       cursor: pointer;
-      box-shadow: 0 8px 24px var(--unity-accent-glow), 0 4px 10px rgba(4, 120, 87, 0.3);
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
       &:hover {
         transform: scale(1.08) rotate(90deg);
-        box-shadow: 0 10px 28px rgba(4, 120, 87, 0.5);
+        background: var(--unity-primary-dark);
       }
 
       &:active {
         transform: scale(0.95);
       }
     }
+
+    .fab-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--unity-text-muted);
+      margin-top: 1px;
+    }
   }
 }
 </style>
-

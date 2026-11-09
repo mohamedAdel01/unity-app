@@ -2,7 +2,7 @@
   <div class="profile-menu-groups">
     <!-- Group 1: الرعاية الصحية والعائلة -->
     <div class="menu-group">
-      <span class="group-title">{{ t('profile.groupHealthAndFamily') }}</span>
+      <span class="group-title">{{ t('Health Care & Family') }}</span>
       <div class="group-card">
         <!-- Item 1: أفراد الأسرة -->
         <button class="menu-item-row" @click="emit('action', 'family')">
@@ -10,8 +10,8 @@
             <i class="pi pi-users"></i>
           </div>
           <div class="item-text-box">
-            <h6>{{ t('profile.familyMembers') }}</h6>
-            <small>{{ t('profile.familyMembersSub') }}</small>
+            <h6>{{ t('Family Members Management') }}</h6>
+            <small>{{ t('Add or manage dependents health profiles') }}</small>
           </div>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
@@ -24,8 +24,8 @@
             <i class="pi pi-credit-card"></i>
           </div>
           <div class="item-text-box">
-            <h6>{{ t('profile.insuranceCard') }}</h6>
-            <small>{{ t('profile.insuranceCardSub') }}</small>
+            <h6>{{ t('Health Insurance Card') }}</h6>
+            <small>{{ t('View & update insurance and claim submissions') }}</small>
           </div>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
@@ -38,8 +38,8 @@
             <i class="pi pi-bell"></i>
           </div>
           <div class="item-text-box">
-            <h6>{{ t('profile.medicationAlerts') }}</h6>
-            <small>{{ t('profile.medicationAlertsSub') }}</small>
+            <h6>{{ t('Appointments & Medication Alerts') }}</h6>
+            <small>{{ t('Customize notifications & dosage reminders') }}</small>
           </div>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
@@ -48,7 +48,7 @@
 
     <!-- Group 2: المدفوعات والأمان -->
     <div class="menu-group">
-      <span class="group-title">{{ t('profile.groupPaymentsAndSecurity') }}</span>
+      <span class="group-title">{{ t('Payments & Security') }}</span>
       <div class="group-card">
         <!-- Item 1: طرق الدفع والمحفظة -->
         <button class="menu-item-row" @click="emit('action', 'wallet')">
@@ -56,10 +56,10 @@
             <i class="pi pi-wallet"></i>
           </div>
           <div class="item-text-box">
-            <h6>{{ t('profile.paymentsAndWallet') }}</h6>
-            <small>{{ t('profile.paymentsAndWalletSub') }}</small>
+            <h6>{{ t('Payment Methods & Wallet') }}</h6>
+            <small>{{ t('Saved cards & cashback balance') }}</small>
           </div>
-          <span class="balance-pill">{{ t('profile.walletBalance') }}</span>
+          <span class="balance-pill">{{ t('140 SAR') }}</span>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
 
@@ -71,8 +71,8 @@
             <i class="pi pi-lock"></i>
           </div>
           <div class="item-text-box">
-            <h6>{{ t('profile.privacyAndSecurity') }}</h6>
-            <small>{{ t('profile.privacyAndSecuritySub') }}</small>
+            <h6>{{ t('Privacy & Security') }}</h6>
+            <small>{{ t('Face ID / Quick access & change password') }}</small>
           </div>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
@@ -81,7 +81,7 @@
 
     <!-- Group 3: المساعدة والمعلومات القانونية -->
     <div class="menu-group">
-      <span class="group-title">{{ t('profile.groupHelpAndLegal') }}</span>
+      <span class="group-title">{{ t('Help & Legal Information') }}</span>
       <div class="group-card">
         <!-- Item 1: الدعم الفني -->
         <button class="menu-item-row" @click="emit('action', 'support')">
@@ -91,9 +91,9 @@
           <div class="item-text-box">
             <div class="title-with-online">
               <span class="live-dot"></span>
-              <h6>{{ t('profile.helpAndSupport') }}</h6>
+              <h6>{{ t('Help & Technical Support') }}</h6>
             </div>
-            <small>{{ t('profile.helpAndSupportSub') }}</small>
+            <small>{{ t('Instant chat with customer care 24/7') }}</small>
           </div>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
@@ -106,8 +106,8 @@
             <i class="pi pi-shield"></i>
           </div>
           <div class="item-text-box">
-            <h6>{{ t('profile.termsAndPolicies') }}</h6>
-            <small>{{ t('profile.termsAndPoliciesSub') }}</small>
+            <h6>{{ t('Terms & Medical Use Policies') }}</h6>
+            <small>{{ t('Data protection & health records privacy') }}</small>
           </div>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>

@@ -1,6 +1,6 @@
 <template>
   <div class="auth-page">
-    <AuthHeader :title="t('auth.loginTitle')" />
+    <AuthHeader :title="t('Sign In')" />
     <LoginForm @request-otp="onRequestOtp" />
     <QuickLoginButtons />
     <AuthFooterLink :is-register="false" />

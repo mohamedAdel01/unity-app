@@ -1,11 +1,11 @@
 <template>
   <form class="login-form-card" @submit.prevent="handleSubmit">
     <div class="input-field-group">
-      <label class="field-label">{{ t('profile.emailOrPhone') }}</label>
+      <label class="field-label">{{ t('Email or Mobile Phone') }}</label>
       <div class="input-shell">
         <i class="pi pi-user field-icon"></i>
         <input 
-          v-model="form.identifier" 
+          v-model="form.login" 
           type="text" 
           :placeholder="isRtl ? '05XXXXXXXX أو البريد الإلكتروني' : '05XXXXXXXX or email'" 
           required 
@@ -14,7 +14,7 @@
     </div>
 
     <div class="input-field-group">
-      <label class="field-label">{{ t('profile.password') }}</label>
+      <label class="field-label">{{ t('Password') }}</label>
       <div class="input-shell">
         <i class="pi pi-lock field-icon"></i>
         <input 
@@ -30,7 +30,7 @@
     </div>
 
     <div class="forgot-row">
-      <button type="button" class="btn-otp-switch" @click="emit('request-otp', form.identifier)">
+      <button type="button" class="btn-otp-switch" @click="emit('request-otp', form.login)">
         <i class="pi pi-mobile"></i>
         <span>{{ isRtl ? 'الدخول السريع عبر رمز التحقق (OTP)' : 'Quick Login with OTP' }}</span>
       </button>
@@ -38,7 +38,7 @@
 
     <button type="submit" class="submit-login-btn" :disabled="globalStore.loading.includes('login')">
       <i v-if="globalStore.loading.includes('login')" class="pi pi-spin pi-spinner"></i>
-      <span v-else>{{ t('auth.loginNow') }}</span>
+      <span v-else>{{ t('Sign In') }}</span>
       <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" class="btn-arrow"></i>
     </button>
   </form>
@@ -63,15 +63,15 @@ const globalStore = useGlobalStore();
 
 const showPassword = ref(false);
 const form = ref({
-  identifier: '',
+  login: '',
   password: '',
 });
 
 const handleSubmit = async () => {
-  if (!form.value.identifier || !form.value.password) return;
+  if (!form.value.login || !form.value.password) return;
   try {
     globalStore.setLoading(['login', true]);
-    const res = await api.login(form.value.identifier, form.value.password);
+    const res = await api.login(form.value.login, form.value.password);
     if (res.status && res.data?.user) {
       emit('success', res.data.user);
       router.push('/profile');

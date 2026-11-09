@@ -10,9 +10,9 @@
     <div class="title-with-badge">
       <span class="care-badge">
         <i class="pi pi-plus"></i>
-        <span>{{ t('profile.headerBadge') }}</span>
+        <span>{{ t('Sehaty Care') }}</span>
       </span>
-      <h3 class="page-title">{{ t('profile.pageTitle') }}</h3>
+      <h3 class="page-title">{{ t('Profile & Settings') }}</h3>
     </div>
 
     <button class="notif-btn" aria-label="Notifications" @click="bookingModal.openNotifications">

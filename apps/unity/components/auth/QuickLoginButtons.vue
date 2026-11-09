@@ -2,7 +2,7 @@
   <div class="quick-login-section">
     <!-- Divider -->
     <div class="quick-divider">
-      <span>{{ t('auth.quickAccessDivider') }}</span>
+      <span>{{ t('Or via quick access') }}</span>
     </div>
 
     <!-- 2 Main Cards: Nafath & Biometric (Matching Mockup) -->
@@ -10,13 +10,13 @@
       <!-- Nafath Card -->
       <button type="button" class="quick-action-card nafath-card" @click="handleNafath">
         <i class="pi pi-shield-check nafath-icon"></i>
-        <span class="card-title">{{ t('auth.nafathLogin') }}</span>
+        <span class="card-title">{{ t('National Nafath') }}</span>
       </button>
 
       <!-- Biometric Card -->
       <button type="button" class="quick-action-card bio-card" @click="handleBiometric">
         <i class="pi pi-fingerprint bio-icon"></i>
-        <span class="card-title">{{ t('auth.biometricLogin') }}</span>
+        <span class="card-title">{{ t('Biometric Access') }}</span>
       </button>
     </div>
 

@@ -8,10 +8,10 @@
     <!-- Center/Right User Info & Avatar -->
     <div class="user-info-row">
       <div class="text-block">
-        <h3 class="user-name">{{ user?.name || t('profile.defaultUserName') }}</h3>
+        <h3 class="user-name">{{ user?.name || t('Ahmed Al-Salama') }}</h3>
         <div class="mrn-tag">
           <i class="pi pi-id-card"></i>
-          <span>{{ t('profile.fileNumber') }} {{ user?.mrn || user?.patient?.mrn || 'MRN-8849201' }}</span>
+          <span>{{ t('File No:') }} {{ user?.mrn || user?.patient?.mrn || 'MRN-8849201' }}</span>
         </div>
       </div>
 

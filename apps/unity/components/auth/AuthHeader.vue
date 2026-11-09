@@ -3,7 +3,7 @@
     <button class="back-nav-btn" aria-label="Back" @click="router.back()">
       <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
     </button>
-    <h3 class="auth-title">{{ title || t('auth.loginTitle') }}</h3>
+    <h3 class="auth-title">{{ title || t('Sign In') }}</h3>
     <div class="header-ghost-spacer"></div>
   </header>
 </template>
