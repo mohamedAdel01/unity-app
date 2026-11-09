@@ -66,15 +66,19 @@
         <!-- Doctor & Clinic Info -->
         <div class="doctor-row">
           <img 
-            :src="apt.doctor?.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80'" 
+            v-if="apt.doctor?.avatar || apt.doctor?.user?.avatar"
+            :src="apt.doctor?.avatar || apt.doctor?.user?.avatar" 
             alt="Doctor" 
           />
+          <div v-else class="doc-avatar-initial">
+            <span>{{ (apt.doctor?.name || apt.doctor?.user?.name || 'D').charAt(0).toUpperCase() }}</span>
+          </div>
           <div class="doc-text">
-            <h5>{{ apt.doctor?.name || (isRtl ? 'د. خالد السبيعي' : 'Dr. Khaled Al-Subaie') }}</h5>
-            <p>{{ apt.doctor?.specialty || apt.service?.name || (isRtl ? 'استشاري أمراض القلب والقسطرة' : 'Cardiology Consultant') }}</p>
-            <div class="clinic-sub">
+            <h5>{{ apt.doctor?.name || apt.doctor?.user?.name || '' }}</h5>
+            <p v-if="apt.doctor?.specialty || apt.service?.name">{{ apt.doctor?.specialty || apt.service?.name }}</p>
+            <div v-if="apt.clinic?.name || apt.doctor?.clinic?.name" class="clinic-sub">
               <i class="pi pi-map-marker"></i>
-              <span>{{ apt.clinic?.name || apt.doctor?.clinic?.name || (isRtl ? 'مجمع الرياض الطبي الاستشاري' : 'Riyadh Medical Complex') }}</span>
+              <span>{{ apt.clinic?.name || apt.doctor?.clinic?.name }}</span>
             </div>
           </div>
         </div>
@@ -98,7 +102,7 @@
             <button 
               class="btn-cancel" 
               :disabled="cancellingId === apt.id"
-              @click="cancelApt(apt)"
+              @click="promptCancelApt(apt)"
             >
               <i v-if="cancellingId === apt.id" class="pi pi-spin pi-spinner"></i>
               <span v-else>{{ t('appointments.cancelApt') }}</span>
@@ -127,6 +131,48 @@
         </div>
       </div>
     </div>
+
+    <!-- Confirmation Popup for Cancelling Appointment -->
+    <AppConfirmModal
+      v-model="showCancelModal"
+      type="danger"
+      :title="isRtl ? 'إلغاء الموعد الطبي' : 'Cancel Appointment'"
+      :message="isRtl ? 'هل أنت متأكد من رغبتك بإلغاء هذا الموعد؟ لن تتمكن من استرجاع هذا الحجز بعد تأكيد الإلغاء.' : 'Are you sure you want to cancel this appointment? This action cannot be undone.'"
+      :confirm-text="isRtl ? 'نعم، تأكيد الإلغاء' : 'Yes, Confirm Cancel'"
+      :cancel-text="isRtl ? 'تراجع والاحتفاظ بالموعد' : 'Keep Appointment'"
+      :loading="cancellingId !== null"
+      @confirm="handleConfirmCancel"
+    >
+      <div v-if="selectedAptToCancel" class="cancel-summary-box">
+        <div class="summary-doctor-row">
+          <img 
+            v-if="selectedAptToCancel.doctor?.avatar || selectedAptToCancel.doctor?.user?.avatar"
+            :src="selectedAptToCancel.doctor?.avatar || selectedAptToCancel.doctor?.user?.avatar" 
+            alt="Doctor" 
+            class="summary-doc-img"
+          />
+          <div class="summary-doc-info">
+            <h6>{{ selectedAptToCancel.doctor?.name || selectedAptToCancel.doctor?.user?.name || '' }}</h6>
+            <small v-if="selectedAptToCancel.doctor?.specialty">{{ selectedAptToCancel.doctor?.specialty }}</small>
+          </div>
+        </div>
+
+        <div class="summary-details-grid">
+          <div class="summary-item">
+            <i class="pi pi-calendar"></i>
+            <span>{{ formatDate(selectedAptToCancel.date) }}</span>
+          </div>
+          <div v-if="selectedAptToCancel.start_time" class="summary-item">
+            <i class="pi pi-clock"></i>
+            <span>{{ selectedAptToCancel.start_time }} {{ selectedAptToCancel.end_time ? '- ' + selectedAptToCancel.end_time : '' }}</span>
+          </div>
+          <div v-if="selectedAptToCancel.clinic?.name || selectedAptToCancel.doctor?.clinic?.name" class="summary-item full">
+            <i class="pi pi-map-marker"></i>
+            <span>{{ selectedAptToCancel.clinic?.name || selectedAptToCancel.doctor?.clinic?.name }}</span>
+          </div>
+        </div>
+      </div>
+    </AppConfirmModal>
   </div>
 </template>
 
@@ -137,6 +183,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
 import { useAppToast } from '../../composables/useAppToast';
+import AppConfirmModal from '../common/AppConfirmModal.vue';
 
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
@@ -147,47 +194,20 @@ const toast = useAppToast();
 const activeTab = ref<'upcoming' | 'completed' | 'cancelled'>('upcoming');
 const appointments = ref<any[]>([]);
 const cancellingId = ref<string | null>(null);
+const showCancelModal = ref(false);
+const selectedAptToCancel = ref<any | null>(null);
 
 const loadAppointments = async () => {
   try {
     globalStore.setLoading(['appointments', true]);
     const res = await api.getMyAppointments();
-    if (res.status && Array.isArray(res.data) && res.data.length > 0) {
+    if (res.status && Array.isArray(res.data)) {
       appointments.value = res.data;
     } else {
-      appointments.value = [
-        {
-          id: 'apt-1',
-          status: 'confirmed',
-          date: '2026-11-12',
-          start_time: '10:00:00',
-          end_time: '10:30:00',
-          doctor: {
-            name: isRtl.value ? 'د. خالد السبيعي' : 'Dr. Khaled Al-Subaie',
-            specialty: isRtl.value ? 'استشاري أمراض القلب والقسطرة' : 'Cardiology Consultant',
-            clinic: { name: isRtl.value ? 'مجمع الرياض الطبي الدولي' : 'Riyadh Medical Complex' },
-            avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80',
-          },
-          invoice: { status: 'paid', total: 200 },
-        },
-        {
-          id: 'apt-2',
-          status: 'completed',
-          date: '2026-10-22',
-          start_time: '18:15:00',
-          end_time: '18:45:00',
-          doctor: {
-            name: isRtl.value ? 'د. سارة المنصور' : 'Dr. Sarah Al-Mansour',
-            specialty: isRtl.value ? 'استشارية جراحة الفم وزراعة الأسنان' : 'Oral Surgery Consultant',
-            clinic: { name: isRtl.value ? 'عيادات النخبة التخصصية' : 'Elite Specialized Clinics' },
-            avatar: 'https://images.unsplash.com/photo-1594824813583-097262f01f1f?w=120&auto=format&fit=crop&q=80',
-          },
-          invoice: { status: 'paid', total: 250 },
-        },
-      ];
+      appointments.value = [];
     }
   } catch (err) {
-    // Keep fallback list
+    appointments.value = [];
   } finally {
     globalStore.setLoading(['appointments', false]);
   }
@@ -240,8 +260,14 @@ const formatDate = (dateStr: string) => {
   }
 };
 
-const cancelApt = async (apt: any) => {
-  if (!confirm(isRtl.value ? 'هل أنت متأكد من رغبتك بإلغاء هذا الموعد؟' : 'Are you sure you want to cancel this appointment?')) return;
+const promptCancelApt = (apt: any) => {
+  selectedAptToCancel.value = apt;
+  showCancelModal.value = true;
+};
+
+const handleConfirmCancel = async () => {
+  if (!selectedAptToCancel.value) return;
+  const apt = selectedAptToCancel.value;
   try {
     cancellingId.value = apt.id;
     if (!apt.id.startsWith('apt-')) {
@@ -249,8 +275,10 @@ const cancelApt = async (apt: any) => {
     }
     apt.status = 'cancelled';
     toast.success(isRtl.value ? 'تم إلغاء الموعد بنجاح.' : 'Appointment cancelled successfully.');
+    showCancelModal.value = false;
+    selectedAptToCancel.value = null;
   } catch (err: any) {
-    toast.error(err.message || 'فشل إلغاء الموعد');
+    toast.error(err.message || (isRtl.value ? 'فشل إلغاء الموعد' : 'Failed to cancel appointment'));
   } finally {
     cancellingId.value = null;
   }
@@ -391,11 +419,22 @@ onMounted(() => {
     gap: 12px;
     margin-bottom: 14px;
 
-    img {
+    img, .doc-avatar-initial {
       width: 52px;
       height: 52px;
       border-radius: 50%;
       object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .doc-avatar-initial {
+      background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
     }
 
     .doc-text {
@@ -554,6 +593,75 @@ onMounted(() => {
     font-size: 0.85rem;
     font-weight: 800;
     cursor: pointer;
+  }
+}
+
+// Cancel Summary Box inside Confirm Modal
+.cancel-summary-box {
+  background: var(--unity-surface-muted, #f8fafc);
+  border: 1px solid var(--unity-border, #e2e8f0);
+  border-radius: 18px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: start;
+
+  .summary-doctor-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .summary-doc-img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--unity-border);
+    }
+
+    .summary-doc-info {
+      display: flex;
+      flex-direction: column;
+
+      h6 {
+        margin: 0;
+        font-size: 0.88rem;
+        font-weight: 800;
+        color: var(--unity-text, #0f172a);
+      }
+
+      small {
+        font-size: 0.72rem;
+        color: var(--unity-text-muted, #64748b);
+      }
+    }
+  }
+
+  .summary-details-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--unity-border, #e2e8f0);
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--unity-text, #334155);
+
+      i {
+        font-size: 0.8rem;
+        color: var(--unity-primary, #0d9488);
+      }
+
+      &.full {
+        width: 100%;
+      }
+    }
   }
 }
 </style>

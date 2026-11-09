@@ -4,7 +4,6 @@
     <header class="onboarding-top-bar">
       <div class="onboarding-brand-pill">
         <img src="/logo-small.png" alt="Unity Clinics" class="onboarding-logo-img" />
-        <span class="brand-text">UNITY</span>
       </div>
       <button type="button" class="skip-btn" @click="router.push('/auth/register')">
         {{ t('Skip') }}
@@ -17,6 +16,20 @@
         :style="{ backgroundImage: `url(${slide.image})` }">
         <!-- Dark Gradient Overlay for Contrast & Readability -->
         <div class="dark-overlay"></div>
+      </div>
+
+      <!-- Top Wave Cutout Overlay matching user request -->
+      <div class="top-wave-mask">
+        <svg viewBox="0 0 1000 160" preserveAspectRatio="none" class="wave-svg">
+          <defs>
+            <linearGradient id="topWaveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#090e17" stop-opacity="0.98" />
+              <stop offset="65%" stop-color="#090e17" stop-opacity="0.88" />
+              <stop offset="100%" stop-color="#090e17" stop-opacity="0.75" />
+            </linearGradient>
+          </defs>
+          <path fill="url(#topWaveGrad)" d="M 0,0 L 1000,0 L 1000,95 C 840,145 680,90 500,85 C 320,80 160,155 0,110 Z" />
+        </svg>
       </div>
     </div>
 
@@ -136,7 +149,7 @@ const onTouchEnd = (e: TouchEvent) => {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #000000;
+  background-color: #090e17;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -146,7 +159,7 @@ const onTouchEnd = (e: TouchEvent) => {
 // Top Skip Action Bar
 .onboarding-top-bar {
   position: absolute;
-  top: max(20px, env(safe-area-inset-top, 20px));
+  top: max(24px, env(safe-area-inset-top, 24px));
   left: 20px;
   right: 20px;
   z-index: 30;
@@ -162,10 +175,10 @@ const onTouchEnd = (e: TouchEvent) => {
     gap: 8px;
 
     .onboarding-logo-img {
-      height: 36px;
-      width: 36px;
-      border-radius: 10px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      height: 48px;
+      width: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
       object-fit: cover;
     }
 
@@ -179,21 +192,21 @@ const onTouchEnd = (e: TouchEvent) => {
   }
 
   .skip-btn {
-    background: rgba(0, 0, 0, 0.40);
+    background: rgba(9, 14, 23, 0.65);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.22);
     color: #ffffff;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    padding: 6px 16px;
+    padding: 7px 18px;
     border-radius: 999px;
     cursor: pointer;
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.65);
-      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(9, 14, 23, 0.85);
+      border-color: rgba(255, 255, 255, 0.4);
     }
   }
 }
@@ -224,12 +237,35 @@ const onTouchEnd = (e: TouchEvent) => {
       position: absolute;
       inset: 0;
       background: linear-gradient(180deg,
-          rgba(0, 0, 0, 0.15) 0%,
-          rgba(0, 0, 0, 0.05) 30%,
-          rgba(0, 0, 0, 0.40) 58%,
-          rgba(0, 0, 0, 0.85) 78%,
-          rgba(0, 0, 0, 0.98) 92%,
-          #000000 100%);
+          rgba(9, 14, 23, 0.90) 0%,
+          rgba(9, 14, 23, 0.65) 12%,
+          rgba(9, 14, 23, 0.22) 24%,
+          rgba(9, 14, 23, 0.04) 36%,
+          rgba(9, 14, 23, 0.00) 48%,
+          rgba(9, 14, 23, 0.05) 58%,
+          rgba(9, 14, 23, 0.45) 72%,
+          rgba(9, 14, 23, 0.85) 86%,
+          rgba(9, 14, 23, 0.98) 95%,
+          #090e17 100%);
+    }
+  }
+
+  // Top Wave Cutout Overlay
+  .top-wave-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: max(115px, calc(env(safe-area-inset-top, 24px) + 75px));
+    z-index: 5;
+    pointer-events: none;
+    overflow: hidden;
+
+    .wave-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
   }
 }
@@ -238,7 +274,7 @@ const onTouchEnd = (e: TouchEvent) => {
 .onboarding-bottom-card {
   position: relative;
   z-index: 10;
-  padding: 0 20px 32px;
+  padding: 0 20px max(32px, env(safe-area-inset-bottom, 32px));
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -38,6 +38,11 @@
         <span>{{ t('common.loading') }}</span>
       </div>
 
+      <div v-else-if="filteredServices.length === 0" class="empty-catalog-state">
+        <i class="pi pi-inbox"></i>
+        <h5>{{ isRtl ? 'لا توجد خدمات متاحة حالياً' : 'No services available' }}</h5>
+      </div>
+
       <div v-else class="services-grid">
         <div 
           v-for="service in filteredServices" 
@@ -52,9 +57,9 @@
               <h5>{{ service.name }}</h5>
               <span class="price-tag">{{ service.price }} <small>{{ t('common.currency') }}</small></span>
             </div>
-            <p>{{ service.description || (isRtl ? 'خدمة طبية ورعاية شاملة معتمدة' : 'Comprehensive certified healthcare service') }}</p>
+            <p v-if="service.description">{{ service.description }}</p>
             <div class="card-meta">
-              <span><i class="pi pi-clock"></i> {{ service.duration || 30 }} {{ t('common.minute') }}</span>
+              <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('common.minute') }}</span>
               <span><i class="pi pi-check"></i> {{ t('servicesCatalog.availableNow') }}</span>
             </div>
             <button class="book-service-btn" @click="bookService(service)">
@@ -73,6 +78,11 @@
         <span>{{ t('common.loading') }}</span>
       </div>
 
+      <div v-else-if="filteredDoctors.length === 0" class="empty-catalog-state">
+        <i class="pi pi-users"></i>
+        <h5>{{ isRtl ? 'لا يوجد أطباء متاحين حالياً' : 'No doctors available' }}</h5>
+      </div>
+
       <div v-else class="doctors-grid">
         <div 
           v-for="doc in filteredDoctors" 
@@ -81,15 +91,18 @@
         >
           <div class="doc-main-row">
             <div class="doc-img-wrap">
-              <img :src="doc.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80'" :alt="doc.name" />
+              <img v-if="doc.avatar" :src="doc.avatar" :alt="doc.name" />
+              <div v-else class="doc-initial-badge">
+                <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
+              </div>
               <span class="star-pill">⭐ {{ doc.rating || '4.9' }}</span>
             </div>
             <div class="doc-info-block">
               <h5>{{ doc.name }}</h5>
-              <p class="specialty-title">{{ doc.specialty || doc.clinic?.name || (isRtl ? 'استشاري متخصص' : 'Specialist Consultant') }}</p>
-              <span class="clinic-location"><i class="pi pi-map-marker"></i> {{ doc.clinic?.name || (isRtl ? 'مجمع الرياض الطبي' : 'Riyadh Medical Complex') }}</span>
-              <div class="fee-badge">
-                {{ t('servicesCatalog.consultationPrice') }} <strong>{{ doc.consultation_fee || 250 }} {{ t('common.currency') }}</strong>
+              <p v-if="doc.specialty || doc.clinic?.name" class="specialty-title">{{ doc.specialty || doc.clinic?.name }}</p>
+              <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-map-marker"></i> {{ doc.clinic.name }}</span>
+              <div v-if="doc.consultation_fee" class="fee-badge">
+                {{ t('servicesCatalog.consultationPrice') }} <strong>{{ doc.consultation_fee }} {{ t('common.currency') }}</strong>
               </div>
             </div>
           </div>
@@ -132,18 +145,13 @@ const loadServices = async () => {
   try {
     globalStore.setLoading(['services', true]);
     const res = await api.getServices();
-    if (res.status && Array.isArray(res.data) && res.data.length > 0) {
+    if (res.status && Array.isArray(res.data)) {
       services.value = res.data;
     } else {
-      services.value = [
-        { id: 'srv-1', name: isRtl.value ? 'كشف استشاري عام' : 'General Consultant Checkup', price: 250, duration: 30, description: isRtl.value ? 'كشفية شاملة وفحص سريري مع تقرير طبي متكامل' : 'Comprehensive consultation with full report' },
-        { id: 'srv-2', name: isRtl.value ? 'باقة الفيتامينات الشاملة' : 'Vitamin Profile Package', price: 350, duration: 15, description: isRtl.value ? 'فحص مخبري شامل لفيتامين د، ب12، ومخزون الحديد' : 'Comprehensive lab work including Vitamin D, B12, Iron' },
-        { id: 'srv-3', name: isRtl.value ? 'جلسة علاج طبيعي وتأهيل' : 'Physiotherapy & Rehab', price: 180, duration: 45, description: isRtl.value ? 'تأهيل حركي وعلاج لآلام الظهر والمفاصل' : 'Motor rehabilitation and joint relief therapy' },
-        { id: 'srv-4', name: isRtl.value ? 'أشعة سينية رقمية X-Ray' : 'Digital X-Ray Scan', price: 150, duration: 20, description: isRtl.value ? 'تصوير إشعاعي تشخيصي مع تقرير استشاري خلال ساعة' : 'Diagnostic scan with report within 1 hour' },
-      ];
+      services.value = [];
     }
   } catch (e) {
-    // Keep fallback list
+    services.value = [];
   } finally {
     globalStore.setLoading(['services', false]);
   }
@@ -153,40 +161,21 @@ const loadDoctors = async () => {
   try {
     globalStore.setLoading(['doctors', true]);
     const res = await api.getDoctors();
-    if (res.status && Array.isArray(res.data) && res.data.length > 0) {
+    if (res.status && Array.isArray(res.data)) {
       doctors.value = res.data.map((d: any) => ({
         id: d.id,
         name: d.user?.name || d.name,
         specialty: d.clinic?.name || (isRtl.value ? 'استشاري متخصص' : 'Specialist Consultant'),
         clinic: d.clinic,
         rating: '4.9',
-        avatar: d.user?.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
+        avatar: d.user?.avatar || d.avatar || '',
         consultation_fee: d.consultation_fee || 250,
       }));
     } else {
-      doctors.value = [
-        {
-          id: 'doc-1',
-          name: isRtl.value ? 'د. خالد السبيعي' : 'Dr. Khaled Al-Subaie',
-          specialty: isRtl.value ? 'استشاري أمراض القلب والقسطرة' : 'Cardiology Consultant',
-          clinic: { name: isRtl.value ? 'مجمع الرياض الطبي الاستشاري' : 'Riyadh Medical Complex' },
-          rating: '4.9',
-          avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
-          consultation_fee: 250,
-        },
-        {
-          id: 'doc-2',
-          name: isRtl.value ? 'د. سارة المنصور' : 'Dr. Sarah Al-Mansour',
-          specialty: isRtl.value ? 'استشارية جراحة الفم وزراعة الأسنان' : 'Oral Surgery Consultant',
-          clinic: { name: isRtl.value ? 'عيادات النخبة التخصصية - العليا' : 'Elite Specialized Clinics' },
-          rating: '4.8',
-          avatar: 'https://images.unsplash.com/photo-1594824813583-097262f01f1f?w=150&auto=format&fit=crop&q=80',
-          consultation_fee: 200,
-        },
-      ];
+      doctors.value = [];
     }
   } catch (e) {
-    // Keep fallback list
+    doctors.value = [];
   } finally {
     globalStore.setLoading(['doctors', false]);
   }
@@ -533,6 +522,42 @@ onMounted(() => {
   padding: 40px 20px;
   gap: 12px;
   color: var(--unity-text-muted);
+}
+
+.empty-catalog-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  gap: 12px;
+  text-align: center;
+  color: var(--unity-text-muted);
+
+  i {
+    font-size: 2.2rem;
+    color: var(--unity-text-dim, #94a3b8);
+  }
+
+  h5 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+}
+
+.doc-initial-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  flex-shrink: 0;
 }
 </style>
 

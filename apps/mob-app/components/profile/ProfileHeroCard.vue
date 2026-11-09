@@ -4,17 +4,24 @@
     <div class="user-info-row">
       <div class="avatar-wrapper">
         <img 
-          :src="resolveAvatar(user?.avatar) || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80'" 
+          v-if="resolveAvatar(user?.avatar)"
+          :src="resolveAvatar(user?.avatar)" 
           alt="Profile photo" 
         />
+        <div v-else class="letter-avatar-initial">
+          <span>{{ (user?.name || 'U').charAt(0).toUpperCase() }}</span>
+        </div>
         <span class="active-status-dot"></span>
       </div>
 
       <div class="text-block">
-        <h3 class="user-name">{{ user?.name || t('Ahmed Al-Salama') }}</h3>
-        <div class="mrn-tag">
+        <h3 class="user-name">{{ user?.name || '' }}</h3>
+        <div v-if="user?.mrn || user?.patient?.mrn" class="mrn-tag">
           <i class="pi pi-id-card"></i>
-          <span>{{ t('File No:') }} {{ user?.mrn || user?.patient?.mrn || 'MRN-8849201' }}</span>
+          <span>{{ t('File No:') }} {{ user?.mrn || user?.patient?.mrn }}</span>
+        </div>
+        <div v-else-if="user?.phone" class="phone-sub-tag" dir="ltr">
+          <span>{{ user.phone }}</span>
         </div>
       </div>
     </div>
@@ -107,13 +114,24 @@ const resolveAvatar = (url?: string) => {
       border-radius: 50%;
       flex-shrink: 0;
 
-      img {
+      img, .letter-avatar-initial {
         width: 100%;
         height: 100%;
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid #fff;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      .letter-avatar-initial {
+        background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        font-weight: 800;
+        user-select: none;
       }
 
       .active-status-dot {

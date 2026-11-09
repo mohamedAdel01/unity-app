@@ -23,12 +23,7 @@
 
         <div class="form-group">
           <label>{{ t('Doctor') }}</label>
-          <select v-model="form.doctor_name">
-            <option value="د. فهد السالم">د. فهد السالم</option>
-            <option value="د. أحمد المنصوري">د. أحمد المنصوري</option>
-            <option value="د. سارة العتيبي">د. سارة العتيبي</option>
-            <option value="د. خالد السبيعي">د. خالد السبيعي</option>
-          </select>
+          <input :value="booking.doctor_name" type="text" disabled />
         </div>
 
         <!-- Date & Time Slot -->

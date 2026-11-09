@@ -2,20 +2,24 @@
   <div class="user-card">
     <div class="avatar-holder">
       <img 
-        :src="user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80'" 
+        v-if="user?.avatar"
+        :src="user.avatar" 
         alt="Profile" 
       />
+      <div v-else class="letter-avatar-initial">
+        <span>{{ (user?.name || 'U').charAt(0).toUpperCase() }}</span>
+      </div>
       <button class="edit-avatar-btn">
         <i class="pi pi-camera"></i>
       </button>
     </div>
 
     <div class="user-main-info">
-      <h4>{{ user?.name || t('profile.defaultUserName') }}</h4>
-      <p class="user-phone">{{ user?.phone || '+966 50 123 4567' }}</p>
-      <span class="mrn-badge">
+      <h4>{{ user?.name || '' }}</h4>
+      <p v-if="user?.phone" class="user-phone" dir="ltr">{{ user.phone }}</p>
+      <span v-if="user?.mrn || user?.patient?.mrn" class="mrn-badge">
         <i class="pi pi-id-card"></i>
-        <span>{{ t('profile.fileNumber') }} {{ user?.mrn || 'MRN-84920' }}</span>
+        <span>{{ t('profile.fileNumber') }} {{ user?.mrn || user?.patient?.mrn }}</span>
       </span>
     </div>
   </div>
@@ -28,7 +32,7 @@ defineProps<{
   user?: any;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
 </script>
 
 <style scoped lang="scss">
@@ -48,11 +52,22 @@ const { t, isRtl } = useI18n();
     height: 68px;
     flex-shrink: 0;
 
-    img {
+    img, .letter-avatar-initial {
       width: 100%;
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
+    }
+
+    .letter-avatar-initial {
+      background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 800;
+      user-select: none;
     }
 
     .edit-avatar-btn {

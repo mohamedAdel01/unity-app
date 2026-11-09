@@ -53,16 +53,13 @@ const loadInvoices = async () => {
   try {
     globalStore.setLoading(['invoices', true]);
     const res = await api.getInvoices();
-    if (res.status && Array.isArray(res.data) && res.data.length > 0) {
+    if (res.status && Array.isArray(res.data)) {
       invoices.value = res.data;
     } else {
-      invoices.value = [
-        { id: 'inv-1092', status: 'paid', total: 200, payment_method: 'Paymob Apple Pay' },
-        { id: 'inv-1088', status: 'paid', total: 350, payment_method: 'Mada / Visa' },
-      ];
+      invoices.value = [];
     }
   } catch (e) {
-    // Keep fallback list
+    invoices.value = [];
   } finally {
     globalStore.setLoading(['invoices', false]);
   }

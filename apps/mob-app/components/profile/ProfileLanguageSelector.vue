@@ -14,8 +14,8 @@
         :class="{ 'selected': locale === 'ar' }"
         @click="setLocale('ar')"
       >
-        <span class="flag-icon">🇸🇦</span>
-        <span>{{ t('profile.langArabic') }}</span>
+        <img src="/flags/sa.svg" alt="SA" class="flag-svg" />
+        <span>{{ t('profile.langArabic', 'العربية (Arabic)') }}</span>
         <i v-if="locale === 'ar'" class="pi pi-check check-mark"></i>
       </button>
 
@@ -24,8 +24,8 @@
         :class="{ 'selected': locale === 'en' }"
         @click="setLocale('en')"
       >
-        <span class="flag-icon">🇬🇧</span>
-        <span>{{ t('profile.langEnglish') }}</span>
+        <img src="/flags/gb.svg" alt="GB" class="flag-svg" />
+        <span>{{ t('profile.langEnglish', 'English (English)') }}</span>
         <i v-if="locale === 'en'" class="pi pi-check check-mark"></i>
       </button>
     </div>
@@ -97,8 +97,13 @@ const { t, locale, setLocale } = useI18n();
     cursor: pointer;
     transition: all 0.2s;
 
-    .flag-icon {
-      font-size: 1.2rem;
+    .flag-svg {
+      width: 24px;
+      height: 16px;
+      object-fit: cover;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
     }
 
     .check-mark {

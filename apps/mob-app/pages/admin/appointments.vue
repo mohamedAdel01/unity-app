@@ -77,71 +77,8 @@ const activePeriod = ref<'today' | 'week' | 'pending'>('today');
 const isRescheduleModalOpen = ref(false);
 const selectedBookingForReschedule = ref<any>(null);
 
-// Initial Bookings Dataset matching Image 2
-const defaultBookings = ref<any[]>([
-  {
-    id: 'bk-1',
-    booking_number: 'BK-7821',
-    patient_name: 'محمد السعيد',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80',
-    clinic_name: 'عيادة القلب والأوعية الدموية',
-    doctor_name: 'د. فهد السالم',
-    time: '١٠:٣٠ ص',
-    status: 'confirmed',
-    payment_method: 'مدى (INV-902#)',
-    price: 250,
-    period: 'today',
-  },
-  {
-    id: 'bk-2',
-    booking_number: 'BK-7822',
-    patient_name: 'سارة العتيبي',
-    time_badge: '١١:١٥ صباحاً',
-    clinic_name: 'مختبر التحاليل السريرية',
-    doctor_name: 'أخصائي المختبر',
-    time: '١١:١٥ ص',
-    status: 'pending',
-    payment_method: 'بانتظار السداد',
-    price: 320,
-    period: 'pending',
-  },
-  {
-    id: 'bk-3',
-    booking_number: 'BK-7823',
-    patient_name: 'عبدالله القحطاني',
-    time_badge: '١١:٤٥ صباحاً',
-    clinic_name: 'عيادة الأسنان وجراحة الفم',
-    doctor_name: 'د. سارة المنصور',
-    time: '١١:٤٥ ص',
-    status: 'confirmed',
-    payment_method: 'فيزا (INV-905#)',
-    price: 180,
-    period: 'today',
-  },
-  {
-    id: 'bk-4',
-    booking_number: 'BK-7824',
-    patient_name: 'نورة الشمري',
-    time_badge: '١٢:٣٠ ظهراً',
-    clinic_name: 'عيادة الأطفال وحديثي الولادة',
-    doctor_name: 'د. سارة العتيبي',
-    time: '١٢:٣٠ م',
-    status: 'confirmed',
-    payment_method: 'تأمين التعاونية',
-    price: 50,
-    period: 'today',
-  },
-]);
-
-const bookings = ref<any[]>([...defaultBookings.value]);
-
-// Invoices dataset for the dual tab view
-const invoicesList = ref<any[]>([
-  { id: 'inv-1', invoice_number: 'INV-902', patient_name: 'محمد السعيد', service_name: 'استشارة قلب وأوعية دموية', amount: 250, status: 'paid' },
-  { id: 'inv-2', invoice_number: 'INV-903', patient_name: 'سارة العتيبي', service_name: 'باقة فحص دم شامل', amount: 320, status: 'pending' },
-  { id: 'inv-3', invoice_number: 'INV-905', patient_name: 'عبدالله القحطاني', service_name: 'فحص أسنان سريري', amount: 180, status: 'paid' },
-  { id: 'inv-4', invoice_number: 'INV-908', patient_name: 'نورة الشمري', service_name: 'متابعة نمو أطفال', amount: 50, status: 'paid' },
-]);
+const bookings = ref<any[]>([]);
+const invoicesList = ref<any[]>([]);
 
 // Load backend appointments if available
 const loadBackendAppointments = async () => {
@@ -153,25 +90,25 @@ const loadBackendAppointments = async () => {
     });
 
     if (res?.status && res?.data?.appointments?.length) {
-      const mapped = res.data.appointments.map((a: any, idx: number) => ({
+      bookings.value = res.data.appointments.map((a: any, idx: number) => ({
         id: a.id,
         booking_number: `BK-${7830 + idx}`,
-        patient_name: a.patient?.name || 'مريض مجهول',
+        patient_name: a.patient?.name || '',
         avatar: a.patient?.avatar,
-        time_badge: a.start_time || '01:00 م',
-        clinic_name: a.service?.name || a.doctor?.specialty || 'عيادة عامة',
-        doctor_name: a.doctor?.name || 'طبيب استشاري',
-        time: a.start_time || '01:00 م',
+        time_badge: a.start_time || '',
+        clinic_name: a.service?.name || a.doctor?.specialty || '',
+        doctor_name: a.doctor?.name || '',
+        time: a.start_time || '',
         status: a.status === 'confirmed' ? 'confirmed' : 'pending',
-        payment_method: 'مدى (INV-910#)',
-        price: a.service?.price || 200,
+        payment_method: a.payment_method || 'مدى',
+        price: a.service?.price || a.total || 0,
         period: 'today',
       }));
-
-      bookings.value = [...defaultBookings.value, ...mapped];
+    } else {
+      bookings.value = [];
     }
   } catch (err) {
-    bookings.value = [...defaultBookings.value];
+    bookings.value = [];
   }
 };
 

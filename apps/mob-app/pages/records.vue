@@ -12,8 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useGlobalStore } from '../stores/global';
+import { useUnityApi } from '../composables/useUnityApi';
 import { useAppToast } from '../composables/useAppToast';
 import RecordsHeader from '../components/records/RecordsHeader.vue';
 import RecordsTabs from '../components/records/RecordsTabs.vue';
@@ -24,68 +25,46 @@ definePageMeta({
 });
 
 const globalStore = useGlobalStore();
+const api = useUnityApi();
 const toast = useAppToast();
 const activeTab = ref<'reports' | 'labs' | 'prescriptions'>('reports');
 
 const isLoading = computed(() => globalStore.loading.includes('records'));
 
-const reportsData = [
-  {
-    id: 'rec-1',
-    title: 'كشف استشاري أمراض القلب والقسطرة',
-    doctor: 'د. خالد السبيعي',
-    date: '٢٢ أكتوبر ٢٠٢٦',
-    summary: 'تم إجراء فحص تخطيط القلب السريري. الضغط ١٢٠/٨٠ وحالة الشرايين مستقرة مع التوصية بالمتابعة بعد ٦ أشهر.',
-    status: 'completed',
-    statusLabel: 'تقرير معتمد',
-    badge: 'كشف عيادة',
-    hasDetails: true,
-  },
-  {
-    id: 'rec-2',
-    title: 'استشارة طب الأسرة والمجتمع',
-    doctor: 'د. ريان الشهري',
-    date: '١٠ سبتمبر ٢٠٢٦',
-    summary: 'فحص دوري عام، تم طلب تحاليل مخبرية لفيتامين د ووظائف الكبد.',
-    status: 'completed',
-    statusLabel: 'تقرير معتمد',
-    badge: 'استشارة فورية',
-    hasDetails: true,
-  },
-];
+const reportsData = ref<any[]>([]);
+const labsData = ref<any[]>([]);
+const prescriptionsData = ref<any[]>([]);
 
-const labsData = [
-  {
-    id: 'lab-1',
-    title: 'باقة الفيتامينات والمعادن الشاملة',
-    doctor: 'مختبرات الرياض الطبية - سحب منزلي',
-    date: '١٤ أكتوبر ٢٠٢٦',
-    summary: 'جميع المؤشرات ضمن المعدل الطبيعي باستثناء نقص طفيف في فيتامين د (22 ng/mL).',
-    status: 'ready',
-    statusLabel: 'النتائج جاهزة',
-    badge: 'تحليل دم',
-    hasDetails: true,
-  },
-];
+const loadRecords = async () => {
+  try {
+    globalStore.setLoading(['records', true]);
+    const res = await api.getPatientRecords();
+    if (res?.status && Array.isArray(res.data)) {
+      reportsData.value = res.data.filter((r: any) => r.type === 'report');
+      labsData.value = res.data.filter((r: any) => r.type === 'lab');
+      prescriptionsData.value = res.data.filter((r: any) => r.type === 'prescription');
+    } else {
+      reportsData.value = [];
+      labsData.value = [];
+      prescriptionsData.value = [];
+    }
+  } catch (e) {
+    reportsData.value = [];
+    labsData.value = [];
+    prescriptionsData.value = [];
+  } finally {
+    globalStore.setLoading(['records', false]);
+  }
+};
 
-const prescriptionsData = [
-  {
-    id: 'rx-1',
-    title: 'وصفة علاجية - فيتامين د ونقص الكالسيوم',
-    doctor: 'د. خالد السبيعي',
-    date: '٢٢ أكتوبر ٢٠٢٦',
-    summary: 'فيتامين د 50,000 وحدة دولية (كبسولة أسبوعياً لمدة ٨ أسابيع) + مكمل كالسيوم يومياً بعد الإفطار.',
-    status: 'completed',
-    statusLabel: 'وصفة نشطة',
-    badge: 'وصفة إلكترونية',
-    hasDetails: false,
-  },
-];
+onMounted(() => {
+  loadRecords();
+});
 
 const currentItems = computed(() => {
-  if (activeTab.value === 'reports') return reportsData;
-  if (activeTab.value === 'labs') return labsData;
-  return prescriptionsData;
+  if (activeTab.value === 'reports') return reportsData.value;
+  if (activeTab.value === 'labs') return labsData.value;
+  return prescriptionsData.value;
 });
 
 const onDownload = (item: any) => {

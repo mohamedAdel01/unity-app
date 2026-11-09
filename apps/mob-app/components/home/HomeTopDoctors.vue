@@ -1,5 +1,5 @@
 <template>
-  <section class="section-container">
+  <section v-if="filteredDoctors.length > 0 || globalStore.loading.includes('doctors')" class="section-container">
     <div class="section-header">
       <div class="header-with-badge">
         <i class="pi pi-verified verified-icon"></i>
@@ -25,15 +25,19 @@
         <div class="doc-card-header">
           <div class="doc-avatar-group">
             <img 
-              :src="doctor.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80'" 
+              v-if="doctor.avatar"
+              :src="doctor.avatar" 
               :alt="doctor.name" 
             />
+            <div v-else class="doc-initial-avatar">
+              <span>{{ (doctor.name || 'D').charAt(0).toUpperCase() }}</span>
+            </div>
             <div class="doc-texts">
               <h5>{{ doctor.name }}</h5>
-              <p>{{ doctor.specialty || doctor.clinic?.name || t('home.defaultSpecialty') }}</p>
-              <div class="doc-clinic-name">
+              <p v-if="doctor.specialty || doctor.clinic?.name">{{ doctor.specialty || doctor.clinic?.name }}</p>
+              <div v-if="doctor.clinic?.name" class="doc-clinic-name">
                 <i class="pi pi-building"></i>
-                <span>{{ doctor.clinic?.name || t('home.defaultClinicName') }}</span>
+                <span>{{ doctor.clinic.name }}</span>
               </div>
             </div>
           </div>
@@ -82,7 +86,7 @@ const loadDoctors = async () => {
   try {
     globalStore.setLoading(['doctors', true]);
     const res = await api.getDoctors();
-    if (res.status && Array.isArray(res.data) && res.data.length > 0) {
+    if (res.status && Array.isArray(res.data)) {
       doctors.value = res.data.map((d: any) => ({
         id: d.id,
         name: d.user?.name || d.name,
@@ -90,45 +94,14 @@ const loadDoctors = async () => {
         clinic: d.clinic,
         rating: '4.9',
         availabilityText: t('home.availableToday'),
-        avatar: d.user?.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
+        avatar: d.user?.avatar || d.avatar || '',
         consultation_fee: d.consultation_fee || 250,
       }));
     } else {
-      doctors.value = [
-        {
-          id: 'doc-1',
-          name: isRtl.value ? 'د. خالد السبيعي' : 'Dr. Khaled Al-Subaie',
-          specialty: isRtl.value ? 'استشاري أمراض القلب والقسطرة' : 'Cardiology Consultant',
-          clinic: { name: isRtl.value ? 'مجمع الرياض الطبي الاستشاري' : 'Riyadh Medical Complex' },
-          rating: '4.9',
-          availabilityText: t('home.availableToday'),
-          avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
-          consultation_fee: 250,
-        },
-        {
-          id: 'doc-2',
-          name: isRtl.value ? 'د. سارة المنصور' : 'Dr. Sarah Al-Mansour',
-          specialty: isRtl.value ? 'استشارية جراحة الفم وزراعة الأسنان' : 'Oral & Dental Surgery Consultant',
-          clinic: { name: isRtl.value ? 'عيادات النخبة التخصصية - العليا' : 'Elite Specialized Clinics' },
-          rating: '4.8',
-          availabilityText: t('home.availableTomorrow'),
-          avatar: 'https://images.unsplash.com/photo-1594824813583-097262f01f1f?w=150&auto=format&fit=crop&q=80',
-          consultation_fee: 200,
-        },
-        {
-          id: 'doc-3',
-          name: isRtl.value ? 'د. ريان الشهري' : 'Dr. Rayan Al-Shehri',
-          specialty: isRtl.value ? 'استشاري طب الأسرة والمجتمع' : 'Family Medicine Consultant',
-          clinic: { name: isRtl.value ? 'عيادة افتراضية معتمدة' : 'Certified Telehealth Clinic' },
-          rating: '5.0',
-          availabilityText: t('home.instantCall'),
-          avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150&auto=format&fit=crop&q=80',
-          consultation_fee: 180,
-        },
-      ];
+      doctors.value = [];
     }
   } catch (err) {
-    // Keep fallback list
+    doctors.value = [];
   } finally {
     globalStore.setLoading(['doctors', false]);
   }
@@ -255,11 +228,22 @@ onMounted(() => {
         }
       }
 
-      img {
+      img, .doc-initial-avatar {
         width: 52px;
         height: 52px;
         border-radius: 50%;
         object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      .doc-initial-avatar {
+        background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: 700;
       }
     }
   }

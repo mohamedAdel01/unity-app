@@ -111,32 +111,7 @@ const loadNotifications = async () => {
       notifications.value = [];
     }
   } catch (err) {
-    notifications.value = [
-      {
-        id: 'mock-1',
-        title: isRtl.value ? 'تأكيد حجز موعد كشف' : 'Appointment Confirmed',
-        body: isRtl.value ? 'تم تأكيد موعدك بنجاح مع د. خالد السبيعي (استشاري القلب) يوم الثلاثاء 10:00 ص.' : 'Your appointment with Dr. Khaled Al-Subaie is confirmed for Tuesday at 10:00 AM.',
-        type: 'appointment',
-        is_read: false,
-        created_at: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
-      },
-      {
-        id: 'mock-2',
-        title: isRtl.value ? 'فاتورة معتمدة ومؤكدة' : 'Invoice Verified',
-        body: isRtl.value ? 'تم استلام الدفعة الخاصة بالكشفية بنجاح عبر Paymob. رقم الفاتورة #INV-9821.' : 'Payment received via Paymob for consultation #INV-9821.',
-        type: 'invoice',
-        is_read: false,
-        created_at: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-      },
-      {
-        id: 'mock-3',
-        title: isRtl.value ? 'تذكير بالزيارة الطبية' : 'Visit Reminder',
-        body: isRtl.value ? 'نرجو الحضور قبل موعدك بـ 15 دقيقة لإتمام تسجيل الدخول في مكتب الاستقبال.' : 'Please arrive 15 minutes prior to your visit for desk check-in.',
-        type: 'reminder',
-        is_read: true,
-        created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-      },
-    ];
+    notifications.value = [];
   } finally {
     loading.value = false;
     emit('count-changed', unreadCount.value);

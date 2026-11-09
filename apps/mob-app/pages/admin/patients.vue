@@ -74,94 +74,10 @@ const isNewPatientModalOpen = ref(false);
 const isMedicalFileModalOpen = ref(false);
 const selectedPatientForFile = ref<any>(null);
 
-// Initial patients list matching user's exact mockup
-const defaultPatients = ref<any[]>([
-  {
-    id: 'pt-101',
-    name: 'أحمد السلامة',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80',
-    insurance: 'بوبا ذهبية',
-    badge: 'بوبا ذهبية',
-    mrn: '8849201',
-    clinic: 'عيادة الباطنية',
-    phone: '+966 50 123 4567',
-    national_id: '1042551042',
-    last_visit: '12 أكتوبر 2024 • عيادة الباطنية (د. خالد العتيبي)',
-    next_appointment: 'غداً 10:00 ص • متابعة تحاليل روتينية',
-    diagnosis: 'ارتفاع ضغط الدم الخفيف • متابعة دورية',
-    is_today: false,
-    status: 'active',
-  },
-  {
-    id: 'pt-102',
-    name: 'نورة الشمري',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80',
-    insurance: 'التعاونية للتأمين',
-    badge: 'موعد اليوم',
-    mrn: '9932104',
-    clinic: 'التعاونية للتأمين',
-    phone: '+966 55 987 6543',
-    national_id: '1088999821',
-    last_visit: '20 سبتمبر 2024 • عيادة الأسنان',
-    next_appointment: 'اليوم 04:30 م • فحص شامل وتنظيف',
-    diagnosis: 'التهاب اللثة البسيط • جلسة تنظيف',
-    is_today: true,
-    status: 'active',
-  },
-  {
-    id: 'pt-103',
-    name: 'سارة العتيبي',
-    avatar: '',
-    insurance: 'ميدغلف',
-    badge: 'ميدغلف',
-    mrn: '7812903',
-    clinic: 'عيادة الأطفال',
-    phone: '+966 54 321 0987',
-    national_id: '1022335541',
-    last_visit: '05 أغسطس 2024 • تطعيمات موسمية',
-    next_appointment: 'الأحد 09:00 ص • متابعة نمو',
-    diagnosis: 'حساسية موسمية والتهاب الجيوب الأنفية',
-    is_today: false,
-    status: 'review',
-  },
-  {
-    id: 'pt-104',
-    name: 'عبد الله الحربي',
-    avatar: '',
-    insurance: 'تكافل الراجحي',
-    badge: 'تكافل الراجحي',
-    mrn: '6549210',
-    clinic: 'استشارة جلدية',
-    phone: '+966 56 789 1234',
-    national_id: '1099887723',
-    last_visit: '15 يوليو 2024 • عيادة الجلدية',
-    next_appointment: 'بعد غد 11:30 ص • تقييم العلاج',
-    diagnosis: 'إكزيما جلدية خفيفة مع ترطيب',
-    is_today: false,
-    status: 'active',
-  },
-  {
-    id: 'pt-105',
-    name: 'مريم القحطاني',
-    avatar: '',
-    insurance: 'بوبا فضية',
-    badge: 'بوبا فضية',
-    mrn: '5421980',
-    clinic: 'عيادة العيون',
-    phone: '+966 50 654 3210',
-    national_id: '1077663390',
-    last_visit: '10 يونيو 2024 • قياس النظر',
-    next_appointment: 'الخميس 02:00 م • فحص قاع العين',
-    diagnosis: 'قصر نظر خفيف ومتابعة النظارة الطبية',
-    is_today: false,
-    status: 'review',
-  },
-]);
-
-const patients = ref<any[]>([...defaultPatients.value]);
-const totalDisplayCount = ref(1420);
+const patients = ref<any[]>([]);
+const totalDisplayCount = ref(0);
 const todayPatientsCount = computed(() => {
-  return patients.value.filter(p => p.is_today).length || 18;
+  return patients.value.filter(p => p.is_today).length;
 });
 
 // Load backend patients if server API is reachable
@@ -173,32 +89,31 @@ const loadBackendPatients = async () => {
       headers: api.token.value ? { Authorization: `Bearer ${api.token.value}` } : {},
     });
 
-    if (res?.status && res?.data?.patients?.length) {
-      totalDisplayCount.value = res.data.total || 1420;
-      // Prepend backend patients to our design mockup patients
-      const backendMapped = res.data.patients.map((p: any) => ({
+    if (res?.status && Array.isArray(res?.data?.patients) && res.data.patients.length > 0) {
+      totalDisplayCount.value = res.data.total || res.data.patients.length;
+      patients.value = res.data.patients.map((p: any) => ({
         id: p.id,
         name: p.name,
         avatar: p.avatar,
         phone: p.phone,
-        mrn: p.mrn || String(Math.floor(1000000 + Math.random() * 9000000)),
-        clinic: 'عيادة الباطنية',
-        insurance: 'تأمين معتمد',
-        badge: 'تأمين معتمد',
-        national_id: '10' + (p.phone ? p.phone.slice(-8) : '24567890'),
-        last_visit: 'مؤخراً • زيارة استشارية',
-        next_appointment: 'مجدول للمتابعة',
-        diagnosis: 'فحص سريري عام',
-        is_today: false,
+        mrn: p.mrn || '',
+        clinic: p.clinic || '',
+        insurance: p.insurance || '',
+        badge: p.badge || '',
+        national_id: p.national_id || '',
+        last_visit: p.last_visit || '',
+        next_appointment: p.next_appointment || '',
+        diagnosis: p.diagnosis || '',
+        is_today: !!p.is_today,
         status: p.status || 'active',
       }));
-
-      // Combine keeping the rich mockup on top for visual fidelity
-      patients.value = [...defaultPatients.value, ...backendMapped];
+    } else {
+      patients.value = [];
+      totalDisplayCount.value = 0;
     }
   } catch (err) {
-    // Graceful fallback to rich design data
-    patients.value = [...defaultPatients.value];
+    patients.value = [];
+    totalDisplayCount.value = 0;
   }
 };
 

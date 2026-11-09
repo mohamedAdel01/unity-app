@@ -1,7 +1,11 @@
 <template>
   <div class="auth-page">
     <div class="auth-content-wrapper">
-      <AuthHeader :title="currentStep === 1 ? t('Create New Account') : (isRtl ? 'إكمال الملف الشخصي' : 'Complete Profile')" />
+      <AuthHeader 
+        :title="currentStep === 1 ? t('Create New Account') : currentStep === 2 ? t('Mobile Verification') : (isRtl ? 'إكمال الملف الشخصي' : 'Complete Profile')" 
+        :custom-back="true"
+        @back="handleStepBack"
+      />
       <RegisterForm v-model:step="currentStep" />
       <QuickLoginButtons v-if="currentStep === 1" />
       <AuthFooterLink v-if="currentStep === 1" :is-register="true" />
@@ -11,6 +15,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import AuthHeader from '../../components/auth/AuthHeader.vue';
 import RegisterForm from '../../components/auth/RegisterForm.vue';
@@ -21,8 +26,17 @@ definePageMeta({
   middleware: ['guest'],
 });
 
+const router = useRouter();
 const { t, isRtl } = useI18n();
 const currentStep = ref(1);
+
+const handleStepBack = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--;
+  } else {
+    router.back();
+  }
+};
 </script>
 
 <style scoped lang="scss">

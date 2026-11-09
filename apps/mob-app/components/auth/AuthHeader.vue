@@ -1,7 +1,7 @@
 <template>
   <header class="auth-header">
     <div class="top-nav-row">
-      <button class="back-nav-btn" :aria-label="t('Back')" @click="router.back()">
+      <button class="back-nav-btn" :aria-label="t('Back')" @click="handleBack">
         <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
       </button>
       <div class="header-ghost-spacer"></div>
@@ -24,12 +24,25 @@
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
-defineProps<{
+const props = defineProps<{
   title?: string;
+  customBack?: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: 'back'): void;
 }>();
 
 const router = useRouter();
 const { t, isRtl } = useI18n();
+
+const handleBack = () => {
+  if (props.customBack) {
+    emit('back');
+  } else {
+    router.back();
+  }
+};
 </script>
 
 <style scoped lang="scss">

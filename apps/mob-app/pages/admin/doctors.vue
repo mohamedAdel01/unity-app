@@ -75,56 +75,10 @@ const isEditScheduleModalOpen = ref(false);
 const isNewDoctorModalOpen = ref(false);
 const selectedDoctorForSchedule = ref<any>(null);
 
-// Doctors dataset matching Image 1
-const defaultDoctors = ref<any[]>([
-  {
-    id: 'doc-1',
-    name: 'د. أحمد المنصوري',
-    avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=160&auto=format&fit=crop&q=80',
-    specialty: 'استشاري أمراض الباطنة والقلب',
-    room: '104',
-    category: 'cardio_internal',
-    status_badge: 'عيادة مفتوحة',
-    schedule_time: '',
-    cases_count: 7,
-    is_active: true,
-    is_evening: false,
-    primary_action: true,
-  },
-  {
-    id: 'doc-2',
-    name: 'د. سارة العتيبي',
-    avatar: 'https://images.unsplash.com/photo-1594824813583-05462c14f7b6?w=160&auto=format&fit=crop&q=80',
-    specialty: 'أخصائية طب الأطفال وحديثي الولادة',
-    room: '208',
-    category: 'pediatrics',
-    status_badge: '9 مواعيد اليوم',
-    schedule_time: 'اليوم: 10:00 ص - 05:00 م',
-    cases_count: 9,
-    is_active: true,
-    is_evening: false,
-    primary_action: false,
-  },
-  {
-    id: 'doc-3',
-    name: 'د. خالد السالم',
-    avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=160&auto=format&fit=crop&q=80',
-    specialty: 'استشاري الجراحة العامة والمناظير',
-    room: '302',
-    category: 'surgery',
-    status_badge: 'يبدأ 04:00 م',
-    schedule_time: 'الفترة المسائية: 04:00 م - 10:00 م',
-    cases_count: 3,
-    is_active: false,
-    is_evening: true,
-    primary_action: false,
-  },
-]);
-
-const doctors = ref<any[]>([...defaultDoctors.value]);
+const doctors = ref<any[]>([]);
 
 const activeDoctorsCount = computed(() => {
-  return doctors.value.filter(d => d.is_active).length || 12;
+  return doctors.value.filter(d => d.is_active).length;
 });
 
 // Load backend doctors if available
@@ -136,26 +90,26 @@ const loadBackendDoctors = async () => {
       headers: api.token.value ? { Authorization: `Bearer ${api.token.value}` } : {},
     });
 
-    if (res?.status && res?.data?.length) {
-      const mapped = res.data.map((d: any) => ({
+    if (res?.status && Array.isArray(res?.data) && res.data.length > 0) {
+      doctors.value = res.data.map((d: any) => ({
         id: d.id,
         name: d.user?.name || d.name,
         avatar: d.user?.avatar || d.avatar,
-        specialty: d.specialty || 'استشاري عام',
-        room: d.room || '101',
+        specialty: d.clinic?.name || d.specialty || '',
+        room: d.room || '',
         category: 'cardio_internal',
-        status_badge: 'عيادة مفتوحة',
-        schedule_time: 'اليوم: 09:00 ص - 05:00 م',
-        cases_count: d._count?.appointments || 6,
+        status_badge: d.user?.status === 'active' ? 'عيادة مفتوحة' : 'غير متاح',
+        schedule_time: '',
+        cases_count: d._count?.appointments || 0,
         is_active: d.user?.status === 'active',
         is_evening: false,
         primary_action: false,
       }));
-
-      doctors.value = [...defaultDoctors.value, ...mapped];
+    } else {
+      doctors.value = [];
     }
   } catch (err) {
-    doctors.value = [...defaultDoctors.value];
+    doctors.value = [];
   }
 };
 

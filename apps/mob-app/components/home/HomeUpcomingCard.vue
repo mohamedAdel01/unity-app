@@ -12,30 +12,34 @@
       <div class="card-top">
         <div class="doc-profile">
           <img 
-            :src="upcomingAppointment.doctor?.avatar || 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120&auto=format&fit=crop&q=80'" 
+            v-if="upcomingAppointment.doctor?.avatar || upcomingAppointment.doctor?.user?.avatar"
+            :src="upcomingAppointment.doctor?.avatar || upcomingAppointment.doctor?.user?.avatar" 
             alt="Doctor" 
           />
+          <div v-else class="doc-avatar-initial">
+            <span>{{ (upcomingAppointment.doctor?.name || upcomingAppointment.doctor?.user?.name || 'D').charAt(0).toUpperCase() }}</span>
+          </div>
           <div class="doc-text">
-            <h5>{{ upcomingAppointment.doctor?.name || (isRtl ? 'د. جون كاميرون' : 'Dr. John Cameron') }}</h5>
-            <span>{{ upcomingAppointment.doctor?.specialty || (isRtl ? 'استشاري نفسي وسلوكي' : 'Behavioral Consultant') }}</span>
+            <h5>{{ upcomingAppointment.doctor?.name || upcomingAppointment.doctor?.user?.name || '' }}</h5>
+            <span v-if="upcomingAppointment.doctor?.specialty">{{ upcomingAppointment.doctor?.specialty }}</span>
           </div>
         </div>
       </div>
 
       <div class="card-schedule-boxes">
-        <div class="schedule-box">
+        <div v-if="upcomingAppointment.start_time" class="schedule-box">
           <i class="pi pi-clock"></i>
           <div>
             <small>{{ t('common.time') }}</small>
-            <strong>{{ upcomingAppointment.start_time || '18:00 - 18:30' }}</strong>
+            <strong>{{ upcomingAppointment.start_time }} {{ upcomingAppointment.end_time ? '- ' + upcomingAppointment.end_time : '' }}</strong>
           </div>
         </div>
 
-        <div class="schedule-box">
+        <div v-if="upcomingAppointment.date" class="schedule-box">
           <i class="pi pi-calendar"></i>
           <div>
             <small>{{ t('common.date') }}</small>
-            <strong>{{ upcomingAppointment.date || (isRtl ? '15 مارس، الإثنين' : 'Monday, Mar 15') }}</strong>
+            <strong>{{ upcomingAppointment.date }}</strong>
           </div>
         </div>
       </div>
@@ -53,23 +57,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 
+const api = useUnityApi();
 const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
 
-const upcomingAppointment = ref<any>({
-  id: 'apt-up-1',
-  doctor: {
-    id: 'doc-john',
-    name: 'د. جون كاميرون',
-    specialty: 'استشاري نفسي وسلوكي',
-    avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=150&auto=format&fit=crop&q=80',
-  },
-  date: '15 مارس، الإثنين',
-  start_time: '18:00 - 18:30',
+const upcomingAppointment = ref<any | null>(null);
+
+const loadUpcoming = async () => {
+  try {
+    const res = await api.getMyAppointments();
+    if (res.status && Array.isArray(res.data) && res.data.length > 0) {
+      const active = res.data.find((a: any) => a.status === 'confirmed' || a.status === 'pending');
+      upcomingAppointment.value = active || null;
+    } else {
+      upcomingAppointment.value = null;
+    }
+  } catch (err) {
+    upcomingAppointment.value = null;
+  }
+};
+
+onMounted(() => {
+  loadUpcoming();
 });
 
 const openReschedule = (apt: any) => {
@@ -137,13 +151,23 @@ const viewDoctor = (doctor: any) => {
       align-items: center;
       gap: 12px;
 
-      img {
+      img, .doc-avatar-initial {
         width: 48px;
         height: 48px;
         border-radius: 50%;
         border: 2px solid rgba(255, 255, 255, 0.7);
         object-fit: cover;
         flex-shrink: 0;
+      }
+
+      .doc-avatar-initial {
+        background: rgba(255, 255, 255, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #ffffff;
       }
 
       .doc-text {

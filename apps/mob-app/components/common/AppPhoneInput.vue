@@ -1,14 +1,16 @@
 <template>
-  <div class="app-phone-input-wrapper" :dir="isRtl ? 'rtl' : 'ltr'">
-    <div class="phone-input-shell" :class="{ 'is-focused': isFocused, 'is-valid': isValid && phoneDigits, 'is-invalid': hasError }">
-      <!-- Country Code Picker Trigger (Pinned to Egypt 🇪🇬 +20 by default) -->
+  <div class="app-phone-input-wrapper" dir="ltr">
+    <div class="phone-input-shell" :class="{ 'is-focused': isFocused, 'is-valid': isValid && phoneDigits, 'is-invalid': hasError }" dir="ltr">
+      <!-- Country Code Picker Trigger (Pinned on the LEFT: Flag + DialCode + Chevron) -->
       <button 
         type="button" 
         class="country-picker-btn" 
         :title="isRtl ? 'تغيير مفتاح الدولة' : 'Change country code'"
         @click="toggleDropdown"
       >
-        <span class="country-flag">{{ selectedCountry.flag }}</span>
+        <span class="country-flag-box">
+          <img :src="`/flags/${selectedCountry.code.toLowerCase()}.svg`" :alt="selectedCountry.code" class="country-flag-img" />
+        </span>
         <span class="dial-code" dir="ltr">{{ selectedCountry.dialCode }}</span>
         <i class="pi pi-chevron-down arrow-icon" :class="{ 'open': isDropdownOpen }"></i>
       </button>
@@ -16,7 +18,7 @@
       <!-- Vertical Divider -->
       <div class="input-divider"></div>
 
-      <!-- Phone Digits Input -->
+      <!-- Phone Digits Input (In the middle, typing left-to-right) -->
       <div class="field-input-box">
         <input 
           ref="inputRef"
@@ -33,7 +35,7 @@
         />
       </div>
 
-      <!-- Validity / Icon Badge -->
+      <!-- Validity / Icon Badge (On the far RIGHT) -->
       <div class="validation-badge">
         <span v-if="isValid && phoneDigits" class="valid-icon" :title="isRtl ? 'رقم هاتف صحيح' : 'Valid phone number'">
           <i class="pi pi-check-circle"></i>
@@ -46,7 +48,7 @@
 
     <!-- Dropdown Menu for Countries (Egypt pinned at the top) -->
     <div v-if="isDropdownOpen" class="country-dropdown-overlay" @click="closeDropdown">
-      <div class="country-dropdown-card" @click.stop>
+      <div class="country-dropdown-card" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
         <div class="dropdown-header">
           <h6>{{ isRtl ? 'اختر الدولة' : 'Select Country' }}</h6>
           <button type="button" class="btn-close-dropdown" @click="closeDropdown">
@@ -63,7 +65,9 @@
             @click="selectCountry(c)"
           >
             <div class="country-info">
-              <span class="country-flag">{{ c.flag }}</span>
+              <span class="country-flag-box">
+                <img :src="`/flags/${c.code.toLowerCase()}.svg`" :alt="c.code" class="country-flag-img" />
+              </span>
               <span class="country-name">{{ isRtl ? c.nameAr : c.nameEn }}</span>
               <span v-if="c.isDefault" class="default-badge">{{ isRtl ? 'افتراضي' : 'Default' }}</span>
             </div>
@@ -74,7 +78,7 @@
     </div>
 
     <!-- Error Hint -->
-    <small v-if="hasError" class="phone-error-hint">
+    <small v-if="hasError" class="phone-error-hint" :dir="isRtl ? 'rtl' : 'ltr'">
       {{ errorMessage || (isRtl ? `يرجى إدخال رقم هاتف صحيح (${selectedCountry.nameAr})` : `Please enter a valid phone number (${selectedCountry.nameEn})`) }}
     </small>
   </div>
@@ -287,11 +291,14 @@ onMounted(() => {
   gap: 6px;
   width: 100%;
   position: relative;
+  direction: ltr !important;
 }
 
 .phone-input-shell {
   display: flex;
   align-items: center;
+  direction: ltr !important;
+  flex-direction: row !important;
   background: var(--unity-surface);
   border: 1.5px solid var(--unity-border);
   border-radius: 16px;
@@ -319,7 +326,7 @@ onMounted(() => {
 .country-picker-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -329,14 +336,29 @@ onMounted(() => {
   font-size: 0.95rem;
   border-radius: 8px;
   transition: background 0.15s ease;
+  flex-shrink: 0;
 
   &:hover {
     background: rgba(0, 0, 0, 0.04);
   }
 
-  .country-flag {
-    font-size: 1.25rem;
-    line-height: 1;
+  .country-flag-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 17px;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    flex-shrink: 0;
+
+    .country-flag-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   .dial-code {
@@ -344,6 +366,7 @@ onMounted(() => {
     font-weight: 700;
     color: var(--unity-text-main);
     letter-spacing: 0.2px;
+    direction: ltr;
   }
 
   .arrow-icon {
@@ -362,6 +385,7 @@ onMounted(() => {
   height: 24px;
   background: var(--unity-border);
   margin: 0 10px;
+  flex-shrink: 0;
 }
 
 .field-input-box {
@@ -379,6 +403,8 @@ onMounted(() => {
     color: var(--unity-text-main);
     letter-spacing: 0.5px;
     padding: 8px 0;
+    direction: ltr;
+    text-align: left;
 
     &::placeholder {
       color: var(--unity-text-dim, #9ca3af);
@@ -392,7 +418,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-inline-start: 8px;
+  margin-left: auto;
+  padding-left: 8px;
+  flex-shrink: 0;
 
   .valid-icon {
     color: #10b981;
@@ -526,8 +554,23 @@ onMounted(() => {
       align-items: center;
       gap: 10px;
 
-      .country-flag {
-        font-size: 1.3rem;
+      .country-flag-box {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 18px;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        flex-shrink: 0;
+
+        .country-flag-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
       }
 
       .country-name {
