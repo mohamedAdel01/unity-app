@@ -13,7 +13,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useGlobalStore } from '../stores/global.ts';
+import { useGlobalStore } from '../stores/global';
+import { useAppToast } from '../composables/useAppToast';
 import RecordsHeader from '../components/records/RecordsHeader.vue';
 import RecordsTabs from '../components/records/RecordsTabs.vue';
 import RecordsList from '../components/records/RecordsList.vue';
@@ -23,6 +24,7 @@ definePageMeta({
 });
 
 const globalStore = useGlobalStore();
+const toast = useAppToast();
 const activeTab = ref<'reports' | 'labs' | 'prescriptions'>('reports');
 
 const isLoading = computed(() => globalStore.loading.includes('records'));
@@ -87,8 +89,7 @@ const currentItems = computed(() => {
 });
 
 const onDownload = (item: any) => {
-  // Simulates medical report download
-  alert(`جاري تحميل تقرير: ${item.title}`);
+  toast.success(`جاري تحميل مستند: ${item.title}`, 'السجلات الطبية');
 };
 
 const onView = (item: any) => {
@@ -98,7 +99,7 @@ const onView = (item: any) => {
 
 <style scoped>
 .records-page {
-  padding: 14px 18px 24px;
+  padding: 14px 18px 48px;
   display: flex;
   flex-direction: column;
   gap: 16px;

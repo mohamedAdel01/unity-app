@@ -93,6 +93,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
+import { useAppToast } from '../../composables/useAppToast';
 
 const emit = defineEmits<{
   (e: 'user-updated', user: any): void;
@@ -101,6 +102,7 @@ const emit = defineEmits<{
 const router = useRouter();
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
+const toast = useAppToast();
 
 const openAuthModal = ref(false);
 const isRegister = ref(false);
@@ -127,8 +129,9 @@ const submitAuth = async () => {
     }
     emit('user-updated', api.currentUser.value);
     openAuthModal.value = false;
+    toast.success(isRtl.value ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
   } catch (err: any) {
-    alert(err.message || 'Authentication error');
+    toast.error(err.message || 'خطأ في المصادقة');
   } finally {
     authLoading.value = false;
   }
@@ -155,11 +158,12 @@ const loginWithAppleOAuth = async () => {
       });
       emit('user-updated', api.currentUser.value);
       openAuthModal.value = false;
+      toast.success(isRtl.value ? 'تم تسجيل الدخول بنجاح عبر Apple!' : 'Logged in with Apple successfully!');
     } else {
-      alert('Apple Sign In is active for iOS devices. For Web, configure APPLE_CLIENT_ID in your environment.');
+      toast.info('تسجيل الدخول عبر Apple متاح على أجهزة iOS والتطبيق الأصلي.', 'Apple Sign-In');
     }
   } catch (err: any) {
-    alert(err.message || 'Apple Sign-In failed');
+    toast.error(err.message || 'تعذر تسجيل الدخول عبر Apple');
   }
 };
 

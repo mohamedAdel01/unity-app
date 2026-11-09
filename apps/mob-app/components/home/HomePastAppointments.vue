@@ -75,10 +75,12 @@
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { useAppToast } from '../../composables/useAppToast';
 
 const router = useRouter();
 const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
+const toast = useAppToast();
 
 const viewReport = () => {
   router.push('/appointments');
@@ -89,7 +91,7 @@ const rebook = () => {
 };
 
 const downloadResults = () => {
-  alert(isRtl.value ? 'تم تنزيل تقرير المختبر بصيغة PDF بنجاح.' : 'Lab report PDF downloaded successfully.');
+  toast.success(isRtl.value ? 'تم تنزيل تقرير المختبر بصيغة PDF بنجاح.' : 'Lab report PDF downloaded successfully.', 'المختبر والتحاليل');
 };
 
 const rebookLab = () => {

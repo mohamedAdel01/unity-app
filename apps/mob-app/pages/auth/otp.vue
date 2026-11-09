@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useAppToast } from '../../composables/useAppToast';
 import OtpHeader from '../../components/auth/OtpHeader.vue';
 import OtpDisplay from '../../components/auth/OtpDisplay.vue';
 import OtpKeypad from '../../components/auth/OtpKeypad.vue';
@@ -32,6 +33,7 @@ definePageMeta({
 
 const router = useRouter();
 const route = useRoute();
+const toast = useAppToast();
 
 const targetIdentifier = computed(() => {
   return (route.query.target as string) || '05XXXXXXXX';
@@ -66,9 +68,10 @@ const onConfirmOtp = async () => {
   try {
     isSubmitting.value = true;
     await new Promise(r => setTimeout(r, 600));
+    toast.success('تم التحقق من الرمز بنجاح!');
     router.push('/');
   } catch (err: any) {
-    alert(err.message || 'OTP Verification failed');
+    toast.error(err.message || 'فشل التحقق من رمز OTP');
   } finally {
     isSubmitting.value = false;
   }

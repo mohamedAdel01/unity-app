@@ -2,6 +2,9 @@
   <div class="web-viewport-wrapper">
     <div class="desktop-screen-frame">
       <div class="mobile-device-shell" :dir="isRtl ? 'rtl' : 'ltr'">
+        <!-- Global Mobile Floating Toast Notification Container -->
+        <AppToastContainer />
+
         <!-- Main Page Scrollable Viewport -->
         <main class="mobile-content-viewport" :class="{ 'no-bottom-nav': hideBottomNav, 'is-onboarding': isOnboarding }">
           <slot />
@@ -25,6 +28,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
 import BottomNavBar from './BottomNavBar.vue';
 import AppGlobalModals from './AppGlobalModals.vue';
+import AppToastContainer from '../common/AppToastContainer.vue';
 
 const route = useRoute();
 const theme = useTheme();
@@ -100,17 +104,19 @@ onMounted(() => {
 
 .mobile-content-viewport {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
   padding-top: max(38px, env(safe-area-inset-top, 38px));
-  padding-bottom: 96px;
+  padding-bottom: 24px;
   background: var(--unity-bg);
   scroll-behavior: smooth;
 
   &.is-onboarding {
     padding-top: 0;
+    padding-bottom: 0;
   }
 
   &.no-bottom-nav {

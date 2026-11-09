@@ -10,18 +10,15 @@
 
     <div class="upcoming-appointment-card">
       <div class="card-top">
-        <div class="media-type-badge">
-          <i class="pi pi-video"></i>
-        </div>
         <div class="doc-profile">
-          <div class="doc-text">
-            <h5>{{ upcomingAppointment.doctor?.name || (isRtl ? 'د. جون كاميرون' : 'Dr. John Cameron') }}</h5>
-            <span>{{ upcomingAppointment.doctor?.specialty || (isRtl ? 'استشاري نفسي وسلوكي' : 'Behavioral Consultant') }}</span>
-          </div>
           <img 
             :src="upcomingAppointment.doctor?.avatar || 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120&auto=format&fit=crop&q=80'" 
             alt="Doctor" 
           />
+          <div class="doc-text">
+            <h5>{{ upcomingAppointment.doctor?.name || (isRtl ? 'د. جون كاميرون' : 'Dr. John Cameron') }}</h5>
+            <span>{{ upcomingAppointment.doctor?.specialty || (isRtl ? 'استشاري نفسي وسلوكي' : 'Behavioral Consultant') }}</span>
+          </div>
         </div>
       </div>
 
@@ -123,45 +120,35 @@ const viewDoctor = (doctor: any) => {
   .card-top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-bottom: 16px;
-
-    .media-type-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.18);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-    }
 
     .doc-profile {
       display: flex;
       align-items: center;
       gap: 12px;
 
+      img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.7);
+        object-fit: cover;
+      }
+
       .doc-text {
-        text-align: right;
+        text-align: start;
 
         h5 {
-          font-size: 1rem;
-          font-weight: 600;
+          font-size: 1.05rem;
+          font-weight: 700;
+          margin-bottom: 2px;
         }
 
         span {
-          font-size: 0.75rem;
-          opacity: 0.85;
+          font-size: 0.78rem;
+          opacity: 0.9;
         }
-      }
-
-      img {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.6);
-        object-fit: cover;
       }
     }
   }

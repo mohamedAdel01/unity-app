@@ -142,18 +142,42 @@
       <!-- Date of Birth -->
       <div class="input-field-group">
         <label class="field-label">{{ t('Date of Birth') }}</label>
-        <div class="input-shell">
-          <i class="pi pi-calendar field-icon"></i>
-          <input 
-            v-model="step2Form.date_of_birth" 
-            type="date" 
-          />
-        </div>
+        <AppDatePickerModal v-model="step2Form.date_of_birth" />
       </div>
 
-      <!-- Avatar Selection -->
+      <!-- Avatar Upload & Selection -->
       <div class="input-field-group">
-        <label class="field-label">{{ t('Choose Avatar') }}</label>
+        <label class="field-label">{{ isRtl ? 'الصورة الشخصية' : 'Profile Picture' }}</label>
+        
+        <!-- Upload Card with circular preview & upload button -->
+        <div class="avatar-upload-card">
+          <div class="avatar-preview-wrapper" @click="triggerFileUpload">
+            <img :src="step2Form.avatar" alt="User avatar" class="avatar-preview-img" />
+            <div class="camera-badge" :title="isRtl ? 'تغيير الصورة' : 'Change Photo'">
+              <i class="pi pi-camera"></i>
+            </div>
+          </div>
+
+          <div class="upload-info">
+            <button type="button" class="btn-choose-file" @click="triggerFileUpload">
+              <i class="pi pi-upload"></i>
+              <span>{{ isRtl ? 'رفع صورة من جهازك' : 'Upload from device' }}</span>
+            </button>
+            <small class="upload-hint">{{ isRtl ? 'يدعم JPG, PNG (يتم حفظها في السيرفر)' : 'Supports JPG, PNG (saved on server)' }}</small>
+            <input 
+              ref="fileInputRef" 
+              type="file" 
+              accept="image/*" 
+              class="hidden-file-input" 
+              @change="onAvatarFileChange" 
+            />
+          </div>
+        </div>
+
+        <!-- Optional preset avatars -->
+        <div class="preset-avatars-label">
+          <small>{{ isRtl ? 'أو اختر من الرموز الجاهزة:' : 'Or choose a preset avatar:' }}</small>
+        </div>
         <div class="avatar-choices-row">
           <button 
             v-for="(avatarUrl, idx) in presetAvatars" 
@@ -198,19 +222,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useGlobalStore } from '../../stores/global';
+import { useAppToast } from '../../composables/useAppToast';
+import AppDatePickerModal from '../common/AppDatePickerModal.vue';
+
+const props = defineProps<{
+  step?: number;
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:step', val: number): void;
+}>();
 
 const router = useRouter();
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
 const globalStore = useGlobalStore();
+const toast = useAppToast();
 
-const currentStep = ref(1);
+const currentStep = ref(props.step || 1);
 const showPassword = ref(false);
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+// Keep step in sync with parent page
+watch(() => props.step, (val) => {
+  if (val && val !== currentStep.value) {
+    currentStep.value = val;
+  }
+});
+
+watch(currentStep, (val) => {
+  emit('update:step', val);
+});
+
+// Trigger file input dialog
+const triggerFileUpload = () => {
+  fileInputRef.value?.click();
+};
+
+// Handle avatar image upload & client-side compression
+const onAvatarFileChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    toast.error(isRtl.value ? 'يرجى اختيار ملف صورة صالح (JPG أو PNG).' : 'Please choose a valid image file (JPG or PNG).');
+    return;
+  }
+
+  if (file.size > 8 * 1024 * 1024) {
+    toast.error(isRtl.value ? 'حجم الصورة كبير جداً، الحد الأقصى 8 ميجابايت.' : 'Image size too large, max 8MB.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (uploadEvent) => {
+    const rawResult = uploadEvent.target?.result as string;
+    const img = new Image();
+    img.onload = () => {
+      // Scale down image to max 600px dimension for fast network upload
+      const maxDim = 600;
+      let width = img.width;
+      let height = img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0, width, height);
+      step2Form.value.avatar = canvas.toDataURL('image/jpeg', 0.88);
+      toast.success(isRtl.value ? 'تم تحديد صورتك الشخصية وجاهزة للحفظ بالسيرفر!' : 'Avatar selected and ready to save!');
+    };
+    img.src = rawResult;
+  };
+  reader.readAsDataURL(file);
+};
 
 const presetAvatars = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
@@ -256,9 +355,10 @@ const handleStep1Submit = async () => {
     });
 
     // Account created and authenticated successfully! Advance to Step 2
+    toast.success('تم إنشاء الحساب بنجاح! يمكنك الآن استكمال بياناتك الشخصية.');
     currentStep.value = 2;
   } catch (err: any) {
-    alert(err.message || 'Registration error');
+    toast.error(err.message || 'تعذر إنشاء الحساب');
   } finally {
     globalStore.setLoading(['register', false]);
   }
@@ -275,10 +375,11 @@ const handleStep2Submit = async () => {
       date_of_birth: step2Form.value.date_of_birth,
     });
 
+    toast.success('تم حفظ وتحديث بيانات الملف الشخصي بنجاح!');
     // Navigate to home dashboard
     router.push('/');
   } catch (err: any) {
-    alert(err.message || 'Error updating profile');
+    toast.warning(err.message || 'تعذر تحديث البيانات الإضافية');
     // If update fails, user can still proceed since account is created
     router.push('/');
   } finally {
@@ -404,13 +505,13 @@ const handleSkipStep2 = () => {
 .input-field-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 
   .field-label {
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--unity-text);
-    margin-bottom: 2px;
+    margin-bottom: 6px;
   }
 
   .input-shell {
@@ -500,6 +601,109 @@ const handleSkipStep2 = () => {
         color: var(--unity-primary);
       }
     }
+  }
+}
+
+// Avatar Upload Card & Controls
+.avatar-upload-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--unity-surface-muted, #f8fafc);
+  border: 1.5px dashed var(--unity-border, #cbd5e1);
+  border-radius: 18px;
+  padding: 14px 16px;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--unity-primary);
+  }
+
+  .avatar-preview-wrapper {
+    position: relative;
+    width: 68px;
+    height: 68px;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    .avatar-preview-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--unity-primary);
+      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+    }
+
+    .camera-badge {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--unity-primary);
+      color: #ffffff;
+      font-size: 0.72rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .upload-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .btn-choose-file {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 14px;
+      border-radius: 10px;
+      background: var(--unity-surface, #ffffff);
+      border: 1px solid var(--unity-border);
+      color: var(--unity-primary-dark);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      i {
+        font-size: 0.85rem;
+        color: var(--unity-primary);
+      }
+
+      &:hover {
+        background: var(--unity-primary-light);
+        border-color: var(--unity-primary);
+      }
+    }
+
+    .upload-hint {
+      font-size: 0.68rem;
+      color: var(--unity-text-dim, #94a3b8);
+      font-weight: 500;
+    }
+
+    .hidden-file-input {
+      display: none;
+    }
+  }
+}
+
+.preset-avatars-label {
+  margin-top: 6px;
+  small {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--unity-text-muted);
   }
 }
 

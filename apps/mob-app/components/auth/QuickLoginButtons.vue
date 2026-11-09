@@ -29,8 +29,10 @@
 
 <script setup lang="ts">
 import { useI18n } from '../../composables/useI18n';
+import { useAppToast } from '../../composables/useAppToast';
 
 const { t } = useI18n();
+const toast = useAppToast();
 
 const handleGoogle = () => {
   const config = useRuntimeConfig();
@@ -40,7 +42,7 @@ const handleGoogle = () => {
 
 const handleApple = () => {
   // Apple Sign-In flow
-  alert('Sign in with Apple');
+  toast.info('تسجيل الدخول عبر Apple متاح على أجهزة iOS.', 'Apple Sign-In');
 };
 </script>
 

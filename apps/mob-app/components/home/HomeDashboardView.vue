@@ -49,7 +49,7 @@ const activeFilter = ref('all');
 
 <style scoped>
 .home-screen {
-  padding: 16px 18px 24px;
+  padding: 16px 18px 48px;
   display: flex;
   flex-direction: column;
   gap: 16px;

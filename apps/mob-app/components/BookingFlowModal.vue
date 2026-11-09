@@ -217,6 +217,7 @@
 import { ref, computed, onUnmounted, watch } from 'vue';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
+import { useAppToast } from '../composables/useAppToast';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -233,6 +234,7 @@ const emit = defineEmits<{
 
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
+const toast = useAppToast();
 
 const currentSlot = ref<any>(props.selectedSlot || null);
 const selectedMethod = ref<'apple_pay' | 'card' | 'cash'>('apple_pay');
@@ -326,13 +328,14 @@ const submitBooking = async () => {
     }
 
     bookingSuccess.value = true;
+    toast.success(isRtl.value ? 'تم تأكيد حجز الموعد بنجاح!' : 'Appointment booked successfully!');
     emit('booking-completed', appointmentRes.data);
 
     setTimeout(() => {
       close();
     }, 2000);
   } catch (err: any) {
-    alert(err.message || 'Error completing booking');
+    toast.error(err.message || 'تعذر إتمام عملية الحجز');
   } finally {
     submitting.value = false;
   }

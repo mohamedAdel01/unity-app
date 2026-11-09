@@ -43,6 +43,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useGlobalStore } from '../../stores/global';
+import { useAppToast } from '../../composables/useAppToast';
 
 const emit = defineEmits<{
   (e: 'success', user: any): void;
@@ -53,6 +54,7 @@ const route = useRoute();
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
 const globalStore = useGlobalStore();
+const toast = useAppToast();
 
 const showPassword = ref(false);
 const form = ref({
@@ -66,12 +68,13 @@ const handleSubmit = async () => {
     globalStore.setLoading(['login', true]);
     const res = await api.login(form.value.login, form.value.password);
     if (res.status && res.data?.user) {
+      toast.success(isRtl.value ? 'مرحباً بك مجدداً!' : 'Welcome back!');
       emit('success', res.data.user);
       const target = (route.query.redirect as string) || '/';
       router.push(target);
     }
   } catch (err: any) {
-    alert(err.message || 'Login error');
+    toast.error(err.message || 'فشل تسجيل الدخول');
   } finally {
     globalStore.setLoading(['login', false]);
   }
@@ -93,13 +96,13 @@ const handleSubmit = async () => {
 .input-field-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 
   .field-label {
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--unity-text-main);
-    margin-bottom: 2px;
+    margin-bottom: 6px;
   }
 
   .input-shell {

@@ -1,12 +1,15 @@
 <template>
   <div class="profile-hero-card">
-    <!-- Left Edit Button -->
-    <button class="edit-profile-btn" aria-label="Edit Profile" @click="emit('edit')">
-      <i class="pi pi-pencil"></i>
-    </button>
-
-    <!-- Center/Right User Info & Avatar -->
+    <!-- User Info & Avatar (Starts on the right in RTL) -->
     <div class="user-info-row">
+      <div class="avatar-wrapper">
+        <img 
+          :src="resolveAvatar(user?.avatar) || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80'" 
+          alt="Profile photo" 
+        />
+        <span class="active-status-dot"></span>
+      </div>
+
       <div class="text-block">
         <h3 class="user-name">{{ user?.name || t('Ahmed Al-Salama') }}</h3>
         <div class="mrn-tag">
@@ -14,15 +17,12 @@
           <span>{{ t('File No:') }} {{ user?.mrn || user?.patient?.mrn || 'MRN-8849201' }}</span>
         </div>
       </div>
-
-      <div class="avatar-wrapper">
-        <img 
-          :src="user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80'" 
-          alt="Profile photo" 
-        />
-        <span class="active-status-dot"></span>
-      </div>
     </div>
+
+    <!-- Edit Profile Button (Ends on the left in RTL) -->
+    <button class="edit-profile-btn" aria-label="Edit Profile" @click="emit('edit')">
+      <i class="pi pi-pencil"></i>
+    </button>
   </div>
 </template>
 
@@ -38,6 +38,16 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+const resolveAvatar = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
+    return url;
+  }
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  return `${baseUrl}${url}`;
+};
 </script>
 
 <style scoped lang="scss">
@@ -78,7 +88,7 @@ const { t } = useI18n();
     gap: 14px;
 
     .text-block {
-      text-align: end;
+      text-align: start;
 
       .user-name {
         font-size: 1.15rem;

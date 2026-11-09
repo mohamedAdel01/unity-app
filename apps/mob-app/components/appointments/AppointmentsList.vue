@@ -136,11 +136,13 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
+import { useAppToast } from '../../composables/useAppToast';
 
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
 const globalStore = useGlobalStore();
+const toast = useAppToast();
 
 const activeTab = ref<'upcoming' | 'completed' | 'cancelled'>('upcoming');
 const appointments = ref<any[]>([]);
@@ -246,8 +248,9 @@ const cancelApt = async (apt: any) => {
       await api.cancelAppointment(apt.id);
     }
     apt.status = 'cancelled';
+    toast.success(isRtl.value ? 'تم إلغاء الموعد بنجاح.' : 'Appointment cancelled successfully.');
   } catch (err: any) {
-    alert(err.message || 'Cancellation error');
+    toast.error(err.message || 'فشل إلغاء الموعد');
   } finally {
     cancellingId.value = null;
   }
@@ -258,7 +261,7 @@ const rebook = (apt: any) => {
 };
 
 const viewReport = (apt: any) => {
-  alert(isRtl.value ? 'التقرير الطبي: تم إجراء الكشف وحالة المريض مستقرة وممتازة.' : 'Medical Report: Health vitals optimal. Follow-up in 2 weeks.');
+  toast.info(isRtl.value ? 'التقرير الطبي: تم إجراء الكشف وحالة المريض مستقرة وممتازة.' : 'Medical Report: Health vitals optimal. Follow-up in 2 weeks.', 'الملف الطبي');
 };
 
 defineExpose({

@@ -50,17 +50,18 @@ const bookingModal = useBookingModal();
 
 <style scoped lang="scss">
 .bottom-nav-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 72px;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  height: 68px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--unity-surface);
   border-top: 1px solid var(--unity-border);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 10px;
+  padding-left: 10px;
+  padding-right: 10px;
   z-index: 40;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
 

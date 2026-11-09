@@ -1,15 +1,16 @@
 <template>
   <div class="auth-page">
     <div class="auth-content-wrapper">
-      <AuthHeader :title="t('Create New Account')" />
-      <RegisterForm />
-      <QuickLoginButtons />
-      <AuthFooterLink :is-register="true" />
+      <AuthHeader :title="currentStep === 1 ? t('Create New Account') : (isRtl ? 'إكمال الملف الشخصي' : 'Complete Profile')" />
+      <RegisterForm v-model:step="currentStep" />
+      <QuickLoginButtons v-if="currentStep === 1" />
+      <AuthFooterLink v-if="currentStep === 1" :is-register="true" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import AuthHeader from '../../components/auth/AuthHeader.vue';
 import RegisterForm from '../../components/auth/RegisterForm.vue';
@@ -20,7 +21,8 @@ definePageMeta({
   middleware: ['guest'],
 });
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
+const currentStep = ref(1);
 </script>
 
 <style scoped lang="scss">

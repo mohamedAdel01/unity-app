@@ -23,10 +23,11 @@
         class="doctor-item-card"
       >
         <div class="doc-card-header">
-          <div class="doc-rating-badge">
-            <span>⭐ {{ doctor.rating || '4.9' }}</span>
-          </div>
           <div class="doc-avatar-group">
+            <img 
+              :src="doctor.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80'" 
+              :alt="doctor.name" 
+            />
             <div class="doc-texts">
               <h5>{{ doctor.name }}</h5>
               <p>{{ doctor.specialty || doctor.clinic?.name || t('home.defaultSpecialty') }}</p>
@@ -35,10 +36,9 @@
                 <span>{{ doctor.clinic?.name || t('home.defaultClinicName') }}</span>
               </div>
             </div>
-            <img 
-              :src="doctor.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80'" 
-              :alt="doctor.name" 
-            />
+          </div>
+          <div class="doc-rating-badge">
+            <span>⭐ {{ doctor.rating || '4.9' }}</span>
           </div>
         </div>
 
@@ -227,7 +227,7 @@ onMounted(() => {
       gap: 12px;
 
       .doc-texts {
-        text-align: right;
+        text-align: start;
 
         h5 {
           font-size: 0.98rem;

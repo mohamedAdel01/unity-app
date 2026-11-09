@@ -3,7 +3,7 @@
     <div class="user-greeting-box">
       <div class="user-avatar-wrap">
         <img 
-          :src="currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'" 
+          :src="resolveAvatar(currentUser?.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'" 
           alt="User Avatar"
         />
         <span class="online-indicator"></span>
@@ -65,6 +65,16 @@ const bookingModal = useBookingModal();
 
 const currentUser = ref<any>(api.currentUser.value);
 const unreadCount = ref(2);
+
+const resolveAvatar = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
+    return url;
+  }
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  return `${baseUrl}${url}`;
+};
 
 const themeIcon = computed(() => {
   if (theme.currentTheme.value === 'dark') return 'pi pi-sun';
