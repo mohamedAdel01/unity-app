@@ -46,3 +46,4 @@ const onBookingCompleted = () => {
   router.push('/appointments');
 };
 </script>
+

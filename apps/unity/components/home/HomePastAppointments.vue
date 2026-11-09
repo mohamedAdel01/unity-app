@@ -20,13 +20,13 @@
           </div>
           <div class="record-info">
             <div class="info-title-wrap">
-              <h5>{{ isRtl ? 'د. خالد السبيعي' : 'Dr. Khaled Al-Subaie' }}</h5>
+              <h5>{{ t('home.pastDocName') }}</h5>
               <span class="status-chip completed">{{ t('appointments.statusCompleted') }}</span>
             </div>
-            <p>{{ isRtl ? 'كشفية استشارية لأمراض القلب' : 'Cardiology Consultation Visit' }}</p>
+            <p>{{ t('home.pastDocVisit') }}</p>
             <div class="record-date">
               <i class="pi pi-calendar"></i>
-              <span>{{ isRtl ? '22 أكتوبر 2026 • 6:15 مساءً' : 'Oct 22, 2026 • 6:15 PM' }}</span>
+              <span>{{ t('home.pastDocDate') }}</span>
             </div>
           </div>
         </div>
@@ -48,13 +48,13 @@
           </div>
           <div class="record-info">
             <div class="info-title-wrap">
-              <h5>{{ isRtl ? 'باقة الفيتامينات الشاملة' : 'Comprehensive Vitamin Profile' }}</h5>
-              <span class="status-chip ready">{{ isRtl ? 'النتائج جاهزة' : 'Results Ready' }}</span>
+              <h5>{{ t('home.pastLabTitle') }}</h5>
+              <span class="status-chip ready">{{ t('home.pastLabStatus') }}</span>
             </div>
-            <p>{{ isRtl ? 'مختبرات الرياض الطبية - سحب منزلي' : 'Riyadh Medical Labs - Home Draw' }}</p>
+            <p>{{ t('home.pastLabSub') }}</p>
             <div class="record-date">
               <i class="pi pi-calendar"></i>
-              <span>{{ isRtl ? '14 أكتوبر 2026 • 09:00 صباحاً' : 'Oct 14, 2026 • 09:00 AM' }}</span>
+              <span>{{ t('home.pastLabDate') }}</span>
             </div>
           </div>
         </div>
@@ -192,13 +192,13 @@ const rebookLab = () => {
 
         h5 {
           font-size: 0.95rem;
-          font-weight: 800;
+          font-weight: 600;
           color: var(--unity-text-main);
         }
 
         .status-chip {
           font-size: 0.65rem;
-          font-weight: 700;
+          font-weight: 600;
           padding: 2px 8px;
           border-radius: 10px;
 
@@ -243,7 +243,7 @@ const rebookLab = () => {
       padding: 9px;
       border-radius: 12px;
       font-size: 0.78rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -274,3 +274,4 @@ const rebookLab = () => {
   }
 }
 </style>
+

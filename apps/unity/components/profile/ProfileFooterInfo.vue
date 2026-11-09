@@ -1,0 +1,95 @@
+<template>
+  <div class="profile-footer-section">
+    <!-- Logout Button -->
+    <button class="logout-action-btn" @click="handleLogout">
+      <i class="pi pi-sign-out"></i>
+      <span>{{ t('profile.logout') }}</span>
+    </button>
+
+    <!-- App Compliance Badge & Build Number -->
+    <div class="compliance-box">
+      <div class="moh-badge">
+        <i class="pi pi-verified"></i>
+        <span>{{ t('profile.mohCompliance') }}</span>
+      </div>
+      <p class="build-version">{{ t('profile.appVersion') }}</p>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useUnityApi } from '../../composables/useUnityApi';
+import { useI18n } from '../../composables/useI18n';
+
+const router = useRouter();
+const api = useUnityApi();
+const { t } = useI18n();
+
+const handleLogout = async () => {
+  api.logout();
+  router.push('/auth/login');
+};
+</script>
+
+<style scoped lang="scss">
+.profile-footer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 4px;
+  padding-bottom: 30px;
+
+  .logout-action-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 16px;
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+
+    i {
+      font-size: 0.95rem;
+    }
+
+    &:hover {
+      background: #fee2e2;
+    }
+  }
+
+  .compliance-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+
+    .moh-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #047857;
+
+      i {
+        font-size: 0.85rem;
+      }
+    }
+
+    .build-version {
+      font-size: 0.68rem;
+      color: var(--unity-text-dim);
+    }
+  }
+}
+</style>
+

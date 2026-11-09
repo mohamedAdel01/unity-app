@@ -11,7 +11,7 @@
       </NuxtLink>
     </div>
 
-    <div v-if="doctorsLoading" class="loading-state">
+    <div v-if="globalStore.loading.includes('doctors')" class="loading-state">
       <i class="pi pi-spin pi-spinner"></i>
       <span>{{ t('common.loading') }}</span>
     </div>
@@ -29,10 +29,10 @@
           <div class="doc-avatar-group">
             <div class="doc-texts">
               <h5>{{ doctor.name }}</h5>
-              <p>{{ doctor.specialty || doctor.clinic?.name || (isRtl ? 'استشاري أمراض القلب والقسطرة' : 'Cardiology Consultant') }}</p>
+              <p>{{ doctor.specialty || doctor.clinic?.name || t('home.defaultSpecialty') }}</p>
               <div class="doc-clinic-name">
                 <i class="pi pi-building"></i>
-                <span>{{ doctor.clinic?.name || (isRtl ? 'مجمع الرياض الطبي الاستشاري' : 'Riyadh Medical Complex') }}</span>
+                <span>{{ doctor.clinic?.name || t('home.defaultClinicName') }}</span>
               </div>
             </div>
             <img 
@@ -64,6 +64,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { useGlobalStore } from '../../stores/global';
 
 const props = defineProps<{
   searchQuery?: string;
@@ -73,13 +74,13 @@ const props = defineProps<{
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
+const globalStore = useGlobalStore();
 
-const doctorsLoading = ref(false);
 const doctors = ref<any[]>([]);
 
 const loadDoctors = async () => {
   try {
-    doctorsLoading.value = true;
+    globalStore.setLoading(['doctors', true]);
     const res = await api.getDoctors();
     if (res.status && Array.isArray(res.data) && res.data.length > 0) {
       doctors.value = res.data.map((d: any) => ({
@@ -129,7 +130,7 @@ const loadDoctors = async () => {
   } catch (err) {
     // Keep fallback list
   } finally {
-    doctorsLoading.value = false;
+    globalStore.setLoading(['doctors', false]);
   }
 };
 
@@ -165,7 +166,7 @@ onMounted(() => {
 
     h4 {
       font-size: 1.05rem;
-      font-weight: 800;
+      font-weight: 600;
       color: var(--unity-text-main);
     }
 
@@ -215,7 +216,7 @@ onMounted(() => {
       background: #ecfdf5;
       color: #047857;
       font-size: 0.75rem;
-      font-weight: 800;
+      font-weight: 600;
       padding: 2px 8px;
       border-radius: 10px;
     }
@@ -230,7 +231,7 @@ onMounted(() => {
 
         h5 {
           font-size: 0.98rem;
-          font-weight: 800;
+          font-weight: 600;
           color: var(--unity-text-main);
         }
 
@@ -291,7 +292,7 @@ onMounted(() => {
       padding: 8px 18px;
       border-radius: 12px;
       font-size: 0.8rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
 
@@ -313,3 +314,4 @@ onMounted(() => {
   font-size: 0.85rem;
 }
 </style>
+

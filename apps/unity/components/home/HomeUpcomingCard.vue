@@ -29,7 +29,7 @@
         <div class="schedule-box">
           <i class="pi pi-clock"></i>
           <div>
-            <small>{{ isRtl ? 'الوقت' : 'Time' }}</small>
+            <small>{{ t('common.time') }}</small>
             <strong>{{ upcomingAppointment.start_time || '18:00 - 18:30' }}</strong>
           </div>
         </div>
@@ -37,7 +37,7 @@
         <div class="schedule-box">
           <i class="pi pi-calendar"></i>
           <div>
-            <small>{{ isRtl ? 'التاريخ' : 'Date' }}</small>
+            <small>{{ t('common.date') }}</small>
             <strong>{{ upcomingAppointment.date || (isRtl ? '15 مارس، الإثنين' : 'Monday, Mar 15') }}</strong>
           </div>
         </div>
@@ -147,7 +147,7 @@ const viewDoctor = (doctor: any) => {
 
         h5 {
           font-size: 1rem;
-          font-weight: 800;
+          font-weight: 600;
         }
 
         span {
@@ -196,7 +196,7 @@ const viewDoctor = (doctor: any) => {
 
         strong {
           font-size: 0.8rem;
-          font-weight: 700;
+          font-weight: 600;
         }
       }
     }
@@ -211,7 +211,7 @@ const viewDoctor = (doctor: any) => {
       padding: 10px;
       border-radius: 12px;
       font-size: 0.8rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all 0.2s;
@@ -229,3 +229,4 @@ const viewDoctor = (doctor: any) => {
   }
 }
 </style>
+

@@ -107,13 +107,13 @@ const navigateToCategory = (cat: any) => {
 
     h4 {
       font-size: 1.05rem;
-      font-weight: 800;
+      font-weight: 600;
       color: var(--unity-text-main);
     }
 
     .see-all-link {
       font-size: 0.78rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--unity-primary);
       text-decoration: none;
       display: flex;
@@ -152,7 +152,7 @@ const navigateToCategory = (cat: any) => {
       top: 6px;
       inset-inline-end: 6px;
       font-size: 0.58rem;
-      font-weight: 800;
+      font-weight: 600;
       padding: 1px 6px;
       border-radius: 10px;
 
@@ -192,7 +192,7 @@ const navigateToCategory = (cat: any) => {
 
     h5 {
       font-size: 0.8rem;
-      font-weight: 800;
+      font-weight: 600;
       color: var(--unity-text-main);
       margin-bottom: 2px;
     }
@@ -204,3 +204,4 @@ const navigateToCategory = (cat: any) => {
   }
 }
 </style>
+

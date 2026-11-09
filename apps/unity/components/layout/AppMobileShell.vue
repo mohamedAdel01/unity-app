@@ -6,12 +6,12 @@
         <MobileStatusBar />
 
         <!-- Main Page Scrollable Viewport -->
-        <main class="mobile-content-viewport">
+        <main class="mobile-content-viewport" :class="{ 'no-bottom-nav': isAuthRoute }">
           <slot />
         </main>
 
         <!-- Bottom Navigation Bar with Center Floating Plus Action -->
-        <BottomNavBar />
+        <BottomNavBar v-if="!isAuthRoute" />
 
         <!-- Global Modals (Quick Book, Notifications, Booking Checkout) -->
         <AppGlobalModals />
@@ -21,15 +21,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 import MobileStatusBar from './MobileStatusBar.vue';
 import BottomNavBar from './BottomNavBar.vue';
 import AppGlobalModals from './AppGlobalModals.vue';
 
+const route = useRoute();
 const theme = useTheme();
 const { isRtl, initLocale } = useI18n();
+
+const isAuthRoute = computed(() => {
+  return route.path.startsWith('/auth');
+});
 
 onMounted(() => {
   theme.initTheme();
@@ -92,5 +98,10 @@ onMounted(() => {
   padding-bottom: 96px;
   background: var(--unity-bg);
   scroll-behavior: smooth;
+
+  &.no-bottom-nav {
+    padding-bottom: 24px;
+  }
 }
 </style>
+

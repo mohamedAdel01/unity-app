@@ -38,8 +38,8 @@ const { t, isRtl } = useI18n();
   }
 
   .page-title {
-    font-size: 1.1rem;
-    font-weight: 800;
+    font-size: 1.05rem;
+    font-weight: 700;
     color: var(--unity-text-main);
   }
 
@@ -55,3 +55,4 @@ const { t, isRtl } = useI18n();
   }
 }
 </style>
+

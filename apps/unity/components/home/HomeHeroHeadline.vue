@@ -16,10 +16,10 @@ const { t } = useI18n();
   margin-top: 4px;
 
   h3 {
-    font-size: 1.45rem;
-    font-weight: 900;
+    font-size: 1.35rem;
+    font-weight: 700;
     color: var(--unity-text-main);
-    letter-spacing: -0.4px;
+    letter-spacing: -0.2px;
   }
 
   p {
@@ -29,3 +29,4 @@ const { t } = useI18n();
   }
 }
 </style>
+

@@ -123,7 +123,7 @@ const selectFilter = (id: string) => {
       padding: 7px 18px;
       border-radius: 16px;
       font-size: 0.8rem;
-      font-weight: 700;
+      font-weight: 600;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
       color: var(--unity-text-muted);
@@ -140,3 +140,4 @@ const selectFilter = (id: string) => {
   }
 }
 </style>
+

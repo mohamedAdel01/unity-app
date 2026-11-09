@@ -21,7 +21,7 @@ const { t } = useI18n();
   align-items: center;
   gap: 8px;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #065f46;
 
   .live-dot-pulse {
@@ -33,3 +33,4 @@ const { t } = useI18n();
   }
 }
 </style>
+

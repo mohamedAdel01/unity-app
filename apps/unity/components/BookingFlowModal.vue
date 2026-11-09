@@ -39,8 +39,8 @@
                   <span class="verified-tick"><i class="pi pi-check"></i></span>
                 </div>
                 <div class="doc-info">
-                  <h4>{{ doctor?.name || (isRtl ? 'د. خالد السبيعي' : 'Dr. Khaled Al-Subaie') }}</h4>
-                  <p class="doc-spec">{{ doctor?.specialty || doctor?.clinic?.name || (isRtl ? 'استشاري أمراض القلب والقسطرة' : 'Cardiology Consultant') }}</p>
+                  <h4>{{ doctor?.name || t('home.pastDocName') }}</h4>
+                  <p class="doc-spec">{{ doctor?.specialty || doctor?.clinic?.name || t('home.defaultSpecialty') }}</p>
                 </div>
               </div>
 
@@ -57,7 +57,7 @@
                   <div class="meta-icon"><i class="pi pi-map-marker"></i></div>
                   <div class="meta-text">
                     <span class="meta-label">{{ t('booking.clinicBranch') }}</span>
-                    <strong class="meta-val">{{ doctor?.clinic?.name || (isRtl ? 'مجمع الرياض الطبي التخصصي' : 'Riyadh Medical Specialized Center') }}</strong>
+                    <strong class="meta-val">{{ doctor?.clinic?.name || t('home.defaultClinicName') }}</strong>
                   </div>
                 </div>
               </div>
@@ -493,7 +493,7 @@ onUnmounted(() => {
     background: #ecfdf5;
     color: #047857;
     font-size: 0.75rem;
-    font-weight: 800;
+    font-weight: 600;
     padding: 3px 8px;
     border-radius: 12px;
   }
@@ -537,7 +537,7 @@ onUnmounted(() => {
     .doc-info {
       h4 {
         font-size: 1.05rem;
-        font-weight: 800;
+        font-weight: 600;
         color: var(--unity-text-main);
       }
 
@@ -646,7 +646,7 @@ onUnmounted(() => {
 
     h5 {
       font-size: 0.95rem;
-      font-weight: 800;
+      font-weight: 600;
       color: var(--unity-text-main);
     }
 
@@ -700,7 +700,7 @@ onUnmounted(() => {
 
       .total-label {
         font-size: 0.88rem;
-        font-weight: 800;
+        font-weight: 600;
         color: #064e3b;
       }
 
@@ -718,12 +718,12 @@ onUnmounted(() => {
 
       .currency {
         font-size: 0.85rem;
-        font-weight: 700;
+        font-weight: 600;
       }
 
       .number {
-        font-size: 1.6rem;
-        font-weight: 900;
+        font-size: 1.5rem;
+        font-weight: 700;
       }
     }
   }
@@ -738,7 +738,7 @@ onUnmounted(() => {
 
     h5 {
       font-size: 0.95rem;
-      font-weight: 800;
+      font-weight: 600;
       color: var(--unity-text-main);
     }
 
@@ -846,7 +846,7 @@ onUnmounted(() => {
 
   h4 {
     font-size: 1.05rem;
-    font-weight: 800;
+    font-weight: 600;
   }
 
   p {
@@ -868,7 +868,7 @@ onUnmounted(() => {
     color: #fff;
     border: none;
     font-size: 0.95rem;
-    font-weight: 800;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;

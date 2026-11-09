@@ -288,8 +288,8 @@ onMounted(() => {
     }
 
     h3 {
-      font-size: 1.1rem;
-      font-weight: 800;
+      font-size: 1.05rem;
+      font-weight: 600;
       color: var(--unity-text-main);
     }
 

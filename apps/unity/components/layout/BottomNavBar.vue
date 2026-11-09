@@ -68,7 +68,7 @@ const bookingModal = useBookingModal();
     color: var(--unity-text-muted);
     text-decoration: none;
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 600;
     width: 62px;
     height: 52px;
     border-radius: 14px;
@@ -129,3 +129,4 @@ const bookingModal = useBookingModal();
   }
 }
 </style>
+

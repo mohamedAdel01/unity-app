@@ -33,7 +33,7 @@
 
     <!-- Content: Services Tab -->
     <div v-if="activeTab === 'services'" class="tab-content-area">
-      <div v-if="loadingServices" class="loading-state">
+      <div v-if="globalStore.loading.includes('services')" class="loading-state">
         <i class="pi pi-spin pi-spinner"></i>
         <span>{{ t('common.loading') }}</span>
       </div>
@@ -68,7 +68,7 @@
 
     <!-- Content: Doctors Tab -->
     <div v-else class="tab-content-area">
-      <div v-if="loadingDoctors" class="loading-state">
+      <div v-if="globalStore.loading.includes('doctors')" class="loading-state">
         <i class="pi pi-spin pi-spinner"></i>
         <span>{{ t('common.loading') }}</span>
       </div>
@@ -108,20 +108,20 @@ import { useRouter, useRoute } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { useGlobalStore } from '../../stores/global';
 
 const router = useRouter();
 const route = useRoute();
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
+const globalStore = useGlobalStore();
 
 const activeTab = ref<'services' | 'doctors'>('services');
 const searchQuery = ref('');
 
 const services = ref<any[]>([]);
 const doctors = ref<any[]>([]);
-const loadingServices = ref(false);
-const loadingDoctors = ref(false);
 
 const switchTab = (tab: 'services' | 'doctors') => {
   activeTab.value = tab;
@@ -130,7 +130,7 @@ const switchTab = (tab: 'services' | 'doctors') => {
 
 const loadServices = async () => {
   try {
-    loadingServices.value = true;
+    globalStore.setLoading(['services', true]);
     const res = await api.getServices();
     if (res.status && Array.isArray(res.data) && res.data.length > 0) {
       services.value = res.data;
@@ -145,13 +145,13 @@ const loadServices = async () => {
   } catch (e) {
     // Keep fallback list
   } finally {
-    loadingServices.value = false;
+    globalStore.setLoading(['services', false]);
   }
 };
 
 const loadDoctors = async () => {
   try {
-    loadingDoctors.value = true;
+    globalStore.setLoading(['doctors', true]);
     const res = await api.getDoctors();
     if (res.status && Array.isArray(res.data) && res.data.length > 0) {
       doctors.value = res.data.map((d: any) => ({
@@ -188,7 +188,7 @@ const loadDoctors = async () => {
   } catch (e) {
     // Keep fallback list
   } finally {
-    loadingDoctors.value = false;
+    globalStore.setLoading(['doctors', false]);
   }
 };
 
@@ -259,8 +259,9 @@ onMounted(() => {
     border: none;
     background: transparent;
     color: var(--unity-text-muted);
-    font-size: 0.82rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
     transition: all 0.2s;
 
@@ -293,6 +294,14 @@ onMounted(() => {
     outline: none;
     font-size: 0.85rem;
     color: var(--unity-text-main);
+    font-family: inherit;
+    font-weight: 400;
+
+    &::placeholder {
+      font-family: inherit;
+      font-weight: 400;
+      color: var(--unity-text-dim);
+    }
   }
 }
 
@@ -526,3 +535,4 @@ onMounted(() => {
   color: var(--unity-text-muted);
 }
 </style>
+

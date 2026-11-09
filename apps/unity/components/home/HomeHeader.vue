@@ -14,7 +14,7 @@
           <span>{{ t('home.location') }}</span>
         </div>
         <h2 class="greeting-name">
-          {{ t('home.welcomePrefix') }} {{ currentUser?.name || (isRtl ? 'أحمد السلامة' : 'Ahmed Al-Salama') }}
+          {{ t('home.welcomePrefix') }} {{ currentUser?.name || t('profile.defaultUserName') }}
         </h2>
       </div>
     </div>
@@ -140,8 +140,8 @@ const toggleLanguage = () => {
       }
 
       .greeting-name {
-        font-size: 1.05rem;
-        font-weight: 800;
+        font-size: 1rem;
+        font-weight: 600;
         color: var(--unity-text-main);
       }
     }
@@ -199,3 +199,4 @@ const toggleLanguage = () => {
   }
 }
 </style>
+

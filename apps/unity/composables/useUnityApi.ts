@@ -47,11 +47,11 @@ export function useUnityApi() {
     return data;
   };
 
-  // Auth
-  const login = async (email: string, password: string) => {
+  // Auth (Supports Email OR Mobile Phone)
+  const login = async (identifier: string, password: string) => {
     const res = await request('/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier, password }),
     });
     if (res.status && res.data?.token) {
       token.value = res.data.token;
@@ -64,15 +64,66 @@ export function useUnityApi() {
     return res;
   };
 
-  const registerPatient = async (payload: {
+  // Universal Register (For all users; admin converted from DB)
+  const register = async (payload: {
     name: string;
-    email: string;
     password: string;
+    email?: string;
     phone?: string;
     gender?: string;
     date_of_birth?: string;
   }) => {
     const res = await request('/v1/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (res.status && res.data?.token) {
+      token.value = res.data.token;
+      currentUser.value = res.data.user;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('unity_token', res.data.token);
+        localStorage.setItem('unity_user', JSON.stringify(res.data.user));
+      }
+    }
+    return res;
+  };
+
+  // Backward compatible alias
+  const registerPatient = register;
+
+  // Google Sign-In (Token direct verification for mobile SDK & SPA)
+  const loginWithGoogle = async (payload: {
+    idToken?: string;
+    accessToken?: string;
+    email?: string;
+    name?: string;
+    avatar?: string;
+    googleId?: string;
+  }) => {
+    const res = await request('/v1/auth/google/token', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (res.status && res.data?.token) {
+      token.value = res.data.token;
+      currentUser.value = res.data.user;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('unity_token', res.data.token);
+        localStorage.setItem('unity_user', JSON.stringify(res.data.user));
+      }
+    }
+    return res;
+  };
+
+  // Apple Sign-In (Native iOS callback matching Bya3 pattern)
+  const loginWithApple = async (payload: {
+    identityToken: string;
+    email?: string;
+    givenName?: string;
+    familyName?: string;
+    userIdentifier?: string;
+  }) => {
+    const res = await request('/v1/auth/apple/native-callback', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -186,7 +237,10 @@ export function useUnityApi() {
     token,
     currentUser,
     login,
+    register,
     registerPatient,
+    loginWithGoogle,
+    loginWithApple,
     logout,
     getClinics,
     getServices,
