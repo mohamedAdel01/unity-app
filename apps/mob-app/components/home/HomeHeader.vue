@@ -3,9 +3,13 @@
     <div class="user-greeting-box">
       <div class="user-avatar-wrap">
         <img 
-          :src="resolveAvatar(currentUser?.avatar) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'" 
+          v-if="hasUserPhoto"
+          :src="resolvedPhotoUrl" 
           alt="User Avatar"
         />
+        <div v-else class="user-avatar-initial">
+          <span>{{ getUserInitial(currentUser?.name) }}</span>
+        </div>
         <span class="online-indicator"></span>
       </div>
       <div class="user-details">
@@ -14,7 +18,7 @@
           <span>{{ t('home.location') }}</span>
         </div>
         <h2 class="greeting-name">
-          {{ t('home.welcomePrefix') }} {{ currentUser?.name || t('profile.defaultUserName') }}
+          {{ t('home.welcomePrefix') }} {{ currentUser?.name || '' }}
         </h2>
       </div>
     </div>
@@ -57,24 +61,18 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
 const api = useUnityApi();
 const theme = useTheme();
 const { t, locale, setLocale, isRtl } = useI18n();
 const bookingModal = useBookingModal();
 
-const currentUser = ref<any>(api.currentUser.value);
-const unreadCount = ref(2);
+const currentUser = computed(() => api.currentUser.value);
+const unreadCount = ref(0);
 
-const resolveAvatar = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
-    return url;
-  }
-  const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${url}`;
-};
+const hasUserPhoto = computed(() => isUserUploadedPhoto(currentUser.value?.avatar));
+const resolvedPhotoUrl = computed(() => resolveAvatarUrl(currentUser.value?.avatar));
 
 const themeIcon = computed(() => {
   if (theme.currentTheme.value === 'dark') return 'pi pi-sun';
@@ -118,6 +116,19 @@ const toggleLanguage = () => {
         height: 100%;
         border-radius: 50%;
         object-fit: cover;
+      }
+
+      .user-avatar-initial {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.15rem;
       }
 
       .online-indicator {

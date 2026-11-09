@@ -2,12 +2,12 @@
   <div class="user-card">
     <div class="avatar-holder">
       <img 
-        v-if="user?.avatar"
-        :src="user.avatar" 
+        v-if="hasUserPhoto"
+        :src="resolvedPhotoUrl" 
         alt="Profile" 
       />
       <div v-else class="letter-avatar-initial">
-        <span>{{ (user?.name || 'U').charAt(0).toUpperCase() }}</span>
+        <span>{{ getUserInitial(user?.name) }}</span>
       </div>
       <button class="edit-avatar-btn">
         <i class="pi pi-camera"></i>
@@ -26,13 +26,18 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
-defineProps<{
+const props = defineProps<{
   user?: any;
 }>();
 
 const { t } = useI18n();
+
+const hasUserPhoto = computed(() => isUserUploadedPhoto(props.user?.avatar));
+const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
 </script>
 
 <style scoped lang="scss">

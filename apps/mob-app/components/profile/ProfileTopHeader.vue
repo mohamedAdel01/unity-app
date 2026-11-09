@@ -2,9 +2,13 @@
   <header class="profile-top-header">
     <div class="user-avatar-btn" @click="router.push('/profile')">
       <img 
-        :src="user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'" 
+        v-if="hasUserPhoto"
+        :src="resolvedPhotoUrl" 
         alt="Avatar" 
       />
+      <div v-else class="header-avatar-initial">
+        <span>{{ getUserInitial(user?.name) }}</span>
+      </div>
     </div>
 
     <div class="title-with-badge">
@@ -23,17 +27,22 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
-defineProps<{
+const props = defineProps<{
   user?: any;
 }>();
 
 const router = useRouter();
 const { t } = useI18n();
 const bookingModal = useBookingModal();
+
+const hasUserPhoto = computed(() => isUserUploadedPhoto(props.user?.avatar));
+const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
 </script>
 
 <style scoped lang="scss">
@@ -55,6 +64,18 @@ const bookingModal = useBookingModal();
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+
+    .header-avatar-initial {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
     }
   }
 

@@ -1,11 +1,9 @@
 <template>
   <div class="auth-page">
     <div class="auth-content-wrapper">
-      <AuthHeader 
-        :title="currentStep === 1 ? t('Create New Account') : currentStep === 2 ? t('Mobile Verification') : (isRtl ? 'إكمال الملف الشخصي' : 'Complete Profile')" 
-        :custom-back="true"
-        @back="handleStepBack"
-      />
+      <AuthHeader
+        :title="currentStep === 1 ? t('Create New Account') : currentStep === 2 ? t('Mobile Verification') : t('Complete Profile')"
+        :custom-back="true" @back="handleStepBack" />
       <RegisterForm v-model:step="currentStep" />
       <QuickLoginButtons v-if="currentStep === 1" />
       <AuthFooterLink v-if="currentStep === 1" :is-register="true" />
@@ -27,15 +25,12 @@ definePageMeta({
 });
 
 const router = useRouter();
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
 const currentStep = ref(1);
 
 const handleStepBack = () => {
-  if (currentStep.value > 1) {
-    currentStep.value--;
-  } else {
-    router.back();
-  }
+  if (currentStep.value > 1) currentStep.value--;
+  else router.push('/');
 };
 </script>
 

@@ -34,7 +34,7 @@
     <!-- STEP 1: Name, Phone, Password                  -->
     <!-- Creates Account in Database                    -->
     <!-- ============================================== -->
-    <form v-if="currentStep === 1" class="step-content" @submit.prevent="handleStep1Submit">
+    <form v-if="currentStep === 1" class="step-content" autocomplete="off" @submit.prevent="handleStep1Submit">
       <!-- Full Name -->
       <div class="input-field-group">
         <label class="field-label">{{ t('Full Name') }}</label>
@@ -46,6 +46,12 @@
             :placeholder="t('Full Name')" 
             required 
             autofocus
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
           />
         </div>
       </div>
@@ -71,6 +77,13 @@
             placeholder="••••••••" 
             required 
             minlength="6"
+            autocomplete="new-password"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
           />
           <button type="button" class="eye-toggle-btn" :aria-label="showPassword ? 'Hide' : 'Show'" @click="showPassword = !showPassword">
             <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
@@ -87,7 +100,6 @@
         <i v-if="globalStore.loading.includes('register')" class="pi pi-spin pi-spinner"></i>
         <template v-else>
           <span>{{ t('Continue') }}</span>
-          <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" class="btn-arrow"></i>
         </template>
       </button>
     </form>

@@ -44,28 +44,28 @@
     <!-- ============================================== -->
     <div v-if="isExpanded" class="booking-expanded-body">
       <!-- Doctor & Time Banner (Light blue pill container) -->
-      <div class="doctor-time-banner">
-        <div class="doc-cell">
+      <div v-if="booking.doctor_name || booking.time" class="doctor-time-banner">
+        <div v-if="booking.doctor_name" class="doc-cell">
           <i class="pi pi-user"></i>
-          <span>{{ booking.doctor_name || 'د. فهد السالم' }}</span>
+          <span>{{ booking.doctor_name }}</span>
         </div>
-        <div class="time-cell">
+        <div v-if="booking.time" class="time-cell">
           <i class="pi pi-clock"></i>
-          <span dir="ltr">{{ booking.time || '10:30 AM' }}</span>
+          <span dir="ltr">{{ booking.time }}</span>
         </div>
       </div>
 
       <!-- Payment Method & Price Row -->
-      <div class="payment-price-row">
+      <div v-if="booking.payment_method || booking.price" class="payment-price-row">
         <!-- Right: Payment Method & Invoice ID -->
-        <div class="payment-method-cell">
+        <div v-if="booking.payment_method" class="payment-method-cell">
           <i class="pi pi-check-circle green-check"></i>
-          <span>{{ booking.payment_method || 'مدى (INV-902#)' }}</span>
+          <span>{{ booking.payment_method }}</span>
         </div>
 
         <!-- Left: Price -->
-        <div class="price-cell">
-          <strong>{{ booking.price || 250 }}</strong>
+        <div v-if="booking.price" class="price-cell">
+          <strong>{{ booking.price }}</strong>
           <small>{{ t('SAR') }}</small>
         </div>
       </div>

@@ -22,8 +22,10 @@
           </div>
           <p class="specialty-clinic-line">
             <span>{{ doctor.specialty }}</span>
-            <span class="dot-separator">•</span>
-            <span>{{ t('Clinic Room') }} {{ doctor.room || '104' }}</span>
+            <template v-if="doctor.room">
+              <span class="dot-separator">•</span>
+              <span>{{ t('Clinic Room') }} {{ doctor.room }}</span>
+            </template>
           </p>
         </div>
       </div>
@@ -55,7 +57,7 @@
       <!-- View Cases Action -->
       <button class="btn-view-cases" @click="emit('view-cases', doctor)">
         <i class="pi pi-file"></i>
-        <span>{{ t('Cases') }} ({{ doctor.cases_count || 7 }})</span>
+        <span>{{ t('Cases') }}<template v-if="doctor.cases_count !== undefined && doctor.cases_count !== null"> ({{ doctor.cases_count }})</template></span>
       </button>
     </div>
   </div>

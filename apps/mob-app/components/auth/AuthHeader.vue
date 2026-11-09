@@ -10,7 +10,7 @@
     <!-- Official Unity Clinics Logo & Brand Identity (Seamless Transparent) -->
     <div class="brand-hero-box">
       <div class="brand-logo-wrap">
-        <img src="/logo.png" alt="عيادات يونيتي التخصصية - Unity Clinics" class="unity-brand-logo" />
+        <img src="/logo.png" alt="Unity Clinics" class="unity-brand-logo" />
       </div>
       <h2 class="auth-heading">{{ title || t('Sign In') }}</h2>
       <p class="auth-subheading">

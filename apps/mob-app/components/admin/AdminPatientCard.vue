@@ -25,15 +25,15 @@
         <div class="patient-details">
           <div class="name-badge-line">
             <h4 class="patient-name">{{ patient.name }}</h4>
-            <span class="insurance-badge" :class="getBadgeClass(patient.insurance || patient.badge)">
-              {{ patient.insurance || patient.badge || t('Verified Insurance') }}
+            <span v-if="patient.insurance || patient.badge" class="insurance-badge" :class="getBadgeClass(patient.insurance || patient.badge)">
+              {{ patient.insurance || patient.badge }}
             </span>
           </div>
 
-          <p class="mrn-clinic-line">
-            <span>MRN - {{ patient.mrn || '8849201' }}</span>
-            <span class="dot-separator">•</span>
-            <span>{{ patient.clinic || t('Internal Medicine') }}</span>
+          <p v-if="patient.mrn || patient.clinic" class="mrn-clinic-line">
+            <span v-if="patient.mrn">MRN - {{ patient.mrn }}</span>
+            <span v-if="patient.mrn && patient.clinic" class="dot-separator">•</span>
+            <span v-if="patient.clinic">{{ patient.clinic }}</span>
           </p>
         </div>
       </div>
@@ -50,43 +50,39 @@
     <div v-if="isExpanded" class="card-expanded-body">
       <!-- Row 1: Phone Number & National ID (Two Columns) -->
       <div class="two-col-grid">
-        <div class="info-cell">
+        <div v-if="patient.phone" class="info-cell">
           <span class="cell-label">{{ t('Phone Number') }}</span>
           <span class="cell-value ltr-text">{{ formatPhone(patient.phone) }}</span>
         </div>
 
-        <div class="info-cell">
+        <div v-if="patient.national_id" class="info-cell">
           <span class="cell-label">{{ t('National ID') }}</span>
           <span class="cell-value ltr-text">{{ maskNationalId(patient.national_id) }}</span>
         </div>
       </div>
 
       <!-- Row 2: Last Visit -->
-      <div class="detail-row">
+      <div v-if="patient.last_visit" class="detail-row">
         <span class="row-label">{{ t('Last Visit') }}</span>
-        <span class="row-value">
-          {{ patient.last_visit || t('Internal Medicine (Dr. Khaled)') }}
-        </span>
+        <span class="row-value">{{ patient.last_visit }}</span>
       </div>
 
       <!-- Row 3: Next Appointment -->
-      <div class="detail-row">
+      <div v-if="patient.next_appointment" class="detail-row">
         <span class="row-label">{{ t('Next Appointment') }}</span>
         <div class="next-apt-value">
           <span class="apt-green-dot"></span>
-          <span>{{ patient.next_appointment || t('Tomorrow 10:00 AM • Routine Follow-up') }}</span>
+          <span>{{ patient.next_appointment }}</span>
         </div>
       </div>
 
       <!-- Subtle Divider -->
-      <div class="cell-divider"></div>
+      <div v-if="patient.diagnosis" class="cell-divider"></div>
 
       <!-- Row 4: Current Diagnosis -->
-      <div class="diagnosis-box">
+      <div v-if="patient.diagnosis" class="diagnosis-box">
         <span class="row-label">{{ t('Current Diagnosis') }}</span>
-        <p class="diagnosis-text">
-          {{ patient.diagnosis || t('Mild Hypertension • Regular Follow-up') }}
-        </p>
+        <p class="diagnosis-text">{{ patient.diagnosis }}</p>
       </div>
 
       <!-- Action Buttons Row -->

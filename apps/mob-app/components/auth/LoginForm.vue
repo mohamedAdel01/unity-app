@@ -1,5 +1,5 @@
 <template>
-  <form class="login-form-card" @submit.prevent="handleSubmit">
+  <form class="login-form-card" autocomplete="off" @submit.prevent="handleSubmit">
     <div class="input-field-group">
       <label class="field-label">{{ t('Phone Number') }}</label>
       <AppPhoneInput 
@@ -18,8 +18,16 @@
           :type="showPassword ? 'text' : 'password'" 
           placeholder="••••••••" 
           required 
+          autocomplete="new-password"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          data-lpignore="true"
+          data-1p-ignore="true"
+          data-bwignore="true"
+          data-form-type="other"
         />
-        <button type="button" class="eye-toggle-btn" @click="showPassword = !showPassword">
+        <button type="button" class="eye-toggle-btn" :aria-label="showPassword ? 'Hide' : 'Show'" @click="showPassword = !showPassword">
           <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
         </button>
       </div>

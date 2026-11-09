@@ -1,5 +1,5 @@
 <template>
-  <div class="onboarding-container" :dir="isRtl ? 'rtl' : 'ltr'">
+  <div class="onboarding-container" :class="{ 'dark-mode': isDark }" :dir="isRtl ? 'rtl' : 'ltr'">
     <!-- Top Action Bar with Real Interactive Skip Button & Unity Clinics Brand -->
     <header class="onboarding-top-bar">
       <div class="onboarding-brand-pill">
@@ -23,9 +23,9 @@
         <svg viewBox="0 0 1000 160" preserveAspectRatio="none" class="wave-svg">
           <defs>
             <linearGradient id="topWaveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#090e17" stop-opacity="0.98" />
-              <stop offset="65%" stop-color="#090e17" stop-opacity="0.88" />
-              <stop offset="100%" stop-color="#090e17" stop-opacity="0.75" />
+              <stop offset="0%" :stop-color="isDark ? '#090d16' : '#f8fafc'" stop-opacity="0.98" class="wave-stop-0" />
+              <stop offset="65%" :stop-color="isDark ? '#090d16' : '#f8fafc'" stop-opacity="0.85" class="wave-stop-65" />
+              <stop offset="100%" :stop-color="isDark ? '#090d16' : '#f8fafc'" stop-opacity="0.55" class="wave-stop-100" />
             </linearGradient>
           </defs>
           <path fill="url(#topWaveGrad)" d="M 0,0 L 1000,0 L 1000,95 C 840,145 680,90 500,85 C 320,80 160,155 0,110 Z" />
@@ -74,9 +74,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
+import { useTheme } from '../../composables/useTheme';
 
 // Direct asset imports so Vite/Nuxt resolves and bundles them reliably
 import slide1 from '~/assets/images/onboarding/slide-1.jpg';
@@ -85,6 +86,8 @@ import slide3 from '~/assets/images/onboarding/slide-3.jpg';
 
 const router = useRouter();
 const { t, isRtl } = useI18n();
+const { currentTheme } = useTheme();
+const isDark = computed(() => currentTheme.value === 'dark');
 
 const currentSlide = ref(0);
 
@@ -141,6 +144,17 @@ const onTouchEnd = (e: TouchEvent) => {
 
 <style scoped lang="scss">
 .onboarding-container {
+  --ob-bg: #f8fafc;
+  --ob-bg-rgb: 248, 250, 252;
+  --ob-title-color: #0f172a;
+  --ob-subtitle-color: #475569;
+  --ob-skip-bg: rgba(255, 255, 255, 0.88);
+  --ob-skip-text: #0f172a;
+  --ob-skip-border: rgba(15, 23, 42, 0.14);
+  --ob-dot-inactive: #cbd5e1;
+  --ob-auth-muted: #64748b;
+  --ob-title-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
+
   position: absolute;
   top: 0;
   left: 0;
@@ -149,11 +163,28 @@ const onTouchEnd = (e: TouchEvent) => {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #090e17;
+  background-color: var(--ob-bg);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   z-index: 20;
+  transition: background-color 0.3s ease;
+
+  // Adapt dynamically to dark theme
+  :global([data-theme='dark']) &,
+  :global(.dark) &,
+  &.dark-mode {
+    --ob-bg: #090d16;
+    --ob-bg-rgb: 9, 13, 22;
+    --ob-title-color: #ffffff;
+    --ob-subtitle-color: rgba(255, 255, 255, 0.82);
+    --ob-skip-bg: rgba(9, 14, 23, 0.65);
+    --ob-skip-text: #ffffff;
+    --ob-skip-border: rgba(255, 255, 255, 0.22);
+    --ob-dot-inactive: #4b5563;
+    --ob-auth-muted: #9ca3af;
+    --ob-title-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  }
 }
 
 // Top Skip Action Bar
@@ -178,7 +209,7 @@ const onTouchEnd = (e: TouchEvent) => {
       height: 48px;
       width: 48px;
       border-radius: 12px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
       object-fit: cover;
     }
 
@@ -192,21 +223,21 @@ const onTouchEnd = (e: TouchEvent) => {
   }
 
   .skip-btn {
-    background: rgba(9, 14, 23, 0.65);
+    background: var(--ob-skip-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    color: #ffffff;
+    border: 1px solid var(--ob-skip-border);
+    color: var(--ob-skip-text);
     font-size: 0.85rem;
     font-weight: 600;
     padding: 7px 18px;
     border-radius: 999px;
     cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(9, 14, 23, 0.85);
-      border-color: rgba(255, 255, 255, 0.4);
+      filter: brightness(0.95);
     }
   }
 }
@@ -237,16 +268,17 @@ const onTouchEnd = (e: TouchEvent) => {
       position: absolute;
       inset: 0;
       background: linear-gradient(180deg,
-          rgba(9, 14, 23, 0.90) 0%,
-          rgba(9, 14, 23, 0.65) 12%,
-          rgba(9, 14, 23, 0.22) 24%,
-          rgba(9, 14, 23, 0.04) 36%,
-          rgba(9, 14, 23, 0.00) 48%,
-          rgba(9, 14, 23, 0.05) 58%,
-          rgba(9, 14, 23, 0.45) 72%,
-          rgba(9, 14, 23, 0.85) 86%,
-          rgba(9, 14, 23, 0.98) 95%,
-          #090e17 100%);
+          rgba(var(--ob-bg-rgb), 0.98) 0%,
+          rgba(var(--ob-bg-rgb), 0.88) 10%,
+          rgba(var(--ob-bg-rgb), 0.45) 20%,
+          rgba(var(--ob-bg-rgb), 0.10) 32%,
+          rgba(var(--ob-bg-rgb), 0.00) 44%,
+          rgba(var(--ob-bg-rgb), 0.00) 56%,
+          rgba(var(--ob-bg-rgb), 0.25) 68%,
+          rgba(var(--ob-bg-rgb), 0.70) 80%,
+          rgba(var(--ob-bg-rgb), 0.94) 90%,
+          var(--ob-bg) 100%);
+      transition: background 0.3s ease;
     }
   }
 
@@ -266,6 +298,21 @@ const onTouchEnd = (e: TouchEvent) => {
       width: 100%;
       height: 100%;
       display: block;
+
+      .wave-stop-0 {
+        stop-color: var(--ob-bg);
+        stop-opacity: 0.98;
+      }
+
+      .wave-stop-65 {
+        stop-color: var(--ob-bg);
+        stop-opacity: 0.85;
+      }
+
+      .wave-stop-100 {
+        stop-color: var(--ob-bg);
+        stop-opacity: 0.55;
+      }
     }
   }
 }
@@ -289,21 +336,23 @@ const onTouchEnd = (e: TouchEvent) => {
     justify-content: center;
 
     .slide-title {
-      color: #ffffff;
+      color: var(--ob-title-color);
       font-size: 1.55rem;
       font-weight: 700;
       margin: 0 0 12px;
       line-height: 1.35;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+      text-shadow: var(--ob-title-shadow);
+      transition: color 0.3s ease;
     }
 
     .slide-subtitle {
-      color: rgba(255, 255, 255, 0.78);
+      color: var(--ob-subtitle-color);
       font-size: 0.90rem;
       font-weight: 400;
       line-height: 1.6;
       margin: 0 auto;
       max-width: 330px;
+      transition: color 0.3s ease;
     }
   }
 
@@ -319,7 +368,7 @@ const onTouchEnd = (e: TouchEvent) => {
       height: 4px;
       width: 6px;
       border-radius: 999px;
-      background: #4b5563;
+      background: var(--ob-dot-inactive);
       border: none;
       cursor: pointer;
       padding: 0;
@@ -394,7 +443,8 @@ const onTouchEnd = (e: TouchEvent) => {
         font-size: 0.88rem;
 
         .auth-muted {
-          color: #9ca3af;
+          color: var(--ob-auth-muted);
+          transition: color 0.3s ease;
         }
 
         .auth-action {

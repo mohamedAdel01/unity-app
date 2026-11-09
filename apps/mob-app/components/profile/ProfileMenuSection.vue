@@ -59,7 +59,7 @@
             <h6>{{ t('Payment Methods & Wallet') }}</h6>
             <small>{{ t('Saved cards & cashback balance') }}</small>
           </div>
-          <span class="balance-pill">{{ t('140 SAR') }}</span>
+          <span v-if="walletBalance" class="balance-pill">{{ walletBalance }} {{ t('SAR') }}</span>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
 
@@ -132,6 +132,10 @@
 
 <script setup lang="ts">
 import { useI18n } from '../../composables/useI18n';
+
+defineProps<{
+  walletBalance?: string | number;
+}>();
 
 const emit = defineEmits<{
   (e: 'action', key: string): void;

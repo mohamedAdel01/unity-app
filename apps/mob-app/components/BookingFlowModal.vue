@@ -30,17 +30,20 @@
           <div class="booking-scroll-content">
             <!-- Step 1: Doctor / Service Summary Card -->
             <div class="doctor-summary-card">
-              <div class="doc-badge-rating">
-                <span>⭐ {{ doctor?.rating || '4.9' }}</span>
+              <div v-if="doctor?.rating" class="doc-badge-rating">
+                <span>⭐ {{ doctor.rating }}</span>
               </div>
               <div class="doc-header">
                 <div class="doc-avatar">
-                  <img :src="doctor?.avatar || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80'" :alt="doctor?.name" />
+                  <img v-if="doctor?.avatar" :src="doctor.avatar" :alt="doctor?.name" />
+                  <div v-else class="doc-initial-avatar">
+                    <span>{{ (doctor?.name || 'D').charAt(0).toUpperCase() }}</span>
+                  </div>
                   <span class="verified-tick"><i class="pi pi-check"></i></span>
                 </div>
                 <div class="doc-info">
-                  <h4>{{ doctor?.name || t('home.pastDocName') }}</h4>
-                  <p class="doc-spec">{{ doctor?.specialty || doctor?.clinic?.name || t('home.defaultSpecialty') }}</p>
+                  <h4>{{ doctor?.name || '' }}</h4>
+                  <p v-if="doctor?.specialty || doctor?.clinic?.name" class="doc-spec">{{ doctor?.specialty || doctor?.clinic?.name }}</p>
                 </div>
               </div>
 
@@ -518,6 +521,19 @@ onUnmounted(() => {
         height: 100%;
         border-radius: 50%;
         object-fit: cover;
+      }
+
+      .doc-initial-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.4rem;
       }
 
       .verified-tick {
