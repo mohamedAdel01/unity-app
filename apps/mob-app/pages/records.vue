@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useGlobalStore } from '../stores/global';
+import { useGlobalStore } from '../stores/global.ts';
 import RecordsHeader from '../components/records/RecordsHeader.vue';
 import RecordsTabs from '../components/records/RecordsTabs.vue';
 import RecordsList from '../components/records/RecordsList.vue';

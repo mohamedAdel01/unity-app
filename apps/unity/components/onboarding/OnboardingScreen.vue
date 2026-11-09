@@ -14,23 +14,17 @@
       </div>
     </div>
 
-    <!-- Top Navigation Header -->
-    <header class="onboarding-top-bar">
-      <div class="brand-badge">
-        <div class="brand-cube-icon">
-          <i class="pi pi-shield"></i>
-        </div>
-        <span class="brand-name">{{ t('Unity Medical') }}</span>
-      </div>
-
-      <button type="button" class="skip-btn" @click="goToLogin">
-        <span>{{ t('Skip') }}</span>
-      </button>
-    </header>
-
-    <!-- Bottom Content Overlay (Cards, Dots, Buttons) -->
+    <!-- Bottom Content Overlay (Text, Dots, Buttons) -->
     <div class="onboarding-bottom-card">
-      <!-- 3-Dot Pagination Indicator (Elongated active capsule) -->
+      <!-- Slide Text Information (Animated on slide change) -->
+      <transition name="slide-fade" mode="out-in">
+        <div :key="currentSlide" class="slide-text-block">
+          <h2 class="slide-title">{{ t(slides[currentSlide].titleKey) }}</h2>
+          <p class="slide-subtitle">{{ t(slides[currentSlide].descKey) }}</p>
+        </div>
+      </transition>
+
+      <!-- 3-Dot Pagination Indicator matching exact mockup -->
       <div class="dots-indicator-row">
         <button 
           v-for="(_, idx) in slides" 
@@ -43,15 +37,7 @@
         ></button>
       </div>
 
-      <!-- Slide Text Information (Animated on slide change) -->
-      <transition name="slide-fade" mode="out-in">
-        <div :key="currentSlide" class="slide-text-block">
-          <h2 class="slide-title">{{ t(slides[currentSlide].titleKey) }}</h2>
-          <p class="slide-subtitle">{{ t(slides[currentSlide].descKey) }}</p>
-        </div>
-      </transition>
-
-      <!-- Bottom Action Button -->
+      <!-- Bottom Action Button & Auth Helper -->
       <div class="action-footer">
         <button 
           v-if="currentSlide < slides.length - 1" 
@@ -59,7 +45,10 @@
           class="primary-action-btn"
           @click="nextSlide"
         >
-          <span>{{ t('Next') }}</span>
+          <span>{{ t('Continue') }}</span>
+          <svg class="action-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
 
         <button 
@@ -69,12 +58,16 @@
           @click="goToLogin"
         >
           <span>{{ t('Get Started') }}</span>
+          <svg class="action-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
 
-        <!-- Secondary Login / Register Link -->
+        <!-- Secondary Login Link: "لديك حساب بالفعل؟ تسجيل الدخول" -->
         <div class="auth-helper-row">
           <NuxtLink to="/auth/login" class="sub-link">
-            <span>{{ t('Already have an account?') }} <strong>{{ t('Sign In') }}</strong></span>
+            <span class="auth-muted">{{ t('Already have an account?') }}</span>
+            <span class="auth-action">{{ t('Sign In') }}</span>
           </NuxtLink>
         </div>
       </div>
@@ -87,27 +80,32 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
+// Direct asset imports so Vite/Nuxt resolves and bundles them reliably
+import slide1 from '~/assets/images/onboarding/slide-1.jpg';
+import slide2 from '~/assets/images/onboarding/slide-2.jpg';
+import slide3 from '~/assets/images/onboarding/slide-3.jpg';
+
 const router = useRouter();
 const { t, isRtl } = useI18n();
 
 const currentSlide = ref(0);
 
-// 3 High-Quality Cinematic Medical Backgrounds matching the mockup aesthetics
+// The 3 exact slides matching the user's design & uploaded images
 const slides = [
   {
-    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=900&auto=format&fit=crop&q=85',
-    titleKey: 'Welcome to Unity Medical',
-    descKey: 'Comprehensive healthcare for you and your family with top certified specialists.',
+    image: slide1,
+    titleKey: 'Elite Doctors & Specialists',
+    descKey: 'Connect and book consultations in-person or telehealth with top medical consultants across all specialties.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=900&auto=format&fit=crop&q=85',
-    titleKey: 'Personalized Medical Care',
-    descKey: 'Book instant consultations in-person or telehealth, tailored to your exact needs.',
+    image: slide2,
+    titleKey: 'Latest Medical Technologies & Diagnostics',
+    descKey: 'Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=900&auto=format&fit=crop&q=85',
-    titleKey: 'Your Complete Health Records',
-    descKey: 'Lab results, e-prescriptions, and medical reports available at your fingertips 24/7.',
+    image: slide3,
+    titleKey: 'Exclusive Health Packages & Special Discounts',
+    descKey: 'Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.',
   },
 ];
 
@@ -123,7 +121,7 @@ const goToLogin = () => {
   router.push('/auth/login');
 };
 
-// Touch swipe support
+// Touch swipe gestures
 let touchStartX = 0;
 
 const onTouchStart = (e: TouchEvent) => {
@@ -159,7 +157,7 @@ const onTouchEnd = (e: TouchEvent) => {
   background-color: #000000;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   z-index: 20;
 }
 
@@ -176,7 +174,8 @@ const onTouchEnd = (e: TouchEvent) => {
     width: 100%;
     height: 100%;
     background-size: cover;
-    background-position: center top;
+    background-position: center center;
+    background-repeat: no-repeat;
     opacity: 0;
     transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -189,69 +188,13 @@ const onTouchEnd = (e: TouchEvent) => {
       inset: 0;
       background: linear-gradient(
         180deg,
-        rgba(0, 0, 0, 0.45) 0%,
-        rgba(0, 0, 0, 0.15) 30%,
-        rgba(0, 0, 0, 0.75) 65%,
-        rgba(0, 0, 0, 0.96) 90%,
+        rgba(0, 0, 0, 0.15) 0%,
+        rgba(0, 0, 0, 0.05) 30%,
+        rgba(0, 0, 0, 0.40) 58%,
+        rgba(0, 0, 0, 0.85) 78%,
+        rgba(0, 0, 0, 0.98) 92%,
         #000000 100%
       );
-    }
-  }
-}
-
-// Top Bar
-.onboarding-top-bar {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-
-  .brand-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    padding: 6px 12px;
-    border-radius: 999px;
-
-    .brand-cube-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      background: #0284c7;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-    }
-
-    .brand-name {
-      color: #ffffff;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
-  }
-
-  .skip-btn {
-    background: transparent;
-    border: none;
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: color 0.2s;
-
-    &:hover {
-      color: #ffffff;
     }
   }
 }
@@ -260,41 +203,15 @@ const onTouchEnd = (e: TouchEvent) => {
 .onboarding-bottom-card {
   position: relative;
   z-index: 10;
-  padding: 0 24px 36px;
+  padding: 0 20px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 18px;
 
-  // Dots
-  .dots-indicator-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 4px;
-
-    .dot-pill {
-      height: 4px;
-      width: 8px;
-      border-radius: 2px;
-      background: rgba(255, 255, 255, 0.28);
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      &.active {
-        width: 24px;
-        background: #ffffff;
-        border-radius: 4px;
-      }
-    }
-  }
-
   .slide-text-block {
-    min-height: 110px;
+    min-height: 120px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -304,45 +221,91 @@ const onTouchEnd = (e: TouchEvent) => {
       color: #ffffff;
       font-size: 1.55rem;
       font-weight: 700;
-      margin: 0 0 10px;
-      line-height: 1.3;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      margin: 0 0 12px;
+      line-height: 1.35;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
     }
 
     .slide-subtitle {
-      color: rgba(255, 255, 255, 0.72);
-      font-size: 0.88rem;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.90rem;
       font-weight: 400;
-      line-height: 1.55;
-      margin: 0;
+      line-height: 1.6;
+      margin: 0 auto;
       max-width: 330px;
     }
   }
 
+  // Dots Pagination
+  .dots-indicator-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 4px;
+
+    .dot-pill {
+      height: 4px;
+      width: 6px;
+      border-radius: 999px;
+      background: #4b5563;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &.active {
+        width: 28px;
+        background: #00b074; // Emerald green matching mockup
+      }
+    }
+  }
+
+  // Action Footer
   .action-footer {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    margin-top: 6px;
+    gap: 16px;
+    margin-top: 4px;
 
     .primary-action-btn {
       width: 100%;
-      height: 52px;
-      border-radius: 14px;
-      background: #0284c7; // Bright blue matching mockup button
+      height: 54px;
+      border-radius: 16px;
+      background: #00b074; // Emerald green matching mockup
       color: #ffffff;
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 1.05rem;
+      font-weight: 700;
       border: none;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0, 176, 116, 0.38);
       transition: all 0.25s ease;
 
+      .action-arrow {
+        transition: transform 0.2s ease;
+
+        [dir="ltr"] & {
+          transform: rotate(180deg);
+        }
+      }
+
       &:hover {
-        background: #0369a1;
+        background: #009c66;
         transform: translateY(-1px);
+
+        .action-arrow {
+          transform: translateX(-3px);
+        }
+
+        [dir="ltr"] & .action-arrow {
+          transform: rotate(180deg) translateX(-3px);
+        }
       }
 
       &:active {
@@ -350,20 +313,28 @@ const onTouchEnd = (e: TouchEvent) => {
       }
     }
 
+    // Secondary Link
     .auth-helper-row {
       .sub-link {
-        color: rgba(255, 255, 255, 0.65);
-        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         text-decoration: none;
-        transition: color 0.2s;
+        font-size: 0.88rem;
 
-        strong {
-          color: #ffffff;
-          font-weight: 600;
+        .auth-muted {
+          color: #9ca3af;
         }
 
-        &:hover {
-          color: #ffffff;
+        .auth-action {
+          color: #00b074;
+          font-weight: 700;
+          transition: color 0.2s;
+        }
+
+        &:hover .auth-action {
+          color: #10b981;
+          text-decoration: underline;
         }
       }
     }

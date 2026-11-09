@@ -65,7 +65,7 @@ const onConfirmOtp = async () => {
     isSubmitting.value = true;
     // Simulate verification or call API
     await new Promise(r => setTimeout(r, 600));
-    router.push('/profile');
+    router.push('/');
   } catch (err: any) {
     alert(err.message || 'OTP Verification failed');
   } finally {

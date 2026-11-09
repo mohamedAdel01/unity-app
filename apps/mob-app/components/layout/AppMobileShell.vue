@@ -6,15 +6,15 @@
         <MobileStatusBar />
 
         <!-- Main Page Scrollable Viewport -->
-        <main class="mobile-content-viewport" :class="{ 'no-bottom-nav': isAuthRoute }">
+        <main class="mobile-content-viewport" :class="{ 'no-bottom-nav': hideBottomNav }">
           <slot />
         </main>
 
         <!-- Bottom Navigation Bar with Center Floating Plus Action -->
-        <BottomNavBar v-if="!isAuthRoute" />
+        <BottomNavBar v-if="!hideBottomNav" />
 
         <!-- Global Modals (Quick Book, Notifications, Booking Checkout) -->
-        <AppGlobalModals />
+        <AppGlobalModals v-if="!isOnboarding" />
       </div>
     </div>
   </div>
@@ -25,21 +25,32 @@ import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
+import { useAuthStore } from '../../stores/auth';
 import MobileStatusBar from './MobileStatusBar.vue';
 import BottomNavBar from './BottomNavBar.vue';
 import AppGlobalModals from './AppGlobalModals.vue';
 
 const route = useRoute();
 const theme = useTheme();
+const authStore = useAuthStore();
 const { isRtl, initLocale } = useI18n();
 
 const isAuthRoute = computed(() => {
   return route.path.startsWith('/auth');
 });
 
+const isOnboarding = computed(() => {
+  return route.path === '/' && !authStore.isAuthenticated;
+});
+
+const hideBottomNav = computed(() => {
+  return isAuthRoute.value || isOnboarding.value;
+});
+
 onMounted(() => {
   theme.initTheme();
   initLocale();
+  authStore.initAuth();
 });
 </script>
 

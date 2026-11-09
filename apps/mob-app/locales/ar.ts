@@ -282,4 +282,21 @@ export default {
   "Password": "كلمة المرور",
   "Phone Number": "رقم الجوال",
   "Quick Login with OTP": "الدخول السريع عبر رمز التحقق (OTP)",
+
+  // Onboarding
+  "Welcome to Unity Medical": "مرحباً بك في يونيتي الطبية",
+  "Comprehensive healthcare for you and your family with top certified specialists.": "رعاية صحية شاملة ومتكاملة لك ولعائلتك مع نخبة من أفضل الأطباء المعتمدين.",
+  "Personalized Medical Care": "رعاية طبية مخصصة",
+  "Book instant consultations in-person or telehealth, tailored to your exact needs.": "احجز استشارات فورية حضورية أو عن بعد، مصممة خصيصاً لتناسب احتياجاتك.",
+  "Your Complete Health Records": "سجلاتك الطبية المتكاملة",
+  "Lab results, e-prescriptions, and medical reports available at your fingertips 24/7.": "نتائج التحاليل، الوصفات الإلكترونية، والتقارير الطبية متاحة بين يديك على مدار الساعة.",
+  "Elite Doctors & Specialists": "نخبة من أمهر الأطباء والاستشاريين",
+  "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.": "تواصل واحجز كشفك الطبي حضورياً أو عن بعد مع أمهر الأطباء في مختلف التخصصات الطبية.",
+  "Latest Medical Technologies & Diagnostics": "أحدث التقنيات والتجهيزات الطبية",
+  "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.": "فحوصات دقيقة، تحاليل مخبرية فورية، وأشعة تشخيصية متطورة تضمن لك أعلى دقة وأمان.",
+  "Exclusive Health Packages & Special Discounts": "عروض وباقات صحية وخصومات حصرية",
+  "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.": "وفر مع باقات الفحص الشامل وبطاقات الخصم المخصصة لك ولعائلتك بأعلى معايير الرعاية.",
+  "Sehaty Care": "صحتي رعاية",
+  "Skip": "تخطي",
+  "Get Started": "ابدأ الآن",
 };

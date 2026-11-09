@@ -32,7 +32,7 @@
     <div class="forgot-row">
       <button type="button" class="btn-otp-switch" @click="emit('request-otp', form.login)">
         <i class="pi pi-mobile"></i>
-        <span>{{ isRtl ? 'الدخول السريع عبر رمز التحقق (OTP)' : 'Quick Login with OTP' }}</span>
+        <span>{{ t('Quick Login with OTP') }}</span>
       </button>
     </div>
 
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useGlobalStore } from '../../stores/global';
@@ -57,6 +57,7 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
+const route = useRoute();
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
 const globalStore = useGlobalStore();
@@ -74,7 +75,8 @@ const handleSubmit = async () => {
     const res = await api.login(form.value.login, form.value.password);
     if (res.status && res.data?.user) {
       emit('success', res.data.user);
-      router.push('/profile');
+      const target = (route.query.redirect as string) || '/';
+      router.push(target);
     }
   } catch (err: any) {
     alert(err.message || 'Login error');

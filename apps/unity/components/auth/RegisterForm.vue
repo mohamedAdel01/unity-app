@@ -33,7 +33,7 @@
           <input 
             v-model="step1Form.name" 
             type="text" 
-            :placeholder="isRtl ? 'الاسم الثلاثي أو الرباعي' : 'Full Name'" 
+            :placeholder="t('Full Name')" 
             required 
             autofocus
           />
@@ -275,20 +275,20 @@ const handleStep2Submit = async () => {
       date_of_birth: step2Form.value.date_of_birth,
     });
 
-    // Navigate to profile
-    router.push('/profile');
+    // Navigate to home dashboard
+    router.push('/');
   } catch (err: any) {
     alert(err.message || 'Error updating profile');
     // If update fails, user can still proceed since account is created
-    router.push('/profile');
+    router.push('/');
   } finally {
     globalStore.setLoading(['completeRegistration', false]);
   }
 };
 
-// Handle Skip Step 2: User already has account, jump straight to profile
+// Handle Skip Step 2: User already has account, jump straight to home dashboard
 const handleSkipStep2 = () => {
-  router.push('/profile');
+  router.push('/');
 };
 </script>
 

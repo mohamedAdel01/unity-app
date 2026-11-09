@@ -282,4 +282,21 @@ export default {
   "Password": "Password",
   "Phone Number": "Phone Number",
   "Quick Login with OTP": "Quick Login with OTP",
+
+  // Onboarding
+  "Welcome to Unity Medical": "Welcome to Unity Medical",
+  "Comprehensive healthcare for you and your family with top certified specialists.": "Comprehensive healthcare for you and your family with top certified specialists.",
+  "Personalized Medical Care": "Personalized Medical Care",
+  "Book instant consultations in-person or telehealth, tailored to your exact needs.": "Book instant consultations in-person or telehealth, tailored to your exact needs.",
+  "Your Complete Health Records": "Your Complete Health Records",
+  "Lab results, e-prescriptions, and medical reports available at your fingertips 24/7.": "Lab results, e-prescriptions, and medical reports available at your fingertips 24/7.",
+  "Elite Doctors & Specialists": "Elite Doctors & Specialists",
+  "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.": "Connect and book consultations in-person or telehealth with top medical consultants across all specialties.",
+  "Latest Medical Technologies & Diagnostics": "Latest Medical Technologies & Diagnostics",
+  "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.": "Accurate diagnostics, immediate lab tests, and advanced imaging ensure the highest standards of safety.",
+  "Exclusive Health Packages & Special Discounts": "Exclusive Health Packages & Special Discounts",
+  "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.": "Save with comprehensive checkup packages and discount cards tailored to you and your family with the highest standards of care.",
+  "Sehaty Care": "Sehaty Care",
+  "Skip": "Skip",
+  "Get Started": "Get Started",
 };
