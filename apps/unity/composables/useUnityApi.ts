@@ -75,6 +75,23 @@ export function useUnityApi() {
     return res;
   };
 
+  // Step 2: Complete Registration Profile Route
+  const completeRegistration = async (payload: {
+    phone?: string;
+    gender?: string;
+    avatar?: string;
+    date_of_birth?: string;
+  }) => {
+    const res = await request('/v1/auth/register/step2', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (res.status && res.data?.user) {
+      authStore.setUser(res.data.user);
+    }
+    return res;
+  };
+
   // Backward compatible alias
   const registerPatient = register;
 
@@ -214,16 +231,36 @@ export function useUnityApi() {
     return await request('/v1/client/patient/invoices');
   };
 
+  // Update Profile
+  const updateProfile = async (data: {
+    name?: string;
+    phone?: string;
+    avatar?: string;
+    gender?: string;
+    date_of_birth?: string;
+  }) => {
+    const res = await request('/v1/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    if (res.status && res.data) {
+      authStore.setUser(res.data);
+    }
+    return res;
+  };
+
   return {
     baseUrl,
     token,
     currentUser,
     login,
     register,
+    completeRegistration,
     registerPatient,
     loginWithGoogle,
     loginWithApple,
     logout,
+    updateProfile,
     getClinics,
     getServices,
     getDoctors,

@@ -20,6 +20,10 @@ import ProfileThemeSelector from '../components/profile/ProfileThemeSelector.vue
 import ProfileLanguageSelector from '../components/profile/ProfileLanguageSelector.vue';
 import ProfileFooterInfo from '../components/profile/ProfileFooterInfo.vue';
 
+definePageMeta({
+  middleware: ['auth'],
+});
+
 const router = useRouter();
 const api = useUnityApi();
 const user = ref<any>(api.currentUser.value);

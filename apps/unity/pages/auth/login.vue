@@ -15,6 +15,10 @@ import LoginForm from '../../components/auth/LoginForm.vue';
 import QuickLoginButtons from '../../components/auth/QuickLoginButtons.vue';
 import AuthFooterLink from '../../components/auth/AuthFooterLink.vue';
 
+definePageMeta({
+  middleware: ['guest'],
+});
+
 const router = useRouter();
 const { t } = useI18n();
 

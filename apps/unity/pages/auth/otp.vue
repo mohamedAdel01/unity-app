@@ -24,6 +24,10 @@ import OtpHeader from '../../components/auth/OtpHeader.vue';
 import OtpDisplay from '../../components/auth/OtpDisplay.vue';
 import OtpKeypad from '../../components/auth/OtpKeypad.vue';
 
+definePageMeta({
+  middleware: ['guest'],
+});
+
 const router = useRouter();
 const route = useRoute();
 

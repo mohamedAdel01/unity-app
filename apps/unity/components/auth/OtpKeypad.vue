@@ -9,7 +9,7 @@
       <i v-if="loading" class="pi pi-spin pi-spinner"></i>
       <template v-else>
         <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" class="action-arrow"></i>
-        <span>{{ t('auth.confirmAndContinue') }}</span>
+        <span>{{ t('Confirm & Continue') }}</span>
       </template>
     </button>
 
@@ -29,7 +29,7 @@
 
         <!-- Bottom Row: Clear | 0 | Backspace -->
         <button type="button" class="key-btn action-key clear-key" @click="emit('clear')">
-          <span>{{ t('auth.clear') }}</span>
+          <span>{{ t('Clear') }}</span>
         </button>
 
         <button type="button" class="key-btn number-key zero-key" @click="emit('digit', '0')">
@@ -47,7 +47,7 @@
     <!-- Security Notice Footer (From Mockup) -->
     <div class="security-notice-box">
       <i class="pi pi-lock lock-icon"></i>
-      <p>{{ t('auth.otpSecurityNotice') }}</p>
+      <p>{{ t('Verification code is for your use only, do not share it with anyone.') }}</p>
     </div>
   </div>
 </template>

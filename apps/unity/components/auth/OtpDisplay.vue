@@ -1,7 +1,7 @@
 <template>
   <div class="otp-display-section">
     <div class="otp-info-text">
-      <p class="subtitle">{{ t('auth.otpSentTo') }}</p>
+      <p class="subtitle">{{ t('Enter the verification code sent to') }}</p>
       <h5 class="target-val">{{ target || '05XXXXXXXX' }}</h5>
     </div>
 
@@ -25,11 +25,11 @@
     <div class="resend-row">
       <span v-if="countdown > 0" class="timer-text">
         <i class="pi pi-clock"></i>
-        <span>{{ t('auth.resendIn') }} 00:{{ countdown < 10 ? '0' + countdown : countdown }}</span>
+        <span>{{ t('Resend in') }} 00:{{ countdown < 10 ? '0' + countdown : countdown }}</span>
       </span>
       <button v-else type="button" class="btn-resend" @click="handleResend">
         <i class="pi pi-refresh"></i>
-        <span>{{ t('auth.resendCode') }}</span>
+        <span>{{ t('Resend Code') }}</span>
       </button>
     </div>
   </div>

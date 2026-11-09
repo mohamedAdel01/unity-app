@@ -18,6 +18,10 @@ import RecordsHeader from '../components/records/RecordsHeader.vue';
 import RecordsTabs from '../components/records/RecordsTabs.vue';
 import RecordsList from '../components/records/RecordsList.vue';
 
+definePageMeta({
+  middleware: ['auth', 'patient'],
+});
+
 const globalStore = useGlobalStore();
 const activeTab = ref<'reports' | 'labs' | 'prescriptions'>('reports');
 

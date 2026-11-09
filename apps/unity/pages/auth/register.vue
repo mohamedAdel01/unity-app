@@ -1,6 +1,6 @@
 <template>
   <div class="auth-page">
-    <AuthHeader :title="t('auth.registerTitle')" />
+    <AuthHeader :title="t('Create New Account')" />
     <RegisterForm />
     <QuickLoginButtons />
     <AuthFooterLink :is-register="true" />
@@ -13,6 +13,10 @@ import AuthHeader from '../../components/auth/AuthHeader.vue';
 import RegisterForm from '../../components/auth/RegisterForm.vue';
 import QuickLoginButtons from '../../components/auth/QuickLoginButtons.vue';
 import AuthFooterLink from '../../components/auth/AuthFooterLink.vue';
+
+definePageMeta({
+  middleware: ['guest'],
+});
 
 const { t } = useI18n();
 </script>

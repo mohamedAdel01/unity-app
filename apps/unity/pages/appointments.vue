@@ -10,6 +10,10 @@ import { ref } from 'vue';
 import AppointmentsHeader from '../components/appointments/AppointmentsHeader.vue';
 import AppointmentsList from '../components/appointments/AppointmentsList.vue';
 
+definePageMeta({
+  middleware: ['auth'],
+});
+
 const listRef = ref<any>(null);
 const loading = ref(false);
 
