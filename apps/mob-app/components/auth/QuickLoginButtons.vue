@@ -2,25 +2,10 @@
   <div class="quick-login-section">
     <!-- Divider -->
     <div class="quick-divider">
-      <span>{{ t('Or via quick access') }}</span>
+      <span>{{ t('Or continue with') }}</span>
     </div>
 
-    <!-- 2 Main Cards: Nafath & Biometric (Matching Mockup) -->
-    <div class="quick-cards-grid">
-      <!-- Nafath Card -->
-      <button type="button" class="quick-action-card nafath-card" @click="handleNafath">
-        <i class="pi pi-shield-check nafath-icon"></i>
-        <span class="card-title">{{ t('National Nafath') }}</span>
-      </button>
-
-      <!-- Biometric Card -->
-      <button type="button" class="quick-action-card bio-card" @click="handleBiometric">
-        <i class="pi pi-fingerprint bio-icon"></i>
-        <span class="card-title">{{ t('Biometric Access') }}</span>
-      </button>
-    </div>
-
-    <!-- Social Row: Google & Apple -->
+    <!-- Social Row: Google & Apple Only -->
     <div class="social-row">
       <button type="button" class="social-pill-btn google" @click="handleGoogle">
         <svg viewBox="0 0 24 24" class="social-svg">
@@ -43,34 +28,19 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 
-const router = useRouter();
-const api = useUnityApi();
 const { t } = useI18n();
 
-const handleNafath = () => {
-  // Directs to OTP verification simulating Nafath authentication
-  router.push('/auth/otp?channel=nafath');
-};
-
-const handleBiometric = () => {
-  if (typeof window !== 'undefined' && 'credentials' in navigator) {
-    router.push('/auth/otp?channel=biometric');
-  } else {
-    router.push('/auth/otp?channel=biometric');
-  }
-};
-
 const handleGoogle = () => {
-  const baseUrl = api.baseUrl || 'http://localhost:4000';
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
   window.location.href = `${baseUrl}/v1/auth/google?platform=web`;
 };
 
 const handleApple = () => {
-  router.push('/auth/otp?channel=apple');
+  // Apple Sign-In flow
+  alert('Sign in with Apple');
 };
 </script>
 
@@ -78,14 +48,14 @@ const handleApple = () => {
 .quick-login-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .quick-divider {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 6px 0;
+  margin: 4px 0;
 
   &::before, &::after {
     content: '';
@@ -95,50 +65,9 @@ const handleApple = () => {
 
   span {
     padding: 0 12px;
-    font-size: 0.74rem;
+    font-size: 0.78rem;
     color: var(--unity-text-dim);
     font-weight: 500;
-  }
-}
-
-.quick-cards-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-
-  .quick-action-card {
-    height: 52px;
-    background: var(--unity-surface);
-    border: 1.5px solid var(--unity-border);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    box-shadow: var(--unity-shadow-subtle);
-    transition: all 0.2s ease;
-
-    &:hover {
-      border-color: var(--unity-primary);
-      transform: translateY(-1px);
-    }
-
-    .nafath-icon {
-      color: #047857;
-      font-size: 1.15rem;
-    }
-
-    .bio-icon {
-      color: var(--unity-text-muted);
-      font-size: 1.15rem;
-    }
-
-    .card-title {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--unity-text-main);
-    }
   }
 }
 
@@ -148,23 +77,24 @@ const handleApple = () => {
   gap: 12px;
 
   .social-pill-btn {
-    height: 44px;
+    height: 48px;
     border-radius: 14px;
     background: var(--unity-surface);
-    border: 1px solid var(--unity-border);
+    border: 1.5px solid var(--unity-border);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--unity-text-main);
-    transition: all 0.2s;
+    box-shadow: var(--unity-shadow-subtle);
+    transition: all 0.2s ease;
 
     .social-svg {
-      width: 17px;
-      height: 17px;
+      width: 19px;
+      height: 19px;
     }
 
     &.apple {
@@ -174,9 +104,9 @@ const handleApple = () => {
     }
 
     &:hover {
-      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
   }
 }
 </style>
-

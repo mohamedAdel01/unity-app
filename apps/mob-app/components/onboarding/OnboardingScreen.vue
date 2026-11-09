@@ -1,14 +1,16 @@
 <template>
   <div class="onboarding-container" :dir="isRtl ? 'rtl' : 'ltr'">
+    <!-- Top Action Bar with Real Interactive Skip Button -->
+    <header class="onboarding-top-bar">
+      <button type="button" class="skip-btn" @click="router.push('/auth/register')">
+        {{ t('Skip') }}
+      </button>
+    </header>
+
     <!-- Full-Bleed Background Images for 3 Slides -->
     <div class="slides-viewport" @touchstart="onTouchStart" @touchend="onTouchEnd">
-      <div 
-        v-for="(slide, idx) in slides" 
-        :key="idx" 
-        class="slide-item"
-        :class="{ 'active': currentSlide === idx }"
-        :style="{ backgroundImage: `url(${slide.image})` }"
-      >
+      <div v-for="(slide, idx) in slides" :key="idx" class="slide-item" :class="{ 'active': currentSlide === idx }"
+        :style="{ backgroundImage: `url(${slide.image})` }">
         <!-- Dark Gradient Overlay for Contrast & Readability -->
         <div class="dark-overlay"></div>
       </div>
@@ -26,41 +28,20 @@
 
       <!-- 3-Dot Pagination Indicator matching exact mockup -->
       <div class="dots-indicator-row">
-        <button 
-          v-for="(_, idx) in slides" 
-          :key="idx"
-          type="button"
-          class="dot-pill"
-          :class="{ 'active': currentSlide === idx }"
-          :aria-label="`Go to slide ${idx + 1}`"
-          @click="currentSlide = idx"
-        ></button>
+        <button v-for="(_, idx) in slides" :key="idx" type="button" class="dot-pill"
+          :class="{ 'active': currentSlide === idx }" :aria-label="`Go to slide ${idx + 1}`"
+          @click="currentSlide = idx"></button>
       </div>
 
       <!-- Bottom Action Button & Auth Helper -->
       <div class="action-footer">
-        <button 
-          v-if="currentSlide < slides.length - 1" 
-          type="button" 
-          class="primary-action-btn"
-          @click="nextSlide"
-        >
-          <span>{{ t('Continue') }}</span>
-          <svg class="action-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-
-        <button 
-          v-else 
-          type="button" 
-          class="primary-action-btn get-started-btn"
-          @click="goToLogin"
-        >
-          <span>{{ t('Get Started') }}</span>
-          <svg class="action-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <button type="button" class="primary-action-btn" @click="nextSlide">
+          <span>{{ currentSlide < slides.length - 1 ? t('Continue') : t('Create New Account') }}</span>
+              <svg class="action-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
         </button>
 
         <!-- Secondary Login Link: "لديك حساب بالفعل؟ تسجيل الدخول" -->
@@ -110,16 +91,13 @@ const slides = [
 ];
 
 const nextSlide = () => {
-  if (currentSlide.value < slides.length - 1) {
+  if (currentSlide.value < slides.length - 1)
     currentSlide.value++;
-  } else {
-    goToLogin();
-  }
+  else
+    router.push('/auth/register');
+
 };
 
-const goToLogin = () => {
-  router.push('/auth/login');
-};
 
 // Touch swipe gestures
 let touchStartX = 0;
@@ -161,6 +139,36 @@ const onTouchEnd = (e: TouchEvent) => {
   z-index: 20;
 }
 
+// Top Skip Action Bar
+.onboarding-top-bar {
+  position: absolute;
+  top: max(20px, env(safe-area-inset-top, 20px));
+  left: 20px;
+  right: 20px;
+  z-index: 30;
+  display: flex;
+  justify-content: flex-start;
+
+  .skip-btn {
+    background: rgba(0, 0, 0, 0.40);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.65);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+  }
+}
+
 // Background Carousel Viewport
 .slides-viewport {
   position: absolute;
@@ -186,15 +194,13 @@ const onTouchEnd = (e: TouchEvent) => {
     .dark-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0.15) 0%,
-        rgba(0, 0, 0, 0.05) 30%,
-        rgba(0, 0, 0, 0.40) 58%,
-        rgba(0, 0, 0, 0.85) 78%,
-        rgba(0, 0, 0, 0.98) 92%,
-        #000000 100%
-      );
+      background: linear-gradient(180deg,
+          rgba(0, 0, 0, 0.15) 0%,
+          rgba(0, 0, 0, 0.05) 30%,
+          rgba(0, 0, 0, 0.40) 58%,
+          rgba(0, 0, 0, 0.85) 78%,
+          rgba(0, 0, 0, 0.98) 92%,
+          #000000 100%);
     }
   }
 }

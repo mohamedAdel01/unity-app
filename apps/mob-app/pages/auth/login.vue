@@ -1,14 +1,15 @@
 <template>
   <div class="auth-page">
-    <AuthHeader :title="t('Sign In')" />
-    <LoginForm @request-otp="onRequestOtp" />
-    <QuickLoginButtons />
-    <AuthFooterLink :is-register="false" />
+    <div class="auth-content-wrapper">
+      <AuthHeader :title="t('Sign In')" />
+      <LoginForm />
+      <QuickLoginButtons />
+      <AuthFooterLink :is-register="false" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import AuthHeader from '../../components/auth/AuthHeader.vue';
 import LoginForm from '../../components/auth/LoginForm.vue';
@@ -19,23 +20,25 @@ definePageMeta({
   middleware: ['guest'],
 });
 
-const router = useRouter();
 const { t } = useI18n();
-
-const onRequestOtp = (identifier: string) => {
-  router.push({
-    path: '/auth/otp',
-    query: { target: identifier || '05XXXXXXXX' },
-  });
-};
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .auth-page {
-  padding: 16px 18px 24px;
+  flex: 1;
+  min-height: 100%;
+  padding: 12px 18px 28px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  justify-content: center;
+  box-sizing: border-box;
+
+  .auth-content-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: auto 0;
+  }
 }
 </style>
-

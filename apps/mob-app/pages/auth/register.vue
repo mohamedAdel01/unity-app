@@ -1,9 +1,11 @@
 <template>
   <div class="auth-page">
-    <AuthHeader :title="t('Create New Account')" />
-    <RegisterForm />
-    <QuickLoginButtons />
-    <AuthFooterLink :is-register="true" />
+    <div class="auth-content-wrapper">
+      <AuthHeader :title="t('Create New Account')" />
+      <RegisterForm />
+      <QuickLoginButtons />
+      <AuthFooterLink :is-register="true" />
+    </div>
   </div>
 </template>
 
@@ -21,12 +23,22 @@ definePageMeta({
 const { t } = useI18n();
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .auth-page {
-  padding: 16px 18px 24px;
+  flex: 1;
+  min-height: 100%;
+  padding: 12px 18px 28px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  justify-content: center;
+  box-sizing: border-box;
+
+  .auth-content-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: auto 0;
+  }
 }
 </style>
-

@@ -404,12 +404,13 @@ const handleSkipStep2 = () => {
 .input-field-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 
   .field-label {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--unity-text);
+    margin-bottom: 2px;
   }
 
   .input-shell {

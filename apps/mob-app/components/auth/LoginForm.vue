@@ -29,13 +29,6 @@
       </div>
     </div>
 
-    <div class="forgot-row">
-      <button type="button" class="btn-otp-switch" @click="emit('request-otp', form.login)">
-        <i class="pi pi-mobile"></i>
-        <span>{{ t('Quick Login with OTP') }}</span>
-      </button>
-    </div>
-
     <button type="submit" class="submit-login-btn" :disabled="globalStore.loading.includes('login')">
       <i v-if="globalStore.loading.includes('login')" class="pi pi-spin pi-spinner"></i>
       <span v-else>{{ t('Sign In') }}</span>
@@ -53,7 +46,6 @@ import { useGlobalStore } from '../../stores/global';
 
 const emit = defineEmits<{
   (e: 'success', user: any): void;
-  (e: 'request-otp', identifier: string): void;
 }>();
 
 const router = useRouter();
@@ -101,12 +93,13 @@ const handleSubmit = async () => {
 .input-field-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 
   .field-label {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
     color: var(--unity-text-main);
+    margin-bottom: 2px;
   }
 
   .input-shell {

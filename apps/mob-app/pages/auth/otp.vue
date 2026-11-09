@@ -1,19 +1,21 @@
 <template>
-  <div class="otp-page">
-    <OtpHeader />
-    <OtpDisplay 
-      :code="otpCode" 
-      :target="targetIdentifier" 
-      @resend="onResendOtp" 
-    />
-    <OtpKeypad 
-      :code-length="otpCode.length" 
-      :loading="isSubmitting"
-      @digit="onDigitPress" 
-      @backspace="onBackspacePress" 
-      @clear="onClearPress" 
-      @confirm="onConfirmOtp" 
-    />
+  <div class="auth-page otp-page">
+    <div class="auth-content-wrapper">
+      <OtpHeader />
+      <OtpDisplay 
+        :code="otpCode" 
+        :target="targetIdentifier" 
+        @resend="onResendOtp" 
+      />
+      <OtpKeypad 
+        :code-length="otpCode.length" 
+        :loading="isSubmitting"
+        @digit="onDigitPress" 
+        @backspace="onBackspacePress" 
+        @clear="onClearPress" 
+        @confirm="onConfirmOtp" 
+      />
+    </div>
   </div>
 </template>
 
@@ -63,7 +65,6 @@ const onConfirmOtp = async () => {
   if (otpCode.value.length < 4) return;
   try {
     isSubmitting.value = true;
-    // Simulate verification or call API
     await new Promise(r => setTimeout(r, 600));
     router.push('/');
   } catch (err: any) {
@@ -74,12 +75,22 @@ const onConfirmOtp = async () => {
 };
 </script>
 
-<style scoped>
-.otp-page {
-  min-height: calc(100vh - 40px);
-  padding: 16px 18px 20px;
+<style scoped lang="scss">
+.auth-page {
+  flex: 1;
+  min-height: 100%;
+  padding: 12px 18px 28px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+
+  .auth-content-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: auto 0;
+  }
 }
 </style>
-

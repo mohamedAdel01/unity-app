@@ -1,43 +1,27 @@
 import { computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
+import type { ApiRequestOptions } from '../plugins/02.api-request';
 
 export function useUnityApi() {
-  const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  const nuxtApp = useNuxtApp();
   const authStore = useAuthStore();
   authStore.initAuth();
 
   const token = computed(() => authStore.token);
   const currentUser = computed(() => authStore.user);
 
-  const getHeaders = () => {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (token.value) {
-      headers['Authorization'] = `Bearer ${token.value}`;
-    }
-    return headers;
+  // Centralized Bya3 $fetch and $apiRequest instances
+  const fetchInstance = (nuxtApp as any).$fetch as (endpoint: string, options?: any) => Promise<any>;
+  const apiRequest = (nuxtApp as any).$apiRequest as (options: ApiRequestOptions) => Promise<any>;
+
+  // Fallback direct request helper using injected $fetch
+  const request = async <T = any>(endpoint: string, options: any = {}): Promise<T> => {
+    return await fetchInstance(endpoint, options);
   };
 
-  const request = async <T = any>(endpoint: string, options: RequestInit = {}): Promise<T> => {
-    const url = `${baseUrl}${endpoint}`;
-    const res = await fetch(url, {
-      ...options,
-      headers: {
-        ...getHeaders(),
-        ...(options.headers || {}),
-      },
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data.message || `Request failed with status ${res.status}`);
-    }
-    return data;
-  };
-
-  // Auth (Strictly Email OR Phone)
+  // ==========================================
+  // AUTH (Via Bya3 apiRequest Pattern)
+  // ==========================================
   const login = async (credential: string | { email?: string; phone?: string }, password?: string) => {
     let payload: any = {};
     if (typeof credential === 'string') {
@@ -46,17 +30,16 @@ export function useUnityApi() {
     } else {
       payload = credential;
     }
-    const res = await request('/v1/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+
+    return await apiRequest({
+      module: 'auth',
+      service: 'LOGIN',
+      payload,
+      pinia: true,
+      loadingKey: 'login',
     });
-    if (res.status && res.data?.token) {
-      authStore.setAuth(res.data.user, res.data.token);
-    }
-    return res;
   };
 
-  // Universal Register (For all users; admin converted from DB)
   const register = async (payload: {
     name: string;
     password: string;
@@ -65,37 +48,34 @@ export function useUnityApi() {
     gender?: string;
     date_of_birth?: string;
   }) => {
-    const res = await request('/v1/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+    return await apiRequest({
+      module: 'auth',
+      service: 'REGISTER',
+      payload,
+      pinia: true,
+      loadingKey: 'register',
     });
-    if (res.status && res.data?.token) {
-      authStore.setAuth(res.data.user, res.data.token);
-    }
-    return res;
   };
 
-  // Step 2: Complete Registration Profile Route
-  const completeRegistration = async (payload: {
+  const updateProfile = async (data: {
+    name?: string;
     phone?: string;
-    gender?: string;
     avatar?: string;
+    gender?: string;
     date_of_birth?: string;
   }) => {
-    const res = await request('/v1/auth/register/step2', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+    return await apiRequest({
+      module: 'auth',
+      service: 'UPDATE_PROFILE',
+      payload: data,
+      pinia: true,
+      loadingKey: 'updateProfile',
     });
-    if (res.status && res.data?.user) {
-      authStore.setUser(res.data.user);
-    }
-    return res;
   };
 
-  // Backward compatible alias
+  const completeRegistration = updateProfile;
   const registerPatient = register;
 
-  // Google Sign-In (Token direct verification for mobile SDK & SPA)
   const loginWithGoogle = async (payload: {
     idToken?: string;
     accessToken?: string;
@@ -104,22 +84,15 @@ export function useUnityApi() {
     avatar?: string;
     googleId?: string;
   }) => {
-    const res = await request('/v1/auth/google/token', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+    return await apiRequest({
+      module: 'auth',
+      service: 'GOOGLE_TOKEN_LOGIN',
+      payload,
+      pinia: true,
+      loadingKey: 'loginWithGoogle',
     });
-    if (res.status && res.data?.token) {
-      token.value = res.data.token;
-      currentUser.value = res.data.user;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('unity_token', res.data.token);
-        localStorage.setItem('unity_user', JSON.stringify(res.data.user));
-      }
-    }
-    return res;
   };
 
-  // Apple Sign-In (Native iOS callback matching Bya3 pattern)
   const loginWithApple = async (payload: {
     identityToken: string;
     email?: string;
@@ -127,50 +100,64 @@ export function useUnityApi() {
     familyName?: string;
     userIdentifier?: string;
   }) => {
-    const res = await request('/v1/auth/apple/native-callback', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+    return await apiRequest({
+      module: 'auth',
+      service: 'APPLE_LOGIN',
+      payload,
+      pinia: true,
+      loadingKey: 'loginWithApple',
     });
-    if (res.status && res.data?.token) {
-      token.value = res.data.token;
-      currentUser.value = res.data.user;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('unity_token', res.data.token);
-        localStorage.setItem('unity_user', JSON.stringify(res.data.user));
-      }
+  };
+
+  const logout = async () => {
+    try {
+      await apiRequest({
+        module: 'auth',
+        service: 'LOGOUT',
+        pinia: true,
+        loadingKey: 'logout',
+      });
+    } catch {
+      authStore.logout();
     }
-    return res;
   };
 
-  const logout = () => {
-    authStore.logout();
-  };
-
-  // Clinics
+  // ==========================================
+  // CLINICS & MEDICAL
+  // ==========================================
   const getClinics = async () => {
-    return await request('/v1/client/clinics');
+    return await apiRequest({
+      service: 'CLINICS',
+      loadingKey: 'clinics',
+    });
   };
 
-  // Services
   const getServices = async () => {
-    return await request('/v1/client/services');
+    return await apiRequest({
+      service: 'SERVICES',
+      loadingKey: 'services',
+    });
   };
 
-  // Doctors
   const getDoctors = async (clinicId?: string) => {
-    const query = clinicId ? `?clinic_id=${encodeURIComponent(clinicId)}` : '';
-    return await request(`/v1/client/doctors${query}`);
+    return await apiRequest({
+      service: 'DOCTORS',
+      filter: clinicId ? { clinic_id: clinicId } : undefined,
+      loadingKey: 'doctors',
+    });
   };
 
   const getDoctorById = async (id: string) => {
-    return await request(`/v1/client/doctors/${id}`);
+    return await request(`client/doctors/${id}`);
   };
 
   const getDoctorSlots = async (doctorId: string, date: string) => {
-    return await request(`/v1/client/doctors/${doctorId}/slots?date=${encodeURIComponent(date)}`);
+    return await request(`client/doctors/${doctorId}/slots?date=${encodeURIComponent(date)}`);
   };
 
-  // Appointments
+  // ==========================================
+  // APPOINTMENTS & BOOKINGS
+  // ==========================================
   const bookAppointment = async (payload: {
     doctor_id: string;
     service_id?: string;
@@ -180,79 +167,76 @@ export function useUnityApi() {
     notes?: string;
     payment_method?: 'paymob' | 'cash' | 'card';
   }) => {
-    return await request('/v1/client/appointments/book', {
-      method: 'POST',
-      body: JSON.stringify(payload),
+    return await apiRequest({
+      service: 'BOOK_APPOINTMENT',
+      payload,
+      loadingKey: 'bookAppointment',
     });
   };
 
-  const getMyAppointments = async (status?: string) => {
-    const query = status ? `?status=${encodeURIComponent(status)}` : '';
-    return await request(`/v1/client/appointments/my${query}`);
+  const getMyAppointments = async () => {
+    return await apiRequest({
+      service: 'PATIENT_APPOINTMENTS',
+      loadingKey: 'myAppointments',
+    });
   };
 
   const cancelAppointment = async (id: string) => {
-    return await request(`/v1/client/appointments/${id}/cancel`, {
+    return await request(`client/appointments/${id}/cancel`, {
       method: 'PATCH',
     });
   };
 
-  // Paymob Payment
-  const initiatePaymobPayment = async (invoiceId: string) => {
-    return await request('/v1/client/payments/paymob/initiate', {
-      method: 'POST',
-      body: JSON.stringify({ invoice_id: invoiceId }),
+  // ==========================================
+  // PATIENT RECORDS, INVOICES & PAYMENTS
+  // ==========================================
+  const getMedicalRecords = async () => {
+    return await apiRequest({
+      service: 'PATIENT_RECORDS',
+      loadingKey: 'medicalRecords',
     });
   };
 
-  // Notifications
+  const getInvoices = async () => {
+    return await apiRequest({
+      service: 'PATIENT_INVOICES',
+      loadingKey: 'invoices',
+    });
+  };
+
   const getNotifications = async () => {
-    return await request('/v1/client/notifications/my');
+    return await apiRequest({
+      service: 'NOTIFICATIONS',
+      loadingKey: 'notifications',
+    });
   };
 
   const markNotificationRead = async (id: string) => {
-    return await request(`/v1/client/notifications/${id}/read`, {
+    return await request(`client/notifications/${id}/read`, {
       method: 'PATCH',
     });
   };
 
   const markAllNotificationsRead = async () => {
-    return await request('/v1/client/notifications/read-all', {
+    return await request('client/notifications/read-all', {
       method: 'PATCH',
     });
   };
 
-  // Medical Records & Invoices
-  const getMedicalRecords = async () => {
-    return await request('/v1/client/patient/medical-records');
-  };
-
-  const getInvoices = async () => {
-    return await request('/v1/client/patient/invoices');
-  };
-
-  // Update Profile
-  const updateProfile = async (data: {
-    name?: string;
-    phone?: string;
-    avatar?: string;
-    gender?: string;
-    date_of_birth?: string;
-  }) => {
-    const res = await request('/v1/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify(data),
+  const initiatePaymobPayment = async (invoiceId: string) => {
+    return await request('client/payments/paymob/initiate', {
+      method: 'POST',
+      body: JSON.stringify({ invoice_id: invoiceId }),
     });
-    if (res.status && res.data) {
-      authStore.setUser(res.data);
-    }
-    return res;
   };
 
   return {
-    baseUrl,
     token,
     currentUser,
+    fetch: fetchInstance,
+    $fetch: fetchInstance,
+    apiRequest,
+    $apiRequest: apiRequest,
     login,
     register,
     completeRegistration,
@@ -277,4 +261,3 @@ export function useUnityApi() {
     getInvoices,
   };
 }
-

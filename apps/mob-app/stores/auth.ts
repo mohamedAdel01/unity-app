@@ -72,6 +72,31 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('unity_user');
       }
     },
+
+    // Bya3 Pinia Store Synchronization Action
+    async MAIN({ service, response }: { service: string; payload?: any; filter?: any; response: any }) {
+      switch (service) {
+        case 'LOGIN':
+        case 'REGISTER':
+        case 'GOOGLE_TOKEN_LOGIN':
+        case 'APPLE_LOGIN':
+          if (response?.data?.token && response?.data?.user) {
+            this.setAuth(response.data.user, response.data.token);
+          }
+          break;
+        case 'UPDATE_PROFILE':
+        case 'GET_PROFILE':
+          if (response?.data?.user) {
+            this.setUser(response.data.user);
+          } else if (response?.data) {
+            this.setUser(response.data);
+          }
+          break;
+        case 'LOGOUT':
+          this.logout();
+          break;
+      }
+    },
   },
 });
 

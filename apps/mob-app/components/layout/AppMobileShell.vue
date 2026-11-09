@@ -2,11 +2,8 @@
   <div class="web-viewport-wrapper">
     <div class="desktop-screen-frame">
       <div class="mobile-device-shell" :dir="isRtl ? 'rtl' : 'ltr'">
-        <!-- Native Phone Status Bar -->
-        <MobileStatusBar />
-
         <!-- Main Page Scrollable Viewport -->
-        <main class="mobile-content-viewport" :class="{ 'no-bottom-nav': hideBottomNav }">
+        <main class="mobile-content-viewport" :class="{ 'no-bottom-nav': hideBottomNav, 'is-onboarding': isOnboarding }">
           <slot />
         </main>
 
@@ -26,7 +23,6 @@ import { useRoute } from 'vue-router';
 import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
-import MobileStatusBar from './MobileStatusBar.vue';
 import BottomNavBar from './BottomNavBar.vue';
 import AppGlobalModals from './AppGlobalModals.vue';
 
@@ -104,11 +100,18 @@ onMounted(() => {
 
 .mobile-content-viewport {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-top: max(38px, env(safe-area-inset-top, 38px));
   padding-bottom: 96px;
   background: var(--unity-bg);
   scroll-behavior: smooth;
+
+  &.is-onboarding {
+    padding-top: 0;
+  }
 
   &.no-bottom-nav {
     padding-bottom: 24px;
