@@ -4,6 +4,10 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
   ssr: false, // SPA Mode for smooth mobile-app interactions
 
+  experimental: {
+    appManifest: false, // Disables #app-manifest virtual import for clean SPA & Capacitor builds
+  },
+
   modules: [
     '@primevue/nuxt-module',
     '@pinia/nuxt',
@@ -30,7 +34,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Unity — الرعاية الصحية والطبية المتكاملة',
+      title: 'عيادات يونيتي التخصصية — Unity Clinics',
       htmlAttrs: {
         lang: 'ar',
         dir: 'rtl',
@@ -38,10 +42,11 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' },
-        { name: 'theme-color', content: '#047857' },
+        { name: 'theme-color', content: '#007663' },
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap' },

@@ -6,6 +6,7 @@
         :key="item.id" 
         class="toast-item" 
         :class="`toast-${item.type}`"
+        :dir="isRtl ? 'rtl' : 'ltr'"
         role="alert"
       >
         <!-- Icon Badge -->
@@ -45,8 +46,10 @@
 
 <script setup lang="ts">
 import { useAppToast } from '../../composables/useAppToast';
+import { useI18n } from '../../composables/useI18n';
 
 const { toasts, remove } = useAppToast();
+const { isRtl } = useI18n();
 </script>
 
 <style scoped lang="scss">
@@ -85,6 +88,20 @@ const { toasts, remove } = useAppToast();
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &[dir='ltr'] {
+    direction: ltr;
+    .toast-body {
+      text-align: left;
+    }
+  }
+
+  &[dir='rtl'] {
+    direction: rtl;
+    .toast-body {
+      text-align: right;
+    }
+  }
 
   // Error Styling (Red / Crimson)
   &.toast-error {

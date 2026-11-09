@@ -1,18 +1,12 @@
 <template>
   <form class="login-form-card" @submit.prevent="handleSubmit">
     <div class="input-field-group">
-      <label class="field-label">{{ isRtl ? 'رقم الجوال' : 'Mobile Phone' }}</label>
-      <div class="input-shell">
-        <i class="pi pi-phone field-icon"></i>
-        <input 
-          v-model="form.login" 
-          type="tel" 
-          placeholder="05XXXXXXXX" 
-          dir="ltr"
-          required 
-          maxlength="14"
-        />
-      </div>
+      <label class="field-label">{{ t('Phone Number') }}</label>
+      <AppPhoneInput 
+        v-model="form.login"
+        :required="true"
+        @valid="val => isPhoneValid = val"
+      />
     </div>
 
     <div class="input-field-group">
@@ -31,7 +25,7 @@
       </div>
     </div>
 
-    <button type="submit" class="submit-login-btn" :disabled="globalStore.loading.includes('login')">
+    <button type="submit" class="submit-login-btn" :disabled="globalStore.loading.includes('login') || !form.login">
       <i v-if="globalStore.loading.includes('login')" class="pi pi-spin pi-spinner"></i>
       <span v-else>{{ t('Sign In') }}</span>
       <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" class="btn-arrow"></i>
@@ -46,6 +40,7 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useGlobalStore } from '../../stores/global';
 import { useAppToast } from '../../composables/useAppToast';
+import AppPhoneInput from '../common/AppPhoneInput.vue';
 
 const emit = defineEmits<{
   (e: 'success', user: any): void;
@@ -59,6 +54,7 @@ const globalStore = useGlobalStore();
 const toast = useAppToast();
 
 const showPassword = ref(false);
+const isPhoneValid = ref(false);
 const form = ref({
   login: '',
   password: '',
@@ -66,6 +62,10 @@ const form = ref({
 
 const handleSubmit = async () => {
   if (!form.value.login || !form.value.password) return;
+  if (!isPhoneValid.value) {
+    toast.error(isRtl.value ? 'يرجى إدخال رقم هاتف مصري صحيح' : 'Please enter a valid phone number');
+    return;
+  }
   try {
     globalStore.setLoading(['login', true]);
     const res = await api.login(form.value.login, form.value.password);

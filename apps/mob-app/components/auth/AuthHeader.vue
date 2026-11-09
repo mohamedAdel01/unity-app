@@ -1,10 +1,22 @@
 <template>
   <header class="auth-header">
-    <button class="back-nav-btn" aria-label="Back" @click="router.back()">
-      <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
-    </button>
-    <h3 class="auth-title">{{ title || t('Sign In') }}</h3>
-    <div class="header-ghost-spacer"></div>
+    <div class="top-nav-row">
+      <button class="back-nav-btn" :aria-label="t('Back')" @click="router.back()">
+        <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
+      </button>
+      <div class="header-ghost-spacer"></div>
+    </div>
+
+    <!-- Official Unity Clinics Logo & Brand Identity (Seamless Transparent) -->
+    <div class="brand-hero-box">
+      <div class="brand-logo-wrap">
+        <img src="/logo.png" alt="عيادات يونيتي التخصصية - Unity Clinics" class="unity-brand-logo" />
+      </div>
+      <h2 class="auth-heading">{{ title || t('Sign In') }}</h2>
+      <p class="auth-subheading">
+        {{ t('Welcome to Unity Clinics integrated medical platform') }}
+      </p>
+    </div>
   </header>
 </template>
 
@@ -23,9 +35,16 @@ const { t, isRtl } = useI18n();
 <style scoped lang="scss">
 .auth-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0 16px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0 8px;
+
+  .top-nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
 
   .back-nav-btn {
     width: 38px;
@@ -43,18 +62,51 @@ const { t, isRtl } = useI18n();
 
     &:hover {
       background: var(--unity-bg);
+      transform: scale(1.05);
     }
-  }
-
-  .auth-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--unity-text-main);
   }
 
   .header-ghost-spacer {
     width: 38px;
   }
+
+  .brand-hero-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    padding: 0 0 6px;
+  }
+
+  .brand-logo-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+  }
+
+  .unity-brand-logo {
+    height: 72px;
+    width: auto;
+    max-width: 190px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0, 118, 99, 0.08));
+  }
+
+  .auth-heading {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--unity-text-main);
+    margin: 4px 0 0;
+  }
+
+  .auth-subheading {
+    font-size: 0.82rem;
+    color: var(--unity-text-muted);
+    margin: 0;
+    max-width: 310px;
+    line-height: 1.4;
+  }
 }
 </style>
-

@@ -8,9 +8,12 @@
 
     <!-- App Compliance Badge & Build Number -->
     <div class="compliance-box">
+      <div class="unity-brand-seal">
+        <img src="/logo.png" alt="عيادات يونيتي التخصصية" class="footer-brand-logo" />
+      </div>
       <div class="moh-badge">
         <i class="pi pi-verified"></i>
-        <span>{{ t('profile.mohCompliance') }}</span>
+        <span>{{ isRtl ? 'عيادات يونيتي التخصصية • معتمد رسمياً' : 'Unity Specialized Clinics • Officially Certified' }}</span>
       </div>
       <p class="build-version">{{ t('profile.appVersion') }}</p>
     </div>
@@ -24,7 +27,7 @@ import { useI18n } from '../../composables/useI18n';
 
 const router = useRouter();
 const api = useUnityApi();
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 const handleLogout = async () => {
   api.logout();
@@ -71,6 +74,21 @@ const handleLogout = async () => {
     align-items: center;
     text-align: center;
     gap: 4px;
+
+    .unity-brand-seal {
+      background: transparent;
+      padding: 4px 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+
+      .footer-brand-logo {
+        height: 36px;
+        width: auto;
+        object-fit: contain;
+      }
+    }
 
     .moh-badge {
       display: inline-flex;

@@ -111,6 +111,20 @@
           </div>
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
         </button>
+
+        <div class="item-divider"></div>
+
+        <!-- Item 3: لوحة تحكم الإشراف (سجلات المرضى) -->
+        <button class="menu-item-row" @click="emit('action', 'admin')">
+          <div class="item-icon-box green">
+            <i class="pi pi-users"></i>
+          </div>
+          <div class="item-text-box">
+            <h6>{{ isRtl ? 'لوحة المشرف • سجلات المرضى' : 'Admin Panel • Patient Records' }}</h6>
+            <small>{{ isRtl ? 'إدارة سجلات المرضى والملفات الطبية' : 'Manage patients records and files' }}</small>
+          </div>
+          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+        </button>
       </div>
     </div>
   </div>

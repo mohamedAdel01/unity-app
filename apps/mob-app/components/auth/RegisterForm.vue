@@ -42,24 +42,12 @@
 
       <!-- Phone Number (Required in Step 1) -->
       <div class="input-field-group">
-        <label class="field-label">{{ isRtl ? 'رقم الجوال' : 'Phone Number' }}</label>
-        <div class="input-shell" :class="{ 'is-invalid': step1Form.phone && !isPhoneValid }">
-          <i class="pi pi-phone field-icon"></i>
-          <input 
-            v-model="step1Form.phone" 
-            type="tel" 
-            placeholder="05XXXXXXXX" 
-            dir="ltr"
-            required 
-            maxlength="14"
-          />
-          <span v-if="isPhoneValid" class="valid-phone-badge" :title="isRtl ? 'رقم صالح' : 'Valid phone'">
-            <i class="pi pi-check"></i>
-          </span>
-        </div>
-        <small v-if="step1Form.phone && !isPhoneValid" class="field-error-hint">
-          {{ isRtl ? 'يرجى إدخال رقم جوال سعودي يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0512345678)' : 'Please enter a valid phone starting with 05 (10 digits)' }}
-        </small>
+        <label class="field-label">{{ t('Phone Number') }}</label>
+        <AppPhoneInput 
+          v-model="step1Form.phone" 
+          :required="true"
+          @valid="val => isPhoneValid = val"
+        />
       </div>
 
       <!-- Password -->
@@ -223,6 +211,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useGlobalStore } from '../../stores/global';
 import { useAppToast } from '../../composables/useAppToast';
 import AppDatePickerModal from '../common/AppDatePickerModal.vue';
+import AppPhoneInput from '../common/AppPhoneInput.vue';
 
 const props = defineProps<{
   step?: number;
@@ -326,11 +315,7 @@ const step2Form = ref({
   date_of_birth: '1995-05-15',
 });
 
-// Validate phone number format (05XXXXXXXX)
-const isPhoneValid = computed(() => {
-  const clean = step1Form.value.phone.replace(/[\s\-\(\)]/g, '').trim();
-  return /^05\d{8}$/.test(clean) || /^\+?[1-9]\d{8,14}$/.test(clean);
-});
+const isPhoneValid = ref(false);
 
 const isStep1Valid = computed(() => {
   return (

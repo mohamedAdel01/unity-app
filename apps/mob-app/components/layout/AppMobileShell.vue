@@ -10,8 +10,9 @@
           <slot />
         </main>
 
-        <!-- Bottom Navigation Bar with Center Floating Plus Action -->
-        <BottomNavBar v-if="!hideBottomNav" />
+        <!-- Bottom Navigation Bar (Admin vs Patient) -->
+        <AdminBottomNavBar v-if="!hideBottomNav && isAdminRoute" />
+        <BottomNavBar v-else-if="!hideBottomNav" />
 
         <!-- Global Modals (Quick Book, Notifications, Booking Checkout) -->
         <AppGlobalModals v-if="!isOnboarding" />
@@ -27,6 +28,7 @@ import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
 import BottomNavBar from './BottomNavBar.vue';
+import AdminBottomNavBar from './AdminBottomNavBar.vue';
 import AppGlobalModals from './AppGlobalModals.vue';
 import AppToastContainer from '../common/AppToastContainer.vue';
 
@@ -37,6 +39,10 @@ const { isRtl, initLocale } = useI18n();
 
 const isAuthRoute = computed(() => {
   return route.path.startsWith('/auth');
+});
+
+const isAdminRoute = computed(() => {
+  return route.path.startsWith('/admin');
 });
 
 const isOnboarding = computed(() => {

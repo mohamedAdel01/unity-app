@@ -1,7 +1,11 @@
 <template>
   <div class="onboarding-container" :dir="isRtl ? 'rtl' : 'ltr'">
-    <!-- Top Action Bar with Real Interactive Skip Button -->
+    <!-- Top Action Bar with Real Interactive Skip Button & Unity Clinics Brand -->
     <header class="onboarding-top-bar">
+      <div class="onboarding-brand-pill">
+        <img src="/logo-small.png" alt="Unity Clinics" class="onboarding-logo-img" />
+        <span class="brand-text">UNITY</span>
+      </div>
       <button type="button" class="skip-btn" @click="router.push('/auth/register')">
         {{ t('Skip') }}
       </button>
@@ -147,7 +151,32 @@ const onTouchEnd = (e: TouchEvent) => {
   right: 20px;
   z-index: 30;
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: space-between;
+
+  .onboarding-brand-pill {
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .onboarding-logo-img {
+      height: 36px;
+      width: 36px;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      object-fit: cover;
+    }
+
+    .brand-text {
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+  }
 
   .skip-btn {
     background: rgba(0, 0, 0, 0.40);

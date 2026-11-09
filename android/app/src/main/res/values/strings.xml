@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">unity clinics</string>
+    <string name="title_activity_main">unity clinics</string>
+    <string name="package_name">com.unityClinics.app</string>
+    <string name="custom_url_scheme">com.unityClinics.app</string>
+</resources>
