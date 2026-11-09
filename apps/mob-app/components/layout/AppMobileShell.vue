@@ -56,15 +56,19 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .web-viewport-wrapper {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   background-color: var(--web-outer-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 0;
+  padding: 12px 0;
+  overflow: hidden;
 
   @media (max-width: 480px) {
     padding: 0;
+    height: 100dvh;
+    max-height: 100dvh;
     background-color: var(--unity-bg);
   }
 }
@@ -72,30 +76,30 @@ onMounted(() => {
 .desktop-screen-frame {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
+  height: 100%;
+  max-height: 900px;
   display: flex;
   justify-content: center;
 
   @media (max-width: 480px) {
     max-width: 100%;
+    max-height: 100%;
   }
 }
 
 .mobile-device-shell {
   width: 100%;
   background: var(--unity-bg);
-  min-height: 100vh;
-  max-height: 96vh;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
-  border-radius: 44px;
+  border-radius: 40px;
   border: 4px solid rgba(255, 255, 255, 0.08);
 
   @media (max-width: 480px) {
-    max-height: 100vh;
     border-radius: 0;
     border: none;
     box-shadow: none;
@@ -109,10 +113,11 @@ onMounted(() => {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-top: max(38px, env(safe-area-inset-top, 38px));
-  padding-bottom: 24px;
+  padding-top: max(32px, env(safe-area-inset-top, 32px));
+  padding-bottom: 96px;
   background: var(--unity-bg);
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 
   &.is-onboarding {
     padding-top: 0;

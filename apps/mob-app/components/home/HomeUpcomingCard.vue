@@ -8,7 +8,7 @@
       </NuxtLink>
     </div>
 
-    <div class="upcoming-appointment-card">
+    <div class="upcoming-appointment-card" :dir="isRtl ? 'rtl' : 'ltr'">
       <div class="card-top">
         <div class="doc-profile">
           <img 
@@ -116,6 +116,15 @@ const viewDoctor = (doctor: any) => {
   padding: 18px;
   color: #fff;
   box-shadow: 0 10px 25px -5px rgba(4, 120, 87, 0.35);
+  direction: rtl;
+
+  &[dir='ltr'] {
+    direction: ltr;
+
+    .card-top .doc-profile .doc-text {
+      text-align: left;
+    }
+  }
 
   .card-top {
     display: flex;
@@ -134,10 +143,11 @@ const viewDoctor = (doctor: any) => {
         border-radius: 50%;
         border: 2px solid rgba(255, 255, 255, 0.7);
         object-fit: cover;
+        flex-shrink: 0;
       }
 
       .doc-text {
-        text-align: start;
+        text-align: right;
 
         h5 {
           font-size: 1.05rem;

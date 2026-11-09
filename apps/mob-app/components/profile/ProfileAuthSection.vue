@@ -26,19 +26,14 @@
               <input v-model="authForm.name" type="text" placeholder="Ahmed Al-Salama" />
             </div>
 
-            <!-- Email or Mobile for Login; Email for Register -->
             <div class="form-group">
-              <label>{{ isRegister ? t('profile.email') : t('profile.emailOrPhone') }}</label>
+              <label>{{ isRtl ? 'رقم الجوال' : 'Phone Number' }}</label>
               <input
-                v-model="authForm.identifier"
-                :type="isRegister ? 'email' : 'text'"
-                :placeholder="isRegister ? 'example@email.com' : '05XXXXXXXX / example@email.com'"
+                v-model="authForm.phone"
+                type="tel"
+                placeholder="05XXXXXXXX"
+                dir="ltr"
               />
-            </div>
-
-            <div v-if="isRegister" class="form-group">
-              <label>{{ t('profile.phone') }}</label>
-              <input v-model="authForm.phone" type="tel" placeholder="05XXXXXXXX" />
             </div>
 
             <div class="form-group">
@@ -120,12 +115,11 @@ const submitAuth = async () => {
     if (isRegister.value) {
       await api.register({
         name: authForm.value.name,
-        email: authForm.value.identifier.includes('@') ? authForm.value.identifier : undefined,
         password: authForm.value.password,
-        phone: authForm.value.phone || (!authForm.value.identifier.includes('@') ? authForm.value.identifier : undefined),
+        phone: authForm.value.phone,
       });
     } else {
-      await api.login(authForm.value.identifier, authForm.value.password);
+      await api.login(authForm.value.phone, authForm.value.password);
     }
     emit('user-updated', api.currentUser.value);
     openAuthModal.value = false;

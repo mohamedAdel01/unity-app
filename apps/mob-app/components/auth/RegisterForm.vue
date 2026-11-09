@@ -40,18 +40,26 @@
         </div>
       </div>
 
-      <!-- Email Address -->
+      <!-- Phone Number (Required in Step 1) -->
       <div class="input-field-group">
-        <label class="field-label">{{ t('Email Address') }}</label>
-        <div class="input-shell">
-          <i class="pi pi-envelope field-icon"></i>
+        <label class="field-label">{{ isRtl ? 'رقم الجوال' : 'Phone Number' }}</label>
+        <div class="input-shell" :class="{ 'is-invalid': step1Form.phone && !isPhoneValid }">
+          <i class="pi pi-phone field-icon"></i>
           <input 
-            v-model="step1Form.email" 
-            type="email" 
-            placeholder="name@example.com" 
+            v-model="step1Form.phone" 
+            type="tel" 
+            placeholder="05XXXXXXXX" 
+            dir="ltr"
             required 
+            maxlength="14"
           />
+          <span v-if="isPhoneValid" class="valid-phone-badge" :title="isRtl ? 'رقم صالح' : 'Valid phone'">
+            <i class="pi pi-check"></i>
+          </span>
         </div>
+        <small v-if="step1Form.phone && !isPhoneValid" class="field-error-hint">
+          {{ isRtl ? 'يرجى إدخال رقم جوال سعودي يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0512345678)' : 'Please enter a valid phone starting with 05 (10 digits)' }}
+        </small>
       </div>
 
       <!-- Password -->
@@ -97,20 +105,6 @@
         <div>
           <h6>{{ t('Account Created Successfully!') }}</h6>
           <small>{{ t('Complete your profile or skip to continue later.') }}</small>
-        </div>
-      </div>
-
-      <!-- Phone Number -->
-      <div class="input-field-group">
-        <label class="field-label">{{ t('Phone Number') }}</label>
-        <div class="input-shell">
-          <i class="pi pi-phone field-icon"></i>
-          <input 
-            v-model="step2Form.phone" 
-            type="tel" 
-            placeholder="05XXXXXXXX" 
-            dir="ltr"
-          />
         </div>
       </div>
 
@@ -321,23 +315,27 @@ const presetAvatars = [
 // Step 1 Form
 const step1Form = ref({
   name: '',
-  email: '',
+  phone: '',
   password: '',
 });
 
 // Step 2 Form
 const step2Form = ref({
-  phone: '',
   gender: 'male',
   avatar: presetAvatars[0],
   date_of_birth: '1995-05-15',
 });
 
+// Validate phone number format (05XXXXXXXX)
+const isPhoneValid = computed(() => {
+  const clean = step1Form.value.phone.replace(/[\s\-\(\)]/g, '').trim();
+  return /^05\d{8}$/.test(clean) || /^\+?[1-9]\d{8,14}$/.test(clean);
+});
+
 const isStep1Valid = computed(() => {
   return (
     step1Form.value.name.trim().length >= 2 &&
-    step1Form.value.email.includes('@') &&
-    step1Form.value.email.includes('.') &&
+    isPhoneValid.value &&
     step1Form.value.password.length >= 6
   );
 });
@@ -349,8 +347,8 @@ const handleStep1Submit = async () => {
   try {
     globalStore.setLoading(['register', true]);
     await api.register({
-      name: step1Form.value.name,
-      email: step1Form.value.email,
+      name: step1Form.value.name.trim(),
+      phone: step1Form.value.phone.trim(),
       password: step1Form.value.password,
     });
 
@@ -369,7 +367,6 @@ const handleStep2Submit = async () => {
   try {
     globalStore.setLoading(['completeRegistration', true]);
     await api.completeRegistration({
-      phone: step2Form.value.phone || undefined,
       gender: step2Form.value.gender,
       avatar: step2Form.value.avatar,
       date_of_birth: step2Form.value.date_of_birth,
@@ -514,6 +511,13 @@ const handleSkipStep2 = () => {
     margin-bottom: 6px;
   }
 
+  .field-error-hint {
+    color: #dc2626;
+    font-size: 0.72rem;
+    font-weight: 500;
+    margin-top: -2px;
+  }
+
   .input-shell {
     position: relative;
     display: flex;
@@ -528,6 +532,19 @@ const handleSkipStep2 = () => {
     &:focus-within {
       border-color: var(--unity-primary);
       background: var(--unity-surface);
+    }
+
+    &.is-invalid {
+      border-color: #ef4444 !important;
+      background: #fff8f8;
+    }
+
+    .valid-phone-badge {
+      color: #10b981;
+      font-size: 1.1rem;
+      margin-inline-start: 6px;
+      display: flex;
+      align-items: center;
     }
 
     .field-icon {

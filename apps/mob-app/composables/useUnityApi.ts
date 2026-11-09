@@ -42,9 +42,9 @@ export function useUnityApi() {
 
   const register = async (payload: {
     name: string;
+    phone: string;
     password: string;
     email?: string;
-    phone?: string;
     gender?: string;
     date_of_birth?: string;
   }) => {

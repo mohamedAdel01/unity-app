@@ -1,6 +1,6 @@
 <template>
-  <div class="profile-hero-card">
-    <!-- User Info & Avatar (Starts on the right in RTL) -->
+  <div class="profile-hero-card" :dir="isRtl ? 'rtl' : 'ltr'">
+    <!-- User Info & Avatar (Positioned on the right in RTL) -->
     <div class="user-info-row">
       <div class="avatar-wrapper">
         <img 
@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <!-- Edit Profile Button (Ends on the left in RTL) -->
+    <!-- Edit Profile Button (Positioned on the left in RTL) -->
     <button class="edit-profile-btn" aria-label="Edit Profile" @click="emit('edit')">
       <i class="pi pi-pencil"></i>
     </button>
@@ -37,7 +37,7 @@ const emit = defineEmits<{
   (e: 'edit'): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 const resolveAvatar = (url?: string) => {
   if (!url) return '';
@@ -61,24 +61,13 @@ const resolveAvatar = (url?: string) => {
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--unity-shadow-subtle);
+  direction: rtl;
 
-  .edit-profile-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--unity-bg);
-    border: 1px solid var(--unity-border);
-    color: var(--unity-text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s;
+  &[dir='ltr'] {
+    direction: ltr;
 
-    &:hover {
-      background: var(--unity-border);
-      color: var(--unity-text-main);
+    .user-info-row .text-block {
+      text-align: left;
     }
   }
 
@@ -88,7 +77,7 @@ const resolveAvatar = (url?: string) => {
     gap: 14px;
 
     .text-block {
-      text-align: start;
+      text-align: right;
 
       .user-name {
         font-size: 1.15rem;
@@ -116,6 +105,7 @@ const resolveAvatar = (url?: string) => {
       width: 64px;
       height: 64px;
       border-radius: 50%;
+      flex-shrink: 0;
 
       img {
         width: 100%;
@@ -129,13 +119,34 @@ const resolveAvatar = (url?: string) => {
       .active-status-dot {
         position: absolute;
         bottom: 2px;
-        inset-inline-start: 2px;
+        inset-inline-end: 2px;
         width: 14px;
         height: 14px;
         border-radius: 50%;
         background: #10b981;
         border: 2.5px solid #fff;
       }
+    }
+  }
+
+  .edit-profile-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--unity-bg);
+    border: 1px solid var(--unity-border);
+    color: var(--unity-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--unity-border);
+      color: var(--unity-text-main);
     }
   }
 }

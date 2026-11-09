@@ -1,14 +1,16 @@
 <template>
   <form class="login-form-card" @submit.prevent="handleSubmit">
     <div class="input-field-group">
-      <label class="field-label">{{ t('Email or Mobile Phone') }}</label>
+      <label class="field-label">{{ isRtl ? 'رقم الجوال' : 'Mobile Phone' }}</label>
       <div class="input-shell">
-        <i class="pi pi-user field-icon"></i>
+        <i class="pi pi-phone field-icon"></i>
         <input 
           v-model="form.login" 
-          type="text" 
-          :placeholder="isRtl ? '05XXXXXXXX أو البريد الإلكتروني' : '05XXXXXXXX or email'" 
+          type="tel" 
+          placeholder="05XXXXXXXX" 
+          dir="ltr"
           required 
+          maxlength="14"
         />
       </div>
     </div>

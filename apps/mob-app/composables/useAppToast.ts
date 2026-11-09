@@ -45,11 +45,19 @@ function formatErrorMessage(msg: string): { title?: string; message: string } {
     };
   }
 
+  // Phone validation
+  if (msg.includes('phone') && (msg.includes('required') || msg.includes('valid') || msg.includes('pattern') || msg.includes('صحيح'))) {
+    return {
+      title: 'رقم جوال غير صالح',
+      message: 'يرجى إدخال رقم جوال يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 05XXXXXXXX).',
+    };
+  }
+
   // User exists
   if (msg.includes('already exists') || msg.includes('already registered')) {
     return {
       title: 'الحساب مسجل مسبقاً',
-      message: 'هذا البريد الإلكتروني مسجل بالفعل. يمكنك تسجيل الدخول بدلاً من ذلك.',
+      message: 'رقم الجوال مسجل بالفعل. يمكنك تسجيل الدخول بدلاً من ذلك.',
     };
   }
 
