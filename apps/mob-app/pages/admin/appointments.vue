@@ -113,7 +113,7 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
       bookings.value.push(...items);
     }
     bookingsPage.value = page;
-    bookingsHasMore.value = res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+    bookingsHasMore.value = res?.pagination?.hasMore ?? res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
     if (page === 1) bookings.value = [];
   } finally {
@@ -144,7 +144,7 @@ const ADMIN_BILLING_INVOICES = async (page = 1) => {
       invoicesList.value.push(...items);
     }
     invoicesPage.value = page;
-    invoicesHasMore.value = res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+    invoicesHasMore.value = res?.pagination?.hasMore ?? res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
     if (page === 1) invoicesList.value = [];
   } finally {

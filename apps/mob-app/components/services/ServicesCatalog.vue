@@ -193,7 +193,7 @@ const SERVICES = async (page = 1) => {
       services.value.push(...raw);
     }
     servicesPage.value = page;
-    servicesHasMore.value = res?.hasMore ?? (raw.length >= 10);
+    servicesHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (raw.length >= 10);
   } catch (e) {
     if (page === 1) services.value = [];
   } finally {
@@ -231,7 +231,7 @@ const DOCTORS = async (page = 1) => {
       doctors.value.push(...items);
     }
     doctorsPage.value = page;
-    doctorsHasMore.value = res?.hasMore ?? (items.length >= 10);
+    doctorsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (e) {
     if (page === 1) doctors.value = [];
   } finally {

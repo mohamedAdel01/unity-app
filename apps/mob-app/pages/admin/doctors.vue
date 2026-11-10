@@ -1,9 +1,9 @@
 <template>
   <div class="admin-doctors-page">
-    <!-- 1. Header with search, filters & stats -->
+    <!-- 1. Header with search, clinic filters & stats -->
     <AdminDoctorsHeader 
-      :total-count="doctors.length"
-      :active-count="activeDoctorsCount"
+      :total-count="totalDoctorsCount"
+      :clinics="clinics"
       @search="onSearch"
       @filter="onFilter"
       @new-doctor="openNewDoctorModal"
@@ -35,8 +35,8 @@
       :is-open="isDoctorModalOpen"
       :doctor="selectedDoctorToEdit"
       @close="isDoctorModalOpen = false"
-      @created="ADMIN_DOCTORS()"
-      @updated="ADMIN_DOCTORS()"
+      @created="onDoctorCreated"
+      @updated="ADMIN_DOCTORS(1)"
     />
   </div>
 </template>
@@ -57,33 +57,28 @@ definePageMeta({
 });
 
 const { t } = useI18n();
-
 const api = useUnityApi();
-
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
-
 const activeFilter = ref('all');
 
 const isEditScheduleModalOpen = ref(false);
-
 const isDoctorModalOpen = ref(false);
 
 const selectedDoctorForSchedule = ref<any>(null);
 const selectedDoctorToEdit = ref<any>(null);
 
 const doctors = ref<any[]>([]);
+const totalDoctorsCount = ref(0);
 const doctorsPage = ref(1);
 const doctorsHasMore = ref(false);
 const doctorsLoading = ref(false);
 
-// 3. Computed (computed properties)
-const activeDoctorsCount = computed(() => {
-  return doctors.value.filter(d => d.is_active).length;
-});
+const clinics = ref<any[]>([]);
 
+// 3. Computed (computed properties)
 const filteredDoctors = computed(() => {
   let list = doctors.value;
 
@@ -97,10 +92,11 @@ const filteredDoctors = computed(() => {
     });
   }
 
-  if (activeFilter.value === 'available') {
-    list = list.filter(d => d.is_active);
-  } else if (activeFilter.value === 'evening') {
-    list = list.filter(d => d.is_evening);
+  if (activeFilter.value && activeFilter.value !== 'all') {
+    list = list.filter(d => 
+      String(d.clinic_id) === String(activeFilter.value) || 
+      String(d.clinic?.id) === String(activeFilter.value)
+    );
   }
 
   return list;
@@ -112,39 +108,67 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
   const targetPage = typeof page === 'number' ? page : 1;
   try {
     doctorsLoading.value = true;
+    const filterParams: any = { page: targetPage, limit: 10 };
+    if (activeFilter.value && activeFilter.value !== 'all') {
+      filterParams.clinic_id = activeFilter.value;
+    }
+    if (searchQuery.value) {
+      filterParams.search = searchQuery.value;
+    }
+
     const res = await api.apiRequest({ 
       service: 'ADMIN_DOCTORS',
-      filter: { page: targetPage, limit: 10 },
+      filter: filterParams,
     });
 
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     const items = raw.map((d: any) => ({
       id: d.id,
+      user_id: d.user_id || d.user?.id,
       name: d.user?.name || d.name,
+      phone: d.phone || d.user?.phone || '',
       avatar: d.user?.avatar || d.avatar,
+      clinic_id: d.clinic_id || d.clinic?.id,
+      clinic: d.clinic,
       specialty: d.clinic?.name || d.specialty || '',
       room: d.room || '',
-      category: 'cardio_internal',
-      status_badge: d.user?.status === 'active' ? t('Open Clinic') : t('Unavailable'),
+      status_badge: (d.user?.status === 'active' || d.status === 'active') ? t('Open Clinic') : t('Unavailable'),
       schedule_time: '',
-      cases_count: d._count?.appointments || 0,
-      is_active: d.user?.status === 'active',
+      cases_count: d._count?.appointments || d.cases_count || 0,
+      is_active: d.user?.status === 'active' || d.status === 'active',
       is_evening: false,
       primary_action: false,
+      schedules: d.schedules || d.user?.doctor_schedules || [],
     }));
 
     if (targetPage === 1) {
       doctors.value = items;
+      totalDoctorsCount.value = res?.pagination?.total ?? items.length;
     } else {
       doctors.value.push(...items);
     }
     doctorsPage.value = targetPage;
-    doctorsHasMore.value = res?.hasMore ?? (items.length >= 10);
+    doctorsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
     if (targetPage === 1) doctors.value = [];
   } finally {
     doctorsLoading.value = false;
   }
+};
+
+// Load clinics from backend for filter pills
+const ADMIN_CLINICS = async () => {
+  try {
+    const res = await api.apiRequest({
+      service: 'ADMIN_CLINICS',
+      filter: { limit: 100 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    clinics.value = raw.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+    }));
+  } catch (err) {}
 };
 
 const loadMoreDoctors = () => {
@@ -155,15 +179,26 @@ const loadMoreDoctors = () => {
 
 const onSearch = (q: string) => {
   searchQuery.value = q;
+  ADMIN_DOCTORS(1);
 };
 
-const onFilter = (cat: string) => {
-  activeFilter.value = cat;
+const onFilter = (clinicId: string) => {
+  activeFilter.value = clinicId;
+  ADMIN_DOCTORS(1);
 };
 
 const resetFilters = () => {
   searchQuery.value = '';
   activeFilter.value = 'all';
+  ADMIN_DOCTORS(1);
+};
+
+const onDoctorCreated = (newDoc?: any) => {
+  searchQuery.value = '';
+  if (activeFilter.value !== 'all' && newDoc?.clinic_id && String(activeFilter.value) !== String(newDoc.clinic_id)) {
+    activeFilter.value = 'all';
+  }
+  ADMIN_DOCTORS(1);
 };
 
 const openEditSchedule = (doc: any) => {
@@ -171,36 +206,8 @@ const openEditSchedule = (doc: any) => {
   isEditScheduleModalOpen.value = true;
 };
 
-const onScheduleUpdated = async (payload: any) => {
-  const target = doctors.value.find(d => d.id === payload.doctorId);
-  if (target) {
-    target.room = payload.room;
-    target.is_active = payload.is_active;
-    target.is_evening = payload.shift === 'evening';
-    target.schedule_time = payload.shift === 'evening'
-      ? `${t('Evening Shift')}: ${payload.start_time} - ${payload.end_time}`
-      : `${t('Today')}: ${payload.start_time} - ${payload.end_time}`;
-    target.status_badge = payload.is_active ? t('Open Clinic') : t('Unavailable');
-  }
-
-  try {
-    await api.apiRequest({
-      service: 'ADMIN_UPDATE_DOCTOR_SCHEDULES',
-      payload: {
-        id: payload.doctorId,
-        schedules: [
-          {
-            day_of_week: 1,
-            start_time: payload.start_time,
-            end_time: payload.end_time,
-            is_active: payload.is_active,
-          },
-        ],
-      },
-    });
-  } catch (err) {}
-
-  toast.success(t('Doctor schedule updated successfully!'));
+const onScheduleUpdated = async (_payload: any) => {
+  ADMIN_DOCTORS(1);
 };
 
 const openNewDoctorModal = () => {
@@ -263,6 +270,7 @@ const onToggleDoctorStatus = (doc: any) => {
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   ADMIN_DOCTORS();
+  ADMIN_CLINICS();
 });
 
 onBeforeUnmount(() => {

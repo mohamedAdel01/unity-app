@@ -77,7 +77,7 @@ const PATIENT_RECORDS = async (page = 1) => {
       prescriptionsData.value.push(...newPresc);
     }
     recordsPage.value = page;
-    recordsHasMore.value = res?.hasMore ?? (raw.length >= 10);
+    recordsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (raw.length >= 10);
   } catch (e) {
     if (page === 1) {
       reportsData.value = [];

@@ -134,7 +134,7 @@ const ADMIN_CLINICS = async (page: any = 1) => {
       clinics.value.push(...items);
     }
     clinicsPage.value = targetPage;
-    clinicsHasMore.value = res?.hasMore ?? (items.length >= 10);
+    clinicsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
     if (targetPage === 1) clinics.value = [];
   } finally {
@@ -172,7 +172,7 @@ const ADMIN_EXAMINATIONS = async (page: any = 1) => {
       services.value.push(...items);
     }
     servicesPage.value = targetPage;
-    servicesHasMore.value = res?.hasMore ?? (items.length >= 10);
+    servicesHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
     if (targetPage === 1) services.value = [];
   } finally {

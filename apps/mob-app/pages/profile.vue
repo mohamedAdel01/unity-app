@@ -42,6 +42,8 @@ const onEditProfile = () => {
 const onMenuAction = (key: string) => {
   if (key === 'wallet') {
     router.push('/appointments');
+  } else if (key === 'support') {
+    router.push('/support');
   } else if (key === 'admin') {
     router.push('/admin/patients');
   } else if (key === 'terms') {

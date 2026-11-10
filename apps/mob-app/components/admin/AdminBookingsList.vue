@@ -116,12 +116,13 @@ const { t } = useI18n();
   width: 100%;
 
   .empty-bookings-state {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 48px 24px;
+    padding: 44px 20px;
     background: var(--unity-surface);
     border: 1px dashed var(--unity-border);
     border-radius: 20px;

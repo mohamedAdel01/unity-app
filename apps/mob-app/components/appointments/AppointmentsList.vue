@@ -251,7 +251,7 @@ const PATIENT_APPOINTMENTS = async (page = 1) => {
       appointments.value.push(...raw);
     }
     appointmentsPage.value = page;
-    appointmentsHasMore.value = res?.hasMore ?? (raw.length >= 10);
+    appointmentsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (raw.length >= 10);
   } catch (err) {
     if (page === 1) appointments.value = [];
   } finally {

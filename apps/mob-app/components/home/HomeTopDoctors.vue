@@ -3,7 +3,7 @@
     <div class="section-header">
       <div class="header-with-badge">
         <i class="pi pi-verified verified-icon"></i>
-        <h4>{{ t('Certified Top Doctors') }}</h4>
+        <h4>{{ t('Our Top Doctors') }}</h4>
       </div>
       <NuxtLink to="/services?tab=doctors" class="see-all-link">
         {{ t('View All') }} 

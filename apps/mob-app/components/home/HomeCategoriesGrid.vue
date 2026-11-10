@@ -9,18 +9,54 @@
     </div>
 
     <div class="categories-grid">
+      <!-- 1. Doctor Consultation Checkup Card -->
       <div 
-        v-for="cat in categories" 
-        :key="cat.id" 
-        class="category-card"
-        @click="navigateToCategory(cat)"
+        class="category-card doctor-card" 
+        @click="navigateToCategory('doctor')"
       >
-        <span v-if="cat.badge" class="cat-pill-badge" :class="cat.badgeClass">{{ cat.badge }}</span>
-        <div class="cat-icon-wrap" :class="cat.iconClass">
-          <i :class="cat.icon"></i>
+        <div class="cat-icon-wrap icon-doctor">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+            <path d="M3 3h3"/>
+            <path d="M16 3h3"/>
+            <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+            <circle cx="17" cy="16" r="2"/>
+          </svg>
         </div>
-        <h5>{{ cat.title }}</h5>
-        <small>{{ cat.subtitle }}</small>
+
+        <div class="cat-content">
+          <h5>{{ t('Doctor Consultation Checkup') }}</h5>
+          <p>{{ t('In-clinic appointments & specialized consultations') }}</p>
+        </div>
+
+        <div class="card-action-cue">
+          <span>{{ t('Book Now') }}</span>
+          <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
+        </div>
+      </div>
+
+      <!-- 2. Lab & Diagnostic Tests Card -->
+      <div 
+        class="category-card lab-card" 
+        @click="navigateToCategory('lab')"
+      >
+        <div class="cat-icon-wrap icon-lab">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 2v7.31L4.35 18.5A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.72-3.5L14 9.31V2"/>
+            <path d="M8.5 2h7"/>
+            <path d="M7 16h10"/>
+          </svg>
+        </div>
+
+        <div class="cat-content">
+          <h5>{{ t('Book Tests & Lab Examinations') }}</h5>
+          <p>{{ t('Lab tests, diagnostics & comprehensive packages') }}</p>
+        </div>
+
+        <div class="card-action-cue">
+          <span>{{ t('Explore Tests') }}</span>
+          <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
+        </div>
       </div>
     </div>
   </section>
@@ -28,7 +64,6 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
@@ -39,30 +74,10 @@ const { t, isRtl } = useI18n();
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
-const categories = computed(() => [
-  {
-    id: 'doctor',
-    title: t('Doctor Consultation Checkup'),
-    subtitle: t('In-clinic appointments & specialized consultations'),
-    icon: 'pi pi-user-plus',
-    iconClass: 'icon-emerald',
-    badge: t('Instant'),
-    badgeClass: 'badge-emerald',
-  },
-  {
-    id: 'lab',
-    title: t('Book Tests & Lab Examinations'),
-    subtitle: t('Lab tests, diagnostics & comprehensive packages'),
-    icon: 'pi pi-table',
-    iconClass: 'icon-cyan',
-    badge: t('Special'),
-    badgeClass: 'badge-cyan',
-  },
-]);
 
 // 4. Methods (functions, handlers)
-const navigateToCategory = (cat: any) => {
-  if (cat.id === 'doctor') {
+const navigateToCategory = (type: 'doctor' | 'lab') => {
+  if (type === 'doctor') {
     router.push('/services?tab=doctors');
   } else {
     router.push('/services?tab=services');
@@ -81,6 +96,7 @@ const navigateToCategory = (cat: any) => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 
   .section-header {
     display: flex;
@@ -89,18 +105,24 @@ const navigateToCategory = (cat: any) => {
 
     h4 {
       font-size: 1.05rem;
-      font-weight: 600;
+      font-weight: 800;
       color: var(--unity-text-main);
+      margin: 0;
     }
 
     .see-all-link {
       font-size: 0.78rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--unity-primary);
       text-decoration: none;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 2px;
+      gap: 3px;
+      transition: gap 0.2s;
+
+      &:hover {
+        gap: 6px;
+      }
     }
   }
 }
@@ -112,77 +134,123 @@ const navigateToCategory = (cat: any) => {
 
   .category-card {
     position: relative;
-    background: var(--unity-surface);
-    border: 1px solid var(--unity-border);
-    border-radius: 18px;
-    padding: 16px 12px;
+    border-radius: 22px;
+    padding: 16px 14px 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     cursor: pointer;
-    transition: all 0.25s;
-    box-shadow: var(--unity-shadow-subtle);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 
-    &:hover {
-      border-color: var(--unity-primary);
-      transform: translateY(-2px);
+    &.doctor-card {
+      background: linear-gradient(150deg, var(--unity-surface) 0%, rgba(16, 185, 129, 0.08) 100%);
+      border: 1.5px solid rgba(16, 185, 129, 0.22);
+
+      .icon-doctor {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        color: #059669;
+        box-shadow: 0 6px 14px rgba(16, 185, 129, 0.18);
+        border: 1px solid #a7f3d0;
+      }
+
+      .card-action-cue {
+        color: #059669;
+        background: rgba(16, 185, 129, 0.08);
+
+        &:hover {
+          background: rgba(16, 185, 129, 0.16);
+        }
+      }
     }
 
-    .cat-pill-badge {
-      position: absolute;
-      top: 8px;
-      inset-inline-end: 8px;
-      font-size: 0.62rem;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 10px;
+    &.lab-card {
+      background: linear-gradient(150deg, var(--unity-surface) 0%, rgba(13, 148, 136, 0.08) 100%);
+      border: 1.5px solid rgba(13, 148, 136, 0.22);
 
-      &.badge-emerald {
-        background: #d1fae5;
-        color: #065f46;
+      .icon-lab {
+        background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+        color: #0d9488;
+        box-shadow: 0 6px 14px rgba(13, 148, 136, 0.18);
+        border: 1px solid #99f6e4;
       }
-      &.badge-cyan {
-        background: #e0f2fe;
-        color: #0369a1;
+
+      .card-action-cue {
+        color: #0d9488;
+        background: rgba(13, 148, 136, 0.08);
+
+        &:hover {
+          background: rgba(13, 148, 136, 0.16);
+        }
       }
-      &.badge-amber {
-        background: #fef3c7;
-        color: #92400e;
-      }
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    &:active {
+      transform: scale(0.97);
     }
 
     .cat-icon-wrap {
-      width: 48px;
-      height: 48px;
-      border-radius: 15px;
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      transition: transform 0.25s ease;
+    }
 
-      &.icon-emerald {
-        background: #ecfdf5;
-        color: #047857;
+    &:hover .cat-icon-wrap {
+      transform: scale(1.06);
+    }
+
+    .cat-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+
+      h5 {
+        font-size: 0.92rem;
+        font-weight: 800;
+        color: var(--unity-text-main);
+        margin: 0 0 4px;
+        line-height: 1.35;
       }
-      &.icon-cyan {
-        background: #f0fdfa;
-        color: #0d9488;
+
+      p {
+        font-size: 0.72rem;
+        line-height: 1.4;
+        color: var(--unity-text-muted);
+        margin: 0 0 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
     }
 
-    h5 {
-      font-size: 0.88rem;
+    .card-action-cue {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--unity-text-main);
-      margin-bottom: 3px;
-    }
+      width: 100%;
+      transition: all 0.2s ease;
 
-    small {
-      font-size: 0.68rem;
-      line-height: 1.35;
-      color: var(--unity-text-muted);
+      i {
+        font-size: 0.72rem;
+        transition: transform 0.2s ease;
+      }
     }
   }
 }

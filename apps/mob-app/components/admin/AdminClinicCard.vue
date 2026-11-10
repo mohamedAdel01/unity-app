@@ -12,7 +12,6 @@
 
       <div class="entity-info">
         <h4>{{ clinic.name }}</h4>
-        <span>{{ clinic.doctors_count }} {{ t('Certified Doctors') }} • {{ t('Active Clinic') }}</span>
       </div>
 
       <button 
@@ -30,7 +29,13 @@
 
     <div class="card-footer">
       <span class="capacity-text">
-        <i class="pi pi-users"></i>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stethoscope-icon">
+          <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+          <path d="M3 3h3"/>
+          <path d="M16 3h3"/>
+          <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+          <circle cx="17" cy="16" r="2"/>
+        </svg>
         <span>{{ clinic.doctors_count }} {{ t('Doctors') }}</span>
       </span>
 
@@ -195,8 +200,10 @@ const { t } = useI18n();
       align-items: center;
       gap: 6px;
 
-      i {
+      i,
+      svg {
         color: var(--unity-primary);
+        flex-shrink: 0;
       }
     }
 

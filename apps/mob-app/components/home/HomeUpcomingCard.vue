@@ -1,5 +1,5 @@
 <template>
-  <section v-if="upcomingAppointment" class="section-container">
+  <section v-if="currentAppointment" class="section-container">
     <div class="section-header">
       <h4>{{ t('Upcoming Appointments') }}</h4>
       <NuxtLink to="/appointments" class="see-all-link">
@@ -12,43 +12,43 @@
       <div class="card-top">
         <div class="doc-profile">
           <img 
-            v-if="upcomingAppointment.doctor?.avatar || upcomingAppointment.doctor?.user?.avatar"
-            :src="upcomingAppointment.doctor?.avatar || upcomingAppointment.doctor?.user?.avatar" 
+            v-if="currentAppointment.doctor?.avatar || currentAppointment.doctor?.user?.avatar"
+            :src="currentAppointment.doctor?.avatar || currentAppointment.doctor?.user?.avatar" 
             alt="Doctor" 
           />
           <div v-else class="doc-avatar-initial">
-            <span>{{ (upcomingAppointment.doctor?.name || upcomingAppointment.doctor?.user?.name || 'D').charAt(0).toUpperCase() }}</span>
+            <span>{{ (currentAppointment.doctor?.name || currentAppointment.doctor?.user?.name || 'D').charAt(0).toUpperCase() }}</span>
           </div>
           <div class="doc-text">
-            <h5>{{ upcomingAppointment.doctor?.name || upcomingAppointment.doctor?.user?.name || '' }}</h5>
-            <span v-if="upcomingAppointment.doctor?.specialty">{{ upcomingAppointment.doctor?.specialty }}</span>
+            <h5>{{ currentAppointment.doctor?.name || currentAppointment.doctor?.user?.name || '' }}</h5>
+            <span v-if="currentAppointment.doctor?.specialty">{{ currentAppointment.doctor?.specialty }}</span>
           </div>
         </div>
       </div>
 
       <div class="card-schedule-boxes">
-        <div v-if="upcomingAppointment.start_time" class="schedule-box">
+        <div v-if="currentAppointment.start_time" class="schedule-box">
           <i class="pi pi-clock"></i>
           <div>
             <small>{{ t('Time') }}</small>
-            <strong>{{ upcomingAppointment.start_time }} {{ upcomingAppointment.end_time ? '- ' + upcomingAppointment.end_time : '' }}</strong>
+            <strong>{{ currentAppointment.start_time }} {{ currentAppointment.end_time ? '- ' + currentAppointment.end_time : '' }}</strong>
           </div>
         </div>
 
-        <div v-if="upcomingAppointment.date" class="schedule-box">
+        <div v-if="currentAppointment.date" class="schedule-box">
           <i class="pi pi-calendar"></i>
           <div>
             <small>{{ t('Date') }}</small>
-            <strong>{{ upcomingAppointment.date }}</strong>
+            <strong>{{ currentAppointment.date }}</strong>
           </div>
         </div>
       </div>
 
       <div class="card-action-buttons">
-        <button class="btn-reschedule" @click="openReschedule(upcomingAppointment)">
+        <button class="btn-reschedule" @click="openReschedule(currentAppointment)">
           {{ t('Reschedule') }}
         </button>
-        <button class="btn-view-profile" @click="viewDoctor(upcomingAppointment.doctor)">
+        <button class="btn-view-profile" @click="viewDoctor(currentAppointment.doctor)">
           {{ t('View Profile') }}
         </button>
       </div>
@@ -58,10 +58,18 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+
+const props = defineProps<{
+  appointment?: any | null;
+}>();
+
+const emit = defineEmits<{
+  (e: 'refresh'): void;
+}>();
 
 const api = useUnityApi();
 
@@ -70,9 +78,15 @@ const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
 
 // 2. Data (refs, reactive state)
-const upcomingAppointment = ref<any | null>(null);
+const internalAppointment = ref<any | null>(null);
 
 // 3. Computed (computed properties)
+const currentAppointment = computed(() => {
+  if (props.appointment !== undefined) {
+    return props.appointment;
+  }
+  return internalAppointment.value;
+});
 
 // 4. Methods (functions, handlers)
 const PATIENT_APPOINTMENTS = async () => {
@@ -80,12 +94,12 @@ const PATIENT_APPOINTMENTS = async () => {
     const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
     if (res && res.status && Array.isArray(res.data) && res.data.length > 0) {
       const active = res.data.find((a: any) => a.status === 'confirmed' || a.status === 'pending');
-      upcomingAppointment.value = active || null;
+      internalAppointment.value = active || null;
     } else {
-      upcomingAppointment.value = null;
+      internalAppointment.value = null;
     }
   } catch (err) {
-    upcomingAppointment.value = null;
+    internalAppointment.value = null;
   }
 };
 
@@ -101,7 +115,10 @@ const viewDoctor = (doctor: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  PATIENT_APPOINTMENTS();
+  // Only self-fetch if not provided by parent
+  if (props.appointment === undefined) {
+    PATIENT_APPOINTMENTS();
+  }
 });
 
 // 7. Meta (useHead, useSeoMeta)

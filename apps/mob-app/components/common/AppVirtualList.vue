@@ -241,10 +241,10 @@ onBeforeUnmount(() => {
   .virtual-empty-state {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     width: 100%;
-    padding: 24px 0;
+    padding: 10px 0;
 
     .default-empty-card {
       display: flex;

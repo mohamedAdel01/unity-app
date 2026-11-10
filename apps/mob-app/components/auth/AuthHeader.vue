@@ -10,7 +10,7 @@
     <!-- Official Unity Clinics Logo & Brand Identity (Seamless Transparent) -->
     <div class="brand-hero-box">
       <div class="brand-logo-wrap">
-        <img src="/logo.png" alt="Unity Clinics" class="unity-brand-logo" />
+        <img src="/logo.webp" alt="Unity Clinics" class="unity-brand-logo" />
       </div>
       <h2 class="auth-heading">{{ title || t('Sign In') }}</h2>
       <p class="auth-subheading">
@@ -44,11 +44,10 @@ const { t, isRtl } = useI18n();
 
 // 4. Methods (functions, handlers)
 const handleBack = () => {
-  if (props.customBack) {
+  if (props.customBack)
     emit('back');
-  } else {
+  else
     router.back();
-  }
 };
 
 // 5. Watches (watch, watchEffect)

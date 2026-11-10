@@ -92,6 +92,7 @@ const { t } = useI18n();
   }
 
   .empty-state {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;

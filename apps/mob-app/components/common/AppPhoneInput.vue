@@ -316,22 +316,20 @@ onMounted(() => {
   align-items: center;
   direction: ltr !important;
   flex-direction: row !important;
-  background: var(--unity-surface);
-  border: 1.5px solid var(--unity-border);
-  border-radius: 16px;
-  padding: 4px 12px;
-  min-height: 52px;
+  background: var(--unity-surface-muted, #f8fafc);
+  border: 1px solid var(--unity-border);
+  border-radius: 14px;
+  padding: 0 14px;
+  height: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
+  &:focus-within,
   &.is-focused {
-    border-color: var(--unity-primary, #007663);
-    box-shadow: 0 0 0 3px rgba(0, 118, 99, 0.12);
-  }
-
-  &.is-valid {
-    border-color: #10b981;
-    background: #f0fdf4;
+    border-color: var(--unity-primary);
+    background: var(--unity-surface);
+    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.1);
   }
 
   &.is-invalid {
@@ -343,14 +341,14 @@ onMounted(() => {
 .country-picker-btn {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 6px 4px;
+  padding: 4px 0;
   color: var(--unity-text-main);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border-radius: 8px;
   transition: background 0.15s ease;
   flex-shrink: 0;
@@ -363,11 +361,11 @@ onMounted(() => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 17px;
+    width: 22px;
+    height: 15px;
     border-radius: 3px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
     flex-shrink: 0;
 
     .country-flag-img {
@@ -382,12 +380,12 @@ onMounted(() => {
     font-family: inherit;
     font-weight: 700;
     color: var(--unity-text-main);
-    letter-spacing: 0.2px;
+    font-size: 0.9rem;
     direction: ltr;
   }
 
   .arrow-icon {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--unity-text-muted);
     transition: transform 0.2s ease;
 
@@ -398,8 +396,8 @@ onMounted(() => {
 }
 
 .input-divider {
-  width: 1.5px;
-  height: 24px;
+  width: 1px;
+  height: 20px;
   background: var(--unity-border);
   margin: 0 10px;
   flex-shrink: 0;
@@ -415,16 +413,17 @@ onMounted(() => {
     border: none;
     background: transparent;
     outline: none;
-    font-size: 1.05rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 500;
     color: var(--unity-text-main);
-    letter-spacing: 0.5px;
-    padding: 8px 0;
+    letter-spacing: 0.3px;
+    padding: 0;
     direction: ltr;
     text-align: left;
 
     &::placeholder {
-      color: var(--unity-text-dim, #9ca3af);
+      color: var(--unity-text-dim, #94a3b8);
+      font-size: 0.9rem;
       font-weight: 400;
       letter-spacing: normal;
     }
@@ -436,18 +435,18 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   margin-left: auto;
-  padding-left: 8px;
+  padding-left: 6px;
   flex-shrink: 0;
 
   .valid-icon {
     color: #10b981;
-    font-size: 1.15rem;
+    font-size: 1rem;
     animation: popIn 0.2s ease;
   }
 
   .phone-icon-placeholder {
-    color: var(--unity-text-muted, #9ca3af);
-    font-size: 1.05rem;
+    color: var(--unity-text-muted, #94a3b8);
+    font-size: 0.95rem;
   }
 }
 

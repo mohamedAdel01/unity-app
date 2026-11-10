@@ -80,6 +80,7 @@ const { t } = useI18n();
   width: 100%;
 
   .empty-patients-state {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;

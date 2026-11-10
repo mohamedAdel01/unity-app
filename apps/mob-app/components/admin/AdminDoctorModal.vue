@@ -79,7 +79,8 @@ import AppPhoneInput from '../common/AppPhoneInput.vue';
 interface Doctor {
   id?: string | number;
   name: string;
-  phone: string;
+  phone?: string;
+  user?: any;
   clinic?: any;
   clinic_id?: string | number;
   specialty?: string;
@@ -213,7 +214,7 @@ watch(
     if (val) {
       form.value = {
         name: val.name || '',
-        phone: val.phone || '',
+        phone: val.phone || val.user?.phone || '',
         clinic_id: val.clinic?.id || val.clinic_id || '',
       };
       isPhoneValid.value = true;
@@ -236,7 +237,14 @@ watch(
       if (clinics.value.length === 0) {
         ADMIN_CLINICS();
       }
-      if (!props.doctor) {
+      if (props.doctor) {
+        form.value = {
+          name: props.doctor.name || '',
+          phone: props.doctor.phone || props.doctor.user?.phone || '',
+          clinic_id: props.doctor.clinic?.id || props.doctor.clinic_id || '',
+        };
+        isPhoneValid.value = true;
+      } else {
         form.value = {
           name: '',
           phone: '',

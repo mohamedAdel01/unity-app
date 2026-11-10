@@ -44,6 +44,7 @@ import AppVirtualList from '../common/AppVirtualList.vue';
 interface Doctor {
   id: string | number;
   name: string;
+  phone?: string;
   avatar?: string;
   specialty?: string;
   room?: string;
@@ -54,6 +55,7 @@ interface Doctor {
   is_active: boolean;
   is_evening?: boolean;
   primary_action?: boolean;
+  schedules?: any[];
 }
 
 const props = withDefaults(
@@ -101,6 +103,7 @@ const { t } = useI18n();
   width: 100%;
 
   .empty-doctors-state {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;

@@ -151,7 +151,7 @@ const ADMIN_PATIENTS = async (page: any = 1) => {
       patients.value.push(...items);
     }
     patientsPage.value = targetPage;
-    patientsHasMore.value = res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+    patientsHasMore.value = res?.pagination?.hasMore ?? res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
     if (targetPage === 1) {
       patients.value = [];

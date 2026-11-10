@@ -3,7 +3,7 @@
     <!-- Top Action Bar with Real Interactive Skip Button & Unity Clinics Brand -->
     <header class="onboarding-top-bar">
       <div class="onboarding-brand-pill">
-        <img src="/logo-small.png" alt="Unity Clinics" class="onboarding-logo-img" />
+        <img src="/logo-small.webp" alt="Unity Clinics" class="onboarding-logo-img" />
       </div>
       <button type="button" class="skip-btn" @click="router.push('/auth/register')">
         {{ t('Skip') }}
@@ -79,9 +79,9 @@ import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useTheme } from '../../composables/useTheme';
 // Direct asset imports so Vite/Nuxt resolves and bundles them reliably
-import slide1 from '~/assets/images/onboarding/slide-1.jpg';
-import slide2 from '~/assets/images/onboarding/slide-2.jpg';
-import slide3 from '~/assets/images/onboarding/slide-3.jpg';
+import slide1 from '~/assets/images/onboarding/slide-1.webp';
+import slide2 from '~/assets/images/onboarding/slide-2.webp';
+import slide3 from '~/assets/images/onboarding/slide-3.webp';
 
 const router = useRouter();
 

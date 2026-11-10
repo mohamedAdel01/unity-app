@@ -9,7 +9,7 @@
     <!-- App Compliance Badge & Build Number -->
     <div class="compliance-box">
       <div class="unity-brand-seal">
-        <img src="/logo.png" alt="عيادات يونيتي التخصصية" class="footer-brand-logo" />
+        <img src="/logo.webp" alt="عيادات يونيتي التخصصية" class="footer-brand-logo" />
       </div>
       <div class="moh-badge">
         <i class="pi pi-verified"></i>

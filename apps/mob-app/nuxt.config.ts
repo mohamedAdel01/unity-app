@@ -9,16 +9,8 @@ export default defineNuxtConfig({
   },
 
   modules: [
-    '@primevue/nuxt-module',
     '@pinia/nuxt',
   ],
-
-  primevue: {
-    options: {
-      ripple: true,
-      theme: 'none', // Uses our custom Unity Medical SCSS design system
-    },
-  },
 
   css: [
     'primeicons/primeicons.css',
@@ -45,6 +37,7 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#007663' },
       ],
       link: [
+        { rel: 'icon', type: 'image/webp', href: '/favicon.webp' },
         { rel: 'icon', type: 'image/png', href: '/favicon.png' },
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

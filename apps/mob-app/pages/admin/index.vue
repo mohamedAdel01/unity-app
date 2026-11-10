@@ -1,15 +1,17 @@
 <template>
-  <AdminTopHeader 
-    :title="t('Executive Administration')"
-    :subtitle="t('Unity Hospital & Clinics System')"
-    icon="pi pi-shield"
-  />
+  <div class="admin-dashboard-page">
+    <AdminTopHeader 
+      :title="t('Executive Administration')"
+      :subtitle="t('Unity Hospital & Clinics System')"
+      icon="pi pi-shield"
+    />
 
-  <AdminDashboardMetrics :kpis="kpis" />
+    <AdminDashboardMetrics :kpis="kpis" />
 
-  <AdminDashboardNav />
+    <AdminDashboardNav />
 
-  <AdminBroadcastBanner @broadcast-sent="ADMIN_DASHBOARD" />
+    <AdminBroadcastBanner @broadcast-sent="ADMIN_DASHBOARD" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -76,4 +78,10 @@ useHead({
 </script>
 
 <style scoped lang="scss">
+.admin-dashboard-page {
+  padding: 14px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 </style>

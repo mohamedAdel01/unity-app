@@ -34,25 +34,19 @@
       </button>
     </div>
 
-    <!-- 4. Filter Pills Bar with Active Count Indicator -->
+    <!-- 4. Filter Pills Bar (Clinics from Backend) -->
     <div class="filter-pills-row">
       <div class="pills-scroll-container">
         <button 
-          v-for="pill in specialtyFilters" 
+          v-for="pill in clinicFilters" 
           :key="pill.key"
           type="button"
           class="filter-pill"
-          :class="{ 'active': activeSpecialty === pill.key }"
-          @click="selectSpecialty(pill.key)"
+          :class="{ 'active': activeClinic === pill.key }"
+          @click="selectClinic(pill.key)"
         >
           <span>{{ pill.label }}</span>
         </button>
-      </div>
-
-      <!-- Active Doctors Now Indicator -->
-      <div class="active-now-tag">
-        <span class="pulse-green-dot"></span>
-        <span>{{ activeCount }} {{ t('Active Now') }}</span>
       </div>
     </div>
   </div>
@@ -61,18 +55,22 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import AdminTopHeader from './AdminTopHeader.vue';
+
+interface ClinicOption {
+  id: string | number;
+  name: string;
+}
 
 const props = withDefaults(
   defineProps<{
     totalCount?: number;
-    activeCount?: number;
+    clinics?: ClinicOption[];
   }>(),
   {
-    totalCount: 18,
-    activeCount: 12,
+    totalCount: 0,
+    clinics: () => [],
   }
 );
 
@@ -82,24 +80,30 @@ const emit = defineEmits<{
   (e: 'new-doctor'): void;
 }>();
 
-const router = useRouter();
-
 const { t } = useI18n();
 
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
-
-const activeSpecialty = ref('all');
-
+const activeClinic = ref('all');
 let debounceTimer: any = null;
 
 // 3. Computed (computed properties)
-const specialtyFilters = computed(() => [
-  { key: 'all', label: `${t('All')} (${props.totalCount})` },
-  { key: 'cardio_internal', label: t('Internal & Cardio') },
-  { key: 'pediatrics', label: t('Pediatrics') },
-  { key: 'surgery', label: t('Surgery') },
-]);
+const clinicFilters = computed(() => {
+  const list = [
+    { key: 'all', label: `${t('All')} (${props.totalCount})` },
+  ];
+
+  if (props.clinics && props.clinics.length > 0) {
+    props.clinics.forEach((c) => {
+      list.push({
+        key: String(c.id),
+        label: c.name,
+      });
+    });
+  }
+
+  return list;
+});
 
 // 4. Methods (functions, handlers)
 const onSearchInput = () => {
@@ -114,8 +118,8 @@ const clearSearch = () => {
   emit('search', '');
 };
 
-const selectSpecialty = (key: string) => {
-  activeSpecialty.value = key;
+const selectClinic = (key: string) => {
+  activeClinic.value = key;
   emit('filter', key);
 };
 
@@ -137,107 +141,16 @@ const selectSpecialty = (key: string) => {
   &[dir='ltr'] {
     direction: ltr;
 
-    .supervisor-top-bar .admin-identity .admin-meta,
     .title-action-card .title-texts {
       text-align: left;
     }
   }
 
-  // 1. Top Supervisor Bar
-  .supervisor-top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .admin-identity {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-
-      .admin-avatar-ring {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: #ecfdf5;
-        border: 2px solid #a7f3d0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #047857;
-        font-size: 1.15rem;
-      }
-
-      .admin-meta {
-        display: flex;
-        flex-direction: column;
-        text-align: right;
-
-        .name-badge-row {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-
-          .role-title {
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: var(--unity-text-main);
-          }
-
-          .supervisor-badge {
-            background: #d1fae5;
-            color: #065f46;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-          }
-        }
-
-        .facility-subline {
-          font-size: 0.72rem;
-          color: var(--unity-text-muted);
-          margin-top: 1px;
-        }
-      }
-    }
-
-    .switch-patient-mode-btn {
-      width: 38px;
-      height: 38px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--unity-surface);
-      border: 1px solid var(--unity-border);
-      color: var(--unity-text-muted);
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-      transition: all 0.2s;
-
-      i {
-        font-size: 1rem;
-        color: var(--unity-text-muted);
-      }
-
-      &:hover {
-        background: var(--unity-primary-light);
-        border-color: var(--unity-primary);
-        color: var(--unity-primary);
-
-        i {
-          color: var(--unity-primary);
-        }
-      }
-    }
-  }
-
-  // 2. Title Card with Button
+  // 2. Title Row with Button (Clean & Borderless)
   .title-action-card {
-    background: #f8fafc;
-    border: 1px solid var(--unity-border);
-    border-radius: 20px;
-    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    padding: 4px 2px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -248,16 +161,16 @@ const selectSpecialty = (key: string) => {
       text-align: right;
 
       h3 {
-        font-size: 1.15rem;
+        margin: 0;
+        font-size: 1.05rem;
         font-weight: 800;
         color: var(--unity-text-main);
-        letter-spacing: -0.2px;
       }
 
       p {
+        margin: 2px 0 0;
         font-size: 0.74rem;
-        color: var(--unity-text-muted);
-        margin-top: 2px;
+        color: var(--unity-text-dim);
       }
     }
 
@@ -265,24 +178,23 @@ const selectSpecialty = (key: string) => {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 10px 16px;
+      border-radius: 20px;
       background: var(--unity-primary);
       color: #ffffff;
       border: none;
-      padding: 9px 16px;
-      border-radius: 20px;
       font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 3px 12px rgba(4, 120, 87, 0.28);
+      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
       transition: all 0.2s;
 
       i {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
       }
 
-      &:hover {
-        background: var(--unity-primary-dark);
-        transform: translateY(-1px);
+      &:active {
+        transform: scale(0.96);
       }
     }
   }
@@ -290,7 +202,6 @@ const selectSpecialty = (key: string) => {
   // 3. Search Bar
   .search-input-box {
     position: relative;
-    width: 100%;
     display: flex;
     align-items: center;
 
@@ -341,19 +252,20 @@ const selectSpecialty = (key: string) => {
     }
   }
 
-  // 4. Filter Pills Row with Active Count
+  // 4. Filter Pills Row
   .filter-pills-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    width: 100%;
 
     .pills-scroll-container {
       display: flex;
       align-items: center;
       gap: 6px;
+      width: 100%;
       overflow-x: auto;
       scrollbar-width: none;
+      padding-bottom: 2px;
 
       &::-webkit-scrollbar {
         display: none;
@@ -370,6 +282,7 @@ const selectSpecialty = (key: string) => {
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
+        flex-shrink: 0;
 
         &:hover {
           border-color: var(--unity-primary);
@@ -383,24 +296,6 @@ const selectSpecialty = (key: string) => {
           font-weight: 700;
           box-shadow: 0 2px 6px rgba(6, 78, 59, 0.2);
         }
-      }
-    }
-
-    .active-now-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      font-size: 0.74rem;
-      font-weight: 700;
-      color: var(--unity-primary);
-
-      .pulse-green-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #10b981;
-        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
       }
     }
   }
