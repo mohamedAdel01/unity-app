@@ -3,7 +3,7 @@
     <!-- Logout Button -->
     <button class="logout-action-btn" @click="handleLogout">
       <i class="pi pi-sign-out"></i>
-      <span>{{ t('profile.logout') }}</span>
+      <span>{{ t('Log Out of Account') }}</span>
     </button>
 
     <!-- App Compliance Badge & Build Number -->
@@ -13,29 +13,43 @@
       </div>
       <div class="moh-badge">
         <i class="pi pi-verified"></i>
-        <span>{{ isRtl ? 'عيادات يونيتي التخصصية • معتمد رسمياً' : 'Unity Specialized Clinics • Officially Certified' }}</span>
+        <span>{{ t('Unity Specialized Clinics • Officially Certified') }}</span>
       </div>
-      <p class="build-version">{{ t('profile.appVersion') }}</p>
+      <p class="build-version">{{ t('Sehaty Care App • Version 2.4.1 (Build 890)') }}</p>
       <NuxtLink to="/delete-account" class="delete-account-link">
-        {{ isRtl ? 'طلب حذف الحساب' : 'Request Account Deletion' }}
+        {{ t('Request Account Deletion') }}
       </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useRouter } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 
 const router = useRouter();
-const api = useUnityApi();
-const { t, isRtl } = useI18n();
 
+const api = useUnityApi();
+
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const handleLogout = async () => {
-  api.logout();
+  await api.apiRequest({ module: 'auth', service: 'LOGOUT', pinia: true });
   router.push('/auth/login');
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -127,4 +141,3 @@ const handleLogout = async () => {
   }
 }
 </style>
-

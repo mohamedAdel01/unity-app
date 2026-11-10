@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-doctor-card" :dir="isRtl ? 'rtl' : 'ltr'">
+  <div class="admin-doctor-card">
     <!-- 1. Doctor Profile Header -->
     <div class="doctor-profile-row">
       <!-- Right Side: Doctor Avatar + Status Dot + Titles -->
@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps<{
@@ -75,8 +76,13 @@ const emit = defineEmits<{
   (e: 'view-cases', doctor: any): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const getStatusBadgeClass = (status?: string) => {
   if (!status) return 'badge-open';
   if (status.includes('مفتوح') || status.includes('Open')) return 'badge-open';
@@ -94,6 +100,12 @@ const resolveAvatar = (url?: string) => {
   const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
   return `${baseUrl}${url}`;
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -299,4 +311,3 @@ const resolveAvatar = (url?: string) => {
   }
 }
 </style>
-

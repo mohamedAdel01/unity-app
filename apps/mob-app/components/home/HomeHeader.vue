@@ -15,10 +15,10 @@
       <div class="user-details">
         <div class="location-tag">
           <i class="pi pi-map-marker"></i>
-          <span>{{ t('home.location') }}</span>
+          <span>{{ t('Riyadh, Al-Nakheel District') }}</span>
         </div>
         <h2 class="greeting-name">
-          {{ t('home.welcomePrefix') }} {{ currentUser?.name || '' }}
+          {{ t('Welcome,') }} {{ currentUser?.name || '' }}
         </h2>
       </div>
     </div>
@@ -27,10 +27,10 @@
       <!-- Language Switcher (AR / EN) -->
       <button 
         class="icon-action-btn lang-toggle-btn" 
-        :aria-label="isRtl ? 'Switch to English' : 'التبديل إلى العربية'"
+        :aria-label="t('Switch to English')"
         @click="toggleLanguage"
       >
-        <span class="lang-text">{{ isRtl ? 'EN' : 'ع' }}</span>
+        <span class="lang-text">{{ t('EN') }}</span>
       </button>
 
       <!-- Theme Switcher -->
@@ -56,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useTheme } from '../../composables/useTheme';
@@ -64,14 +65,21 @@ import { useBookingModal } from '../../composables/useBookingModal';
 import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
 const api = useUnityApi();
+
 const theme = useTheme();
-const { t, locale, setLocale, isRtl } = useI18n();
+
+const { t, locale, setLocale } = useI18n();
+
 const bookingModal = useBookingModal();
 
-const currentUser = computed(() => api.currentUser.value);
+// 2. Data (refs, reactive state)
 const unreadCount = ref(0);
 
+// 3. Computed (computed properties)
+const currentUser = computed(() => api.currentUser.value);
+
 const hasUserPhoto = computed(() => isUserUploadedPhoto(currentUser.value?.avatar));
+
 const resolvedPhotoUrl = computed(() => resolveAvatarUrl(currentUser.value?.avatar));
 
 const themeIcon = computed(() => {
@@ -80,6 +88,7 @@ const themeIcon = computed(() => {
   return 'pi pi-moon';
 });
 
+// 4. Methods (functions, handlers)
 const toggleTheme = () => {
   if (theme.currentTheme.value === 'emerald') {
     theme.applyTheme('teal');
@@ -93,6 +102,12 @@ const toggleTheme = () => {
 const toggleLanguage = () => {
   setLocale(locale.value === 'ar' ? 'en' : 'ar');
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -220,4 +235,3 @@ const toggleLanguage = () => {
   }
 }
 </style>
-

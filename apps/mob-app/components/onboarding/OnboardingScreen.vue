@@ -1,5 +1,5 @@
 <template>
-  <div class="onboarding-container" :class="{ 'dark-mode': isDark }" :dir="isRtl ? 'rtl' : 'ltr'">
+  <div class="onboarding-container" :class="{ 'dark-mode': isDark }">
     <!-- Top Action Bar with Real Interactive Skip Button & Unity Clinics Brand -->
     <header class="onboarding-top-bar">
       <div class="onboarding-brand-pill">
@@ -39,8 +39,7 @@
       <transition name="slide-fade" mode="out-in">
         <div :key="currentSlide" class="slide-text-block">
           <h2 class="slide-title">{{ t(slides[currentSlide].titleKey) }}</h2>
-          <p class="slide-subtitle">{{ t(slides[currentSlide].descKey) }}</p>
-        </div>
+                  </div>
       </transition>
 
       <!-- 3-Dot Pagination Indicator matching exact mockup -->
@@ -74,21 +73,23 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useTheme } from '../../composables/useTheme';
-
 // Direct asset imports so Vite/Nuxt resolves and bundles them reliably
 import slide1 from '~/assets/images/onboarding/slide-1.jpg';
 import slide2 from '~/assets/images/onboarding/slide-2.jpg';
 import slide3 from '~/assets/images/onboarding/slide-3.jpg';
 
 const router = useRouter();
-const { t, isRtl } = useI18n();
-const { currentTheme } = useTheme();
-const isDark = computed(() => currentTheme.value === 'dark');
 
+const { t } = useI18n();
+
+const { currentTheme } = useTheme();
+
+// 2. Data (refs, reactive state)
 const currentSlide = ref(0);
 
 // The 3 exact slides matching the user's design & uploaded images
@@ -110,6 +111,13 @@ const slides = [
   },
 ];
 
+// Touch swipe gestures
+let touchStartX = 0;
+
+// 3. Computed (computed properties)
+const isDark = computed(() => currentTheme.value === 'dark');
+
+// 4. Methods (functions, handlers)
 const nextSlide = () => {
   if (currentSlide.value < slides.length - 1)
     currentSlide.value++;
@@ -117,10 +125,6 @@ const nextSlide = () => {
     router.push('/auth/register');
 
 };
-
-
-// Touch swipe gestures
-let touchStartX = 0;
 
 const onTouchStart = (e: TouchEvent) => {
   touchStartX = e.touches[0].clientX;
@@ -131,29 +135,29 @@ const onTouchEnd = (e: TouchEvent) => {
   const diffX = touchEndX - touchStartX;
 
   if (Math.abs(diffX) > 40) {
-    if (isRtl.value) {
-      if (diffX < 0 && currentSlide.value > 0) currentSlide.value--;
-      else if (diffX > 0 && currentSlide.value < slides.length - 1) currentSlide.value++;
-    } else {
-      if (diffX < 0 && currentSlide.value < slides.length - 1) currentSlide.value++;
-      else if (diffX > 0 && currentSlide.value > 0) currentSlide.value--;
-    }
+    if (diffX < 0 && currentSlide.value > 0) currentSlide.value--;
+    else if (diffX > 0 && currentSlide.value < slides.length - 1) currentSlide.value++;
   }
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
 .onboarding-container {
   --ob-bg: #f8fafc;
   --ob-bg-rgb: 248, 250, 252;
-  --ob-title-color: #ffffff;
-  --ob-subtitle-color: rgba(255, 255, 255, 0.92);
-  --ob-skip-bg: rgba(255, 255, 255, 0.88);
+  --ob-title-color: #0f172a;
+    --ob-skip-bg: rgba(255, 255, 255, 0.88);
   --ob-skip-text: #0f172a;
   --ob-skip-border: rgba(15, 23, 42, 0.14);
-  --ob-dot-inactive: rgba(255, 255, 255, 0.35);
-  --ob-auth-muted: rgba(255, 255, 255, 0.78);
-  --ob-title-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
+  --ob-dot-inactive: #cbd5e1;
+  --ob-auth-muted: #64748b;
+  --ob-title-shadow: none;
 
   position: absolute;
   top: 0;
@@ -177,8 +181,7 @@ const onTouchEnd = (e: TouchEvent) => {
     --ob-bg: #090d16;
     --ob-bg-rgb: 9, 13, 22;
     --ob-title-color: #ffffff;
-    --ob-subtitle-color: rgba(255, 255, 255, 0.88);
-    --ob-skip-bg: rgba(9, 14, 23, 0.65);
+        --ob-skip-bg: rgba(9, 14, 23, 0.65);
     --ob-skip-text: #ffffff;
     --ob-skip-border: rgba(255, 255, 255, 0.22);
     --ob-dot-inactive: #4b5563;
@@ -267,16 +270,7 @@ const onTouchEnd = (e: TouchEvent) => {
     .dark-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg,
-          rgba(var(--ob-bg-rgb), 0.98) 0%,
-          rgba(var(--ob-bg-rgb), 0.75) 10%,
-          rgba(var(--ob-bg-rgb), 0.15) 22%,
-          rgba(0, 0, 0, 0.00) 42%,
-          rgba(0, 0, 0, 0.00) 52%,
-          rgba(9, 14, 23, 0.35) 64%,
-          rgba(9, 14, 23, 0.76) 76%,
-          rgba(9, 14, 23, 0.94) 88%,
-          rgba(9, 14, 23, 0.98) 100%);
+      background: linear-gradient(180deg, rgba(var(--ob-bg-rgb), 0.98) 0%, rgba(var(--ob-bg-rgb), 0.75) 10%, rgba(var(--ob-bg-rgb), 0.15) 22%, rgba(0, 0, 0, 0.00) 42%, rgba(0, 0, 0, 0.00) 52%, rgba(var(--ob-bg-rgb), 0.35) 64%, rgba(var(--ob-bg-rgb), 0.76) 75%, rgba(var(--ob-bg-rgb), 0.94) 86%, rgba(var(--ob-bg-rgb), 1.0) 100%);
       transition: background 0.3s ease;
     }
   }
@@ -328,7 +322,7 @@ const onTouchEnd = (e: TouchEvent) => {
   gap: 18px;
 
   .slide-text-block {
-    min-height: 100px;
+    min-height: 52px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -336,10 +330,11 @@ const onTouchEnd = (e: TouchEvent) => {
 
     .slide-title {
       color: var(--ob-title-color);
-      font-size: 1.65rem;
-      font-weight: 800;
-      margin: 0 0 8px;
-      line-height: 1.3;
+      font-size: 2.15rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin: 0;
+      line-height: 1.25;
       text-shadow: var(--ob-title-shadow);
       transition: color 0.3s ease;
     }

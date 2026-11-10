@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
@@ -25,13 +26,25 @@ definePageMeta({
 });
 
 const router = useRouter();
+
 const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
 const currentStep = ref(1);
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const handleStepBack = () => {
   if (currentStep.value > 1) currentStep.value--;
   else router.push('/');
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

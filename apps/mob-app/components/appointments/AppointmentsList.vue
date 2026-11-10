@@ -7,7 +7,7 @@
         :class="{ 'active': activeTab === 'upcoming' }"
         @click="activeTab = 'upcoming'"
       >
-        <span>{{ t('appointments.tabUpcoming') }}</span>
+        <span>{{ t('Upcoming') }}</span>
         <span class="count-pill">{{ upcomingAppointments.length }}</span>
       </button>
 
@@ -16,7 +16,7 @@
         :class="{ 'active': activeTab === 'completed' }"
         @click="activeTab = 'completed'"
       >
-        <span>{{ t('appointments.tabCompleted') }}</span>
+        <span>{{ t('Completed') }}</span>
         <span class="count-pill">{{ completedAppointments.length }}</span>
       </button>
 
@@ -25,24 +25,24 @@
         :class="{ 'active': activeTab === 'cancelled' }"
         @click="activeTab = 'cancelled'"
       >
-        <span>{{ t('appointments.tabCancelled') }}</span>
+        <span>{{ t('Cancelled') }}</span>
       </button>
     </div>
 
     <!-- Content List -->
     <div v-if="globalStore.loading.includes('appointments')" class="loading-state">
       <i class="pi pi-spin pi-spinner"></i>
-      <span>{{ t('common.loading') }}</span>
+      <span>{{ t('Loading...') }}</span>
     </div>
 
     <div v-else-if="currentList.length === 0" class="empty-state">
       <div class="empty-icon-wrap">
         <i class="pi pi-calendar-times"></i>
       </div>
-      <h4>{{ t('appointments.emptyTitle') }}</h4>
-      <p>{{ t('appointments.emptySub') }}</p>
+      <h4>{{ t('No appointments in this section') }}</h4>
+      <p>{{ t('You can book a new appointment anytime with our top specialists') }}</p>
       <button class="book-now-btn" @click="bookingModal.openQuickBook">
-        {{ t('appointments.bookNow') }}
+        {{ t('Book Appointment Now') }}
       </button>
     </div>
 
@@ -59,7 +59,7 @@
             <span>{{ getStatusLabel(apt.status) }}</span>
           </div>
           <span class="invoice-badge" :class="apt.invoice?.status === 'paid' ? 'paid' : 'pending'">
-            {{ apt.invoice?.status === 'paid' ? t('appointments.paidFull') : t('appointments.payAtDesk') }}
+            {{ apt.invoice?.status === 'paid' ? t('Fully Paid') : t('Pay at Reception') }}
           </span>
         </div>
 
@@ -105,27 +105,27 @@
               @click="promptCancelApt(apt)"
             >
               <i v-if="cancellingId === apt.id" class="pi pi-spin pi-spinner"></i>
-              <span v-else>{{ t('appointments.cancelApt') }}</span>
+              <span v-else>{{ t('Cancel Appointment') }}</span>
             </button>
             <button class="btn-reschedule" @click="rebook(apt)">
-              {{ t('appointments.modifyApt') }}
+              {{ t('Modify Slot') }}
             </button>
           </template>
 
           <template v-else-if="apt.status === 'completed'">
             <button class="btn-report" @click="viewReport(apt)">
               <i class="pi pi-file"></i>
-              <span>{{ t('appointments.viewMedicalReport') }}</span>
+              <span>{{ t('View Medical Report') }}</span>
             </button>
             <button class="btn-rebook" @click="rebook(apt)">
               <i class="pi pi-refresh"></i>
-              <span>{{ t('home.rebook') }}</span>
+              <span>{{ t('Rebook') }}</span>
             </button>
           </template>
 
           <template v-else>
             <button class="btn-rebook full-width" @click="rebook(apt)">
-              {{ t('appointments.bookNow') }}
+              {{ t('Book Appointment Now') }}
             </button>
           </template>
         </div>
@@ -136,10 +136,10 @@
     <AppConfirmModal
       v-model="showCancelModal"
       type="danger"
-      :title="isRtl ? 'إلغاء الموعد الطبي' : 'Cancel Appointment'"
-      :message="isRtl ? 'هل أنت متأكد من رغبتك بإلغاء هذا الموعد؟ لن تتمكن من استرجاع هذا الحجز بعد تأكيد الإلغاء.' : 'Are you sure you want to cancel this appointment? This action cannot be undone.'"
-      :confirm-text="isRtl ? 'نعم، تأكيد الإلغاء' : 'Yes, Confirm Cancel'"
-      :cancel-text="isRtl ? 'تراجع والاحتفاظ بالموعد' : 'Keep Appointment'"
+      :title="t('Cancel Appointment')"
+      :message="t('Are you sure you want to cancel this appointment? This action cannot be undone.')"
+      :confirm-text="t('Yes, Confirm Cancel')"
+      :cancel-text="t('Keep Appointment')"
       :loading="cancellingId !== null"
       @confirm="handleConfirmCancel"
     >
@@ -177,6 +177,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
@@ -185,34 +186,32 @@ import { useGlobalStore } from '../../stores/global';
 import { useAppToast } from '../../composables/useAppToast';
 import AppConfirmModal from '../common/AppConfirmModal.vue';
 
+defineExpose({
+  loadAppointments,
+});
+
 const api = useUnityApi();
-const { t, isRtl } = useI18n();
+
+const { t } = useI18n();
+
 const bookingModal = useBookingModal();
+
 const globalStore = useGlobalStore();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
 const activeTab = ref<'upcoming' | 'completed' | 'cancelled'>('upcoming');
+
 const appointments = ref<any[]>([]);
+
 const cancellingId = ref<string | null>(null);
+
 const showCancelModal = ref(false);
+
 const selectedAptToCancel = ref<any | null>(null);
 
-const loadAppointments = async () => {
-  try {
-    globalStore.setLoading(['appointments', true]);
-    const res = await api.getMyAppointments();
-    if (res.status && Array.isArray(res.data)) {
-      appointments.value = res.data;
-    } else {
-      appointments.value = [];
-    }
-  } catch (err) {
-    appointments.value = [];
-  } finally {
-    globalStore.setLoading(['appointments', false]);
-  }
-};
-
+// 3. Computed (computed properties)
 const upcomingAppointments = computed(() => {
   return appointments.value.filter(a => a.status === 'confirmed' || a.status === 'pending');
 });
@@ -231,12 +230,26 @@ const currentList = computed(() => {
   return cancelledAppointments.value;
 });
 
+// 4. Methods (functions, handlers)
+const loadAppointments = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
+    if (res && res.status && Array.isArray(res.data)) {
+      appointments.value = res.data;
+    } else {
+      appointments.value = [];
+    }
+  } catch (err) {
+    appointments.value = [];
+  }
+};
+
 const getStatusLabel = (status: string) => {
   switch (status) {
-    case 'confirmed': return t('appointments.statusConfirmed');
-    case 'pending': return t('appointments.statusPending');
-    case 'completed': return t('appointments.statusCompleted');
-    case 'cancelled': return t('appointments.statusCancelled');
+    case 'confirmed': return t('Confirmed');
+    case 'pending': return t('Pending Review');
+    case 'completed': return t('Completed');
+    case 'cancelled': return t('Cancelled');
     default: return status;
   }
 };
@@ -254,7 +267,7 @@ const getStatusClass = (status: string) => {
 const formatDate = (dateStr: string) => {
   try {
     const d = new Date(dateStr);
-    return d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+    return d.toLocaleDateString(t('en-US'), { weekday: 'long', day: 'numeric', month: 'long' });
   } catch (e) {
     return dateStr;
   }
@@ -271,14 +284,14 @@ const handleConfirmCancel = async () => {
   try {
     cancellingId.value = apt.id;
     if (!apt.id.startsWith('apt-')) {
-      await api.cancelAppointment(apt.id);
+      await api.apiRequest({ service: 'CANCEL_APPOINTMENT', payload: { id: apt.id } });
     }
     apt.status = 'cancelled';
-    toast.success(isRtl.value ? 'تم إلغاء الموعد بنجاح.' : 'Appointment cancelled successfully.');
+    toast.success(t('Appointment cancelled successfully.'));
     showCancelModal.value = false;
     selectedAptToCancel.value = null;
   } catch (err: any) {
-    toast.error(err.message || (isRtl.value ? 'فشل إلغاء الموعد' : 'Failed to cancel appointment'));
+    toast.error(err.message || (t('Failed to cancel appointment')));
   } finally {
     cancellingId.value = null;
   }
@@ -289,16 +302,17 @@ const rebook = (apt: any) => {
 };
 
 const viewReport = (apt: any) => {
-  toast.info(isRtl.value ? 'التقرير الطبي: تم إجراء الكشف وحالة المريض مستقرة وممتازة.' : 'Medical Report: Health vitals optimal. Follow-up in 2 weeks.', 'الملف الطبي');
+  toast.info(t('Medical Report: Health vitals optimal. Follow-up in 2 weeks.'), 'الملف الطبي');
 };
 
-defineExpose({
-  loadAppointments,
-});
+// 5. Watches (watch, watchEffect)
 
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   loadAppointments();
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -665,4 +679,3 @@ onMounted(() => {
   }
 }
 </style>
-

@@ -5,7 +5,6 @@
         <div 
           class="confirm-modal-sheet" 
           :class="`type-${type}`" 
-          :dir="isRtl ? 'rtl' : 'ltr'" 
           @click.stop
         >
           <!-- Top drag/handle pill -->
@@ -56,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
@@ -79,8 +79,11 @@ const emit = defineEmits<{
   (e: 'cancel'): void;
 }>();
 
-const { isRtl } = useI18n();
+const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
 const iconName = computed(() => {
   if (props.icon) return props.icon;
   if (props.type === 'danger') return 'pi pi-exclamation-triangle';
@@ -90,15 +93,16 @@ const iconName = computed(() => {
 
 const defaultConfirmText = computed(() => {
   if (props.type === 'danger') {
-    return isRtl.value ? 'نعم، تأكيد الإلغاء' : 'Yes, Confirm Cancel';
+    return t('Yes, Confirm Cancel');
   }
-  return isRtl.value ? 'تأكيد' : 'Confirm';
+  return t('Confirm');
 });
 
 const defaultCancelText = computed(() => {
-  return isRtl.value ? 'تراجع والاحتفاظ' : 'Cancel';
+  return t('Cancel');
 });
 
+// 4. Methods (functions, handlers)
 const handleConfirm = () => {
   if (props.loading) return;
   emit('confirm');
@@ -120,6 +124,9 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 };
 
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   if (typeof window !== 'undefined') {
     window.addEventListener('keydown', handleKeydown);
@@ -131,6 +138,8 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown);
   }
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -335,4 +344,3 @@ onUnmounted(() => {
   }
 }
 </style>
-

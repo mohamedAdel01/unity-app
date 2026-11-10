@@ -8,7 +8,7 @@
         @click="switchTab('services')"
       >
         <i class="pi pi-heart-fill"></i>
-        <span>{{ t('servicesCatalog.tabServices') }}</span>
+        <span>{{ t('Services & Labs') }}</span>
       </button>
 
       <button 
@@ -17,7 +17,7 @@
         @click="switchTab('doctors')"
       >
         <i class="pi pi-user-plus"></i>
-        <span>{{ t('servicesCatalog.tabDoctors') }}</span>
+        <span>{{ t('Top Specialists') }}</span>
       </button>
     </div>
 
@@ -27,7 +27,7 @@
       <input 
         v-model="searchQuery" 
         type="text" 
-        :placeholder="activeTab === 'services' ? t('servicesCatalog.searchServicesPlaceholder') : t('servicesCatalog.searchDoctorsPlaceholder')" 
+        :placeholder="activeTab === 'services' ? t('Search service, lab test, or radiology...') : t('Search by doctor name or specialty...')" 
       />
     </div>
 
@@ -35,12 +35,12 @@
     <div v-if="activeTab === 'services'" class="tab-content-area">
       <div v-if="globalStore.loading.includes('services')" class="loading-state">
         <i class="pi pi-spin pi-spinner"></i>
-        <span>{{ t('common.loading') }}</span>
+        <span>{{ t('Loading...') }}</span>
       </div>
 
       <div v-else-if="filteredServices.length === 0" class="empty-catalog-state">
         <i class="pi pi-inbox"></i>
-        <h5>{{ isRtl ? 'لا توجد خدمات متاحة حالياً' : 'No services available' }}</h5>
+        <h5>{{ t('No services available') }}</h5>
       </div>
 
       <div v-else class="services-grid">
@@ -55,15 +55,15 @@
           <div class="card-details">
             <div class="details-top">
               <h5>{{ service.name }}</h5>
-              <span class="price-tag">{{ service.price }} <small>{{ t('common.currency') }}</small></span>
+              <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
             </div>
             <p v-if="service.description">{{ service.description }}</p>
             <div class="card-meta">
-              <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('common.minute') }}</span>
-              <span><i class="pi pi-check"></i> {{ t('servicesCatalog.availableNow') }}</span>
+              <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
+              <span><i class="pi pi-check"></i> {{ t('Available now') }}</span>
             </div>
             <button class="book-service-btn" @click="bookService(service)">
-              <span>{{ t('servicesCatalog.bookThisService') }}</span>
+              <span>{{ t('Book This Service') }}</span>
               <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
             </button>
           </div>
@@ -75,12 +75,12 @@
     <div v-else class="tab-content-area">
       <div v-if="globalStore.loading.includes('doctors')" class="loading-state">
         <i class="pi pi-spin pi-spinner"></i>
-        <span>{{ t('common.loading') }}</span>
+        <span>{{ t('Loading...') }}</span>
       </div>
 
       <div v-else-if="filteredDoctors.length === 0" class="empty-catalog-state">
         <i class="pi pi-users"></i>
-        <h5>{{ isRtl ? 'لا يوجد أطباء متاحين حالياً' : 'No doctors available' }}</h5>
+        <h5>{{ t('No doctors available') }}</h5>
       </div>
 
       <div v-else class="doctors-grid">
@@ -102,12 +102,12 @@
               <p v-if="doc.specialty || doc.clinic?.name" class="specialty-title">{{ doc.specialty || doc.clinic?.name }}</p>
               <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-map-marker"></i> {{ doc.clinic.name }}</span>
               <div v-if="doc.consultation_fee" class="fee-badge">
-                {{ t('servicesCatalog.consultationPrice') }} <strong>{{ doc.consultation_fee }} {{ t('common.currency') }}</strong>
+                {{ t('Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
               </div>
             </div>
           </div>
           <button class="doc-book-btn" @click="bookDoctor(doc)">
-            {{ t('servicesCatalog.bookConsultation') }}
+            {{ t('Book Consultation') }}
           </button>
         </div>
       </div>
@@ -116,6 +116,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
@@ -124,63 +125,27 @@ import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
 
 const router = useRouter();
+
 const route = useRoute();
+
 const api = useUnityApi();
+
 const { t, isRtl } = useI18n();
+
 const bookingModal = useBookingModal();
+
 const globalStore = useGlobalStore();
 
+// 2. Data (refs, reactive state)
 const activeTab = ref<'services' | 'doctors'>('services');
+
 const searchQuery = ref('');
 
 const services = ref<any[]>([]);
+
 const doctors = ref<any[]>([]);
 
-const switchTab = (tab: 'services' | 'doctors') => {
-  activeTab.value = tab;
-  router.replace({ query: { tab } });
-};
-
-const loadServices = async () => {
-  try {
-    globalStore.setLoading(['services', true]);
-    const res = await api.getServices();
-    if (res.status && Array.isArray(res.data)) {
-      services.value = res.data;
-    } else {
-      services.value = [];
-    }
-  } catch (e) {
-    services.value = [];
-  } finally {
-    globalStore.setLoading(['services', false]);
-  }
-};
-
-const loadDoctors = async () => {
-  try {
-    globalStore.setLoading(['doctors', true]);
-    const res = await api.getDoctors();
-    if (res.status && Array.isArray(res.data)) {
-      doctors.value = res.data.map((d: any) => ({
-        id: d.id,
-        name: d.user?.name || d.name,
-        specialty: d.clinic?.name || (isRtl.value ? 'استشاري متخصص' : 'Specialist Consultant'),
-        clinic: d.clinic,
-        rating: '4.9',
-        avatar: d.user?.avatar || d.avatar || '',
-        consultation_fee: d.consultation_fee || 250,
-      }));
-    } else {
-      doctors.value = [];
-    }
-  } catch (e) {
-    doctors.value = [];
-  } finally {
-    globalStore.setLoading(['doctors', false]);
-  }
-};
-
+// 3. Computed (computed properties)
 const filteredServices = computed(() => {
   if (!searchQuery.value) return services.value;
   const q = searchQuery.value.toLowerCase();
@@ -199,6 +164,46 @@ const filteredDoctors = computed(() => {
   );
 });
 
+// 4. Methods (functions, handlers)
+const switchTab = (tab: 'services' | 'doctors') => {
+  activeTab.value = tab;
+  router.replace({ query: { tab } });
+};
+
+const loadServices = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'SERVICES' });
+    if (res && res.status && Array.isArray(res.data)) {
+      services.value = res.data;
+    } else {
+      services.value = [];
+    }
+  } catch (e) {
+    services.value = [];
+  }
+};
+
+const loadDoctors = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'DOCTORS' });
+    if (res && res.status && Array.isArray(res.data)) {
+      doctors.value = res.data.map((d: any) => ({
+        id: d.id,
+        name: d.user?.name || d.name,
+        specialty: d.clinic?.name || (t('Specialist Consultant')),
+        clinic: d.clinic,
+        rating: '4.9',
+        avatar: d.user?.avatar || d.avatar || '',
+        consultation_fee: d.consultation_fee || 250,
+      }));
+    } else {
+      doctors.value = [];
+    }
+  } catch (e) {
+    doctors.value = [];
+  }
+};
+
 const bookService = (service: any) => {
   bookingModal.openBookingFlow({
     service,
@@ -210,16 +215,20 @@ const bookDoctor = (doctor: any) => {
   bookingModal.openBookingFlow({ doctor });
 };
 
+// 5. Watches (watch, watchEffect)
 watch(() => route.query.tab, (newTab) => {
   if (newTab === 'doctors' || newTab === 'services') {
     activeTab.value = newTab;
   }
 }, { immediate: true });
 
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   loadServices();
   loadDoctors();
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -560,4 +569,3 @@ onMounted(() => {
   flex-shrink: 0;
 }
 </style>
-

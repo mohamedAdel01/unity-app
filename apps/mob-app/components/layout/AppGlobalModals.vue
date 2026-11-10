@@ -25,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useRouter } from 'vue-router';
 import { useBookingModal } from '../../composables/useBookingModal';
 import QuickBookModal from '../QuickBookModal.vue';
@@ -32,8 +33,14 @@ import NotificationSheet from '../NotificationSheet.vue';
 import BookingFlowModal from '../BookingFlowModal.vue';
 
 const router = useRouter();
+
 const bookingModal = useBookingModal();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const onSelectDoctor = () => {
   router.push('/services?tab=doctors');
 };
@@ -45,5 +52,10 @@ const onSelectService = () => {
 const onBookingCompleted = () => {
   router.push('/appointments');
 };
-</script>
 
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
+</script>

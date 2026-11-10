@@ -5,7 +5,7 @@
       <button class="back-btn" @click="router.back()" aria-label="Back">
         <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
       </button>
-      <h1 class="page-title">{{ isRtl ? 'حذف الحساب' : 'Delete Account' }}</h1>
+      <h1 class="page-title">{{ t('Delete Account') }}</h1>
       <div class="placeholder-icon"></div>
     </header>
 
@@ -16,12 +16,10 @@
           <i class="pi pi-exclamation-triangle"></i>
         </div>
         <div class="warning-text">
-          <h5>{{ isRtl ? 'تنبيه هام قبل الحذف' : 'Important Notice' }}</h5>
+          <h5>{{ t('Important Notice') }}</h5>
           <p>
             {{
-              isRtl
-                ? 'إجراء حذف الحساب نهائي ولا يمكن التراجع عنه. ستفقد إمكانية الوصول إلى ملفك الشخصي ومواعيدك القادمة وسجل النشاط.'
-                : 'Deleting your account is permanent and cannot be undone. You will lose access to your profile, upcoming appointments, and activity history.'
+              t('Deleting your account is permanent and cannot be undone. You will lose access to your profile, upcoming appointments, and activity history.')
             }}
           </p>
         </div>
@@ -29,19 +27,19 @@
 
       <!-- Deletion Info Card -->
       <div class="info-card">
-        <h4>{{ isRtl ? 'ما الذي سيتم حذفه ومسحه؟' : 'What data will be deleted?' }}</h4>
+        <h4>{{ t('What data will be deleted?') }}</h4>
         <ul class="data-list">
           <li>
             <i class="pi pi-check-circle"></i>
-            <span>{{ isRtl ? 'بيانات تسجيل الدخول وكلمة المرور ورقم الجوال.' : 'Login credentials, password, and registered phone.' }}</span>
+            <span>{{ t('Login credentials, password, and registered phone.') }}</span>
           </li>
           <li>
             <i class="pi pi-check-circle"></i>
-            <span>{{ isRtl ? 'تفضيلات التطبيق والإشعارات والعناوين المسجلة.' : 'App preferences, notifications, and saved addresses.' }}</span>
+            <span>{{ t('App preferences, notifications, and saved addresses.') }}</span>
           </li>
           <li>
             <i class="pi pi-check-circle"></i>
-            <span>{{ isRtl ? 'المواعيد المستقبلية غير المكتملة سيتم إلغاؤها.' : 'Upcoming pending appointments will be automatically canceled.' }}</span>
+            <span>{{ t('Upcoming pending appointments will be automatically canceled.') }}</span>
           </li>
         </ul>
 
@@ -49,9 +47,7 @@
           <i class="pi pi-info-circle"></i>
           <small>
             {{
-              isRtl
-                ? 'ملاحظة طبية: تبقى السجلات الطبية والتقارير المحررة من قبل الأطباء محفوظة في الأرشيف الطبي للمنشأة وفقاً للوائح والأنظمة الصحية المعمول بها لحفظ السجلات الطبية قانونياً.'
-                : 'Medical notice: Health diagnostic records and prescriptions issued by clinics remain securely archived in accordance with healthcare regulatory retention laws.'
+              t('Medical notice: Health diagnostic records and prescriptions issued by clinics remain securely archived in accordance with healthcare regulatory retention laws.')
             }}
           </small>
         </div>
@@ -59,7 +55,7 @@
 
       <!-- Reason Selection -->
       <div class="reason-section">
-        <label class="section-label">{{ isRtl ? 'سبب الرغبة في الحذف (اختياري)' : 'Reason for deletion (optional)' }}</label>
+        <label class="section-label">{{ t('Reason for deletion (optional)') }}</label>
         <div class="reasons-chips">
           <button
             v-for="(item, index) in reasons"
@@ -76,11 +72,11 @@
 
       <!-- Additional Feedback Textarea -->
       <div class="notes-section">
-        <label class="section-label">{{ isRtl ? 'ملاحظاتك الإضافية' : 'Additional comments' }}</label>
+        <label class="section-label">{{ t('Additional comments') }}</label>
         <textarea
           v-model="feedbackText"
           class="feedback-input"
-          :placeholder="isRtl ? 'اكتب ملاحظاتك لمساعدتنا على تحسين الخدمة...' : 'Tell us how we can improve...'"
+          :placeholder="t('Tell us how we can improve...')"
           rows="3"
         ></textarea>
       </div>
@@ -88,7 +84,7 @@
       <!-- Checkbox Confirmation -->
       <label class="confirm-check-label">
         <input type="checkbox" v-model="confirmed" class="checkbox-input" />
-        <span>{{ isRtl ? 'أنا أدرك أن هذا الإجراء نهائي وسيؤدي لحذف بيانات حسابي بالكامل.' : 'I understand that this action is permanent and will delete my account data.' }}</span>
+        <span>{{ t('I understand that this action is permanent and will delete my account data.') }}</span>
       </label>
 
       <!-- Action Button -->
@@ -99,7 +95,7 @@
       >
         <i v-if="isDeleting" class="pi pi-spin pi-spinner"></i>
         <i v-else class="pi pi-trash"></i>
-        <span>{{ isRtl ? 'تأكيد طلب حذف الحساب' : 'Confirm Account Deletion' }}</span>
+        <span>{{ t('Confirm Account Deletion') }}</span>
       </button>
     </div>
 
@@ -109,22 +105,20 @@
         <div class="modal-icon-badge">
           <i class="pi pi-trash"></i>
         </div>
-        <h3>{{ isRtl ? 'تأكيد الحذف النهائي' : 'Permanent Deletion' }}</h3>
+        <h3>{{ t('Permanent Deletion') }}</h3>
         <p>
           {{
-            isRtl
-              ? 'هل أنت متأكد تماماً من رغبتك في حذف هذا الحساب؟ ستسجل الخروج فوراً وسيتم معالجة مسح بياناتك.'
-              : 'Are you absolutely sure you want to delete this account? You will be signed out immediately and your data deletion will be processed.'
+            t('Are you absolutely sure you want to delete this account? You will be signed out immediately and your data deletion will be processed.')
           }}
         </p>
 
         <div class="modal-actions">
           <button class="modal-btn cancel" @click="showConfirmDialog = false">
-            {{ isRtl ? 'إلغاء وتراجع' : 'Cancel' }}
+            {{ t('Cancel') }}
           </button>
           <button class="modal-btn delete" :disabled="isDeleting" @click="handleDeleteAccount">
             <i v-if="isDeleting" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ isRtl ? 'نعم، احذف حسابي' : 'Yes, Delete Account' }}</span>
+            <span v-else>{{ t('Yes, Delete Account') }}</span>
           </button>
         </div>
       </div>
@@ -133,29 +127,40 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../composables/useI18n';
 import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
-const authStore = useAuthStore();
-const { isRtl } = useI18n();
 
+const authStore = useAuthStore();
+
+const { t, isRtl } = useI18n();
+
+// 2. Data (refs, reactive state)
 const confirmed = ref(false);
+
 const isDeleting = ref(false);
+
 const selectedReason = ref('');
+
 const feedbackText = ref('');
+
 const showConfirmDialog = ref(false);
 
 const reasons = [
-  isRtl.value ? 'لم أعد بحاجة للخدمة' : 'No longer need service',
-  isRtl.value ? 'لدي حساب آخر' : 'I have another account',
-  isRtl.value ? 'مخاوف تتعلق بالخصوصية' : 'Privacy concerns',
-  isRtl.value ? 'صعوبة في استخدام التطبيق' : 'Difficulty using app',
-  isRtl.value ? 'سبب آخر' : 'Other'
+  t('No longer need service'),
+  t('I have another account'),
+  t('Privacy concerns'),
+  t('Difficulty using app'),
+  t('Other')
 ];
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const handleDeleteAccount = async () => {
   isDeleting.value = true;
   try {
@@ -174,6 +179,12 @@ const handleDeleteAccount = async () => {
     isDeleting.value = false;
   }
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -505,4 +516,3 @@ const handleDeleteAccount = async () => {
   }
 }
 </style>
-

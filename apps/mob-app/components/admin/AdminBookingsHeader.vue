@@ -1,27 +1,11 @@
 <template>
-  <div class="admin-bookings-header" :dir="isRtl ? 'rtl' : 'ltr'">
-    <!-- 1. Top Supervisor Identity Bar -->
-    <div class="supervisor-top-bar">
-      <!-- Right Side: Admin Icon & Titles -->
-      <div class="admin-identity">
-        <div class="admin-avatar-ring">
-          <i class="pi pi-user"></i>
-        </div>
-        <div class="admin-meta">
-          <div class="name-badge-row">
-            <span class="role-title">{{ t('Admin Bookings Billing') }}</span>
-            <span class="supervisor-badge">{{ t('Admin') }}</span>
-          </div>
-          <small class="facility-subline">{{ t('Unity Clinics • Bookings & Billing') }}</small>
-        </div>
-      </div>
-
-      <!-- Left Side: Switch back to Patient Mode -->
-      <button class="switch-patient-mode-btn" @click="router.push('/')">
-        <i class="pi pi-sign-out"></i>
-        <span>{{ t('Patient Mode') }}</span>
-      </button>
-    </div>
+  <div class="admin-bookings-header">
+    <!-- 1. Top Supervisor Identity Bar (Unified) -->
+    <AdminTopHeader 
+      :title="t('Admin Bookings Billing')"
+      :subtitle="t('Unity Clinics • Bookings & Billing')"
+      icon="pi pi-ticket"
+    />
 
     <!-- 2. Dual Tab Selector (Direct Bookings vs Invoices & Billing) -->
     <div class="mode-tabs-container">
@@ -56,7 +40,7 @@
         </div>
         <h3 class="stat-amount-green">
           <span>٥,٤٠٠</span>
-          <small>{{ t('SAR') }}</small>
+          <small>{{ t('EGP') }}</small>
         </h3>
         <span class="stat-sub-caption">١٨ {{ t('Paid Bookings') }}</span>
       </div>
@@ -121,9 +105,11 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
+import AdminTopHeader from './AdminTopHeader.vue';
 
 const emit = defineEmits<{
   (e: 'tab-change', tab: 'bookings' | 'invoices'): void;
@@ -132,11 +118,17 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const { t, isRtl } = useI18n();
 
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
 const activeTab = ref<'bookings' | 'invoices'>('bookings');
+
 const activePeriod = ref<'today' | 'week' | 'pending'>('today');
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const selectTab = (tab: 'bookings' | 'invoices') => {
   activeTab.value = tab;
   emit('tab-change', tab);
@@ -146,6 +138,12 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
   activePeriod.value = period;
   emit('period-change', period);
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -223,25 +221,32 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
     }
 
     .switch-patient-mode-btn {
+      width: 38px;
+      height: 38px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: #eef2ff;
-      border: 1px solid #e0e7ff;
-      color: #3730a3;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 700;
+      justify-content: center;
+      background: var(--unity-surface);
+      border: 1px solid var(--unity-border);
+      color: var(--unity-text-muted);
+      border-radius: 12px;
       cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.2s;
 
       i {
-        font-size: 0.85rem;
+        font-size: 1rem;
+        color: var(--unity-text-muted);
       }
 
       &:hover {
-        background: #e0e7ff;
+        background: var(--unity-primary-light);
+        border-color: var(--unity-primary);
+        color: var(--unity-primary);
+
+        i {
+          color: var(--unity-primary);
+        }
       }
     }
   }
@@ -447,4 +452,3 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
   }
 }
 </style>
-

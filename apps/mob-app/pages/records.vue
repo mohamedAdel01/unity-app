@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted } from 'vue';
 import { useGlobalStore } from '../stores/global';
 import { useUnityApi } from '../composables/useUnityApi';
@@ -25,20 +26,33 @@ definePageMeta({
 });
 
 const globalStore = useGlobalStore();
+
 const api = useUnityApi();
+
 const toast = useAppToast();
+
+// 2. Data (refs, reactive state)
 const activeTab = ref<'reports' | 'labs' | 'prescriptions'>('reports');
 
-const isLoading = computed(() => globalStore.loading.includes('records'));
-
 const reportsData = ref<any[]>([]);
+
 const labsData = ref<any[]>([]);
+
 const prescriptionsData = ref<any[]>([]);
 
+// 3. Computed (computed properties)
+const isLoading = computed(() => globalStore.loading.includes('records'));
+
+const currentItems = computed(() => {
+  if (activeTab.value === 'reports') return reportsData.value;
+  if (activeTab.value === 'labs') return labsData.value;
+  return prescriptionsData.value;
+});
+
+// 4. Methods (functions, handlers)
 const loadRecords = async () => {
   try {
-    globalStore.setLoading(['records', true]);
-    const res = await api.getPatientRecords();
+    const res = await api.apiRequest({ service: 'PATIENT_RECORDS' });
     if (res?.status && Array.isArray(res.data)) {
       reportsData.value = res.data.filter((r: any) => r.type === 'report');
       labsData.value = res.data.filter((r: any) => r.type === 'lab');
@@ -52,20 +66,8 @@ const loadRecords = async () => {
     reportsData.value = [];
     labsData.value = [];
     prescriptionsData.value = [];
-  } finally {
-    globalStore.setLoading(['records', false]);
   }
 };
-
-onMounted(() => {
-  loadRecords();
-});
-
-const currentItems = computed(() => {
-  if (activeTab.value === 'reports') return reportsData.value;
-  if (activeTab.value === 'labs') return labsData.value;
-  return prescriptionsData.value;
-});
 
 const onDownload = (item: any) => {
   toast.success(`جاري تحميل مستند: ${item.title}`, 'السجلات الطبية');
@@ -74,9 +76,18 @@ const onDownload = (item: any) => {
 const onView = (item: any) => {
   // Simulates opening detailed medical view
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  loadRecords();
+});
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .records-page {
   padding: 14px 18px 48px;
   display: flex;
@@ -84,4 +95,3 @@ const onView = (item: any) => {
   gap: 16px;
 }
 </style>
-

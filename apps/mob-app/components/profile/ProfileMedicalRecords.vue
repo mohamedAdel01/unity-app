@@ -3,28 +3,41 @@
     <div class="settings-head">
       <div class="head-icon icon-green"><i class="pi pi-file"></i></div>
       <div class="head-text">
-        <h5>{{ t('profile.recordsTitle') }}</h5>
-        <small>{{ t('profile.recordsSub') }}</small>
+        <h5>{{ t('Medical Records & Diagnoses') }}</h5>
+        <small>{{ t('Lab diagnostics & prescription archives') }}</small>
       </div>
     </div>
 
     <div class="records-list">
       <div class="record-mini-card">
         <div class="rec-title">
-          <strong>{{ t('profile.sampleRecordTitle') }}</strong>
-          <small>{{ t('profile.sampleRecordDoctor') }}</small>
+          <strong>{{ t('Consultation Report - Internal Medicine') }}</strong>
+          <small>{{ t('Dr. Fahad Al-Qahtani') }}</small>
         </div>
-        <p class="rec-diag">{{ t('profile.sampleRecordDiag') }}</p>
-        <span class="rec-prescription"><i class="pi pi-check"></i> {{ t('profile.sampleRecordPrescription') }}</span>
+        <p class="rec-diag">{{ t('Routine general medical examination and blood chemistry review') }}</p>
+        <span class="rec-prescription"><i class="pi pi-check"></i> {{ t('Active electronic prescription issued') }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -102,4 +115,3 @@ const { t, isRtl } = useI18n();
   }
 }
 </style>
-

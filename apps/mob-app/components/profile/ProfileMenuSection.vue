@@ -16,7 +16,7 @@
             </div>
             <small>{{ t('Instant chat with customer care 24/7') }}</small>
           </div>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+          <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
         </button>
 
         <div class="item-divider"></div>
@@ -30,7 +30,7 @@
             <h6>{{ t('Terms & Medical Use Policies') }}</h6>
             <small>{{ t('Data protection & health records privacy') }}</small>
           </div>
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+          <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
         </button>
 
         <!-- Item 3: لوحة تحكم الإشراف (تظهر فقط إذا كان المستخدم أدمن) -->
@@ -42,10 +42,10 @@
               <i class="pi pi-users"></i>
             </div>
             <div class="item-text-box">
-              <h6>{{ isRtl ? 'لوحة المشرف • سجلات المرضى' : 'Admin Panel • Patient Records' }}</h6>
-              <small>{{ isRtl ? 'إدارة سجلات المرضى والملفات الطبية' : 'Manage patients records and files' }}</small>
+              <h6>{{ t('Admin Panel • Patient Records') }}</h6>
+              <small>{{ t('Manage patients records and files') }}</small>
             </div>
-            <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+            <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
           </button>
         </template>
       </div>
@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
@@ -67,8 +68,21 @@ const emit = defineEmits<{
 }>();
 
 const { t, isRtl } = useI18n();
+
 const authStore = useAuthStore();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
 const isAdmin = computed(() => authStore.isAdmin || authStore.user?.role === 'admin');
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -188,4 +202,3 @@ const isAdmin = computed(() => authStore.isAdmin || authStore.user?.role === 'ad
   margin-inline-start: 68px;
 }
 </style>
-

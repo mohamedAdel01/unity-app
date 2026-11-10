@@ -3,17 +3,17 @@
     <div class="settings-head">
       <div class="head-icon icon-blue"><i class="pi pi-wallet"></i></div>
       <div class="head-text">
-        <h5>{{ t('profile.invoicesTitle') }}</h5>
-        <small>{{ t('profile.invoicesSub') }}</small>
+        <h5>{{ t('Invoices & Financial Records') }}</h5>
+        <small>{{ t('Track and review medical payment receipts') }}</small>
       </div>
     </div>
 
     <div v-if="globalStore.loading.includes('invoices')" class="loading-box">
-      <i class="pi pi-spin pi-spinner"></i> {{ t('common.loading') }}
+      <i class="pi pi-spin pi-spinner"></i> {{ t('Loading...') }}
     </div>
 
     <div v-else-if="invoices.length === 0" class="empty-invoices">
-      <p>{{ t('profile.emptyInvoices') }}</p>
+      <p>{{ t('No financial invoices recorded yet') }}</p>
     </div>
 
     <div v-else class="invoices-list">
@@ -25,12 +25,12 @@
         <div class="inv-top">
           <span class="inv-num">#{{ inv.id?.slice(0, 8) || 'INV-1092' }}</span>
           <span class="inv-status" :class="inv.status === 'paid' ? 'paid' : 'pending'">
-            {{ inv.status === 'paid' ? t('appointments.statusCompleted') : t('appointments.statusPending') }}
+            {{ inv.status === 'paid' ? t('Completed') : t('Pending Review') }}
           </span>
         </div>
         <div class="inv-bottom">
           <span class="inv-method"><i class="pi pi-credit-card"></i> {{ inv.payment_method || 'Paymob Online' }}</span>
-          <strong class="inv-total">{{ inv.total || 200 }} {{ t('common.currency') }}</strong>
+          <strong class="inv-total">{{ inv.total || 200 }} {{ t('EGP') }}</strong>
         </div>
       </div>
     </div>
@@ -38,36 +38,45 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, onMounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useGlobalStore } from '../../stores/global';
 
 const api = useUnityApi();
+
 const { t } = useI18n();
+
 const globalStore = useGlobalStore();
 
+// 2. Data (refs, reactive state)
 const invoices = ref<any[]>([]);
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const loadInvoices = async () => {
   try {
-    globalStore.setLoading(['invoices', true]);
-    const res = await api.getInvoices();
-    if (res.status && Array.isArray(res.data)) {
+    const res = await api.apiRequest({ service: 'PATIENT_INVOICES' });
+    if (res && res.status && Array.isArray(res.data)) {
       invoices.value = res.data;
     } else {
       invoices.value = [];
     }
   } catch (e) {
     invoices.value = [];
-  } finally {
-    globalStore.setLoading(['invoices', false]);
   }
 };
 
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   loadInvoices();
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -169,4 +178,3 @@ onMounted(() => {
   font-size: 0.82rem;
 }
 </style>
-

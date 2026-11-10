@@ -1,10 +1,10 @@
 <template>
-  <div class="profile-hero-card" :dir="isRtl ? 'rtl' : 'ltr'">
+  <div class="profile-hero-card">
     <!-- User Info & Avatar (Positioned on the right in RTL) -->
     <div class="user-info-row">
       <div 
         class="avatar-wrapper" 
-        :title="isRtl ? 'رفع أو تغيير الصورة الشخصية' : 'Upload or change photo'"
+        :title="t('Upload or change photo')"
         @click="triggerPhotoUpload"
       >
         <img 
@@ -18,7 +18,7 @@
         <span class="active-status-dot"></span>
 
         <!-- Camera overlay badge for photo upload -->
-        <div class="camera-badge-pill" :title="isRtl ? 'تغيير الصورة' : 'Change photo'">
+        <div class="camera-badge-pill" :title="t('Change photo')">
           <i class="pi pi-camera"></i>
         </div>
 
@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
@@ -66,16 +67,23 @@ const emit = defineEmits<{
   (e: 'edit'): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
+
 const authStore = useAuthStore();
+
 const toast = useAppToast();
+
 const api = useUnityApi();
 
+// 2. Data (refs, reactive state)
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
+// 3. Computed (computed properties)
 const hasUserPhoto = computed(() => isUserUploadedPhoto(props.user?.avatar));
+
 const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
 
+// 4. Methods (functions, handlers)
 const triggerPhotoUpload = () => {
   fileInputRef.value?.click();
 };
@@ -86,7 +94,7 @@ const onPhotoSelected = async (e: Event) => {
   if (!file) return;
 
   if (!file.type.startsWith('image/')) {
-    toast.error(isRtl.value ? 'يرجى اختيار ملف صورة صالح' : 'Please select a valid image file');
+    toast.error(t('Please select a valid image file'));
     return;
   }
 
@@ -129,7 +137,7 @@ const onPhotoSelected = async (e: Event) => {
             }
           }
 
-          toast.success(isRtl.value ? 'تم حفظ صورتك الشخصية بنجاح!' : 'Profile photo updated successfully!');
+          toast.success(t('Profile photo updated successfully!'));
 
           // Sync with backend if available
           try {
@@ -151,9 +159,15 @@ const onPhotoSelected = async (e: Event) => {
     };
     reader.readAsDataURL(file);
   } catch {
-    toast.error(isRtl.value ? 'تعذر رفع الصورة، حاول مرة أخرى' : 'Failed to upload photo');
+    toast.error(t('Failed to upload photo'));
   }
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -295,4 +309,3 @@ const onPhotoSelected = async (e: Event) => {
   }
 }
 </style>
-

@@ -2,11 +2,11 @@
   <Teleport to="body">
     <Transition name="fade">
       <div v-if="modelValue" class="modal-backdrop" @click="close">
-        <div class="modal-sheet" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+        <div class="modal-sheet" @click.stop>
           <div class="pill"></div>
 
           <div class="sheet-header">
-            <h3>{{ t('quickBook.modalTitle') }}</h3>
+            <h3>{{ t('What would you like to book today?') }}</h3>
             <button class="close-btn" @click="close">
               <i class="pi pi-times"></i>
             </button>
@@ -18,8 +18,8 @@
               <div class="option-icon doctor">
                 <i class="pi pi-user-plus"></i>
               </div>
-              <span class="option-label">{{ t('quickBook.doctorTitle') }}</span>
-              <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="option-chevron"></i>
+              <span class="option-label">{{ t('Doctor Consultation') }}</span>
+              <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>
             </button>
 
             <!-- Medical Service / Lab -->
@@ -27,8 +27,8 @@
               <div class="option-icon service">
                 <i class="pi pi-heart-fill"></i>
               </div>
-              <span class="option-label">{{ t('quickBook.serviceTitle') }}</span>
-              <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="option-chevron"></i>
+              <span class="option-label">{{ t('Medical Service or Lab Test') }}</span>
+              <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>
             </button>
           </div>
         </div>
@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../composables/useI18n';
 
 const props = defineProps<{
@@ -52,6 +53,11 @@ const emit = defineEmits<{
 
 const { t, isRtl } = useI18n();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const close = () => {
   emit('update:modelValue', false);
 };
@@ -65,6 +71,12 @@ const chooseService = () => {
   close();
   emit('select-service');
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen && doctor" class="modal-backdrop" @click="close">
-    <div class="modal-sheet" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+    <div class="modal-sheet" @click.stop>
       <!-- Header -->
       <div class="modal-header">
         <div class="header-title">
@@ -87,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
@@ -100,8 +101,9 @@ const emit = defineEmits<{
   (e: 'updated', payload: any): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
 const form = ref({
   room: '104',
   shift: 'morning',
@@ -110,16 +112,9 @@ const form = ref({
   is_active: true,
 });
 
-watch(() => props.doctor, (doc) => {
-  if (doc) {
-    form.value.room = doc.room || '104';
-    form.value.is_active = doc.is_active !== false;
-    form.value.shift = doc.is_evening ? 'evening' : 'morning';
-    form.value.start_time = doc.is_evening ? '16:00' : '10:00';
-    form.value.end_time = doc.is_evening ? '22:00' : '17:00';
-  }
-}, { immediate: true });
+// 3. Computed (computed properties)
 
+// 4. Methods (functions, handlers)
 const setShift = (type: 'morning' | 'evening') => {
   form.value.shift = type;
   if (type === 'morning') {
@@ -142,6 +137,21 @@ const saveSchedule = () => {
   });
   close();
 };
+
+// 5. Watches (watch, watchEffect)
+watch(() => props.doctor, (doc) => {
+  if (doc) {
+    form.value.room = doc.room || '104';
+    form.value.is_active = doc.is_active !== false;
+    form.value.shift = doc.is_evening ? 'evening' : 'morning';
+    form.value.start_time = doc.is_evening ? '16:00' : '10:00';
+    form.value.end_time = doc.is_evening ? '22:00' : '17:00';
+  }
+}, { immediate: true });
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -393,4 +403,3 @@ const saveSchedule = () => {
   }
 }
 </style>
-

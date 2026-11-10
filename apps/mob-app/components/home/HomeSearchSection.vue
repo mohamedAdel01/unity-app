@@ -5,7 +5,7 @@
       <input 
         v-model="searchQuery" 
         type="text" 
-        :placeholder="t('home.searchPlaceholder')" 
+        :placeholder="t('Search for doctor, test, scan, or service...')" 
         @input="emit('search', searchQuery)"
       />
       <button class="filter-btn" @click="activeCategory = 'all'">
@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
@@ -37,24 +38,34 @@ const emit = defineEmits<{
   (e: 'filter', cat: string): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
 const searchQuery = ref('');
+
 const activeCategory = ref('all');
 
+// 3. Computed (computed properties)
 const filterPills = computed(() => [
-  { id: 'all', name: isRtl.value ? 'الكل' : 'All' },
-  { id: 'consultant', name: isRtl.value ? 'استشاري' : 'Consultant' },
-  { id: 'lab', name: isRtl.value ? 'فحص ومختبر' : 'Labs' },
-  { id: 'general', name: isRtl.value ? 'طبيب عام' : 'GP' },
-  { id: 'physio', name: isRtl.value ? 'علاج طبيعي' : 'Physio' },
-  { id: 'xray', name: isRtl.value ? 'أشعة ورنين' : 'X-Ray' },
+  { id: 'all', name: t('All') },
+  { id: 'consultant', name: t('Consultant') },
+  { id: 'lab', name: t('Labs') },
+  { id: 'general', name: t('GP') },
+  { id: 'physio', name: t('Physio') },
+  { id: 'xray', name: t('X-Ray') },
 ]);
 
+// 4. Methods (functions, handlers)
 const selectFilter = (id: string) => {
   activeCategory.value = id;
   emit('filter', id);
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -140,4 +151,3 @@ const selectFilter = (id: string) => {
   }
 }
 </style>
-

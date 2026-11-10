@@ -1,7 +1,7 @@
 <template>
   <div class="web-viewport-wrapper">
     <div class="desktop-screen-frame">
-      <div class="mobile-device-shell" :dir="isRtl ? 'rtl' : 'ltr'">
+      <div class="mobile-device-shell">
         <!-- Global Mobile Floating Toast Notification Container -->
         <AppToastContainer />
 
@@ -22,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTheme } from '../../composables/useTheme';
@@ -33,10 +34,16 @@ import AppGlobalModals from './AppGlobalModals.vue';
 import AppToastContainer from '../common/AppToastContainer.vue';
 
 const route = useRoute();
-const theme = useTheme();
-const authStore = useAuthStore();
-const { isRtl, initLocale } = useI18n();
 
+const theme = useTheme();
+
+const authStore = useAuthStore();
+
+const { initLocale } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
 const isAuthRoute = computed(() => {
   return route.path.startsWith('/auth');
 });
@@ -53,11 +60,18 @@ const hideBottomNav = computed(() => {
   return isAuthRoute.value || isOnboarding.value;
 });
 
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   theme.initTheme();
   initLocale();
   authStore.initAuth();
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -135,4 +149,3 @@ onMounted(() => {
   }
 }
 </style>
-

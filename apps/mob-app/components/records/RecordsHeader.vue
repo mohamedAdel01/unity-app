@@ -2,7 +2,7 @@
   <header class="records-header">
     <div class="header-top">
       <button class="back-btn" :aria-label="t('Back')" @click="router.back()">
-        <i class="pi pi-arrow-right"></i>
+        <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
       </button>
       <h1 class="page-title">{{ t('Medical Records & Lab Tests') }}</h1>
       <div class="header-action">
@@ -15,11 +15,25 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
 const router = useRouter();
-const { t } = useI18n();
+
+const { t, isRtl } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -63,4 +77,3 @@ const { t } = useI18n();
   }
 }
 </style>
-

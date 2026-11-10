@@ -1,9 +1,9 @@
 <template>
   <section class="section-container">
     <div class="section-header">
-      <h4>{{ t('home.categoriesTitle') }}</h4>
+      <h4>{{ t('What are you looking for today?') }}</h4>
       <NuxtLink to="/services" class="see-all-link">
-        {{ t('home.browseServices') }} 
+        {{ t('Browse Services') }} 
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>
     </div>
@@ -27,71 +27,53 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
 const router = useRouter();
+
 const { t, isRtl } = useI18n();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
 const categories = computed(() => [
   {
-    id: 'clinics',
-    title: t('categories.clinics'),
-    subtitle: t('categories.clinicsSub'),
+    id: 'doctor',
+    title: t('Doctor Consultation Checkup'),
+    subtitle: t('In-clinic appointments & specialized consultations'),
     icon: 'pi pi-user-plus',
     iconClass: 'icon-emerald',
-    badge: t('categories.clinicsBadge'),
+    badge: t('Instant'),
     badgeClass: 'badge-emerald',
   },
   {
     id: 'lab',
-    title: t('categories.lab'),
-    subtitle: t('categories.labSub'),
+    title: t('Book Tests & Lab Examinations'),
+    subtitle: t('Lab tests, diagnostics & comprehensive packages'),
     icon: 'pi pi-table',
     iconClass: 'icon-cyan',
-    badge: t('categories.labBadge'),
+    badge: t('Special'),
     badgeClass: 'badge-cyan',
-  },
-  {
-    id: 'xray',
-    title: t('categories.xray'),
-    subtitle: t('categories.xraySub'),
-    icon: 'pi pi-box',
-    iconClass: 'icon-emerald',
-  },
-  {
-    id: 'nursing',
-    title: t('categories.nursing'),
-    subtitle: t('categories.nursingSub'),
-    icon: 'pi pi-heart',
-    iconClass: 'icon-emerald',
-  },
-  {
-    id: 'telehealth',
-    title: t('categories.telehealth'),
-    subtitle: t('categories.telehealthSub'),
-    icon: 'pi pi-video',
-    iconClass: 'icon-cyan',
-    badge: t('categories.telehealthBadge'),
-    badgeClass: 'badge-amber',
-  },
-  {
-    id: 'pharmacy',
-    title: t('categories.pharmacy'),
-    subtitle: t('categories.pharmacySub'),
-    icon: 'pi pi-file-edit',
-    iconClass: 'icon-emerald',
   },
 ]);
 
+// 4. Methods (functions, handlers)
 const navigateToCategory = (cat: any) => {
-  if (cat.id === 'clinics' || cat.id === 'telehealth') {
+  if (cat.id === 'doctor') {
     router.push('/services?tab=doctors');
   } else {
     router.push('/services?tab=services');
   }
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -125,15 +107,15 @@ const navigateToCategory = (cat: any) => {
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 
   .category-card {
     position: relative;
     background: var(--unity-surface);
     border: 1px solid var(--unity-border);
     border-radius: 18px;
-    padding: 14px 10px;
+    padding: 16px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -149,11 +131,11 @@ const navigateToCategory = (cat: any) => {
 
     .cat-pill-badge {
       position: absolute;
-      top: 6px;
-      inset-inline-end: 6px;
-      font-size: 0.58rem;
+      top: 8px;
+      inset-inline-end: 8px;
+      font-size: 0.62rem;
       font-weight: 600;
-      padding: 1px 6px;
+      padding: 2px 7px;
       border-radius: 10px;
 
       &.badge-emerald {
@@ -171,14 +153,14 @@ const navigateToCategory = (cat: any) => {
     }
 
     .cat-icon-wrap {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
-      margin-bottom: 8px;
+      font-size: 1.4rem;
+      margin-bottom: 10px;
 
       &.icon-emerald {
         background: #ecfdf5;
@@ -191,17 +173,17 @@ const navigateToCategory = (cat: any) => {
     }
 
     h5 {
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: var(--unity-text-main);
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     small {
-      font-size: 0.65rem;
+      font-size: 0.68rem;
+      line-height: 1.35;
       color: var(--unity-text-muted);
     }
   }
 }
 </style>
-

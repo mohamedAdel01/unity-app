@@ -36,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
@@ -50,13 +51,17 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
+const countdown = ref(45);
+
+let timer: any = null;
+
+// 3. Computed (computed properties)
 const activeIndex = computed(() => {
   return Math.min(props.code.length, 3);
 });
 
-const countdown = ref(45);
-let timer: any = null;
-
+// 4. Methods (functions, handlers)
 const startTimer = () => {
   countdown.value = 45;
   if (timer) clearInterval(timer);
@@ -74,6 +79,9 @@ const handleResend = () => {
   emit('resend');
 };
 
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   startTimer();
 });
@@ -81,6 +89,8 @@ onMounted(() => {
 onUnmounted(() => {
   if (timer) clearInterval(timer);
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -191,4 +201,3 @@ onUnmounted(() => {
   }
 }
 </style>
-

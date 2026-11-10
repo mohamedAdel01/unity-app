@@ -27,17 +27,31 @@
     <!-- Tab 5: Bookings / الحجوزات -->
     <NuxtLink to="/admin/appointments" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
       <i class="pi pi-ticket"></i>
-      <span>{{ t('Bookings') }}</span>
+      <span>{{ t('Manage Bookings') }}</span>
     </NuxtLink>
   </nav>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useRoute } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
 const route = useRoute();
+
 const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -93,4 +107,3 @@ const { t } = useI18n();
   }
 }
 </style>
-

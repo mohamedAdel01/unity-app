@@ -1,9 +1,11 @@
 import { ref } from 'vue';
 import { useI18n } from './useI18n';
 
+export type ToastType = 'success' | 'error' | 'warning' | 'info';
+
 export interface ToastOptions {
   id?: string;
-  type?: 'error' | 'success' | 'warning' | 'info';
+  type?: ToastType;
   title?: string;
   message: string;
   duration?: number;
@@ -11,7 +13,7 @@ export interface ToastOptions {
 
 export interface ToastItem extends ToastOptions {
   id: string;
-  type: 'error' | 'success' | 'warning' | 'info';
+  type: ToastType;
   createdAt: number;
 }
 
@@ -19,48 +21,33 @@ export interface ToastItem extends ToastOptions {
 const toasts = ref<ToastItem[]>([]);
 
 /**
- * Intelligent bilingual message cleaner that converts raw backend/Joi errors
- * into polished, user-friendly localized messages in Arabic or English based on active locale.
+ * Intelligent localized message cleaner that converts raw backend/Joi errors
+ * into polished, user-friendly messages backed by t() translation dictionary.
  */
-function formatErrorMessage(msg: string, isRtl: boolean): { title?: string; message: string } {
+function formatErrorMessage(msg: string, t: (k: string) => string): { title?: string; message: string } {
   if (!msg) {
-    return isRtl
-      ? {
-          title: 'حدث خطأ غير متوقع',
-          message: 'يرجى إعادة المحاولة لاحقاً أو التحقق من اتصالك بالإنترنت.',
-        }
-      : {
-          title: 'Unexpected Error',
-          message: 'Please try again later or check your network connection.',
-        };
+    return {
+      title: t('Unexpected Error'),
+      message: t('Please try again later or check your network connection.'),
+    };
   }
 
   const lower = msg.toLowerCase();
 
   // Password length
   if (lower.includes('password') && (lower.includes('at least 6') || lower.includes('length') || lower.includes('short'))) {
-    return isRtl
-      ? {
-          title: 'كلمة المرور قصيرة',
-          message: 'يجب أن تتكون كلمة المرور من 6 خانات أو أحرف على الأقل.',
-        }
-      : {
-          title: 'Password Too Short',
-          message: 'Password must be at least 6 characters long.',
-        };
+    return {
+      title: t('Password Too Short'),
+      message: t('Password must be at least 6 characters long.'),
+    };
   }
 
   // Email format
   if (lower.includes('email') && (lower.includes('valid') || lower.includes('format'))) {
-    return isRtl
-      ? {
-          title: 'بريد إلكتروني غير صحيح',
-          message: 'يرجى كتابة عنوان بريد إلكتروني صالح مثل: name@example.com',
-        }
-      : {
-          title: 'Invalid Email',
-          message: 'Please enter a valid email address such as name@example.com.',
-        };
+    return {
+      title: t('Invalid Email'),
+      message: t('Please enter a valid email address such as name@example.com.'),
+    };
   }
 
   // Phone validation
@@ -72,28 +59,18 @@ function formatErrorMessage(msg: string, isRtl: boolean): { title?: string; mess
       lower.includes('صحيح') ||
       lower.includes('10'))
   ) {
-    return isRtl
-      ? {
-          title: 'رقم جوال غير صالح',
-          message: 'يرجى إدخال رقم جوال سعودي يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 05XXXXXXXX).',
-        }
-      : {
-          title: 'Invalid Phone Number',
-          message: 'Please enter a valid 10-digit Saudi phone number starting with 05 (e.g. 05XXXXXXXX).',
-        };
+    return {
+      title: t('Invalid Phone Number'),
+      message: t('Please enter a valid 10-digit Saudi phone number starting with 05 (e.g. 05XXXXXXXX).'),
+    };
   }
 
   // User exists / Phone already registered
   if (lower.includes('already exists') || lower.includes('already registered') || lower.includes('duplicate')) {
-    return isRtl
-      ? {
-          title: 'الحساب مسجل مسبقاً',
-          message: 'رقم الجوال مسجل بالفعل. يمكنك تسجيل الدخول بدلاً من ذلك.',
-        }
-      : {
-          title: 'Account Already Exists',
-          message: 'This phone number is already registered. Please log in instead.',
-        };
+    return {
+      title: t('Account Already Exists'),
+      message: t('This phone number is already registered. Please log in instead.'),
+    };
   }
 
   // Invalid login credentials
@@ -103,50 +80,31 @@ function formatErrorMessage(msg: string, isRtl: boolean): { title?: string; mess
     lower.includes('invalid password') ||
     lower.includes('unauthorized')
   ) {
-    return isRtl
-      ? {
-          title: 'تعذر تسجيل الدخول',
-          message: 'بيانات الدخول غير صحيحة، يرجى التأكد من رقم الجوال وكلمة المرور.',
-        }
-      : {
-          title: 'Login Failed',
-          message: 'Invalid credentials. Please verify your phone number and password.',
-        };
+    return {
+      title: t('Login Failed'),
+      message: t('Invalid credentials. Please verify your phone number and password.'),
+    };
   }
 
   // Not found
   if (lower.includes('not found') || lower.includes('غير موجود')) {
-    return isRtl
-      ? {
-          title: 'غير موجود',
-          message: 'العنصر أو السجل المطلوب غير موجود.',
-        }
-      : {
-          title: 'Not Found',
-          message: 'The requested record or item was not found.',
-        };
+    return {
+      title: t('Not Found'),
+      message: t('The requested record or item was not found.'),
+    };
   }
 
-  // Clean raw quotation marks around fields
-  if (isRtl) {
-    const cleaned = msg
-      .replace(/"name"/gi, 'الاسم')
-      .replace(/"email"/gi, 'البريد الإلكتروني')
-      .replace(/"password"/gi, 'كلمة المرور')
-      .replace(/"phone"/gi, 'رقم الجوال');
-    return { message: cleaned };
-  } else {
-    const cleaned = msg
-      .replace(/"name"/gi, 'Name')
-      .replace(/"email"/gi, 'Email')
-      .replace(/"password"/gi, 'Password')
-      .replace(/"phone"/gi, 'Phone number');
-    return { message: cleaned };
-  }
+  const cleaned = msg
+    .replace(/"name"/gi, t('Name'))
+    .replace(/"email"/gi, t('Email'))
+    .replace(/"password"/gi, t('Password'))
+    .replace(/"phone"/gi, t('Phone number'));
+
+  return { message: t(cleaned) };
 }
 
 export function useAppToast() {
-  const { t, isRtl } = useI18n();
+  const { t } = useI18n();
 
   const show = (options: ToastOptions) => {
     const id = options.id || 'toast_' + Math.random().toString(36).substring(2, 9);
@@ -158,7 +116,7 @@ export function useAppToast() {
     let title = options.title ? t(options.title, options.title) : undefined;
 
     if (type === 'error') {
-      const formatted = formatErrorMessage(options.message, isRtl.value);
+      const formatted = formatErrorMessage(options.message, t);
       if (!title && formatted.title) {
         title = formatted.title;
       }
@@ -191,23 +149,19 @@ export function useAppToast() {
   };
 
   const error = (message: string, title?: string, duration?: number) => {
-    const defaultTitle = isRtl.value ? 'خطأ' : 'Error';
-    return show({ type: 'error', message, title: title || defaultTitle, duration });
+    return show({ type: 'error', message, title: title || t('Error'), duration });
   };
 
   const success = (message: string, title?: string, duration?: number) => {
-    const defaultTitle = isRtl.value ? 'تمت العملية بنجاح' : 'Success';
-    return show({ type: 'success', message, title: title || defaultTitle, duration });
+    return show({ type: 'success', message, title: title || t('Success'), duration });
   };
 
   const warning = (message: string, title?: string, duration?: number) => {
-    const defaultTitle = isRtl.value ? 'تنبيه مهم' : 'Notice';
-    return show({ type: 'warning', message, title: title || defaultTitle, duration });
+    return show({ type: 'warning', message, title: title || t('Notice'), duration });
   };
 
   const info = (message: string, title?: string, duration?: number) => {
-    const defaultTitle = isRtl.value ? 'إشعار' : 'Notification';
-    return show({ type: 'info', message, title: title || defaultTitle, duration });
+    return show({ type: 'info', message, title: title || t('Notification'), duration });
   };
 
   const remove = (id: string) => {

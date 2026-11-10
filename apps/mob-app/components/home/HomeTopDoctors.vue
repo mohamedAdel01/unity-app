@@ -3,17 +3,17 @@
     <div class="section-header">
       <div class="header-with-badge">
         <i class="pi pi-verified verified-icon"></i>
-        <h4>{{ t('home.topDoctorsTitle') }}</h4>
+        <h4>{{ t('Certified Top Doctors') }}</h4>
       </div>
       <NuxtLink to="/services?tab=doctors" class="see-all-link">
-        {{ t('common.viewAll') }} 
+        {{ t('View All') }} 
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>
     </div>
 
     <div v-if="globalStore.loading.includes('doctors')" class="loading-state">
       <i class="pi pi-spin pi-spinner"></i>
-      <span>{{ t('common.loading') }}</span>
+      <span>{{ t('Loading...') }}</span>
     </div>
 
     <div v-else class="doctors-cards-list">
@@ -49,13 +49,13 @@
         <div class="doc-card-footer">
           <div class="doc-availability">
             <i class="pi pi-calendar-plus"></i>
-            <span>{{ doctor.availabilityText || t('home.availableToday') }}</span>
+            <span>{{ doctor.availabilityText || t('Available Today') }}</span>
           </div>
           <button 
             class="book-appointment-btn" 
             @click="bookDoctor(doctor)"
           >
-            {{ t('home.bookAppointment') }}
+            {{ t('Book Slot') }}
           </button>
         </div>
       </div>
@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
@@ -76,37 +77,17 @@ const props = defineProps<{
 }>();
 
 const api = useUnityApi();
+
 const { t, isRtl } = useI18n();
+
 const bookingModal = useBookingModal();
+
 const globalStore = useGlobalStore();
 
+// 2. Data (refs, reactive state)
 const doctors = ref<any[]>([]);
 
-const loadDoctors = async () => {
-  try {
-    globalStore.setLoading(['doctors', true]);
-    const res = await api.getDoctors();
-    if (res.status && Array.isArray(res.data)) {
-      doctors.value = res.data.map((d: any) => ({
-        id: d.id,
-        name: d.user?.name || d.name,
-        specialty: d.clinic?.name || (isRtl.value ? 'استشاري متخصص' : 'Specialist Consultant'),
-        clinic: d.clinic,
-        rating: '4.9',
-        availabilityText: t('home.availableToday'),
-        avatar: d.user?.avatar || d.avatar || '',
-        consultation_fee: d.consultation_fee || 250,
-      }));
-    } else {
-      doctors.value = [];
-    }
-  } catch (err) {
-    doctors.value = [];
-  } finally {
-    globalStore.setLoading(['doctors', false]);
-  }
-};
-
+// 3. Computed (computed properties)
 const filteredDoctors = computed(() => {
   if (!props.searchQuery) return doctors.value;
   const q = props.searchQuery.toLowerCase();
@@ -117,13 +98,41 @@ const filteredDoctors = computed(() => {
   );
 });
 
+// 4. Methods (functions, handlers)
+const loadDoctors = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'DOCTORS' });
+    if (res && res.status && Array.isArray(res.data)) {
+      doctors.value = res.data.map((d: any) => ({
+        id: d.id,
+        name: d.user?.name || d.name,
+        specialty: d.clinic?.name || (t('Specialist Consultant')),
+        clinic: d.clinic,
+        rating: '4.9',
+        availabilityText: t('Available Today'),
+        avatar: d.user?.avatar || d.avatar || '',
+        consultation_fee: d.consultation_fee || 250,
+      }));
+    } else {
+      doctors.value = [];
+    }
+  } catch (err) {
+    doctors.value = [];
+  }
+};
+
 const bookDoctor = (doctor: any) => {
   bookingModal.openBookingFlow({ doctor });
 };
 
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   loadDoctors();
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -298,4 +307,3 @@ onMounted(() => {
   font-size: 0.85rem;
 }
 </style>
-

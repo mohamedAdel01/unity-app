@@ -1,14 +1,14 @@
 <template>
   <section v-if="upcomingAppointment" class="section-container">
     <div class="section-header">
-      <h4>{{ t('home.upcomingTitle') }}</h4>
+      <h4>{{ t('Upcoming Appointments') }}</h4>
       <NuxtLink to="/appointments" class="see-all-link">
-        {{ t('common.viewAll') }} 
+        {{ t('View All') }} 
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>
     </div>
 
-    <div class="upcoming-appointment-card" :dir="isRtl ? 'rtl' : 'ltr'">
+    <div class="upcoming-appointment-card">
       <div class="card-top">
         <div class="doc-profile">
           <img 
@@ -30,7 +30,7 @@
         <div v-if="upcomingAppointment.start_time" class="schedule-box">
           <i class="pi pi-clock"></i>
           <div>
-            <small>{{ t('common.time') }}</small>
+            <small>{{ t('Time') }}</small>
             <strong>{{ upcomingAppointment.start_time }} {{ upcomingAppointment.end_time ? '- ' + upcomingAppointment.end_time : '' }}</strong>
           </div>
         </div>
@@ -38,7 +38,7 @@
         <div v-if="upcomingAppointment.date" class="schedule-box">
           <i class="pi pi-calendar"></i>
           <div>
-            <small>{{ t('common.date') }}</small>
+            <small>{{ t('Date') }}</small>
             <strong>{{ upcomingAppointment.date }}</strong>
           </div>
         </div>
@@ -46,10 +46,10 @@
 
       <div class="card-action-buttons">
         <button class="btn-reschedule" @click="openReschedule(upcomingAppointment)">
-          {{ t('home.reschedule') }}
+          {{ t('Reschedule') }}
         </button>
         <button class="btn-view-profile" @click="viewDoctor(upcomingAppointment.doctor)">
-          {{ t('home.viewProfile') }}
+          {{ t('View Profile') }}
         </button>
       </div>
     </div>
@@ -57,21 +57,28 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, onMounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 
 const api = useUnityApi();
+
 const { t, isRtl } = useI18n();
+
 const bookingModal = useBookingModal();
 
+// 2. Data (refs, reactive state)
 const upcomingAppointment = ref<any | null>(null);
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const loadUpcoming = async () => {
   try {
-    const res = await api.getMyAppointments();
-    if (res.status && Array.isArray(res.data) && res.data.length > 0) {
+    const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
+    if (res && res.status && Array.isArray(res.data) && res.data.length > 0) {
       const active = res.data.find((a: any) => a.status === 'confirmed' || a.status === 'pending');
       upcomingAppointment.value = active || null;
     } else {
@@ -82,10 +89,6 @@ const loadUpcoming = async () => {
   }
 };
 
-onMounted(() => {
-  loadUpcoming();
-});
-
 const openReschedule = (apt: any) => {
   bookingModal.openBookingFlow({ doctor: apt.doctor });
 };
@@ -93,6 +96,15 @@ const openReschedule = (apt: any) => {
 const viewDoctor = (doctor: any) => {
   bookingModal.openBookingFlow({ doctor });
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  loadUpcoming();
+});
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -250,4 +262,3 @@ const viewDoctor = (doctor: any) => {
   }
 }
 </style>
-

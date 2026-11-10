@@ -28,12 +28,19 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 import { useAppToast } from '../../composables/useAppToast';
 
 const { t } = useI18n();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const handleGoogle = () => {
   const config = useRuntimeConfig();
   const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
@@ -44,6 +51,12 @@ const handleApple = () => {
   // Apple Sign-In flow
   toast.info('تسجيل الدخول عبر Apple متاح على أجهزة iOS.', 'Apple Sign-In');
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

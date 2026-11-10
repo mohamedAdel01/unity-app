@@ -2,13 +2,13 @@
   <Teleport to="body">
     <Transition name="fade">
       <div v-if="modelValue" class="booking-backdrop" @click="close">
-        <div class="booking-container" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+        <div class="booking-container" @click.stop>
           <!-- Top Bar -->
           <div class="booking-top-bar">
             <button class="top-nav-btn" @click="close">
               <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
             </button>
-            <h3 class="top-title">{{ t('booking.title') }}</h3>
+            <h3 class="top-title">{{ t('Confirm & Pay Booking') }}</h3>
             <div class="avatar-wrap">
               <i class="pi pi-user"></i>
             </div>
@@ -18,7 +18,7 @@
           <div class="timer-banner">
             <div class="timer-badge">
               <span class="live-dot"></span>
-              <span>{{ t('booking.timerHold') }}</span>
+              <span>{{ t('Appointment held temporarily for 15 minutes') }}</span>
             </div>
             <div class="timer-countdown">
               <i class="pi pi-clock"></i>
@@ -51,7 +51,7 @@
                 <div class="meta-item">
                   <div class="meta-icon"><i class="pi pi-calendar"></i></div>
                   <div class="meta-text">
-                    <span class="meta-label">{{ t('booking.scheduledAppointment') }}</span>
+                    <span class="meta-label">{{ t('Selected Slot') }}</span>
                     <strong class="meta-val">{{ appointmentDateFormatted }} • {{ selectedSlot?.start_time || '10:00 AM' }}</strong>
                   </div>
                 </div>
@@ -59,8 +59,8 @@
                 <div class="meta-item">
                   <div class="meta-icon"><i class="pi pi-map-marker"></i></div>
                   <div class="meta-text">
-                    <span class="meta-label">{{ t('booking.clinicBranch') }}</span>
-                    <strong class="meta-val">{{ doctor?.clinic?.name || t('home.defaultClinicName') }}</strong>
+                    <span class="meta-label">{{ t('Clinic Location') }}</span>
+                    <strong class="meta-val">{{ doctor?.clinic?.name || t('Certified Medical Center') }}</strong>
                   </div>
                 </div>
               </div>
@@ -68,9 +68,9 @@
 
             <!-- Date & Slot Selector -->
             <div v-if="!selectedSlot" class="slot-selection-box">
-              <h5 class="box-title">{{ t('booking.availableTimesToday') }}</h5>
+              <h5 class="box-title">{{ t('Available slots for this date') }}</h5>
               <div v-if="slotsLoading" class="slots-loading">
-                <i class="pi pi-spin pi-spinner"></i> {{ t('common.loading') }}
+                <i class="pi pi-spin pi-spinner"></i> {{ t('Loading...') }}
               </div>
               <div v-else class="slots-chips">
                 <button
@@ -88,31 +88,31 @@
             <!-- Step 2: Price Summary Card -->
             <div class="summary-card">
               <div class="card-head">
-                <h5>{{ t('booking.feeSummary') }}</h5>
-                <span class="tax-badge">{{ t('booking.taxIncluded') }}</span>
+                <h5>{{ t('Fee Summary') }}</h5>
+                <span class="tax-badge">{{ t('Incl. 15% VAT') }}</span>
               </div>
 
               <div class="fee-row">
-                <span>{{ t('booking.consultationFee') }}</span>
-                <strong class="fee-val">{{ subtotalFee }} {{ t('common.currency') }}</strong>
+                <span>{{ t('Specialist Consultation Fee') }}</span>
+                <strong class="fee-val">{{ subtotalFee }} {{ t('EGP') }}</strong>
               </div>
 
               <div class="fee-row discount-row">
                 <span class="discount-label">
-                  <i class="pi pi-shield"></i> {{ t('booking.insuranceDiscount') }}
+                  <i class="pi pi-shield"></i> {{ t('Healthcare Partner Discount') }}
                 </span>
-                <strong class="discount-val">-{{ discountFee }} {{ t('common.currency') }}</strong>
+                <strong class="discount-val">-{{ discountFee }} {{ t('EGP') }}</strong>
               </div>
 
               <div class="fee-divider"></div>
 
               <div class="total-row">
                 <div class="total-info">
-                  <span class="total-label">{{ t('booking.totalPayment') }}</span>
-                  <small class="total-note">{{ t('booking.approvedFeeNote') }}</small>
+                  <span class="total-label">{{ t('Total Payable Amount') }}</span>
+                  <small class="total-note">{{ t('Final approved fees') }}</small>
                 </div>
                 <div class="total-price">
-                  <span class="currency">{{ t('common.currency') }}</span>
+                  <span class="currency">{{ t('EGP') }}</span>
                   <span class="number">{{ totalFee }}</span>
                 </div>
               </div>
@@ -121,8 +121,8 @@
             <!-- Step 3: Payment Method -->
             <div class="payment-method-section">
               <div class="section-head">
-                <h5>{{ t('booking.paymentMethod') }}</h5>
-                <span class="secure-tag"><i class="pi pi-lock"></i> {{ t('booking.secureEncryption') }}</span>
+                <h5>{{ t('Payment Method') }}</h5>
+                <span class="secure-tag"><i class="pi pi-lock"></i> {{ t('Bank-grade encryption') }}</span>
               </div>
 
               <div class="payment-options">
@@ -137,8 +137,8 @@
                     <span class="circle-empty" v-else></span>
                   </div>
                   <div class="opt-info">
-                    <strong>{{ t('booking.applePay') }}</strong>
-                    <small>{{ t('booking.applePaySub') }}</small>
+                    <strong>{{ t('Apple Pay') }}</strong>
+                    <small>{{ t('Fast single-touch checkout') }}</small>
                   </div>
                   <div class="opt-brand">
                     <i class="pi pi-apple"></i>
@@ -156,8 +156,8 @@
                     <span class="circle-empty" v-else></span>
                   </div>
                   <div class="opt-info">
-                    <strong>{{ t('booking.cardPay') }}</strong>
-                    <small>{{ t('booking.cardPaySub') }}</small>
+                    <strong>{{ t('Mada / Visa Card (Paymob)') }}</strong>
+                    <small>{{ t('Mada, Visa, Mastercard') }}</small>
                   </div>
                   <div class="opt-brand">
                     <i class="pi pi-credit-card"></i>
@@ -175,8 +175,8 @@
                     <span class="circle-empty" v-else></span>
                   </div>
                   <div class="opt-info">
-                    <strong>{{ t('booking.cashPay') }}</strong>
-                    <small>{{ t('booking.cashPaySub') }}</small>
+                    <strong>{{ t('Pay on Arrival') }}</strong>
+                    <small>{{ t('At clinic reception desk') }}</small>
                   </div>
                   <div class="opt-brand">
                     <i class="pi pi-building"></i>
@@ -188,8 +188,8 @@
             <!-- Booking Success State -->
             <div v-if="bookingSuccess" class="success-banner">
               <div class="success-icon"><i class="pi pi-check"></i></div>
-              <h4>{{ t('booking.successTitle') }}</h4>
-              <p>{{ t('booking.successSub') }}</p>
+              <h4>{{ t('Booking Confirmed Successfully!') }}</h4>
+              <p>{{ t('Details and booking reference have been sent to your phone and notifications.') }}</p>
             </div>
           </div>
 
@@ -201,13 +201,13 @@
               @click="submitBooking"
             >
               <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
-              <span v-else>{{ t('booking.confirmPayment') }} ({{ totalFee }} {{ t('common.currency') }})</span>
+              <span v-else>{{ t('Complete Payment & Confirm') }} ({{ totalFee }} {{ t('EGP') }})</span>
               <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
             </button>
 
             <div class="cancel-policy">
               <i class="pi pi-calendar-times"></i>
-              <span>{{ t('booking.freeCancellation') }}</span>
+              <span>{{ t('Free cancellation up to 2 hours before visit') }}</span>
             </div>
           </div>
         </div>
@@ -217,6 +217,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onUnmounted, watch } from 'vue';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
@@ -236,20 +237,29 @@ const emit = defineEmits<{
 }>();
 
 const api = useUnityApi();
+
 const { t, isRtl } = useI18n();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
 const currentSlot = ref<any>(props.selectedSlot || null);
+
 const selectedMethod = ref<'apple_pay' | 'card' | 'cash'>('apple_pay');
+
 const submitting = ref(false);
+
 const bookingSuccess = ref(false);
 
 const availableSlots = ref<any[]>([]);
+
 const slotsLoading = ref(false);
 
 const secondsLeft = ref(15 * 60);
+
 let timerInterval: any = null;
 
+// 3. Computed (computed properties)
 const formattedTime = computed(() => {
   const m = Math.floor(secondsLeft.value / 60);
   const s = secondsLeft.value % 60;
@@ -258,7 +268,7 @@ const formattedTime = computed(() => {
 
 const appointmentDateFormatted = computed(() => {
   const d = props.selectedDate ? new Date(props.selectedDate) : new Date();
-  return d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+  return d.toLocaleDateString(t('en-US'), { weekday: 'long', day: 'numeric', month: 'long' });
 });
 
 const subtotalFee = computed(() => {
@@ -274,12 +284,16 @@ const totalFee = computed(() => {
   return tot > 0 ? tot : subtotalFee.value;
 });
 
+// 4. Methods (functions, handlers)
 const loadSlots = async () => {
   if (!props.doctor?.id) return;
   try {
     slotsLoading.value = true;
     const dateStr = props.selectedDate || new Date().toISOString().split('T')[0];
-    const res = await api.getDoctorSlots(props.doctor.id, dateStr);
+    const res = await api.apiRequest({
+      service: 'DOCTOR_SLOTS',
+      filter: { id: props.doctor.id, date: dateStr },
+    });
     if (res.status && Array.isArray(res.data?.slots)) {
       availableSlots.value = res.data.slots.filter((s: any) => s.is_available);
       if (availableSlots.value.length > 0 && !currentSlot.value) {
@@ -316,7 +330,10 @@ const submitBooking = async () => {
 
     let appointmentRes: any = null;
     try {
-      appointmentRes = await api.bookAppointment(payload as any);
+      appointmentRes = await api.apiRequest({
+        service: 'BOOK_APPOINTMENT',
+        payload: payload as any,
+      });
     } catch (e) {
       appointmentRes = {
         status: true,
@@ -331,7 +348,7 @@ const submitBooking = async () => {
     }
 
     bookingSuccess.value = true;
-    toast.success(isRtl.value ? 'تم تأكيد حجز الموعد بنجاح!' : 'Appointment booked successfully!');
+    toast.success(t('Appointment booked successfully!'));
     emit('booking-completed', appointmentRes.data);
 
     setTimeout(() => {
@@ -348,6 +365,7 @@ const close = () => {
   emit('update:modelValue', false);
 };
 
+// 5. Watches (watch, watchEffect)
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     secondsLeft.value = 15 * 60;
@@ -365,9 +383,12 @@ watch(() => props.modelValue, (isOpen) => {
   }
 });
 
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval);
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

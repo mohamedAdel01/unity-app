@@ -3,8 +3,8 @@
     <div class="settings-head">
       <div class="head-icon icon-emerald"><i class="pi pi-palette"></i></div>
       <div class="head-text">
-        <h5>{{ t('profile.themeTitle') }}</h5>
-        <small>{{ t('profile.themeSub') }}</small>
+        <h5>{{ t('App Theme & Appearance') }}</h5>
+        <small>{{ t('Select your preferred visual style') }}</small>
       </div>
     </div>
 
@@ -15,7 +15,7 @@
         @click="theme.applyTheme('emerald')"
       >
         <span class="color-circle bg-emerald"></span>
-        <span>{{ t('profile.themeEmerald') }}</span>
+        <span>{{ t('Medical Emerald (Default)') }}</span>
       </button>
 
       <button 
@@ -24,7 +24,7 @@
         @click="theme.applyTheme('teal')"
       >
         <span class="color-circle bg-teal"></span>
-        <span>{{ t('profile.themeTeal') }}</span>
+        <span>{{ t('Clinical Teal') }}</span>
       </button>
 
       <button 
@@ -33,18 +33,32 @@
         @click="theme.applyTheme('dark')"
       >
         <span class="color-circle bg-dark"></span>
-        <span>{{ t('profile.themeDark') }}</span>
+        <span>{{ t('Dark Mode') }}</span>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 
 const theme = useTheme();
+
 const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -124,4 +138,3 @@ const { t } = useI18n();
   }
 }
 </style>
-

@@ -36,12 +36,13 @@
     <button type="submit" class="submit-login-btn" :disabled="globalStore.loading.includes('login') || !form.login">
       <i v-if="globalStore.loading.includes('login')" class="pi pi-spin pi-spinner"></i>
       <span v-else>{{ t('Sign In') }}</span>
-      <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" class="btn-arrow"></i>
+      <i :class="[isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right', 'btn-arrow']"></i>
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
@@ -55,40 +56,59 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
+
 const route = useRoute();
+
 const api = useUnityApi();
+
 const { t, isRtl } = useI18n();
+
 const globalStore = useGlobalStore();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
 const showPassword = ref(false);
+
 const isPhoneValid = ref(false);
+
 const form = ref({
   login: '',
   password: '',
 });
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const handleSubmit = async () => {
   if (!form.value.login || !form.value.password) return;
   if (!isPhoneValid.value) {
-    toast.error(isRtl.value ? 'يرجى إدخال رقم هاتف مصري صحيح' : 'Please enter a valid phone number');
+    toast.error(t('Please enter a valid phone number'));
     return;
   }
   try {
-    globalStore.setLoading(['login', true]);
-    const res = await api.login(form.value.login, form.value.password);
-    if (res.status && res.data?.user) {
-      toast.success(isRtl.value ? 'مرحباً بك مجدداً!' : 'Welcome back!');
+    const res = await api.apiRequest({
+      module: 'auth',
+      service: 'LOGIN',
+      payload: { phone: form.value.login, password: form.value.password },
+      pinia: true,
+    });
+    if (res && res.status && res.data?.user) {
+      toast.success(t('Welcome back!'));
       emit('success', res.data.user);
       const target = (route.query.redirect as string) || '/';
       router.push(target);
     }
   } catch (err: any) {
     toast.error(err.message || 'فشل تسجيل الدخول');
-  } finally {
-    globalStore.setLoading(['login', false]);
   }
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -216,4 +236,3 @@ const handleSubmit = async () => {
   }
 }
 </style>
-

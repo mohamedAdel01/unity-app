@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-booking-card" :class="{ 'is-expanded': isExpanded }" :dir="isRtl ? 'rtl' : 'ltr'">
+  <div class="admin-booking-card" :class="{ 'is-expanded': isExpanded }">
     <!-- ============================================== -->
     <!-- Card Header Row (Click to toggle accordion)   -->
     <!-- ============================================== -->
@@ -66,7 +66,7 @@
         <!-- Left: Price -->
         <div v-if="booking.price" class="price-cell">
           <strong>{{ booking.price }}</strong>
-          <small>{{ t('SAR') }}</small>
+          <small>{{ t('EGP') }}</small>
         </div>
       </div>
 
@@ -89,6 +89,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
@@ -107,9 +108,14 @@ const emit = defineEmits<{
   (e: 'download-invoice', booking: any): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
 const isExpanded = ref(props.initiallyExpanded);
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value;
 };
@@ -133,6 +139,12 @@ const resolveAvatar = (url?: string) => {
   const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
   return `${baseUrl}${url}`;
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -427,4 +439,3 @@ const resolveAvatar = (url?: string) => {
   }
 }
 </style>
-

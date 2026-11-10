@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen && patient" class="file-modal-backdrop" @click="close">
-    <div class="file-modal-sheet" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+    <div class="file-modal-sheet" @click.stop>
       <!-- Header -->
       <div class="sheet-header">
         <div class="header-user-info">
@@ -15,12 +15,11 @@
           <div class="user-titles">
             <div class="name-badge-row">
               <h3>{{ patient.name }}</h3>
-              <span class="insurance-pill">{{ patient.insurance || patient.badge || t('Bupa Gold') }}</span>
             </div>
-            <p class="mrn-meta">
-              <span>MRN - {{ patient.mrn || '8849201' }}</span>
-              <span>•</span>
-              <span>{{ t('National ID') }}: {{ maskNationalId(patient.national_id) }}</span>
+            <p v-if="patient.mrn || patient.national_id" class="mrn-meta">
+              <span v-if="patient.mrn">MRN - {{ patient.mrn }}</span>
+              <span v-if="patient.mrn && patient.national_id">•</span>
+              <span v-if="patient.national_id">{{ t('National ID') }}: {{ maskNationalId(patient.national_id) }}</span>
             </p>
           </div>
         </div>
@@ -31,83 +30,57 @@
       </div>
 
       <!-- Quick Action Pills -->
-      <div class="quick-patient-contacts">
-        <a :href="`tel:${patient.phone}`" class="contact-pill phone">
+      <div v-if="patient.phone || patient.clinic" class="quick-patient-contacts">
+        <a v-if="patient.phone" :href="`tel:${patient.phone}`" class="contact-pill phone">
           <i class="pi pi-phone"></i>
-          <span dir="ltr">{{ patient.phone || '+966 50 123 4567' }}</span>
+          <span dir="ltr">{{ patient.phone }}</span>
         </a>
-        <div class="contact-pill clinic">
+        <div v-if="patient.clinic" class="contact-pill clinic">
           <i class="pi pi-building"></i>
-          <span>{{ patient.clinic || t('Internal Medicine') }}</span>
+          <span>{{ patient.clinic }}</span>
         </div>
       </div>
 
-      <!-- Vitals Strip -->
-      <div class="vitals-strip-card">
-        <div class="vital-item">
-          <small>{{ t('BP') }}</small>
-          <strong>120/80</strong>
-          <span>mmHg</span>
-        </div>
-        <div class="vital-divider"></div>
-        <div class="vital-item">
-          <small>{{ t('Pulse') }}</small>
-          <strong>74</strong>
-          <span>bpm</span>
-        </div>
-        <div class="vital-divider"></div>
-        <div class="vital-item">
-          <small>{{ t('Weight') }}</small>
-          <strong>76</strong>
-          <span>kg</span>
-        </div>
-        <div class="vital-divider"></div>
-        <div class="vital-item">
-          <small>{{ t('Blood') }}</small>
-          <strong>O+</strong>
-          <span>Rh</span>
-        </div>
-      </div>
-
-      <!-- Active Diagnosis -->
-      <div class="info-block-card">
+      <!-- Active Diagnosis (Dynamic - only if present) -->
+      <div v-if="patient.diagnosis" class="info-block-card">
         <div class="block-title">
           <i class="pi pi-heart"></i>
           <h5>{{ t('Current Diagnosis & Health Status') }}</h5>
         </div>
         <p class="block-content">
-          {{ patient.diagnosis || t('Mild Hypertension • Regular Follow-up') }}
+          {{ patient.diagnosis }}
         </p>
       </div>
 
-      <!-- Visit History Timeline -->
+      <!-- Visit History Timeline (Dynamic) -->
       <div class="timeline-block-card">
         <div class="block-title">
           <i class="pi pi-history"></i>
           <h5>{{ t('Visit History & Medical Reports') }}</h5>
         </div>
 
-        <div class="timeline-items">
-          <div class="timeline-item">
-            <span class="timeline-dot upcoming"></span>
-            <div class="timeline-details">
-              <strong>{{ t('Upcoming: Routine Follow-up') }}</strong>
-              <small>{{ patient.next_appointment || t('Tomorrow 10:00 AM • Internal Medicine') }}</small>
-            </div>
-            <span class="status-chip active">{{ t('Confirmed') }}</span>
-          </div>
+        <!-- Loading State -->
+        <div v-if="loadingDetails" class="timeline-loading">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ t('Loading...') }}</span>
+        </div>
 
-          <div class="timeline-item">
-            <span class="timeline-dot past"></span>
+        <!-- Real Dynamic Appointments -->
+        <div v-else-if="appointmentsList.length > 0" class="timeline-items">
+          <div v-for="apt in appointmentsList" :key="apt.id" class="timeline-item">
+            <span class="timeline-dot" :class="isUpcoming(apt.status) ? 'upcoming' : 'past'"></span>
             <div class="timeline-details">
-              <strong>{{ t('Clinical Consultation') }}</strong>
-              <small>{{ patient.last_visit || t('Oct 12, 2024 • Dr. Khaled') }}</small>
+              <strong>{{ apt.service?.name || apt.type || t('Medical Consultation') }}</strong>
+              <small>{{ formatAptMeta(apt) }}</small>
             </div>
-            <button class="btn-download-report" @click="downloadReport">
-              <i class="pi pi-download"></i>
-              <span>PDF</span>
-            </button>
+            <span class="status-chip" :class="apt.status">{{ formatStatus(apt.status) }}</span>
           </div>
+        </div>
+
+        <!-- Empty State (No Dummy Data) -->
+        <div v-else class="empty-timeline-state">
+          <i class="pi pi-calendar-times"></i>
+          <p>{{ t('No previous medical visits recorded') }}</p>
         </div>
       </div>
 
@@ -123,8 +96,10 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { ref, computed, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
-import { useAppToast } from '../../composables/useAppToast';
+import { useUnityApi } from '../../composables/useUnityApi';
 import { useBookingModal } from '../../composables/useBookingModal';
 
 const props = defineProps<{
@@ -137,9 +112,25 @@ const emit = defineEmits<{
 }>();
 
 const { t, isRtl } = useI18n();
-const toast = useAppToast();
+const api = useUnityApi();
 const bookingModal = useBookingModal();
 
+// 2. Data (refs, reactive state)
+const detailedAppointments = ref<any[]>([]);
+const loadingDetails = ref(false);
+
+// 3. Computed (computed properties)
+const appointmentsList = computed(() => {
+  if (detailedAppointments.value.length > 0) {
+    return detailedAppointments.value;
+  }
+  if (Array.isArray(props.patient?.patient_appointments) && props.patient.patient_appointments.length > 0) {
+    return props.patient.patient_appointments;
+  }
+  return [];
+});
+
+// 4. Methods (functions, handlers)
 const close = () => {
   emit('close');
 };
@@ -150,7 +141,7 @@ const getInitial = (name?: string) => {
 };
 
 const maskNationalId = (id?: string) => {
-  if (!id) return '••••••1042';
+  if (!id) return '';
   if (id.length <= 4) return `••••••${id}`;
   return `••••••${id.slice(-4)}`;
 };
@@ -165,14 +156,77 @@ const resolveAvatar = (url?: string) => {
   return `${baseUrl}${url}`;
 };
 
-const downloadReport = () => {
-  toast.success(isRtl.value ? 'تم تنزيل التقرير الطبي بصيغة PDF بنجاح.' : 'Medical Report PDF downloaded successfully.', isRtl.value ? 'السجلات الطبية' : 'Medical Records');
+const formatAptMeta = (apt: any) => {
+  const parts: string[] = [];
+  if (apt.date) {
+    const d = new Date(apt.date);
+    parts.push(d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+  }
+  if (apt.time) {
+    parts.push(apt.time);
+  }
+  if (apt.doctor?.name) {
+    parts.push(apt.doctor.name);
+  } else if (apt.doctor?.doctor?.clinic?.name) {
+    parts.push(apt.doctor.doctor.clinic.name);
+  }
+  return parts.join(' • ');
+};
+
+const formatStatus = (status?: string) => {
+  if (!status) return t('Confirmed');
+  if (status === 'scheduled') return t('Scheduled');
+  if (status === 'confirmed') return t('Confirmed');
+  if (status === 'completed') return t('Completed');
+  if (status === 'cancelled') return t('Cancelled');
+  return status;
+};
+
+const isUpcoming = (status?: string) => {
+  return status === 'scheduled' || status === 'confirmed';
+};
+
+const fetchPatientDetails = async () => {
+  if (!props.patient?.id) return;
+  loadingDetails.value = true;
+  try {
+    const res = await api.apiRequest({
+      service: 'ADMIN_PATIENT_BY_ID',
+      filter: { id: props.patient.id },
+    });
+    if (res?.status && res?.data?.patient_appointments) {
+      detailedAppointments.value = res.data.patient_appointments;
+    } else {
+      detailedAppointments.value = [];
+    }
+  } catch (err) {
+    detailedAppointments.value = [];
+  } finally {
+    loadingDetails.value = false;
+  }
 };
 
 const onBookAppointment = () => {
   close();
   bookingModal.openQuickBook();
 };
+
+// 5. Watches (watch, watchEffect)
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open && props.patient?.id) {
+      fetchPatientDetails();
+    } else {
+      detailedAppointments.value = [];
+    }
+  },
+  { immediate: true }
+);
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -261,15 +315,6 @@ const onBookAppointment = () => {
             font-weight: 800;
             color: var(--unity-text-main);
           }
-
-          .insurance-pill {
-            background: #fef3c7;
-            color: #92400e;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 12px;
-          }
         }
 
         .mrn-meta {
@@ -330,45 +375,6 @@ const onBookAppointment = () => {
     }
   }
 
-  .vitals-strip-card {
-    background: #f8fafc;
-    border: 1px solid var(--unity-border);
-    border-radius: 16px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-
-    .vital-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-
-      small {
-        font-size: 0.65rem;
-        color: var(--unity-text-muted);
-      }
-
-      strong {
-        font-size: 0.95rem;
-        color: #047857;
-        font-weight: 800;
-      }
-
-      span {
-        font-size: 0.6rem;
-        color: var(--unity-text-dim);
-      }
-    }
-
-    .vital-divider {
-      width: 1px;
-      height: 28px;
-      background: #e2e8f0;
-    }
-  }
-
   .info-block-card,
   .timeline-block-card {
     background: var(--unity-surface);
@@ -402,6 +408,30 @@ const onBookAppointment = () => {
       font-size: 0.82rem;
       color: var(--unity-text-muted);
       line-height: 1.5;
+    }
+  }
+
+  .timeline-loading,
+  .empty-timeline-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 16px;
+    background: var(--unity-bg);
+    border-radius: 12px;
+    color: var(--unity-text-muted);
+    font-size: 0.8rem;
+    text-align: center;
+
+    i {
+      font-size: 1.5rem;
+      color: var(--unity-text-dim);
+    }
+
+    p {
+      margin: 0;
     }
   }
 
@@ -457,24 +487,20 @@ const onBookAppointment = () => {
         border-radius: 10px;
         background: #d1fae5;
         color: #065f46;
-      }
 
-      .btn-download-report {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: var(--unity-surface);
-        border: 1px solid var(--unity-border);
-        color: var(--unity-primary);
-        font-size: 0.72rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
+        &.completed {
+          background: #e0f2fe;
+          color: #0369a1;
+        }
 
-        &:hover {
-          background: var(--unity-primary-light);
+        &.cancelled {
+          background: #fee2e2;
+          color: #b91c1c;
+        }
+
+        &.scheduled {
+          background: #fef3c7;
+          color: #92400e;
         }
       }
     }
@@ -516,4 +542,3 @@ const onBookAppointment = () => {
   }
 }
 </style>
-

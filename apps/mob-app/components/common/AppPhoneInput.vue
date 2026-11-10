@@ -5,7 +5,7 @@
       <button 
         type="button" 
         class="country-picker-btn" 
-        :title="isRtl ? 'تغيير مفتاح الدولة' : 'Change country code'"
+        :title="t('Change country code')"
         @click="toggleDropdown"
       >
         <span class="country-flag-box">
@@ -44,7 +44,7 @@
 
       <!-- Validity / Icon Badge (On the far RIGHT) -->
       <div class="validation-badge">
-        <span v-if="isValid && phoneDigits" class="valid-icon" :title="isRtl ? 'رقم هاتف صحيح' : 'Valid phone number'">
+        <span v-if="isValid && phoneDigits" class="valid-icon" :title="t('Valid phone number')">
           <i class="pi pi-check-circle"></i>
         </span>
         <span v-else class="phone-icon-placeholder">
@@ -55,9 +55,9 @@
 
     <!-- Dropdown Menu for Countries (Egypt pinned at the top) -->
     <div v-if="isDropdownOpen" class="country-dropdown-overlay" @click="closeDropdown">
-      <div class="country-dropdown-card" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+      <div class="country-dropdown-card" @click.stop>
         <div class="dropdown-header">
-          <h6>{{ isRtl ? 'اختر الدولة' : 'Select Country' }}</h6>
+          <h6>{{ t('Select Country') }}</h6>
           <button type="button" class="btn-close-dropdown" @click="closeDropdown">
             <i class="pi pi-times"></i>
           </button>
@@ -75,8 +75,8 @@
               <span class="country-flag-box">
                 <img :src="`/flags/${c.code.toLowerCase()}.svg`" :alt="c.code" class="country-flag-img" />
               </span>
-              <span class="country-name">{{ isRtl ? c.nameAr : c.nameEn }}</span>
-              <span v-if="c.isDefault" class="default-badge">{{ isRtl ? 'افتراضي' : 'Default' }}</span>
+              <span class="country-name">{{ t(c.nameEn) }}</span>
+              <span v-if="c.isDefault" class="default-badge">{{ t('Default') }}</span>
             </div>
             <span class="country-dial-code" dir="ltr">{{ c.dialCode }}</span>
           </li>
@@ -85,13 +85,14 @@
     </div>
 
     <!-- Error Hint -->
-    <small v-if="hasError" class="phone-error-hint" :dir="isRtl ? 'rtl' : 'ltr'">
-      {{ errorMessage || (isRtl ? `يرجى إدخال رقم هاتف صحيح (${selectedCountry.nameAr})` : `Please enter a valid phone number (${selectedCountry.nameEn})`) }}
+    <small v-if="hasError" class="phone-error-hint">
+      {{ errorMessage || `${t('Please enter a valid phone number')} (${t(selectedCountry.nameEn)})` }}
     </small>
   </div>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, watch, onMounted } from 'vue';
 import { isValidPhoneNumber, parsePhoneNumber, CountryCode } from 'libphonenumber-js';
 import { useI18n } from '../../composables/useI18n';
@@ -127,8 +128,9 @@ const emit = defineEmits<{
   (e: 'change', data: { raw: string; e164: string; isValid: boolean; country: string }): void;
 }>();
 
-const { isRtl } = useI18n();
+const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
 const countryList: CountryItem[] = [
   { code: 'EG', nameAr: 'مصر', nameEn: 'Egypt', dialCode: '+20', flag: '🇪🇬', placeholder: '01X XXXX XXXX', isDefault: true },
   { code: 'SA', nameAr: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia', dialCode: '+966', flag: '🇸🇦', placeholder: '05X XXX XXXX' },
@@ -140,13 +142,20 @@ const countryList: CountryItem[] = [
   { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dialCode: '+962', flag: '🇯🇴', placeholder: '7X XXX XXXX' },
 ];
 
-const selectedCountry = ref<CountryItem>(countryList[0]); // Default is Egypt (+20)
+const selectedCountry = ref<CountryItem>(countryList[0]);
+
+// Default is Egypt (+20)
 const phoneDigits = ref('');
+
 const isFocused = ref(false);
+
 const isTouched = ref(false);
+
 const isDropdownOpen = ref(false);
+
 const inputRef = ref<HTMLInputElement | null>(null);
 
+// 3. Computed (computed properties)
 const computedPlaceholder = computed(() => {
   if (props.placeholder) return props.placeholder;
   return selectedCountry.value.placeholder;
@@ -176,15 +185,12 @@ const hasError = computed(() => {
 const errorMessage = computed(() => {
   if (!hasError.value) return '';
   if (selectedCountry.value.code === 'EG') {
-    return isRtl.value
-      ? 'يرجى إدخال رقم هاتف مصري صحيح (مثال: 01116515445)'
-      : 'Please enter a valid Egyptian phone number (e.g. 01116515445)';
+    return t('Please enter a valid Egyptian phone number (e.g. 01116515445)');
   }
-  return isRtl.value
-    ? `يرجى إدخال رقم هاتف صحيح (${selectedCountry.value.nameAr})`
-    : `Please enter a valid phone number (${selectedCountry.value.nameEn})`;
+  return `${t('Please enter a valid phone number')} (${t(selectedCountry.value.nameEn)})`;
 });
 
+// 4. Methods (functions, handlers)
 // Build E.164 formatted number (e.g. +201116515445)
 const getFormattedE164 = (): string => {
   const clean = phoneDigits.value.replace(/[\s\-\(\)]/g, '').trim();
@@ -259,6 +265,7 @@ const selectCountry = (c: CountryItem) => {
   notifyChange();
 };
 
+// 5. Watches (watch, watchEffect)
 // Sync incoming modelValue
 watch(() => props.modelValue, (val) => {
   if (!val) {
@@ -284,11 +291,14 @@ watch(() => props.modelValue, (val) => {
   }
 }, { immediate: true });
 
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   if (phoneDigits.value) {
     notifyChange();
   }
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -610,4 +620,3 @@ onMounted(() => {
   padding-inline-start: 4px;
 }
 </style>
-

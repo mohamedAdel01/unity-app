@@ -2,32 +2,32 @@
   <div class="auth-section">
     <button v-if="api.token.value" class="logout-btn" @click="handleLogout">
       <i class="pi pi-sign-out"></i>
-      <span>{{ t('profile.logout') }}</span>
+      <span>{{ t('Log Out of Account') }}</span>
     </button>
 
     <div v-else class="login-prompt-card">
-      <h5>{{ t('profile.loginPromptTitle') }}</h5>
-      <p>{{ t('profile.loginPromptSub') }}</p>
+      <h5>{{ t('Sign In to View Your Medical Record') }}</h5>
+      <p>{{ t('Sign in or register a patient profile to retain your bookings and health records') }}</p>
       <button class="login-action-btn" @click="openAuthModal = true">
-        {{ t('profile.loginAction') }}
+        {{ t('Sign In / Register') }}
       </button>
     </div>
 
     <!-- Auth Modal -->
     <Teleport to="body">
       <div v-if="openAuthModal" class="auth-modal-backdrop" @click="openAuthModal = false">
-        <div class="auth-modal-sheet" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+        <div class="auth-modal-sheet" @click.stop>
           <div class="modal-pill"></div>
-          <h4>{{ isRegister ? t('profile.registerBtn') : t('profile.loginBtn') }}</h4>
+          <h4>{{ isRegister ? t('Create Account') : t('Sign In') }}</h4>
 
           <div class="auth-form">
             <div v-if="isRegister" class="form-group">
-              <label>{{ t('profile.fullName') }}</label>
+              <label>{{ t('Full Name') }}</label>
               <input v-model="authForm.name" type="text" placeholder="Ahmed Al-Salama" />
             </div>
 
             <div class="form-group">
-              <label>{{ isRtl ? 'رقم الجوال' : 'Phone Number' }}</label>
+              <label>{{ t('Phone Number') }}</label>
               <input
                 v-model="authForm.phone"
                 type="tel"
@@ -37,18 +37,18 @@
             </div>
 
             <div class="form-group">
-              <label>{{ t('profile.password') }}</label>
+              <label>{{ t('Password') }}</label>
               <input v-model="authForm.password" type="password" placeholder="••••••••" />
             </div>
 
             <button class="submit-auth-btn" :disabled="authLoading" @click="submitAuth">
               <i v-if="authLoading" class="pi pi-spin pi-spinner"></i>
-              <span v-else>{{ isRegister ? t('profile.registerBtn') : t('profile.loginBtn') }}</span>
+              <span v-else>{{ isRegister ? t('Create Account') : t('Sign In') }}</span>
             </button>
 
             <!-- Social Divider -->
             <div class="social-divider">
-              <span>{{ t('profile.orContinueWith') }}</span>
+              <span>{{ t('Or continue with') }}</span>
             </div>
 
             <!-- Social Login Options (Google & Apple - Bya3 Pattern) -->
@@ -61,7 +61,7 @@
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
-                <span>{{ t('profile.signInGoogle') }}</span>
+                <span>{{ t('Continue with Google') }}</span>
               </button>
 
               <!-- Apple -->
@@ -69,12 +69,12 @@
                 <svg viewBox="0 0 24 24" class="social-icon">
                   <path fill="currentColor" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.38c.62-.75 1.04-1.8 0.93-2.85-.9.04-1.99.6-2.64 1.36-.57.65-1.07 1.72-.94 2.74 1.01.08 2.03-.5 2.65-1.25z"/>
                 </svg>
-                <span>{{ t('profile.signInApple') }}</span>
+                <span>{{ t('Continue with Apple') }}</span>
               </button>
             </div>
 
             <button class="toggle-auth-btn" @click="isRegister = !isRegister">
-              {{ isRegister ? t('profile.haveAccount') : t('profile.newAccount') }}
+              {{ isRegister ? t('Already have an account? Sign In') : t('New user? Register now') }}
             </button>
           </div>
         </div>
@@ -84,6 +84,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
@@ -95,13 +96,20 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
+
 const api = useUnityApi();
-const { t, isRtl } = useI18n();
+
+const { t } = useI18n();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
 const openAuthModal = ref(false);
+
 const isRegister = ref(false);
+
 const authLoading = ref(false);
+
 const authForm = ref({
   name: '',
   identifier: '',
@@ -109,21 +117,37 @@ const authForm = ref({
   phone: '',
 });
 
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
 const submitAuth = async () => {
   try {
     authLoading.value = true;
     if (isRegister.value) {
-      await api.register({
-        name: authForm.value.name,
-        password: authForm.value.password,
-        phone: authForm.value.phone,
+      await api.apiRequest({
+        module: 'auth',
+        service: 'REGISTER',
+        payload: {
+          name: authForm.value.name,
+          password: authForm.value.password,
+          phone: authForm.value.phone,
+        },
+        pinia: true,
       });
     } else {
-      await api.login(authForm.value.phone, authForm.value.password);
+      await api.apiRequest({
+        module: 'auth',
+        service: 'LOGIN',
+        payload: {
+          phone: authForm.value.phone,
+          password: authForm.value.password,
+        },
+        pinia: true,
+      });
     }
     emit('user-updated', api.currentUser.value);
     openAuthModal.value = false;
-    toast.success(isRtl.value ? 'تم تسجيل الدخول بنجاح!' : 'Logged in successfully!');
+    toast.success(t('Logged in successfully!'));
   } catch (err: any) {
     toast.error(err.message || 'خطأ في المصادقة');
   } finally {
@@ -133,8 +157,7 @@ const submitAuth = async () => {
 
 const loginWithGoogleOAuth = () => {
   // Initiates Google OAuth redirect matching Bya3 pattern
-  const baseUrl = api.baseUrl || 'http://localhost:4000';
-  window.location.href = `${baseUrl}/v1/auth/google?platform=web`;
+  window.location.href = 'http://localhost:4000/v1/auth/google?platform=web';
 };
 
 const loginWithAppleOAuth = async () => {
@@ -143,16 +166,21 @@ const loginWithAppleOAuth = async () => {
     const isNative = typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform();
     if (isNative && (window as any).SignInWithApple) {
       const res = await (window as any).SignInWithApple.authorize();
-      await api.loginWithApple({
-        identityToken: res.response.identityToken,
-        email: res.response.email,
-        givenName: res.response.givenName,
-        familyName: res.response.familyName,
-        userIdentifier: res.response.user,
+      await api.apiRequest({
+        module: 'auth',
+        service: 'APPLE_LOGIN',
+        payload: {
+          identityToken: res.response.identityToken,
+          email: res.response.email,
+          givenName: res.response.givenName,
+          familyName: res.response.familyName,
+          userIdentifier: res.response.user,
+        },
+        pinia: true,
       });
       emit('user-updated', api.currentUser.value);
       openAuthModal.value = false;
-      toast.success(isRtl.value ? 'تم تسجيل الدخول بنجاح عبر Apple!' : 'Logged in with Apple successfully!');
+      toast.success(t('Logged in with Apple successfully!'));
     } else {
       toast.info('تسجيل الدخول عبر Apple متاح على أجهزة iOS والتطبيق الأصلي.', 'Apple Sign-In');
     }
@@ -161,11 +189,17 @@ const loginWithAppleOAuth = async () => {
   }
 };
 
-const handleLogout = () => {
-  api.logout();
+const handleLogout = async () => {
+  await api.apiRequest({ module: 'auth', service: 'LOGOUT', pinia: true });
   emit('user-updated', null);
   router.push('/');
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

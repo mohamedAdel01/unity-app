@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="fade">
       <div v-if="modelValue" class="notif-backdrop" @click="close">
-        <div class="notif-drawer" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+        <div class="notif-drawer" @click.stop>
           <div class="drawer-pill"></div>
 
           <div class="drawer-header">
@@ -12,8 +12,8 @@
                 <span v-if="unreadCount > 0" class="badge-dot"></span>
               </div>
               <div>
-                <h3>{{ t('notifications.title') }}</h3>
-                <span class="subtext">{{ unreadCount }} {{ t('notifications.unreadCount') }}</span>
+                <h3>{{ t('Notifications') }}</h3>
+                <span class="subtext">{{ unreadCount }} {{ t('New Notifications') }}</span>
               </div>
             </div>
 
@@ -24,7 +24,7 @@
                 :disabled="loading"
                 @click="markAllRead"
               >
-                {{ t('notifications.markAllRead') }}
+                {{ t('Mark all as read') }}
               </button>
               <button class="close-icon-btn" @click="close">
                 <i class="pi pi-times"></i>
@@ -36,7 +36,7 @@
             <!-- Loading -->
             <div v-if="loading" class="state-loading">
               <i class="pi pi-spin pi-spinner"></i>
-              <span>{{ t('notifications.loading') }}</span>
+              <span>{{ t('Loading notifications...') }}</span>
             </div>
 
             <!-- Not logged in State -->
@@ -44,8 +44,8 @@
               <div class="empty-icon">
                 <i class="pi pi-lock"></i>
               </div>
-              <h4>{{ isRtl ? 'تسجيل الدخول مطلوب' : 'Login Required' }}</h4>
-              <p>{{ isRtl ? 'يرجى تسجيل الدخول لعرض التنبيهات والإشعارات الخاصة بك.' : 'Please log in to view your notifications and alerts.' }}</p>
+              <h4>{{ t('Login Required') }}</h4>
+              <p>{{ t('Please log in to view your notifications and alerts.') }}</p>
             </div>
 
             <!-- Empty State -->
@@ -53,8 +53,8 @@
               <div class="empty-icon">
                 <i class="pi pi-check-circle"></i>
               </div>
-              <h4>{{ t('notifications.emptyTitle') }}</h4>
-              <p>{{ t('notifications.emptyDesc') }}</p>
+              <h4>{{ t('No notifications') }}</h4>
+              <p>{{ t('Your appointment alerts, reminders, and lab results will appear here.') }}</p>
             </div>
 
             <!-- Notification Items List -->
@@ -87,6 +87,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, watch, onMounted } from 'vue';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
@@ -103,12 +104,17 @@ const emit = defineEmits<{
 }>();
 
 const api = useUnityApi();
-const { t, isRtl } = useI18n();
+
+const { t } = useI18n();
+
 const globalStore = useGlobalStore();
+
 const authStore = useAuthStore();
 
+// 2. Data (refs, reactive state)
 const notifications = ref<any[]>([]);
 
+// 3. Computed (computed properties)
 // Use globalStore loading tracker for NOTIFICATIONS service
 const loading = computed(() => globalStore.loading.includes('NOTIFICATIONS'));
 
@@ -116,6 +122,7 @@ const unreadCount = computed(() => {
   return notifications.value.filter(n => !n.is_read).length;
 });
 
+// 4. Methods (functions, handlers)
 // Fetch notifications only if user is logged in
 const loadNotifications = async () => {
   if (!authStore.isAuthenticated) {
@@ -125,7 +132,7 @@ const loadNotifications = async () => {
   }
 
   try {
-    const res = await api.getNotifications();
+    const res = await api.apiRequest({ service: 'NOTIFICATIONS' });
     if (res?.status && Array.isArray(res.data)) {
       notifications.value = res.data;
     } else {
@@ -143,7 +150,7 @@ const markRead = async (item: any) => {
   item.is_read = true;
   try {
     if (authStore.isAuthenticated && item.id) {
-      await api.markNotificationRead(item.id);
+      await api.apiRequest({ service: 'MARK_NOTIFICATION_READ', payload: { id: item.id } });
     }
   } catch (err) {
     // Silent
@@ -155,7 +162,7 @@ const markAllRead = async () => {
   notifications.value.forEach(n => (n.is_read = true));
   try {
     if (authStore.isAuthenticated) {
-      await api.markAllNotificationsRead();
+      await api.apiRequest({ service: 'MARK_ALL_NOTIFICATIONS_READ' });
     }
   } catch (err) {
     // Silent
@@ -192,16 +199,17 @@ const formatTime = (isoString: string) => {
     const date = new Date(isoString);
     const now = new Date();
     const diffMin = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    if (diffMin < 1) return t('common.now');
-    if (diffMin < 60) return isRtl.value ? `منذ ${diffMin} دقيقة` : `${diffMin}m ago`;
+    if (diffMin < 1) return t('Now');
+    if (diffMin < 60) return t('${diffMin}m ago');
     const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return isRtl.value ? `منذ ${diffHours} ساعة` : `${diffHours}h ago`;
-    return date.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
+    if (diffHours < 24) return t('${diffHours}h ago');
+    return date.toLocaleDateString(t('en-US'), { month: 'short', day: 'numeric' });
   } catch (e) {
     return '';
   }
 };
 
+// 5. Watches (watch, watchEffect)
 watch(() => props.modelValue, (newVal) => {
   if (newVal && authStore.isAuthenticated) {
     loadNotifications();
@@ -217,11 +225,14 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
   }
 });
 
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   if (authStore.isAuthenticated) {
     loadNotifications();
   }
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

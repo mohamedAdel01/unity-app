@@ -1,15 +1,16 @@
 <template>
   <div class="auth-footer-link">
     <p>
-      <span>{{ isRegister ? t('auth.haveAccount') : t('auth.noAccountYet') }} </span>
+      <span>{{ isRegister ? t('Already have an account?') : t("Don't have an account?") }} </span>
       <NuxtLink :to="isRegister ? '/auth/login' : '/auth/register'" class="link-action">
-        {{ isRegister ? t('auth.loginNow') : t('auth.createNewAccount') }}
+        {{ isRegister ? t('Sign In') : t('Create New Account') }}
       </NuxtLink>
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 
 defineProps<{
@@ -17,6 +18,18 @@ defineProps<{
 }>();
 
 const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -41,4 +54,3 @@ const { t } = useI18n();
   }
 }
 </style>
-

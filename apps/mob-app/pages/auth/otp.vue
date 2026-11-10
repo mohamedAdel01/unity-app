@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAppToast } from '../../composables/useAppToast';
@@ -32,16 +33,22 @@ definePageMeta({
 });
 
 const router = useRouter();
+
 const route = useRoute();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
+const otpCode = ref('');
+
+const isSubmitting = ref(false);
+
+// 3. Computed (computed properties)
 const targetIdentifier = computed(() => {
   return (route.query.target as string) || '05XXXXXXXX';
 });
 
-const otpCode = ref('');
-const isSubmitting = ref(false);
-
+// 4. Methods (functions, handlers)
 const onDigitPress = (digit: string) => {
   if (otpCode.value.length < 4) {
     otpCode.value += digit;
@@ -76,6 +83,12 @@ const onConfirmOtp = async () => {
     isSubmitting.value = false;
   }
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

@@ -1,27 +1,11 @@
 <template>
-  <div class="admin-doctors-header" :dir="isRtl ? 'rtl' : 'ltr'">
-    <!-- 1. Top Supervisor Identity Bar -->
-    <div class="supervisor-top-bar">
-      <!-- Right Side: Admin Avatar & Titles -->
-      <div class="admin-identity">
-        <div class="admin-avatar-ring">
-          <i class="pi pi-shield"></i>
-        </div>
-        <div class="admin-meta">
-          <div class="name-badge-row">
-            <span class="role-title">{{ t('Doctors Management') }}</span>
-            <span class="supervisor-badge">{{ t('Admin') }}</span>
-          </div>
-          <small class="facility-subline">{{ t('Unity Clinics • Admin Portal') }}</small>
-        </div>
-      </div>
-
-      <!-- Left Side: Switch back to Patient Mode -->
-      <button class="switch-patient-mode-btn" @click="router.push('/')">
-        <i class="pi pi-sign-out"></i>
-        <span>{{ t('Patient Mode') }}</span>
-      </button>
-    </div>
+  <div class="admin-doctors-header">
+    <!-- 1. Top Supervisor Identity Bar (Unified) -->
+    <AdminTopHeader 
+      :title="t('Doctors Management')"
+      :subtitle="t('Unity Clinics • Admin Portal')"
+      icon="pi pi-heart"
+    />
 
     <!-- 2. Page Title Card with Add Doctor Action -->
     <div class="title-action-card">
@@ -75,9 +59,11 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
+import AdminTopHeader from './AdminTopHeader.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -97,11 +83,17 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const { t, isRtl } = useI18n();
 
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
 const searchQuery = ref('');
+
 const activeSpecialty = ref('all');
 
+let debounceTimer: any = null;
+
+// 3. Computed (computed properties)
 const specialtyFilters = computed(() => [
   { key: 'all', label: `${t('All')} (${props.totalCount})` },
   { key: 'cardio_internal', label: t('Internal & Cardio') },
@@ -109,7 +101,7 @@ const specialtyFilters = computed(() => [
   { key: 'surgery', label: t('Surgery') },
 ]);
 
-let debounceTimer: any = null;
+// 4. Methods (functions, handlers)
 const onSearchInput = () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
@@ -126,6 +118,12 @@ const selectSpecialty = (key: string) => {
   activeSpecialty.value = key;
   emit('filter', key);
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -204,27 +202,26 @@ const selectSpecialty = (key: string) => {
     }
 
     .switch-patient-mode-btn {
+      width: 38px;
+      height: 38px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
-      color: var(--unity-text-main);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
+      color: var(--unity-text-muted);
+      border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.2s;
 
       i {
-        font-size: 0.85rem;
+        font-size: 1rem;
         color: var(--unity-text-muted);
       }
 
       &:hover {
-        background: var(--unity-border-light);
+        background: var(--unity-primary-light);
         border-color: var(--unity-primary);
         color: var(--unity-primary);
 
@@ -409,4 +406,3 @@ const selectSpecialty = (key: string) => {
   }
 }
 </style>
-

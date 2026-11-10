@@ -34,15 +34,15 @@ export const useAuthStore = defineStore('auth', {
       if (typeof window !== 'undefined') {
         const savedToken = localStorage.getItem('unity_token');
         const savedUser = localStorage.getItem('unity_user');
-        if (savedToken) {
-          this.token = savedToken;
-        }
-        if (savedUser) {
+        this.token = savedToken || null;
+        if (savedToken && savedUser) {
           try {
             this.user = JSON.parse(savedUser);
           } catch {
             this.user = null;
           }
+        } else {
+          this.user = null;
         }
         this.initialized = true;
       }

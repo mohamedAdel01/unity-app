@@ -10,7 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUnityApi } from '../composables/useUnityApi';
 import ProfileTopHeader from '../components/profile/ProfileTopHeader.vue';
@@ -25,9 +26,15 @@ definePageMeta({
 });
 
 const router = useRouter();
-const api = useUnityApi();
-const user = ref<any>(api.currentUser.value);
 
+const api = useUnityApi();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+const user = computed(() => api.currentUser.value);
+
+// 4. Methods (functions, handlers)
 const onEditProfile = () => {
   // Handles profile editing navigation or modal
 };
@@ -43,9 +50,15 @@ const onMenuAction = (key: string) => {
     router.push('/delete-account');
   }
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .profile-page {
   padding: 14px 18px 24px;
   display: flex;

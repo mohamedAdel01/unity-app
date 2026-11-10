@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
@@ -38,11 +39,25 @@ const props = defineProps<{
 }>();
 
 const router = useRouter();
+
 const { t } = useI18n();
+
 const bookingModal = useBookingModal();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
 const hasUserPhoto = computed(() => isUserUploadedPhoto(props.user?.avatar));
+
 const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -136,4 +151,3 @@ const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
   }
 }
 </style>
-

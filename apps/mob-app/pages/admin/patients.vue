@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-patients-page" :dir="isRtl ? 'rtl' : 'ltr'">
+  <div class="admin-patients-page">
     <!-- Admin Header with Switch to Patient Mode & Search & Filters -->
     <AdminPatientsHeader 
       :total-count="totalDisplayCount" 
@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
@@ -63,62 +64,32 @@ definePageMeta({
   title: 'سجلات المرضى — لوحة الإشراف',
 });
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
+
 const api = useUnityApi();
+
 const toast = useAppToast();
+
 const bookingModal = useBookingModal();
 
+// 2. Data (refs, reactive state)
 const searchQuery = ref('');
+
 const activeFilter = ref('all');
+
 const isNewPatientModalOpen = ref(false);
+
 const isMedicalFileModalOpen = ref(false);
+
 const selectedPatientForFile = ref<any>(null);
 
 const patients = ref<any[]>([]);
+
 const totalDisplayCount = ref(0);
+
+// 3. Computed (computed properties)
 const todayPatientsCount = computed(() => {
   return patients.value.filter(p => p.is_today).length;
-});
-
-// Load backend patients if server API is reachable
-const loadBackendPatients = async () => {
-  try {
-    const config = useRuntimeConfig();
-    const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-    const res: any = await $fetch(`${baseUrl}/api/v1/admin/patients`, {
-      headers: api.token.value ? { Authorization: `Bearer ${api.token.value}` } : {},
-    });
-
-    if (res?.status && Array.isArray(res?.data?.patients) && res.data.patients.length > 0) {
-      totalDisplayCount.value = res.data.total || res.data.patients.length;
-      patients.value = res.data.patients.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        avatar: p.avatar,
-        phone: p.phone,
-        mrn: p.mrn || '',
-        clinic: p.clinic || '',
-        insurance: p.insurance || '',
-        badge: p.badge || '',
-        national_id: p.national_id || '',
-        last_visit: p.last_visit || '',
-        next_appointment: p.next_appointment || '',
-        diagnosis: p.diagnosis || '',
-        is_today: !!p.is_today,
-        status: p.status || 'active',
-      }));
-    } else {
-      patients.value = [];
-      totalDisplayCount.value = 0;
-    }
-  } catch (err) {
-    patients.value = [];
-    totalDisplayCount.value = 0;
-  }
-};
-
-onMounted(() => {
-  loadBackendPatients();
 });
 
 // Search and Filter computation
@@ -150,6 +121,39 @@ const filteredPatients = computed(() => {
   return list;
 });
 
+// 4. Methods (functions, handlers)
+// Load backend patients
+const loadBackendPatients = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'ADMIN_PATIENTS' });
+    if (res?.status && Array.isArray(res?.data?.patients) && res.data.patients.length > 0) {
+      totalDisplayCount.value = res.data.total || res.data.patients.length;
+      patients.value = res.data.patients.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        avatar: p.avatar,
+        phone: p.phone,
+        mrn: p.mrn || '',
+        clinic: p.clinic || '',
+        insurance: p.insurance || '',
+        badge: p.badge || '',
+        national_id: p.national_id || '',
+        last_visit: p.last_visit || '',
+        next_appointment: p.next_appointment || '',
+        diagnosis: p.diagnosis || '',
+        is_today: !!p.is_today,
+        status: p.status || 'active',
+      }));
+    } else {
+      patients.value = [];
+      totalDisplayCount.value = 0;
+    }
+  } catch (err) {
+    patients.value = [];
+    totalDisplayCount.value = 0;
+  }
+};
+
 const onSearch = (q: string) => {
   searchQuery.value = q;
 };
@@ -170,7 +174,7 @@ const openNewPatientModal = () => {
 const onPatientCreated = (newPatient: any) => {
   patients.value.unshift(newPatient);
   totalDisplayCount.value += 1;
-  toast.success(isRtl.value ? 'تم تسجيل وإضافة المريض الجديد بنجاح!' : 'New patient registered successfully!', isRtl.value ? 'إدارة المرضى' : 'Patients');
+  toast.success(t('New patient registered successfully!'), t('Patients'));
 };
 
 const onViewMedicalFile = (patient: any) => {
@@ -180,7 +184,7 @@ const onViewMedicalFile = (patient: any) => {
 
 const onBookAppointment = (patient: any) => {
   bookingModal.openBookingFlow({
-    specialty: patient.clinic || 'عيادة الباطنية',
+    specialty: patient.clinic || t('Internal Medicine Clinic'),
   });
 };
 
@@ -188,6 +192,15 @@ const onEditPatient = (patient: any) => {
   selectedPatientForFile.value = patient;
   isMedicalFileModalOpen.value = true;
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  loadBackendPatients();
+});
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -253,4 +266,3 @@ const onEditPatient = (patient: any) => {
   }
 }
 </style>
-

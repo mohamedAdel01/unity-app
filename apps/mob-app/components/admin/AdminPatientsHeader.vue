@@ -1,27 +1,11 @@
 <template>
-  <div class="admin-patients-header" :dir="isRtl ? 'rtl' : 'ltr'">
-    <!-- Top Supervisor Bar -->
-    <div class="supervisor-top-bar">
-      <!-- Right Side: Admin / Supervisor Identity -->
-      <div class="admin-identity">
-        <div class="admin-avatar-ring">
-          <i class="pi pi-user"></i>
-        </div>
-        <div class="admin-meta">
-          <div class="name-badge-row">
-            <span class="role-title">{{ t('Patients Management') }}</span>
-            <span class="supervisor-badge">{{ t('Admin') }}</span>
-          </div>
-          <small class="facility-subline">{{ t('Unity Clinics • Medical Records') }}</small>
-        </div>
-      </div>
-
-      <!-- Left Side: Switch back to Patient Mode -->
-      <button class="switch-patient-mode-btn" @click="router.push('/')">
-        <i class="pi pi-sign-out"></i>
-        <span>{{ t('Patient Mode') }}</span>
-      </button>
-    </div>
+  <div class="admin-patients-header">
+    <!-- Top Supervisor Bar (Unified) -->
+    <AdminTopHeader 
+      :title="t('Patients Management')"
+      :subtitle="t('Unity Clinics • Medical Records')"
+      icon="pi pi-users"
+    />
 
     <!-- Page Title & Primary Action -->
     <div class="title-action-row">
@@ -69,9 +53,11 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
+import AdminTopHeader from './AdminTopHeader.vue';
 
 const props = defineProps<{
   totalCount: number;
@@ -85,11 +71,17 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const { t, isRtl } = useI18n();
 
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
 const searchQuery = ref('');
+
 const activeFilter = ref('all');
 
+let debounceTimer: any = null;
+
+// 3. Computed (computed properties)
 const filterOptions = computed(() => [
   { key: 'all', label: `${t('All')} (${props.totalCount})` },
   { key: 'today', label: `${t('Today')} (${props.todayCount || 18})` },
@@ -97,7 +89,7 @@ const filterOptions = computed(() => [
   { key: 'under_review', label: t('Under Review') },
 ]);
 
-let debounceTimer: any = null;
+// 4. Methods (functions, handlers)
 const onSearchInput = () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
@@ -114,6 +106,12 @@ const selectFilter = (key: string) => {
   activeFilter.value = key;
   emit('filter', key);
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -183,27 +181,26 @@ const selectFilter = (key: string) => {
     }
 
     .switch-patient-mode-btn {
+      width: 38px;
+      height: 38px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
-      color: var(--unity-text-main);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
+      color: var(--unity-text-muted);
+      border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.2s;
 
       i {
-        font-size: 0.85rem;
+        font-size: 1rem;
         color: var(--unity-text-muted);
       }
 
       &:hover {
-        background: var(--unity-border-light);
+        background: var(--unity-primary-light);
         border-color: var(--unity-primary);
         color: var(--unity-primary);
 
@@ -368,4 +365,3 @@ const selectFilter = (key: string) => {
   }
 }
 </style>
-

@@ -1,69 +1,48 @@
 <template>
-  <section class="section-container pb-section">
+  <section v-if="pastAppointments.length > 0" class="section-container pb-section">
     <div class="section-header">
       <div class="header-with-badge">
         <i class="pi pi-history history-icon"></i>
-        <h4>{{ t('home.pastRecordsTitle') }}</h4>
+        <h4>{{ t('My last appointment') }}</h4>
       </div>
       <NuxtLink to="/appointments" class="see-all-link">
-        {{ t('home.visitHistory') }} 
+        {{ t('Visit History') }} 
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>
     </div>
 
     <div class="past-records-list">
-      <!-- Item 1: Doctor Consultation -->
-      <div class="past-record-card">
+      <div 
+        v-for="apt in pastAppointments" 
+        :key="apt.id" 
+        class="past-record-card"
+      >
         <div class="record-top">
-          <div class="record-icon clinic-icon">
-            <i class="pi pi-plus-circle"></i>
+          <div class="record-icon" :class="apt.doctor ? 'clinic-icon' : 'lab-icon'">
+            <i :class="apt.doctor ? 'pi pi-user-plus' : 'pi pi-table'"></i>
           </div>
           <div class="record-info">
             <div class="info-title-wrap">
-              <h5>{{ t('home.pastDocName') }}</h5>
-              <span class="status-chip completed">{{ t('appointments.statusCompleted') }}</span>
+              <h5>{{ apt.doctor?.name || apt.doctor?.user?.name || apt.service?.name || t('Doctor Consultation') }}</h5>
+              <span class="status-chip" :class="apt.status === 'completed' ? 'completed' : 'ready'">
+                {{ apt.status === 'completed' ? t('Completed') : t('Cancelled') }}
+              </span>
             </div>
-            <p>{{ t('home.pastDocVisit') }}</p>
-            <div class="record-date">
+            <p v-if="apt.doctor?.specialty || apt.clinic?.name || apt.service?.description">
+              {{ apt.doctor?.specialty || apt.clinic?.name || apt.service?.description }}
+            </p>
+            <div v-if="apt.date || apt.start_time" class="record-date">
               <i class="pi pi-calendar"></i>
-              <span>{{ t('home.pastDocDate') }}</span>
+              <span>{{ apt.date }} {{ apt.start_time ? '• ' + apt.start_time : '' }}</span>
             </div>
           </div>
         </div>
         <div class="record-actions">
-          <button class="btn-action-outline" @click="viewReport">
-            <i class="pi pi-file"></i> {{ t('home.viewReport') }}
+          <button class="btn-action-outline" @click="viewReport(apt)">
+            <i class="pi pi-file"></i> {{ t('View Report') }}
           </button>
-          <button class="btn-action-fill" @click="rebook">
-            <i class="pi pi-refresh"></i> {{ t('home.rebook') }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Item 2: Lab Package -->
-      <div class="past-record-card">
-        <div class="record-top">
-          <div class="record-icon lab-icon">
-            <i class="pi pi-filter"></i>
-          </div>
-          <div class="record-info">
-            <div class="info-title-wrap">
-              <h5>{{ t('home.pastLabTitle') }}</h5>
-              <span class="status-chip ready">{{ t('home.pastLabStatus') }}</span>
-            </div>
-            <p>{{ t('home.pastLabSub') }}</p>
-            <div class="record-date">
-              <i class="pi pi-calendar"></i>
-              <span>{{ t('home.pastLabDate') }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="record-actions">
-          <button class="btn-action-outline" @click="downloadResults">
-            <i class="pi pi-download"></i> {{ t('home.downloadResult') }}
-          </button>
-          <button class="btn-action-fill" @click="rebookLab">
-            <i class="pi pi-refresh"></i> {{ t('home.requestAgain') }}
+          <button class="btn-action-fill" @click="rebook(apt)">
+            <i class="pi pi-refresh"></i> {{ t('Rebook') }}
           </button>
         </div>
       </div>
@@ -72,31 +51,66 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useAppToast } from '../../composables/useAppToast';
 
 const router = useRouter();
+
+const api = useUnityApi();
+
 const { t, isRtl } = useI18n();
+
 const bookingModal = useBookingModal();
+
 const toast = useAppToast();
 
-const viewReport = () => {
-  router.push('/appointments');
+// 2. Data (refs, reactive state)
+const pastAppointments = ref<any[]>([]);
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+const loadPastAppointments = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
+    if (res && res.status && Array.isArray(res.data) && res.data.length > 0) {
+      const past = res.data.filter((a: any) => a.status === 'completed' || a.status === 'cancelled');
+      pastAppointments.value = past.slice(0, 3);
+    } else {
+      pastAppointments.value = [];
+    }
+  } catch (err) {
+    pastAppointments.value = [];
+  }
 };
 
-const rebook = () => {
-  bookingModal.openQuickBook();
+const viewReport = (apt?: any) => {
+  router.push('/records');
 };
 
-const downloadResults = () => {
-  toast.success(isRtl.value ? 'تم تنزيل تقرير المختبر بصيغة PDF بنجاح.' : 'Lab report PDF downloaded successfully.', 'المختبر والتحاليل');
+const rebook = (apt?: any) => {
+  if (apt?.doctor) {
+    bookingModal.openBookingFlow({ doctor: apt.doctor });
+  } else if (apt?.service) {
+    bookingModal.openBookingFlow({ service: apt.service });
+  } else {
+    bookingModal.openQuickBook();
+  }
 };
 
-const rebookLab = () => {
-  router.push('/services?tab=services');
-};
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  loadPastAppointments();
+});
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -276,4 +290,3 @@ const rebookLab = () => {
   }
 }
 </style>
-

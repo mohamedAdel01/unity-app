@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen && booking" class="modal-backdrop" @click="close">
-    <div class="modal-sheet" :dir="isRtl ? 'rtl' : 'ltr'" @click.stop>
+    <div class="modal-sheet" @click.stop>
       <div class="modal-header">
         <div class="header-title">
           <i class="pi pi-calendar-plus"></i>
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
@@ -61,21 +62,18 @@ const emit = defineEmits<{
   (e: 'rescheduled', payload: any): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
 const form = ref({
   doctor_name: 'د. فهد السالم',
   date: new Date().toISOString().split('T')[0],
   time: '11:00',
 });
 
-watch(() => props.booking, (bk) => {
-  if (bk) {
-    form.value.doctor_name = bk.doctor_name || 'د. فهد السالم';
-    form.value.time = bk.time ? bk.time.replace(/[^0-9:]/g, '') : '11:00';
-  }
-}, { immediate: true });
+// 3. Computed (computed properties)
 
+// 4. Methods (functions, handlers)
 const close = () => {
   emit('close');
 };
@@ -89,6 +87,18 @@ const saveNewSlot = () => {
   });
   close();
 };
+
+// 5. Watches (watch, watchEffect)
+watch(() => props.booking, (bk) => {
+  if (bk) {
+    form.value.doctor_name = bk.doctor_name || 'د. فهد السالم';
+    form.value.time = bk.time ? bk.time.replace(/[^0-9:]/g, '') : '11:00';
+  }
+}, { immediate: true });
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -248,4 +258,3 @@ const saveNewSlot = () => {
   }
 }
 </style>
-

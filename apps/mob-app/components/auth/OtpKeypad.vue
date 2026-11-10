@@ -8,7 +8,7 @@
     >
       <i v-if="loading" class="pi pi-spin pi-spinner"></i>
       <template v-else>
-        <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" class="action-arrow"></i>
+        <i :class="[isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right', 'action-arrow']"></i>
         <span>{{ t('Confirm & Continue') }}</span>
       </template>
     </button>
@@ -53,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 
 defineProps<{
@@ -68,6 +69,18 @@ const emit = defineEmits<{
 }>();
 
 const { t, isRtl } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -194,4 +207,3 @@ const { t, isRtl } = useI18n();
   }
 }
 </style>
-

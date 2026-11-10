@@ -3,7 +3,7 @@
     <button class="back-btn" @click="router.back()">
       <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
     </button>
-    <h3 class="page-title">{{ t('servicesCatalog.pageTitle') }}</h3>
+    <h3 class="page-title">{{ t('Medical Services & Clinics') }}</h3>
     <div class="placeholder-icon">
       <i class="pi pi-search"></i>
     </div>
@@ -11,11 +11,25 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
 const router = useRouter();
+
 const { t, isRtl } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -55,4 +69,3 @@ const { t, isRtl } = useI18n();
   }
 }
 </style>
-

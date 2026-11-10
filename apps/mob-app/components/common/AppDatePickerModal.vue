@@ -16,13 +16,13 @@
     <Teleport to="body">
       <Transition name="fade-modal">
         <div v-if="isOpen" class="date-picker-backdrop" @click.self="closePicker">
-          <div class="date-picker-sheet" :dir="isRtl ? 'rtl' : 'ltr'">
+          <div class="date-picker-sheet">
             <!-- Sheet Header -->
             <div class="sheet-header">
               <div class="title-wrap">
                 <i class="pi pi-calendar-plus header-icon"></i>
                 <div>
-                  <h5>{{ title || (isRtl ? 'تحديد تاريخ الميلاد' : 'Select Date of Birth') }}</h5>
+                  <h5>{{ title || (t('Select Date of Birth')) }}</h5>
                   <small>{{ formattedDisplay }}</small>
                 </div>
               </div>
@@ -35,7 +35,7 @@
             <div class="selection-nav-bar">
               <!-- Year Selector Dropdown/Button -->
               <div class="nav-segment">
-                <label>{{ isRtl ? 'السنة' : 'Year' }}</label>
+                <label>{{ t('Year') }}</label>
                 <select v-model="selectedYear" class="styled-select" @change="onMonthOrYearChange">
                   <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
                 </select>
@@ -43,7 +43,7 @@
 
               <!-- Month Selector Dropdown/Button -->
               <div class="nav-segment">
-                <label>{{ isRtl ? 'الشهر' : 'Month' }}</label>
+                <label>{{ t('Month') }}</label>
                 <select v-model="selectedMonth" class="styled-select" @change="onMonthOrYearChange">
                   <option v-for="(m, idx) in monthNames" :key="idx" :value="idx">
                     {{ m }}
@@ -91,10 +91,10 @@
             <div class="sheet-actions">
               <button type="button" class="confirm-btn" @click="confirmDate">
                 <i class="pi pi-check"></i>
-                <span>{{ isRtl ? 'تأكيد التاريخ' : 'Confirm Date' }}</span>
+                <span>{{ t('Confirm Date') }}</span>
               </button>
               <button type="button" class="cancel-btn" @click="closePicker">
-                <span>{{ isRtl ? 'إلغاء' : 'Cancel' }}</span>
+                <span>{{ t('Cancel') }}</span>
               </button>
             </div>
           </div>
@@ -105,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
@@ -123,7 +124,9 @@ const emit = defineEmits<{
   (e: 'update:modelValue', val: string): void;
 }>();
 
-const { isRtl } = useI18n();
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
 const isOpen = ref(false);
 
 const monthNamesAr = [
@@ -138,37 +141,18 @@ const monthNamesEn = [
   'September (09)', 'October (10)', 'November (11)', 'December (12)'
 ];
 
-const monthNames = computed(() => isRtl.value ? monthNamesAr : monthNamesEn);
-
-const weekDayHeaders = computed(() => {
-  if (isRtl.value) {
-    return ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
-  }
-  return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-});
-
 // Internal selected state
 const selectedYear = ref(1995);
-const selectedMonth = ref(4); // 0-indexed (4 = May)
+
+const selectedMonth = ref(4);
+
+// 0-indexed (4 = May)
 const selectedDay = ref(15);
 
-// Parse incoming value
-const parseDateValue = (str?: string) => {
-  if (!str) return;
-  const parts = str.split('-');
-  if (parts.length === 3) {
-    const y = parseInt(parts[0], 10);
-    const m = parseInt(parts[1], 10) - 1;
-    const d = parseInt(parts[2], 10);
-    if (!isNaN(y)) selectedYear.value = y;
-    if (!isNaN(m)) selectedMonth.value = m;
-    if (!isNaN(d)) selectedDay.value = d;
-  }
-};
+// 3. Computed (computed properties)
+const monthNames = computed(() => monthNamesAr);
 
-watch(() => props.modelValue, (newVal) => {
-  parseDateValue(newVal);
-}, { immediate: true });
+const weekDayHeaders = computed(() => ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت']);
 
 // Year options: descending from maxYear to minYear
 const yearOptions = computed(() => {
@@ -189,6 +173,33 @@ const startBlankDays = computed(() => {
   return new Date(selectedYear.value, selectedMonth.value, 1).getDay();
 });
 
+const formattedDisplay = computed(() => {
+  if (!props.modelValue && !selectedDay.value) {
+    return t('Select Date of Birth');
+  }
+  const cleanM = (selectedMonth.value + 1).toString().padStart(2, '0');
+  const cleanD = selectedDay.value.toString().padStart(2, '0');
+  const cleanY = selectedYear.value;
+
+  const rawMonthName = monthNames.value[selectedMonth.value]?.split(' ')[0] || '';
+  return `${cleanD} ${rawMonthName} ${cleanY}`;
+});
+
+// 4. Methods (functions, handlers)
+// Parse incoming value
+const parseDateValue = (str?: string) => {
+  if (!str) return;
+  const parts = str.split('-');
+  if (parts.length === 3) {
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    if (!isNaN(y)) selectedYear.value = y;
+    if (!isNaN(m)) selectedMonth.value = m;
+    if (!isNaN(d)) selectedDay.value = d;
+  }
+};
+
 const onMonthOrYearChange = () => {
   const maxDay = daysInMonth.value;
   if (selectedDay.value > maxDay) {
@@ -204,21 +215,6 @@ const isToday = (d: number) => {
     now.getDate() === d
   );
 };
-
-const formattedDisplay = computed(() => {
-  if (!props.modelValue && !selectedDay.value) {
-    return isRtl.value ? 'اختر تاريخ الميلاد' : 'Select Date of Birth';
-  }
-  const cleanM = (selectedMonth.value + 1).toString().padStart(2, '0');
-  const cleanD = selectedDay.value.toString().padStart(2, '0');
-  const cleanY = selectedYear.value;
-
-  const rawMonthName = monthNames.value[selectedMonth.value]?.split(' ')[0] || '';
-  if (isRtl.value) {
-    return `${cleanD} ${rawMonthName} ${cleanY}`;
-  }
-  return `${cleanD}-${rawMonthName}-${cleanY}`;
-});
 
 const openPicker = () => {
   parseDateValue(props.modelValue);
@@ -236,6 +232,15 @@ const confirmDate = () => {
   emit('update:modelValue', isoString);
   closePicker();
 };
+
+// 5. Watches (watch, watchEffect)
+watch(() => props.modelValue, (newVal) => {
+  parseDateValue(newVal);
+}, { immediate: true });
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -553,4 +558,3 @@ const confirmDate = () => {
   opacity: 0;
 }
 </style>
-

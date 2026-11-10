@@ -3,8 +3,8 @@
     <div class="settings-head">
       <div class="head-icon icon-cyan"><i class="pi pi-globe"></i></div>
       <div class="head-text">
-        <h5>{{ t('profile.langTitle') }}</h5>
-        <small>{{ t('profile.langSub') }}</small>
+        <h5>{{ t('Language') }}</h5>
+        <small>{{ t('Switch between Arabic and English') }}</small>
       </div>
     </div>
 
@@ -33,9 +33,22 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 
 const { t, locale, setLocale } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -120,4 +133,3 @@ const { t, locale, setLocale } = useI18n();
   }
 }
 </style>
-

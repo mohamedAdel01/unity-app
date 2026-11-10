@@ -19,13 +19,14 @@
       <p v-if="user?.phone" class="user-phone" dir="ltr">{{ user.phone }}</p>
       <span v-if="user?.mrn || user?.patient?.mrn" class="mrn-badge">
         <i class="pi pi-id-card"></i>
-        <span>{{ t('profile.fileNumber') }} {{ user?.mrn || user?.patient?.mrn }}</span>
+        <span>{{ t('File No:') }} {{ user?.mrn || user?.patient?.mrn }}</span>
       </span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
@@ -36,8 +37,20 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
 const hasUserPhoto = computed(() => isUserUploadedPhoto(props.user?.avatar));
+
 const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -124,4 +137,3 @@ const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
   }
 }
 </style>
-

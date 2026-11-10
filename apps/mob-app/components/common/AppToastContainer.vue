@@ -6,7 +6,6 @@
         :key="item.id" 
         class="toast-item" 
         :class="`toast-${item.type}`"
-        :dir="isRtl ? 'rtl' : 'ltr'"
         role="alert"
       >
         <!-- Icon Badge -->
@@ -45,11 +44,25 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useAppToast } from '../../composables/useAppToast';
 import { useI18n } from '../../composables/useI18n';
 
 const { toasts, remove } = useAppToast();
-const { isRtl } = useI18n();
+
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -293,4 +306,3 @@ const { isRtl } = useI18n();
   transform: translateY(-16px) scale(0.95);
 }
 </style>
-

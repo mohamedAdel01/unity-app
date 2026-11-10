@@ -116,7 +116,7 @@
           <h6>{{ t('Enter the verification code sent to') }}</h6>
           <span class="phone-target" dir="ltr">{{ step1Form.phone || '05XXXXXXXX' }}</span>
         </div>
-        <button type="button" class="btn-change-phone" :title="isRtl ? 'تعديل الرقم' : 'Edit number'" @click="currentStep = 1">
+        <button type="button" class="btn-change-phone" :title="t('Edit number')" @click="currentStep = 1">
           <i class="pi pi-pencil"></i>
         </button>
       </div>
@@ -168,7 +168,7 @@
         <i v-if="isVerifyingOtp" class="pi pi-spin pi-spinner"></i>
         <template v-else>
           <span>{{ t('Confirm & Continue') }}</span>
-          <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'" class="btn-arrow"></i>
+          <i :class="[isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right', 'btn-arrow']"></i>
         </template>
       </button>
     </div>
@@ -182,7 +182,7 @@
       <div class="account-created-banner">
         <i class="pi pi-check-circle"></i>
         <div>
-          <h6>{{ isRtl ? 'تم التحقق من الجوال وإنشاء الحساب!' : 'Account & Mobile Verified!' }}</h6>
+          <h6>{{ t('Account & Mobile Verified!') }}</h6>
           <small>{{ t('Complete your profile or skip to continue later.') }}</small>
         </div>
       </div>
@@ -220,7 +220,7 @@
 
       <!-- Avatar Section: Upload custom photo OR first letter of name -->
       <div class="input-field-group">
-        <label class="field-label">{{ isRtl ? 'الصورة الشخصية' : 'Profile Picture' }}</label>
+        <label class="field-label">{{ t('Profile Picture') }}</label>
         
         <div class="avatar-custom-box">
           <!-- Left/Leading preview container: Shows uploaded image OR Letter initial badge -->
@@ -228,7 +228,7 @@
             <!-- If custom photo is uploaded -->
             <template v-if="step3Form.avatar">
               <img :src="step3Form.avatar" alt="User avatar" class="avatar-photo-preview" />
-              <div class="avatar-action-badge edit-badge" :title="isRtl ? 'تغيير الصورة' : 'Change photo'">
+              <div class="avatar-action-badge edit-badge" :title="t('Change photo')">
                 <i class="pi pi-pencil"></i>
               </div>
             </template>
@@ -238,7 +238,7 @@
               <div class="avatar-initial-badge">
                 <span class="initial-char">{{ userNameInitial }}</span>
               </div>
-              <div class="avatar-action-badge camera-badge" :title="isRtl ? 'رفع صورة' : 'Upload photo'">
+              <div class="avatar-action-badge camera-badge" :title="t('Upload photo')">
                 <i class="pi pi-camera"></i>
               </div>
             </template>
@@ -250,7 +250,7 @@
               <div class="avatar-btn-group">
                 <button type="button" class="btn-avatar-action upload" @click="triggerFileUpload">
                   <i class="pi pi-refresh"></i>
-                  <span>{{ isRtl ? 'تغيير الصورة' : 'Change Photo' }}</span>
+                  <span>{{ t('Change Photo') }}</span>
                 </button>
                 <button type="button" class="btn-avatar-action remove" @click="removeCustomAvatar">
                   <i class="pi pi-trash"></i>
@@ -259,7 +259,7 @@
               </div>
               <small class="avatar-hint-note success">
                 <i class="pi pi-check"></i>
-                <span>{{ isRtl ? 'تم تحديد صورتك الشخصية' : 'Custom photo selected' }}</span>
+                <span>{{ t('Custom photo selected') }}</span>
               </small>
             </template>
 
@@ -269,7 +269,7 @@
                 <span>{{ t('Upload Photo') }}</span>
               </button>
               <small class="avatar-hint-note">
-                {{ isRtl ? 'الصورة الافتراضية ستكون الحرف الأول من اسمك، أو يمكنك رفع صورة خاصة من جهازك.' : 'Default avatar will be your first name initial, or you can upload your own photo.' }}
+                {{ t('Default avatar will be your first name initial, or you can upload your own photo.') }}
               </small>
             </template>
 
@@ -311,6 +311,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUnityApi } from '../../composables/useUnityApi';
@@ -329,32 +330,56 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
+
 const api = useUnityApi();
+
 const { t, isRtl } = useI18n();
+
 const globalStore = useGlobalStore();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
 const currentStep = ref(props.step || 1);
+
 const showPassword = ref(false);
+
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
-// Keep step in sync with parent page
-watch(() => props.step, (val) => {
-  if (val && val !== currentStep.value) {
-    currentStep.value = val;
-  }
+// ==========================================
+// STEP 1 STATE & METHODS
+// ==========================================
+const step1Form = ref({
+  name: '',
+  phone: '',
+  password: '',
 });
 
-watch(currentStep, (val) => {
-  emit('update:step', val);
-  if (val === 2) {
-    startOtpCountdown();
-    nextTick(() => {
-      otpInputRefs.value[0]?.focus();
-    });
-  }
+const isPhoneValid = ref(false);
+
+// ==========================================
+// STEP 2: OTP / MOBILE VERIFICATION
+// ==========================================
+const otpDigits = ref(['', '', '', '']);
+
+const otpInputRefs = ref<(HTMLInputElement | null)[]>([]);
+
+const isVerifyingOtp = ref(false);
+
+const countdown = ref(45);
+
+let timerInterval: any = null;
+
+// ==========================================
+// STEP 3: PERSONAL DETAILS & AVATAR
+// ==========================================
+const step3Form = ref({
+  gender: 'male',
+  avatar: '', // Custom uploaded photo data URL, empty by default -> uses initial letter
+  date_of_birth: '1995-05-15',
 });
 
+// 3. Computed (computed properties)
 // Step Progress Titles
 const currentStepText = computed(() => {
   if (currentStep.value === 1) return t('Step 1 of 3');
@@ -367,16 +392,6 @@ const currentStepSubTitle = computed(() => {
   if (currentStep.value === 2) return t('Mobile Verification');
   return t('Personal Details');
 });
-
-// ==========================================
-// STEP 1 STATE & METHODS
-// ==========================================
-const step1Form = ref({
-  name: '',
-  phone: '',
-  password: '',
-});
-const isPhoneValid = ref(false);
 
 const isStep1Valid = computed(() => {
   return (
@@ -394,42 +409,36 @@ const userNameInitial = computed(() => {
   return firstGrapheme.toUpperCase();
 });
 
+const isOtpComplete = computed(() => {
+  return otpDigits.value.every(d => d.length === 1 && /^\d$/.test(d));
+});
+
+// 4. Methods (functions, handlers)
 const handleStep1Submit = async () => {
   if (!isStep1Valid.value) return;
 
   try {
-    globalStore.setLoading(['register', true]);
-    await api.register({
-      name: step1Form.value.name.trim(),
-      phone: step1Form.value.phone.trim(),
-      password: step1Form.value.password,
+    await api.apiRequest({
+      module: 'auth',
+      service: 'REGISTER',
+      payload: {
+        name: step1Form.value.name.trim(),
+        phone: step1Form.value.phone.trim(),
+        password: step1Form.value.password,
+      },
+      pinia: true,
     });
 
-    toast.success(isRtl.value ? 'تم إنشاء الحساب! أرسلنا رمز التحقق إلى جوالك.' : 'Account created! Verification code sent to your phone.');
+    toast.success(t('Account created! Verification code sent to your phone.'));
     currentStep.value = 2;
   } catch (err: any) {
-    toast.error(err.message || (isRtl.value ? 'تعذر إنشاء الحساب' : 'Failed to create account'));
-  } finally {
-    globalStore.setLoading(['register', false]);
+    toast.error(err.message || (t('Failed to create account')));
   }
 };
-
-// ==========================================
-// STEP 2: OTP / MOBILE VERIFICATION
-// ==========================================
-const otpDigits = ref(['', '', '', '']);
-const otpInputRefs = ref<(HTMLInputElement | null)[]>([]);
-const isVerifyingOtp = ref(false);
-const countdown = ref(45);
-let timerInterval: any = null;
 
 const setOtpInputRef = (el: any, index: number) => {
   otpInputRefs.value[index] = el;
 };
-
-const isOtpComplete = computed(() => {
-  return otpDigits.value.every(d => d.length === 1 && /^\d$/.test(d));
-});
 
 const startOtpCountdown = () => {
   countdown.value = 45;
@@ -446,7 +455,7 @@ const startOtpCountdown = () => {
 const handleResendOtp = () => {
   otpDigits.value = ['', '', '', ''];
   startOtpCountdown();
-  toast.success(isRtl.value ? 'تم إعادة إرسال رمز التحقق بنجاح!' : 'Verification code resent successfully!');
+  toast.success(t('Verification code resent successfully!'));
   nextTick(() => {
     otpInputRefs.value[0]?.focus();
   });
@@ -497,23 +506,14 @@ const handleVerifyOtp = async () => {
   try {
     isVerifyingOtp.value = true;
     await new Promise(r => setTimeout(r, 600));
-    toast.success(isRtl.value ? 'تم تأكيد رقم الجوال بنجاح!' : 'Mobile number verified successfully!');
+    toast.success(t('Mobile number verified successfully!'));
     currentStep.value = 3;
   } catch (err: any) {
-    toast.error(err.message || (isRtl.value ? 'رمز التحقق غير صحيح' : 'Invalid verification code'));
+    toast.error(err.message || (t('Invalid verification code')));
   } finally {
     isVerifyingOtp.value = false;
   }
 };
-
-// ==========================================
-// STEP 3: PERSONAL DETAILS & AVATAR
-// ==========================================
-const step3Form = ref({
-  gender: 'male',
-  avatar: '', // Custom uploaded photo data URL, empty by default -> uses initial letter
-  date_of_birth: '1995-05-15',
-});
 
 const triggerFileUpload = () => {
   fileInputRef.value?.click();
@@ -524,7 +524,7 @@ const removeCustomAvatar = () => {
   if (fileInputRef.value) {
     fileInputRef.value.value = '';
   }
-  toast.info(isRtl.value ? 'تم الرجوع إلى الحرف الأول من اسمك كصورة للملف' : 'Reverted to name initial avatar');
+  toast.info(t('Reverted to name initial avatar'));
 };
 
 const onAvatarFileChange = (e: Event) => {
@@ -533,12 +533,12 @@ const onAvatarFileChange = (e: Event) => {
   if (!file) return;
 
   if (!file.type.startsWith('image/')) {
-    toast.error(isRtl.value ? 'يرجى اختيار ملف صورة صالح (JPG أو PNG).' : 'Please choose a valid image file (JPG or PNG).');
+    toast.error(t('Please choose a valid image file (JPG or PNG).'));
     return;
   }
 
   if (file.size > 8 * 1024 * 1024) {
-    toast.error(isRtl.value ? 'حجم الصورة كبير جداً، الحد الأقصى 8 ميجابايت.' : 'Image size too large, max 8MB.');
+    toast.error(t('Image size too large, max 8MB.'));
     return;
   }
 
@@ -566,7 +566,7 @@ const onAvatarFileChange = (e: Event) => {
       const ctx = canvas.getContext('2d');
       ctx?.drawImage(img, 0, 0, width, height);
       step3Form.value.avatar = canvas.toDataURL('image/jpeg', 0.88);
-      toast.success(isRtl.value ? 'تم حفظ صورتك الشخصية بنجاح!' : 'Avatar photo selected successfully!');
+      toast.success(t('Avatar photo selected successfully!'));
     };
     img.src = rawResult;
   };
@@ -575,20 +575,22 @@ const onAvatarFileChange = (e: Event) => {
 
 const handleStep3Submit = async () => {
   try {
-    globalStore.setLoading(['completeRegistration', true]);
-    await api.completeRegistration({
-      gender: step3Form.value.gender,
-      avatar: step3Form.value.avatar || undefined,
-      date_of_birth: step3Form.value.date_of_birth,
+    await api.apiRequest({
+      module: 'auth',
+      service: 'UPDATE_PROFILE',
+      payload: {
+        gender: step3Form.value.gender,
+        avatar: step3Form.value.avatar || undefined,
+        date_of_birth: step3Form.value.date_of_birth,
+      },
+      pinia: true,
     });
 
-    toast.success(isRtl.value ? 'تم إكمال ملفك الشخصي بنجاح!' : 'Profile completed successfully!');
+    toast.success(t('Profile completed successfully!'));
     router.push('/');
   } catch (err: any) {
-    toast.warning(err.message || (isRtl.value ? 'تم حفظ الحساب ولكن تعذر تحديث بعض البيانات' : 'Saved with warnings'));
+    toast.warning(err.message || (t('Saved with warnings')));
     router.push('/');
-  } finally {
-    globalStore.setLoading(['completeRegistration', false]);
   }
 };
 
@@ -596,6 +598,25 @@ const handleSkipStep3 = () => {
   router.push('/');
 };
 
+// 5. Watches (watch, watchEffect)
+// Keep step in sync with parent page
+watch(() => props.step, (val) => {
+  if (val && val !== currentStep.value) {
+    currentStep.value = val;
+  }
+});
+
+watch(currentStep, (val) => {
+  emit('update:step', val);
+  if (val === 2) {
+    startOtpCountdown();
+    nextTick(() => {
+      otpInputRefs.value[0]?.focus();
+    });
+  }
+});
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   if (currentStep.value === 2) {
     startOtpCountdown();
@@ -605,6 +626,8 @@ onMounted(() => {
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval);
 });
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">

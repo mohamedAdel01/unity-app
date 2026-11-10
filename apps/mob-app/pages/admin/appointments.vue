@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-bookings-page" :dir="isRtl ? 'rtl' : 'ltr'">
+  <div class="admin-bookings-page">
     <!-- 1. Header with Mode Tabs & Metrics Cards -->
     <AdminBookingsHeader 
       @tab-change="onTabChange"
@@ -33,7 +33,7 @@
         </div>
         <div class="inv-meta">
           <small>{{ inv.service_name }}</small>
-          <strong class="inv-amount">{{ inv.amount }} {{ t('SAR') }}</strong>
+          <strong class="inv-amount">{{ inv.amount }} {{ t('EGP') }}</strong>
         </div>
       </div>
     </div>
@@ -56,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
@@ -68,26 +69,43 @@ definePageMeta({
   title: 'إدارة الحجوزات والفوترة — لوحة المشرف',
 });
 
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
+
 const api = useUnityApi();
+
 const toast = useAppToast();
 
+// 2. Data (refs, reactive state)
 const activeTab = ref<'bookings' | 'invoices'>('bookings');
+
 const activePeriod = ref<'today' | 'week' | 'pending'>('today');
+
 const isRescheduleModalOpen = ref(false);
+
 const selectedBookingForReschedule = ref<any>(null);
 
 const bookings = ref<any[]>([]);
+
 const invoicesList = ref<any[]>([]);
 
-// Load backend appointments if available
+// 3. Computed (computed properties)
+const filteredBookings = computed(() => {
+  let list = bookings.value;
+
+  if (activePeriod.value === 'pending') {
+    list = list.filter(b => b.status === 'pending');
+  } else if (activePeriod.value === 'today') {
+    list = list.filter(b => b.period === 'today' || b.status === 'confirmed');
+  }
+
+  return list;
+});
+
+// 4. Methods (functions, handlers)
+// Load backend appointments
 const loadBackendAppointments = async () => {
   try {
-    const config = useRuntimeConfig();
-    const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-    const res: any = await $fetch(`${baseUrl}/api/v1/admin/appointments`, {
-      headers: api.token.value ? { Authorization: `Bearer ${api.token.value}` } : {},
-    });
+    const res = await api.apiRequest({ service: 'ADMIN_APPOINTMENTS' });
 
     if (res?.status && res?.data?.appointments?.length) {
       bookings.value = res.data.appointments.map((a: any, idx: number) => ({
@@ -112,24 +130,31 @@ const loadBackendAppointments = async () => {
   }
 };
 
-onMounted(() => {
-  loadBackendAppointments();
-});
-
-const filteredBookings = computed(() => {
-  let list = bookings.value;
-
-  if (activePeriod.value === 'pending') {
-    list = list.filter(b => b.status === 'pending');
-  } else if (activePeriod.value === 'today') {
-    list = list.filter(b => b.period === 'today' || b.status === 'confirmed');
+const loadBackendInvoices = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'ADMIN_BILLING_INVOICES' });
+    if (res?.status && res?.data?.invoices) {
+      invoicesList.value = res.data.invoices.map((inv: any) => ({
+        id: inv.id,
+        invoice_number: inv.invoice_number || inv.id,
+        patient_name: inv.patient?.name || '',
+        status: inv.status || 'paid',
+        service_name: inv.appointment?.service?.name || t('Medical Consultation'),
+        amount: inv.total || 0,
+      }));
+    } else {
+      invoicesList.value = [];
+    }
+  } catch (err) {
+    invoicesList.value = [];
   }
-
-  return list;
-});
+};
 
 const onTabChange = (tab: 'bookings' | 'invoices') => {
   activeTab.value = tab;
+  if (tab === 'invoices' && invoicesList.value.length === 0) {
+    loadBackendInvoices();
+  }
 };
 
 const onPeriodChange = (period: 'today' | 'week' | 'pending') => {
@@ -138,7 +163,7 @@ const onPeriodChange = (period: 'today' | 'week' | 'pending') => {
 
 const toggleSortOrder = () => {
   bookings.value.reverse();
-  toast.info(isRtl.value ? 'تم تغيير ترتيب الحجوزات' : 'Sort order toggled');
+  toast.info(t('Sort order toggled'));
 };
 
 const openReschedule = (booking: any) => {
@@ -146,21 +171,38 @@ const openReschedule = (booking: any) => {
   isRescheduleModalOpen.value = true;
 };
 
-const onBookingRescheduled = (payload: any) => {
+const onBookingRescheduled = async (payload: any) => {
   const target = bookings.value.find(b => b.id === payload.bookingId);
   if (target) {
     target.doctor_name = payload.doctor_name;
-    target.time = `${payload.time} ص`;
+    target.time = `${payload.time}`;
   }
-  toast.success(isRtl.value ? 'تم إعادة جدولة الموعد وتحديث الحجز بنجاح!' : 'Booking rescheduled successfully!');
+
+  try {
+    await api.apiRequest({
+      service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
+      payload: { id: payload.bookingId, status: 'confirmed' },
+    });
+  } catch (err) {}
+
+  toast.success(t('Booking rescheduled successfully!'));
 };
 
 const downloadInvoice = (booking: any) => {
   toast.success(
-    isRtl.value ? `تم تحميل الفاتورة الضريبية الإلكترونية للحجز #${booking.booking_number}` : `Invoice downloaded for #${booking.booking_number}`,
-    isRtl.value ? 'الفوترة والمدفوعات' : 'Billing'
+    `${t('Invoice downloaded for #')}${booking.booking_number}`,
+    t('Billing')
   );
 };
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  loadBackendAppointments();
+});
+
+// 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
@@ -279,4 +321,3 @@ const downloadInvoice = (booking: any) => {
   }
 }
 </style>
-
