@@ -9,36 +9,25 @@
       @new-patient="openNewPatientModal"
     />
 
-    <!-- Patients List -->
-    <div v-if="filteredPatients.length > 0" class="patients-accordion-list">
-      <AdminPatientCard 
-        v-for="(patient, index) in filteredPatients" 
-        :key="patient.id || index"
-        :patient="patient"
-        :initially-expanded="index === 0"
-        @view-file="onViewMedicalFile"
-        @book="onBookAppointment"
-        @edit="onEditPatient"
-      />
-    </div>
-
-    <!-- Empty State -->
-    <div v-else class="empty-patients-state">
-      <i class="pi pi-search"></i>
-      <h5>{{ t('No matching patients found') }}</h5>
-      <p>{{ t('Try searching with a different name, MRN, or National ID.') }}</p>
-      <button class="btn-reset-search" @click="resetFilters">
-        {{ t('Reset Search') }}
-      </button>
-    </div>
+    <!-- Modular Patients Virtual List (10 by 10) -->
+    <AdminPatientsList
+      :patients="filteredPatients"
+      :has-more="patientsHasMore"
+      :loading="patientsLoading"
+      @view-file="onViewMedicalFile"
+      @book="onBookAppointment"
+      @edit="onEditPatient"
+      @load-more="loadMorePatients"
+      @reset="resetFilters"
+    />
 
     <!-- Modal: Add / Edit Patient -->
-    <AdminNewPatientModal 
-      :is-open="isNewPatientModalOpen" 
+    <AdminPatientModal
+      :is-open="isPatientModalOpen"
       :patient="selectedPatientToEdit"
-      @close="isNewPatientModalOpen = false"
-      @created="onPatientCreated"
-      @updated="onPatientUpdated"
+      @close="isPatientModalOpen = false"
+      @created="ADMIN_PATIENTS()"
+      @updated="ADMIN_PATIENTS()"
     />
 
     <!-- Modal: View Medical File -->
@@ -58,8 +47,8 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useBookingModal } from '../../composables/useBookingModal';
 import AdminPatientsHeader from '../../components/admin/AdminPatientsHeader.vue';
-import AdminPatientCard from '../../components/admin/AdminPatientCard.vue';
-import AdminNewPatientModal from '../../components/admin/AdminNewPatientModal.vue';
+import AdminPatientsList from '../../components/admin/AdminPatientsList.vue';
+import AdminPatientModal from '../../components/admin/AdminPatientModal.vue';
 import AdminPatientFileModal from '../../components/admin/AdminPatientFileModal.vue';
 
 definePageMeta({
@@ -79,7 +68,7 @@ const searchQuery = ref('');
 
 const activeFilter = ref('all');
 
-const isNewPatientModalOpen = ref(false);
+const isPatientModalOpen = ref(false);
 
 const isMedicalFileModalOpen = ref(false);
 
@@ -87,7 +76,9 @@ const selectedPatientForFile = ref<any>(null);
 const selectedPatientToEdit = ref<any>(null);
 
 const patients = ref<any[]>([]);
-
+const patientsPage = ref(1);
+const patientsHasMore = ref(false);
+const patientsLoading = ref(false);
 const totalDisplayCount = ref(0);
 
 // 3. Computed (computed properties)
@@ -125,35 +116,55 @@ const filteredPatients = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-// Load backend patients
-const loadBackendPatients = async () => {
+// Load backend patients (10 by 10)
+const ADMIN_PATIENTS = async (page: any = 1) => {
+  const targetPage = typeof page === 'number' ? page : 1;
   try {
-    const res = await api.apiRequest({ service: 'ADMIN_PATIENTS' });
-    if (res?.status && Array.isArray(res?.data?.patients) && res.data.patients.length > 0) {
-      totalDisplayCount.value = res.data.total || res.data.patients.length;
-      patients.value = res.data.patients.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        avatar: p.avatar,
-        phone: p.phone,
-        mrn: p.mrn || '',
-        clinic: p.clinic || '',
-        insurance: p.insurance || '',
-        badge: p.badge || '',
-        national_id: p.national_id || '',
-        last_visit: p.last_visit || '',
-        next_appointment: p.next_appointment || '',
-        diagnosis: p.diagnosis || '',
-        is_today: !!p.is_today,
-        status: p.status || 'active',
-      }));
+    patientsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_PATIENTS',
+      filter: { page: targetPage, limit: 10 },
+    });
+    const raw = res?.data?.patients || (Array.isArray(res?.data) ? res.data : []);
+    totalDisplayCount.value = res?.data?.total || res?.total || raw.length;
+
+    const items = raw.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      avatar: p.avatar,
+      phone: p.phone,
+      mrn: p.mrn || '',
+      clinic: p.clinic || '',
+      insurance: p.insurance || '',
+      badge: p.badge || '',
+      national_id: p.national_id || '',
+      last_visit: p.last_visit || '',
+      next_appointment: p.next_appointment || '',
+      diagnosis: p.diagnosis || '',
+      is_today: !!p.is_today,
+      status: p.status || 'active',
+    }));
+
+    if (targetPage === 1) {
+      patients.value = items;
     } else {
+      patients.value.push(...items);
+    }
+    patientsPage.value = targetPage;
+    patientsHasMore.value = res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+  } catch (err) {
+    if (targetPage === 1) {
       patients.value = [];
       totalDisplayCount.value = 0;
     }
-  } catch (err) {
-    patients.value = [];
-    totalDisplayCount.value = 0;
+  } finally {
+    patientsLoading.value = false;
+  }
+};
+
+const loadMorePatients = () => {
+  if (patientsHasMore.value && !patientsLoading.value) {
+    ADMIN_PATIENTS(patientsPage.value + 1);
   }
 };
 
@@ -172,19 +183,7 @@ const resetFilters = () => {
 
 const openNewPatientModal = () => {
   selectedPatientToEdit.value = null;
-  isNewPatientModalOpen.value = true;
-};
-
-const onPatientCreated = (newPatient: any) => {
-  patients.value.unshift(newPatient);
-  totalDisplayCount.value += 1;
-};
-
-const onPatientUpdated = (updatedPatient: any) => {
-  const index = patients.value.findIndex(p => p.id === updatedPatient.id);
-  if (index !== -1) {
-    patients.value[index] = { ...patients.value[index], ...updatedPatient };
-  }
+  isPatientModalOpen.value = true;
 };
 
 const onViewMedicalFile = (patient: any) => {
@@ -200,14 +199,14 @@ const onBookAppointment = (patient: any) => {
 
 const onEditPatient = (patient: any) => {
   selectedPatientToEdit.value = patient;
-  isNewPatientModalOpen.value = true;
+  isPatientModalOpen.value = true;
 };
 
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadBackendPatients();
+  ADMIN_PATIENTS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

@@ -1,26 +1,35 @@
 <template>
   <div class="admin-examinations-list">
-    <!-- Examinations Cards List -->
-    <div v-if="examinations.length > 0" class="cards-list">
-      <AdminExaminationCard 
-        v-for="srv in examinations" 
-        :key="srv.id" 
-        :examination="srv" 
-        @toggle-status="emit('toggle-status', $event)"
-        @edit="emit('edit', $event)"
-      />
-    </div>
+    <AppVirtualList
+      :items="examinations"
+      :has-more="hasMore"
+      :loading="loading"
+      :page-size="10"
+      @load-more="emit('load-more')"
+    >
+      <template #item="{ item }">
+        <AdminExaminationCard 
+          :examination="item" 
+          @toggle-status="emit('toggle-status', $event)"
+          @edit="emit('edit', $event)"
+        />
+      </template>
 
-    <!-- Empty State for Examinations -->
-    <div v-else class="empty-state">
-      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-        <path d="m9 14 2 2 4-4"/>
-      </svg>
-      <h5>{{ t('No medical examinations registered yet') }}</h5>
-      <p>{{ t('Add medical examinations to enable appointments and patient bookings.') }}</p>
-    </div>
+      <template #empty>
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 18h8"/>
+            <path d="M3 22h18"/>
+            <path d="M14 22a7 7 0 1 0 0-14h-1"/>
+            <path d="M9 14h2"/>
+            <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/>
+            <path d="M12 6V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/>
+          </svg>
+          <h5>{{ t('No medical examinations registered yet') }}</h5>
+          <p>{{ t('Add medical examinations to enable appointments and patient bookings.') }}</p>
+        </div>
+      </template>
+    </AppVirtualList>
   </div>
 </template>
 
@@ -28,6 +37,7 @@
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 import AdminExaminationCard from './AdminExaminationCard.vue';
+import AppVirtualList from '../common/AppVirtualList.vue';
 
 interface Examination {
   id: string | number;
@@ -38,13 +48,23 @@ interface Examination {
   is_active: boolean;
 }
 
-const props = defineProps<{
-  examinations: Examination[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    examinations?: Examination[];
+    hasMore?: boolean;
+    loading?: boolean;
+  }>(),
+  {
+    examinations: () => [],
+    hasMore: false,
+    loading: false,
+  }
+);
 
 const emit = defineEmits<{
   (e: 'toggle-status', examination: Examination): void;
   (e: 'edit', examination: Examination): void;
+  (e: 'load-more'): void;
 }>();
 
 const { t } = useI18n();

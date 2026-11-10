@@ -7,43 +7,17 @@
       @toggle-sort="toggleSortOrder"
     />
 
-    <!-- 2. Bookings List (Direct Bookings Mode) -->
-    <div v-if="activeTab === 'bookings'" class="bookings-cards-list">
-      <AdminBookingCard 
-        v-for="(bk, index) in filteredBookings"
-        :key="bk.id || index"
-        :booking="bk"
-        :initially-expanded="index === 0"
-        @reschedule="openReschedule"
-        @download-invoice="downloadInvoice"
-      />
-    </div>
-
-    <!-- 3. Invoices List (Invoices & Billing Mode) -->
-    <div v-else class="invoices-mode-list">
-      <div v-for="inv in invoicesList" :key="inv.id" class="invoice-summary-card">
-        <div class="inv-top">
-          <div class="inv-id-name">
-            <strong>#{{ inv.invoice_number }}</strong>
-            <span>{{ inv.patient_name }}</span>
-          </div>
-          <span class="inv-badge" :class="inv.status === 'paid' ? 'paid' : 'pending'">
-            {{ inv.status === 'paid' ? t('Paid') : t('Pending') }}
-          </span>
-        </div>
-        <div class="inv-meta">
-          <small>{{ inv.service_name }}</small>
-          <strong class="inv-amount">{{ inv.amount }} {{ t('EGP') }}</strong>
-        </div>
-      </div>
-    </div>
-
-    <!-- Empty State -->
-    <div v-if="filteredBookings.length === 0" class="empty-bookings-state">
-      <i class="pi pi-calendar-times"></i>
-      <h5>{{ t('No bookings in this period') }}</h5>
-      <p>{{ t('Try selecting another time range or clear filters.') }}</p>
-    </div>
+    <!-- 2. Modular Bookings & Invoices Virtual List (10 by 10) -->
+    <AdminBookingsList
+      :active-tab="activeTab"
+      :bookings="filteredBookings"
+      :invoices="invoicesList"
+      :has-more="activeTab === 'bookings' ? bookingsHasMore : invoicesHasMore"
+      :loading="activeTab === 'bookings' ? bookingsLoading : invoicesLoading"
+      @reschedule="openReschedule"
+      @download-invoice="downloadInvoice"
+      @load-more="onLoadMore"
+    />
 
     <!-- Modal: Reschedule Booking -->
     <AdminRescheduleModal 
@@ -62,7 +36,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import AdminBookingsHeader from '../../components/admin/AdminBookingsHeader.vue';
-import AdminBookingCard from '../../components/admin/AdminBookingCard.vue';
+import AdminBookingsList from '../../components/admin/AdminBookingsList.vue';
 import AdminRescheduleModal from '../../components/admin/AdminRescheduleModal.vue';
 
 definePageMeta({
@@ -85,8 +59,14 @@ const isRescheduleModalOpen = ref(false);
 const selectedBookingForReschedule = ref<any>(null);
 
 const bookings = ref<any[]>([]);
+const bookingsPage = ref(1);
+const bookingsHasMore = ref(false);
+const bookingsLoading = ref(false);
 
 const invoicesList = ref<any[]>([]);
+const invoicesPage = ref(1);
+const invoicesHasMore = ref(false);
+const invoicesLoading = ref(false);
 
 // 3. Computed (computed properties)
 const filteredBookings = computed(() => {
@@ -102,58 +82,92 @@ const filteredBookings = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-// Load backend appointments
-const loadBackendAppointments = async () => {
+// Load backend appointments (10 by 10)
+const ADMIN_APPOINTMENTS = async (page = 1) => {
   try {
-    const res = await api.apiRequest({ service: 'ADMIN_APPOINTMENTS' });
+    bookingsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_APPOINTMENTS',
+      filter: { page, limit: 10 },
+    });
 
-    if (res?.status && res?.data?.appointments?.length) {
-      bookings.value = res.data.appointments.map((a: any, idx: number) => ({
-        id: a.id,
-        booking_number: `BK-${7830 + idx}`,
-        patient_name: a.patient?.name || '',
-        avatar: a.patient?.avatar,
-        time_badge: a.start_time || '',
-        clinic_name: a.service?.name || a.doctor?.specialty || '',
-        doctor_name: a.doctor?.name || '',
-        time: a.start_time || '',
-        status: a.status === 'confirmed' ? 'confirmed' : 'pending',
-        payment_method: a.payment_method || 'مدى',
-        price: a.service?.price || a.total || 0,
-        period: 'today',
-      }));
+    const raw = res?.data?.appointments || (Array.isArray(res?.data) ? res.data : []);
+    const items = raw.map((a: any, idx: number) => ({
+      id: a.id,
+      booking_number: `BK-${7830 + idx + (page - 1) * 10}`,
+      patient_name: a.patient?.name || '',
+      avatar: a.patient?.avatar,
+      time_badge: a.start_time || '',
+      clinic_name: a.service?.name || a.doctor?.specialty || '',
+      doctor_name: a.doctor?.name || '',
+      time: a.start_time || '',
+      status: a.status === 'confirmed' ? 'confirmed' : 'pending',
+      payment_method: a.payment_method || 'مدى',
+      price: a.service?.price || a.total || 0,
+      period: 'today',
+    }));
+
+    if (page === 1) {
+      bookings.value = items;
     } else {
-      bookings.value = [];
+      bookings.value.push(...items);
     }
+    bookingsPage.value = page;
+    bookingsHasMore.value = res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
-    bookings.value = [];
+    if (page === 1) bookings.value = [];
+  } finally {
+    bookingsLoading.value = false;
   }
 };
 
-const loadBackendInvoices = async () => {
+const ADMIN_BILLING_INVOICES = async (page = 1) => {
   try {
-    const res = await api.apiRequest({ service: 'ADMIN_BILLING_INVOICES' });
-    if (res?.status && res?.data?.invoices) {
-      invoicesList.value = res.data.invoices.map((inv: any) => ({
-        id: inv.id,
-        invoice_number: inv.invoice_number || inv.id,
-        patient_name: inv.patient?.name || '',
-        status: inv.status || 'paid',
-        service_name: inv.appointment?.service?.name || t('Medical Consultation'),
-        amount: inv.total || 0,
-      }));
+    invoicesLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_BILLING_INVOICES',
+      filter: { page, limit: 10 },
+    });
+    const raw = res?.data?.invoices || (Array.isArray(res?.data) ? res.data : []);
+    const items = raw.map((inv: any) => ({
+      id: inv.id,
+      invoice_number: inv.invoice_number || inv.id,
+      patient_name: inv.patient?.name || '',
+      status: inv.status || 'paid',
+      service_name: inv.appointment?.service?.name || t('Medical Consultation'),
+      amount: inv.total || 0,
+    }));
+
+    if (page === 1) {
+      invoicesList.value = items;
     } else {
-      invoicesList.value = [];
+      invoicesList.value.push(...items);
     }
+    invoicesPage.value = page;
+    invoicesHasMore.value = res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
-    invoicesList.value = [];
+    if (page === 1) invoicesList.value = [];
+  } finally {
+    invoicesLoading.value = false;
+  }
+};
+
+const onLoadMore = () => {
+  if (activeTab.value === 'bookings') {
+    if (bookingsHasMore.value && !bookingsLoading.value) {
+      ADMIN_APPOINTMENTS(bookingsPage.value + 1);
+    }
+  } else {
+    if (invoicesHasMore.value && !invoicesLoading.value) {
+      ADMIN_BILLING_INVOICES(invoicesPage.value + 1);
+    }
   }
 };
 
 const onTabChange = (tab: 'bookings' | 'invoices') => {
   activeTab.value = tab;
   if (tab === 'invoices' && invoicesList.value.length === 0) {
-    loadBackendInvoices();
+    ADMIN_BILLING_INVOICES();
   }
 };
 
@@ -199,7 +213,7 @@ const downloadInvoice = (booking: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadBackendAppointments();
+  ADMIN_APPOINTMENTS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

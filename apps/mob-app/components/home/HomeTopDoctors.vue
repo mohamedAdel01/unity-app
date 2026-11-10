@@ -99,7 +99,7 @@ const filteredDoctors = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-const loadDoctors = async () => {
+const DOCTORS = async () => {
   try {
     const res = await api.apiRequest({ service: 'DOCTORS' });
     if (res && res.status && Array.isArray(res.data)) {
@@ -129,7 +129,7 @@ const bookDoctor = (doctor: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadDoctors();
+  DOCTORS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

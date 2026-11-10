@@ -4,9 +4,11 @@
     <RecordsTabs v-model="activeTab" />
     <RecordsList 
       :items="currentItems" 
-      :loading="isLoading" 
+      :loading="isLoading || recordsLoading" 
+      :has-more="recordsHasMore"
       @download="onDownload" 
       @view="onView" 
+      @load-more="loadMoreRecords"
     />
   </div>
 </template>
@@ -39,6 +41,9 @@ const reportsData = ref<any[]>([]);
 const labsData = ref<any[]>([]);
 
 const prescriptionsData = ref<any[]>([]);
+const recordsPage = ref(1);
+const recordsHasMore = ref(false);
+const recordsLoading = ref(false);
 
 // 3. Computed (computed properties)
 const isLoading = computed(() => globalStore.loading.includes('records'));
@@ -50,22 +55,43 @@ const currentItems = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-const loadRecords = async () => {
+const PATIENT_RECORDS = async (page = 1) => {
   try {
-    const res = await api.apiRequest({ service: 'PATIENT_RECORDS' });
-    if (res?.status && Array.isArray(res.data)) {
-      reportsData.value = res.data.filter((r: any) => r.type === 'report');
-      labsData.value = res.data.filter((r: any) => r.type === 'lab');
-      prescriptionsData.value = res.data.filter((r: any) => r.type === 'prescription');
+    recordsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'PATIENT_RECORDS',
+      filter: { page, limit: 10 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    const newReports = raw.filter((r: any) => r.type === 'report');
+    const newLabs = raw.filter((r: any) => r.type === 'lab');
+    const newPresc = raw.filter((r: any) => r.type === 'prescription');
+
+    if (page === 1) {
+      reportsData.value = newReports;
+      labsData.value = newLabs;
+      prescriptionsData.value = newPresc;
     } else {
+      reportsData.value.push(...newReports);
+      labsData.value.push(...newLabs);
+      prescriptionsData.value.push(...newPresc);
+    }
+    recordsPage.value = page;
+    recordsHasMore.value = res?.hasMore ?? (raw.length >= 10);
+  } catch (e) {
+    if (page === 1) {
       reportsData.value = [];
       labsData.value = [];
       prescriptionsData.value = [];
     }
-  } catch (e) {
-    reportsData.value = [];
-    labsData.value = [];
-    prescriptionsData.value = [];
+  } finally {
+    recordsLoading.value = false;
+  }
+};
+
+const loadMoreRecords = () => {
+  if (recordsHasMore.value && !recordsLoading.value) {
+    PATIENT_RECORDS(recordsPage.value + 1);
   }
 };
 
@@ -81,7 +107,7 @@ const onView = (item: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadRecords();
+  PATIENT_RECORDS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

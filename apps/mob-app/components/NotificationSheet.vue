@@ -124,7 +124,7 @@ const unreadCount = computed(() => {
 
 // 4. Methods (functions, handlers)
 // Fetch notifications only if user is logged in
-const loadNotifications = async () => {
+const NOTIFICATIONS = async () => {
   if (!authStore.isAuthenticated) {
     notifications.value = [];
     emit('count-changed', 0);
@@ -212,13 +212,13 @@ const formatTime = (isoString: string) => {
 // 5. Watches (watch, watchEffect)
 watch(() => props.modelValue, (newVal) => {
   if (newVal && authStore.isAuthenticated) {
-    loadNotifications();
+    NOTIFICATIONS();
   }
 });
 
 watch(() => authStore.isAuthenticated, (isAuth) => {
   if (isAuth) {
-    loadNotifications();
+    NOTIFICATIONS();
   } else {
     notifications.value = [];
     emit('count-changed', 0);
@@ -228,7 +228,7 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   if (authStore.isAuthenticated) {
-    loadNotifications();
+    NOTIFICATIONS();
   }
 });
 

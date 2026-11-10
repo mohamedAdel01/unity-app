@@ -200,7 +200,7 @@ const broadcastBody = ref('');
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
-const loadDashboardData = async () => {
+const ADMIN_DASHBOARD = async () => {
   try {
     const res = await api.apiRequest({ service: 'ADMIN_DASHBOARD' });
     if (res?.status && res?.data?.kpis) {
@@ -241,7 +241,7 @@ const sendBroadcastNotification = async () => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadDashboardData();
+  ADMIN_DASHBOARD();
 });
 
 // 7. Meta (useHead, useSeoMeta)

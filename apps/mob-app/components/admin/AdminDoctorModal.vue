@@ -130,7 +130,7 @@ const close = () => {
   emit('close');
 };
 
-const loadClinics = async () => {
+const ADMIN_CLINICS = async () => {
   try {
     const res = await api.apiRequest({ service: 'ADMIN_CLINICS' });
     if (res?.status && Array.isArray(res?.data)) {
@@ -234,7 +234,7 @@ watch(
   (open) => {
     if (open) {
       if (clinics.value.length === 0) {
-        loadClinics();
+        ADMIN_CLINICS();
       }
       if (!props.doctor) {
         form.value = {
@@ -250,7 +250,7 @@ watch(
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadClinics();
+  ADMIN_CLINICS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

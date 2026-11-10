@@ -9,32 +9,18 @@
       @new-doctor="openNewDoctorModal"
     />
 
-    <!-- 2. Doctors List -->
-    <div v-if="filteredDoctors.length > 0" class="doctors-cards-list">
-      <AdminDoctorCard 
-        v-for="doc in filteredDoctors" 
-        :key="doc.id"
-        :doctor="doc"
-        @edit="openEditDoctor"
-        @edit-schedule="openEditSchedule"
-        @view-cases="onViewCases"
-        @toggle-status="onToggleDoctorStatus"
-      />
-    </div>
-
-    <!-- Empty State -->
-    <div v-else class="empty-doctors-state">
-      <i class="pi pi-search"></i>
-      <h5>{{ t('No doctors match your criteria') }}</h5>
-      <p>{{ t('Try searching for another name, specialty, or clinic room.') }}</p>
-      <button class="btn-reset" @click="resetFilters">{{ t('Reset') }}</button>
-    </div>
-
-    <!-- 3. Bottom Auto-Sync Strip -->
-    <div class="bottom-sync-notice">
-      <i class="pi pi-sync spin-hover"></i>
-      <span>{{ t('Doctor schedules auto-sync with booking calendar') }}</span>
-    </div>
+    <!-- 2. Modular Doctors Virtual List (10 by 10) -->
+    <AdminDoctorsList
+      :doctors="filteredDoctors"
+      :has-more="doctorsHasMore"
+      :loading="doctorsLoading"
+      @edit="openEditDoctor"
+      @edit-schedule="openEditSchedule"
+      @view-cases="onViewCases"
+      @toggle-status="onToggleDoctorStatus"
+      @load-more="loadMoreDoctors"
+      @reset="resetFilters"
+    />
 
     <!-- Modal: Edit Schedule -->
     <AdminEditScheduleModal 
@@ -45,12 +31,12 @@
     />
 
     <!-- Modal: Add / Edit Doctor -->
-    <AdminNewDoctorModal 
-      :is-open="isNewDoctorModalOpen"
+    <AdminDoctorModal 
+      :is-open="isDoctorModalOpen"
       :doctor="selectedDoctorToEdit"
-      @close="isNewDoctorModalOpen = false"
-      @created="onDoctorCreated"
-      @updated="onDoctorUpdated"
+      @close="isDoctorModalOpen = false"
+      @created="ADMIN_DOCTORS()"
+      @updated="ADMIN_DOCTORS()"
     />
   </div>
 </template>
@@ -62,9 +48,9 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import AdminDoctorsHeader from '../../components/admin/AdminDoctorsHeader.vue';
-import AdminDoctorCard from '../../components/admin/AdminDoctorCard.vue';
+import AdminDoctorsList from '../../components/admin/AdminDoctorsList.vue';
 import AdminEditScheduleModal from '../../components/admin/AdminEditScheduleModal.vue';
-import AdminNewDoctorModal from '../../components/admin/AdminNewDoctorModal.vue';
+import AdminDoctorModal from '../../components/admin/AdminDoctorModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -83,12 +69,15 @@ const activeFilter = ref('all');
 
 const isEditScheduleModalOpen = ref(false);
 
-const isNewDoctorModalOpen = ref(false);
+const isDoctorModalOpen = ref(false);
 
 const selectedDoctorForSchedule = ref<any>(null);
 const selectedDoctorToEdit = ref<any>(null);
 
 const doctors = ref<any[]>([]);
+const doctorsPage = ref(1);
+const doctorsHasMore = ref(false);
+const doctorsLoading = ref(false);
 
 // 3. Computed (computed properties)
 const activeDoctorsCount = computed(() => {
@@ -118,31 +107,49 @@ const filteredDoctors = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-// Load backend doctors
-const loadBackendDoctors = async () => {
+// Load backend doctors (10 by 10)
+const ADMIN_DOCTORS = async (page: any = 1) => {
+  const targetPage = typeof page === 'number' ? page : 1;
   try {
-    const res = await api.apiRequest({ service: 'ADMIN_DOCTORS' });
+    doctorsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_DOCTORS',
+      filter: { page: targetPage, limit: 10 },
+    });
 
-    if (res?.status && Array.isArray(res?.data) && res.data.length > 0) {
-      doctors.value = res.data.map((d: any) => ({
-        id: d.id,
-        name: d.user?.name || d.name,
-        avatar: d.user?.avatar || d.avatar,
-        specialty: d.clinic?.name || d.specialty || '',
-        room: d.room || '',
-        category: 'cardio_internal',
-        status_badge: d.user?.status === 'active' ? t('Open Clinic') : t('Unavailable'),
-        schedule_time: '',
-        cases_count: d._count?.appointments || 0,
-        is_active: d.user?.status === 'active',
-        is_evening: false,
-        primary_action: false,
-      }));
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    const items = raw.map((d: any) => ({
+      id: d.id,
+      name: d.user?.name || d.name,
+      avatar: d.user?.avatar || d.avatar,
+      specialty: d.clinic?.name || d.specialty || '',
+      room: d.room || '',
+      category: 'cardio_internal',
+      status_badge: d.user?.status === 'active' ? t('Open Clinic') : t('Unavailable'),
+      schedule_time: '',
+      cases_count: d._count?.appointments || 0,
+      is_active: d.user?.status === 'active',
+      is_evening: false,
+      primary_action: false,
+    }));
+
+    if (targetPage === 1) {
+      doctors.value = items;
     } else {
-      doctors.value = [];
+      doctors.value.push(...items);
     }
+    doctorsPage.value = targetPage;
+    doctorsHasMore.value = res?.hasMore ?? (items.length >= 10);
   } catch (err) {
-    doctors.value = [];
+    if (targetPage === 1) doctors.value = [];
+  } finally {
+    doctorsLoading.value = false;
+  }
+};
+
+const loadMoreDoctors = () => {
+  if (doctorsHasMore.value && !doctorsLoading.value) {
+    ADMIN_DOCTORS(doctorsPage.value + 1);
   }
 };
 
@@ -198,23 +205,12 @@ const onScheduleUpdated = async (payload: any) => {
 
 const openNewDoctorModal = () => {
   selectedDoctorToEdit.value = null;
-  isNewDoctorModalOpen.value = true;
+  isDoctorModalOpen.value = true;
 };
 
 const openEditDoctor = (doc: any) => {
   selectedDoctorToEdit.value = doc;
-  isNewDoctorModalOpen.value = true;
-};
-
-const onDoctorCreated = (newDoc: any) => {
-  doctors.value.unshift(newDoc);
-};
-
-const onDoctorUpdated = (updatedDoc: any) => {
-  const index = doctors.value.findIndex(d => d.id === updatedDoc.id);
-  if (index !== -1) {
-    doctors.value[index] = { ...doctors.value[index], ...updatedDoc };
-  }
+  isDoctorModalOpen.value = true;
 };
 
 const onViewCases = (doc: any) => {
@@ -266,7 +262,7 @@ const onToggleDoctorStatus = (doc: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadBackendDoctors();
+  ADMIN_DOCTORS();
 });
 
 onBeforeUnmount(() => {

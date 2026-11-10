@@ -1,28 +1,34 @@
 <template>
   <div class="admin-clinics-list">
-    <!-- Clinics Cards List -->
-    <div v-if="clinics.length > 0" class="cards-list">
-      <AdminClinicCard 
-        v-for="clinic in clinics" 
-        :key="clinic.id" 
-        :clinic="clinic" 
-        @toggle-status="emit('toggle-status', $event)"
-        @edit="emit('edit', $event)"
-      />
-    </div>
+    <AppVirtualList
+      :items="clinics"
+      :has-more="hasMore"
+      :loading="loading"
+      :page-size="10"
+      @load-more="emit('load-more')"
+    >
+      <template #item="{ item }">
+        <AdminClinicCard 
+          :clinic="item" 
+          @toggle-status="emit('toggle-status', $event)"
+          @edit="emit('edit', $event)"
+        />
+      </template>
 
-    <!-- Empty State for Clinics -->
-    <div v-else class="empty-state">
-      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 21h18"/>
-        <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
-        <path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
-        <path d="M10 9h4"/>
-        <path d="M12 7v4"/>
-      </svg>
-      <h5>{{ t('No clinics registered yet') }}</h5>
-      <p>{{ t('Add specialized clinics to start assigning doctors and services.') }}</p>
-    </div>
+      <template #empty>
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/>
+            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/>
+            <path d="M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4"/>
+            <path d="M10 9h4"/>
+            <path d="M12 7v4"/>
+          </svg>
+          <h5>{{ t('No clinics registered yet') }}</h5>
+          <p>{{ t('Add specialized clinics to start assigning doctors and services.') }}</p>
+        </div>
+      </template>
+    </AppVirtualList>
   </div>
 </template>
 
@@ -30,6 +36,7 @@
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
 import AdminClinicCard from './AdminClinicCard.vue';
+import AppVirtualList from '../common/AppVirtualList.vue';
 
 interface Clinic {
   id: string | number;
@@ -38,13 +45,23 @@ interface Clinic {
   is_active: boolean;
 }
 
-const props = defineProps<{
-  clinics: Clinic[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    clinics?: Clinic[];
+    hasMore?: boolean;
+    loading?: boolean;
+  }>(),
+  {
+    clinics: () => [],
+    hasMore: false,
+    loading: false,
+  }
+);
 
 const emit = defineEmits<{
   (e: 'toggle-status', clinic: Clinic): void;
   (e: 'edit', clinic: Clinic): void;
+  (e: 'load-more'): void;
 }>();
 
 const { t } = useI18n();

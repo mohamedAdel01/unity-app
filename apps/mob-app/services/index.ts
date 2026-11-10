@@ -1,3 +1,15 @@
+const toQuery = (filter?: any): string => {
+  if (!filter || typeof filter !== 'object') return '';
+  const params = new URLSearchParams();
+  for (const [key, val] of Object.entries(filter)) {
+    if (val !== undefined && val !== null && val !== '') {
+      params.append(key, String(val));
+    }
+  }
+  const str = params.toString();
+  return str ? `?${str}` : '';
+};
+
 export default {
   // ==========================================
   // 1. AUTHENTICATION SERVICES
@@ -76,8 +88,8 @@ export default {
     });
   },
 
-  async SERVICES({ API }: { API: any }) {
-    return await API('client/examinations', {
+  async SERVICES({ API, filter }: { API: any; filter?: any }) {
+    return await API(`client/examinations${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -89,8 +101,7 @@ export default {
   },
 
   async DOCTORS({ API, filter }: { API: any; filter?: any }) {
-    const query = filter?.clinic_id ? `?clinic_id=${filter.clinic_id}` : '';
-    return await API(`client/doctors${query}`, {
+    return await API(`client/doctors${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -118,8 +129,8 @@ export default {
     });
   },
 
-  async PATIENT_APPOINTMENTS({ API }: { API: any }) {
-    return await API('client/appointments', {
+  async PATIENT_APPOINTMENTS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`client/appointments${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -139,20 +150,20 @@ export default {
   // ==========================================
   // 4. CLIENT PATIENT RECORDS, INVOICES & NOTIFICATIONS
   // ==========================================
-  async PATIENT_RECORDS({ API }: { API: any }) {
-    return await API('client/patient/medical-records', {
+  async PATIENT_RECORDS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`client/patient/medical-records${toQuery(filter)}`, {
       method: 'GET',
     });
   },
 
-  async PATIENT_INVOICES({ API }: { API: any }) {
-    return await API('client/patient/invoices', {
+  async PATIENT_INVOICES({ API, filter }: { API: any; filter?: any }) {
+    return await API(`client/patient/invoices${toQuery(filter)}`, {
       method: 'GET',
     });
   },
 
-  async NOTIFICATIONS({ API }: { API: any }) {
-    return await API('client/notifications', {
+  async NOTIFICATIONS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`client/notifications${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -194,8 +205,8 @@ export default {
   // ==========================================
   // 6. ADMIN PATIENTS MANAGEMENT
   // ==========================================
-  async ADMIN_PATIENTS({ API }: { API: any }) {
-    return await API('admin/patients', {
+  async ADMIN_PATIENTS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/patients${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -224,8 +235,8 @@ export default {
   // ==========================================
   // 7. ADMIN DOCTORS & SCHEDULES
   // ==========================================
-  async ADMIN_DOCTORS({ API }: { API: any }) {
-    return await API('admin/doctors', {
+  async ADMIN_DOCTORS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/doctors${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -280,8 +291,8 @@ export default {
   // ==========================================
   // 8. ADMIN CLINICS MANAGEMENT
   // ==========================================
-  async ADMIN_CLINICS({ API }: { API: any }) {
-    return await API('admin/clinics', {
+  async ADMIN_CLINICS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/clinics${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -311,8 +322,8 @@ export default {
   // ==========================================
   // 9. ADMIN MEDICAL EXAMINATIONS MANAGEMENT
   // ==========================================
-  async ADMIN_EXAMINATIONS({ API }: { API: any }) {
-    return await API('admin/examinations', {
+  async ADMIN_EXAMINATIONS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/examinations${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -346,8 +357,8 @@ export default {
   },
 
   // Aliases for Services
-  async ADMIN_SERVICES({ API }: { API: any }) {
-    return await API('admin/examinations', {
+  async ADMIN_SERVICES({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/examinations${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -382,8 +393,8 @@ export default {
   // ==========================================
   // 10. ADMIN APPOINTMENTS MANAGEMENT
   // ==========================================
-  async ADMIN_APPOINTMENTS({ API }: { API: any }) {
-    return await API('admin/appointments', {
+  async ADMIN_APPOINTMENTS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/appointments${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -411,8 +422,8 @@ export default {
   // ==========================================
   // 11. ADMIN BILLING & INVOICES
   // ==========================================
-  async ADMIN_BILLING_INVOICES({ API }: { API: any }) {
-    return await API('admin/billing/invoices', {
+  async ADMIN_BILLING_INVOICES({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/billing/invoices${toQuery(filter)}`, {
       method: 'GET',
     });
   },

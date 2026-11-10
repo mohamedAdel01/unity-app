@@ -26,7 +26,7 @@ const loading = ref(false);
 const onRefresh = async () => {
   if (listRef.value) {
     loading.value = true;
-    await listRef.value.loadAppointments();
+    await (listRef.value.PATIENT_APPOINTMENTS ? listRef.value.PATIENT_APPOINTMENTS() : listRef.value.loadAppointments());
     loading.value = false;
   }
 };

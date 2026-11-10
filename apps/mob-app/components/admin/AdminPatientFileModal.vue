@@ -186,7 +186,7 @@ const isUpcoming = (status?: string) => {
   return status === 'scheduled' || status === 'confirmed';
 };
 
-const fetchPatientDetails = async () => {
+const ADMIN_PATIENT_BY_ID = async () => {
   if (!props.patient?.id) return;
   loadingDetails.value = true;
   try {
@@ -216,7 +216,7 @@ watch(
   () => props.isOpen,
   (open) => {
     if (open && props.patient?.id) {
-      fetchPatientDetails();
+      ADMIN_PATIENT_BY_ID();
     } else {
       detailedAppointments.value = [];
     }

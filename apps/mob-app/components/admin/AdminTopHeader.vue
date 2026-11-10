@@ -14,14 +14,13 @@
       </div>
     </div>
 
-    <!-- Left: Switch back to Patient Mode (Unified Pill with Text & Icon) -->
+    <!-- Left: Switch back to Patient Mode (Icon only, Red) -->
     <button 
       class="switch-patient-mode-btn" 
       :aria-label="t('Patient Mode')" 
       :title="t('Patient Mode')" 
       @click="router.push('/')"
     >
-      <span class="btn-text">{{ t('Patient Mode') }}</span>
       <i class="pi pi-sign-out"></i>
     </button>
   </div>
@@ -135,40 +134,40 @@ const { t } = useI18n();
   }
 
   .switch-patient-mode-btn {
-    height: 36px;
-    padding: 0 12px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
     border-radius: 12px;
-    background: #ecfdf5;
-    border: 1.5px solid #a7f3d0;
-    color: #047857;
+    background: #fef2f2;
+    border: 1.5px solid #fecaca;
+    color: #ef4444;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.08);
     transition: all 0.2s ease;
     flex-shrink: 0;
-    font-size: 0.78rem;
-    font-weight: 700;
-
-    .btn-text {
-      white-space: nowrap;
-    }
 
     i {
-      font-size: 0.95rem;
-      color: #047857;
-      transition: color 0.2s ease;
+      font-size: 1.05rem;
+      color: #ef4444;
+      transition: all 0.2s ease;
     }
 
     &:hover {
-      background: #d1fae5;
-      border-color: #6ee7b7;
-      color: #065f46;
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #dc2626;
 
       i {
-        color: #065f46;
+        color: #dc2626;
+        transform: scale(1.08);
       }
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 }

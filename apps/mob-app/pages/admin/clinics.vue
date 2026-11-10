@@ -12,31 +12,37 @@
     <AdminClinicsList
       v-if="activeTab === 'clinics'"
       :clinics="clinics"
+      :has-more="clinicsHasMore"
+      :loading="clinicsLoading"
       @toggle-status="toggleClinicStatus"
       @edit="openEditClinicModal"
+      @load-more="loadMoreClinics"
     />
 
     <AdminExaminationsList
       v-else-if="activeTab === 'services'"
       :examinations="services"
+      :has-more="servicesHasMore"
+      :loading="servicesLoading"
       @toggle-status="toggleServiceStatus"
       @edit="openEditExaminationModal"
+      @load-more="loadMoreExaminations"
     />
 
-    <AdminNewClinicModal
-      :is-open="isNewClinicModalOpen"
+    <AdminClinicModal
+      :is-open="isClinicModalOpen"
       :clinic="selectedClinicToEdit"
-      @close="isNewClinicModalOpen = false"
-      @created="onClinicCreated"
-      @updated="onClinicUpdated"
+      @close="isClinicModalOpen = false"
+      @created="ADMIN_CLINICS()"
+      @updated="ADMIN_CLINICS()"
     />
 
-    <AdminNewExaminationModal
-      :is-open="isNewServiceModalOpen"
+    <AdminExaminationModal
+      :is-open="isExaminationModalOpen"
       :examination="selectedExaminationToEdit"
-      @close="isNewServiceModalOpen = false"
-      @created="onExaminationCreated"
-      @updated="onExaminationUpdated"
+      @close="isExaminationModalOpen = false"
+      @created="ADMIN_EXAMINATIONS()"
+      @updated="ADMIN_EXAMINATIONS()"
     />
   </div>
 </template>
@@ -50,8 +56,8 @@ import { useAppToast } from '../../composables/useAppToast';
 import AdminClinicsHeader from '../../components/admin/AdminClinicsHeader.vue';
 import AdminClinicsList from '../../components/admin/AdminClinicsList.vue';
 import AdminExaminationsList from '../../components/admin/AdminExaminationsList.vue';
-import AdminNewClinicModal from '../../components/admin/AdminNewClinicModal.vue';
-import AdminNewExaminationModal from '../../components/admin/AdminNewExaminationModal.vue';
+import AdminClinicModal from '../../components/admin/AdminClinicModal.vue';
+import AdminExaminationModal from '../../components/admin/AdminExaminationModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -65,8 +71,14 @@ const toast = useAppToast();
 const activeTab = ref<'clinics' | 'services'>('clinics');
 const clinics = ref<any[]>([]);
 const services = ref<any[]>([]);
-const isNewClinicModalOpen = ref(false);
-const isNewServiceModalOpen = ref(false);
+const clinicsPage = ref(1);
+const clinicsHasMore = ref(false);
+const clinicsLoading = ref(false);
+const servicesPage = ref(1);
+const servicesHasMore = ref(false);
+const servicesLoading = ref(false);
+const isClinicModalOpen = ref(false);
+const isExaminationModalOpen = ref(false);
 const selectedClinicToEdit = ref<any | null>(null);
 const selectedExaminationToEdit = ref<any | null>(null);
 
@@ -82,77 +94,95 @@ const serviceOriginalStates: Record<string | number, boolean> = {};
 // 4. Methods (functions, handlers)
 const openNewClinicModal = () => {
   selectedClinicToEdit.value = null;
-  isNewClinicModalOpen.value = true;
+  isClinicModalOpen.value = true;
 };
 
 const openEditClinicModal = (clinic: any) => {
   selectedClinicToEdit.value = clinic;
-  isNewClinicModalOpen.value = true;
-};
-
-const onClinicCreated = (newClinic: any) => {
-  clinics.value.push(newClinic);
-};
-
-const onClinicUpdated = (updatedClinic: any) => {
-  const index = clinics.value.findIndex((c) => c.id === updatedClinic.id);
-  if (index !== -1) {
-    clinics.value[index] = { ...clinics.value[index], ...updatedClinic };
-  }
+  isClinicModalOpen.value = true;
 };
 
 const openNewExaminationModal = () => {
   selectedExaminationToEdit.value = null;
-  isNewServiceModalOpen.value = true;
+  isExaminationModalOpen.value = true;
 };
 
 const openEditExaminationModal = (srv: any) => {
   selectedExaminationToEdit.value = srv;
-  isNewServiceModalOpen.value = true;
+  isExaminationModalOpen.value = true;
 };
 
-const onExaminationCreated = (newExam: any) => {
-  services.value.unshift(newExam);
-};
+const ADMIN_CLINICS = async (page: any = 1) => {
+  const targetPage = typeof page === 'number' ? page : 1;
+  try {
+    clinicsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_CLINICS',
+      filter: { page: targetPage, limit: 10 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    const items = raw.map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      doctors_count: c._count?.doctors || 0,
+      is_active: c.is_active ?? true,
+    }));
 
-const onExaminationUpdated = (updatedExam: any) => {
-  const index = services.value.findIndex((s) => s.id === updatedExam.id);
-  if (index !== -1) {
-    services.value[index] = { ...services.value[index], ...updatedExam };
+    if (targetPage === 1) {
+      clinics.value = items;
+    } else {
+      clinics.value.push(...items);
+    }
+    clinicsPage.value = targetPage;
+    clinicsHasMore.value = res?.hasMore ?? (items.length >= 10);
+  } catch (err) {
+    if (targetPage === 1) clinics.value = [];
+  } finally {
+    clinicsLoading.value = false;
   }
 };
 
-const loadBackendClinics = async () => {
-  try {
-    const res = await api.apiRequest({ service: 'ADMIN_CLINICS' });
-    if (res?.data && Array.isArray(res.data)) {
-      clinics.value = res.data.map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        doctors_count: c._count?.doctors || 0,
-        is_active: c.is_active ?? true,
-      }));
-    }
-  } catch (err) {
-    clinics.value = [];
+const loadMoreClinics = () => {
+  if (clinicsHasMore.value && !clinicsLoading.value) {
+    ADMIN_CLINICS(clinicsPage.value + 1);
   }
 };
 
-const loadBackendServices = async () => {
+const ADMIN_EXAMINATIONS = async (page: any = 1) => {
+  const targetPage = typeof page === 'number' ? page : 1;
   try {
-    const res = await api.apiRequest({ service: 'ADMIN_EXAMINATIONS' });
-    if (res?.data && Array.isArray(res.data)) {
-      services.value = res.data.map((s: any) => ({
-        id: s.id,
-        name: s.name,
-        price: s.price,
-        duration: s.duration,
-        description: s.description,
-        is_active: s.is_active ?? true,
-      }));
+    servicesLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_EXAMINATIONS',
+      filter: { page: targetPage, limit: 10 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    const items = raw.map((s: any) => ({
+      id: s.id,
+      name: s.name,
+      price: s.price,
+      duration: s.duration,
+      description: s.description,
+      is_active: s.is_active ?? true,
+    }));
+
+    if (targetPage === 1) {
+      services.value = items;
+    } else {
+      services.value.push(...items);
     }
+    servicesPage.value = targetPage;
+    servicesHasMore.value = res?.hasMore ?? (items.length >= 10);
   } catch (err) {
-    services.value = [];
+    if (targetPage === 1) services.value = [];
+  } finally {
+    servicesLoading.value = false;
+  }
+};
+
+const loadMoreExaminations = () => {
+  if (servicesHasMore.value && !servicesLoading.value) {
+    ADMIN_EXAMINATIONS(servicesPage.value + 1);
   }
 };
 
@@ -236,8 +266,8 @@ const toggleServiceStatus = (srv: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadBackendClinics();
-  loadBackendServices();
+  ADMIN_CLINICS();
+  ADMIN_EXAMINATIONS();
 });
 
 onBeforeUnmount(() => {

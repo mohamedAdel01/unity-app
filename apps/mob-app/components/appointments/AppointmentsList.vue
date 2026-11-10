@@ -29,29 +29,16 @@
       </button>
     </div>
 
-    <!-- Content List -->
-    <div v-if="globalStore.loading.includes('appointments')" class="loading-state">
-      <i class="pi pi-spin pi-spinner"></i>
-      <span>{{ t('Loading...') }}</span>
-    </div>
-
-    <div v-else-if="currentList.length === 0" class="empty-state">
-      <div class="empty-icon-wrap">
-        <i class="pi pi-calendar-times"></i>
-      </div>
-      <h4>{{ t('No appointments in this section') }}</h4>
-      <p>{{ t('You can book a new appointment anytime with our top specialists') }}</p>
-      <button class="book-now-btn" @click="bookingModal.openQuickBook">
-        {{ t('Book Appointment Now') }}
-      </button>
-    </div>
-
-    <div v-else class="cards-stack">
-      <div 
-        v-for="apt in currentList" 
-        :key="apt.id" 
-        class="appointment-item-card"
-      >
+    <!-- Content Virtual List (10 by 10) -->
+    <AppVirtualList
+      :items="currentList"
+      :has-more="appointmentsHasMore"
+      :loading="appointmentsLoading || globalStore.loading.includes('appointments')"
+      :page-size="10"
+      @load-more="loadMoreAppointments"
+    >
+      <template #item="{ item: apt }">
+        <div class="appointment-item-card">
         <!-- Card Header -->
         <div class="card-head">
           <div class="status-badge" :class="getStatusClass(apt.status)">
@@ -130,7 +117,21 @@
           </template>
         </div>
       </div>
-    </div>
+    </template>
+
+      <template #empty>
+        <div class="empty-state">
+          <div class="empty-icon-wrap">
+            <i class="pi pi-calendar-times"></i>
+          </div>
+          <h4>{{ t('No appointments in this section') }}</h4>
+          <p>{{ t('You can book a new appointment anytime with our top specialists') }}</p>
+          <button class="book-now-btn" @click="bookingModal.openQuickBook">
+            {{ t('Book Appointment Now') }}
+          </button>
+        </div>
+      </template>
+    </AppVirtualList>
 
     <!-- Confirmation Popup for Cancelling Appointment -->
     <AppConfirmModal
@@ -185,9 +186,11 @@ import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
 import { useAppToast } from '../../composables/useAppToast';
 import AppConfirmModal from '../common/AppConfirmModal.vue';
+import AppVirtualList from '../common/AppVirtualList.vue';
 
 defineExpose({
-  loadAppointments,
+  PATIENT_APPOINTMENTS,
+  loadAppointments: PATIENT_APPOINTMENTS,
 });
 
 const api = useUnityApi();
@@ -204,6 +207,9 @@ const toast = useAppToast();
 const activeTab = ref<'upcoming' | 'completed' | 'cancelled'>('upcoming');
 
 const appointments = ref<any[]>([]);
+const appointmentsPage = ref(1);
+const appointmentsHasMore = ref(false);
+const appointmentsLoading = ref(false);
 
 const cancellingId = ref<string | null>(null);
 
@@ -231,16 +237,31 @@ const currentList = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-const loadAppointments = async () => {
+const PATIENT_APPOINTMENTS = async (page = 1) => {
   try {
-    const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
-    if (res && res.status && Array.isArray(res.data)) {
-      appointments.value = res.data;
+    appointmentsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'PATIENT_APPOINTMENTS',
+      filter: { page, limit: 10 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    if (page === 1) {
+      appointments.value = raw;
     } else {
-      appointments.value = [];
+      appointments.value.push(...raw);
     }
+    appointmentsPage.value = page;
+    appointmentsHasMore.value = res?.hasMore ?? (raw.length >= 10);
   } catch (err) {
-    appointments.value = [];
+    if (page === 1) appointments.value = [];
+  } finally {
+    appointmentsLoading.value = false;
+  }
+};
+
+const loadMoreAppointments = () => {
+  if (appointmentsHasMore.value && !appointmentsLoading.value) {
+    PATIENT_APPOINTMENTS(appointmentsPage.value + 1);
   }
 };
 
@@ -309,7 +330,7 @@ const viewReport = (apt: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadAppointments();
+  PATIENT_APPOINTMENTS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

@@ -75,7 +75,7 @@ const pastAppointments = ref<any[]>([]);
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
-const loadPastAppointments = async () => {
+const PATIENT_APPOINTMENTS = async () => {
   try {
     const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
     if (res && res.status && Array.isArray(res.data) && res.data.length > 0) {
@@ -107,7 +107,7 @@ const rebook = (apt?: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadPastAppointments();
+  PATIENT_APPOINTMENTS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

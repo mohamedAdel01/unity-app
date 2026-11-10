@@ -764,4 +764,10 @@ export default {
   "No previous medical visits recorded": "لا توجد زيارات طبية مسجلة",
   "Scheduled": "مجدول",
   "Medical Consultation": "استشارة طبية",
+  "Loading more items...": "جاري تحميل المزيد...",
+  "Load 10 More": "تحميل 10 عناصر إضافية",
+  "Showing all": "تم عرض جميع الـ",
+  "items": "عنصر",
+  "No items found": "لا توجد عناصر",
+  "There are currently no items to display.": "لا توجد عناصر لعرضها حالياً.",
 };

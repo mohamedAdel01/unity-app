@@ -33,84 +33,86 @@
 
     <!-- Content: Services Tab -->
     <div v-if="activeTab === 'services'" class="tab-content-area">
-      <div v-if="globalStore.loading.includes('services')" class="loading-state">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>{{ t('Loading...') }}</span>
-      </div>
-
-      <div v-else-if="filteredServices.length === 0" class="empty-catalog-state">
-        <i class="pi pi-inbox"></i>
-        <h5>{{ t('No services available') }}</h5>
-      </div>
-
-      <div v-else class="services-grid">
-        <div 
-          v-for="service in filteredServices" 
-          :key="service.id" 
-          class="service-item-card"
-        >
-          <div class="card-side-icon">
-            <i class="pi pi-shield"></i>
-          </div>
-          <div class="card-details">
-            <div class="details-top">
-              <h5>{{ service.name }}</h5>
-              <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
+      <AppVirtualList
+        :items="filteredServices"
+        :has-more="servicesHasMore"
+        :loading="servicesLoading || globalStore.loading.includes('services')"
+        :page-size="10"
+        @load-more="loadMoreServices"
+      >
+        <template #item="{ item: service }">
+          <div class="service-item-card">
+            <div class="card-side-icon">
+              <i class="pi pi-shield"></i>
             </div>
-            <p v-if="service.description">{{ service.description }}</p>
-            <div class="card-meta">
-              <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
-              <span><i class="pi pi-check"></i> {{ t('Available now') }}</span>
+            <div class="card-details">
+              <div class="details-top">
+                <h5>{{ service.name }}</h5>
+                <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
+              </div>
+              <p v-if="service.description">{{ service.description }}</p>
+              <div class="card-meta">
+                <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
+                <span><i class="pi pi-check"></i> {{ t('Available now') }}</span>
+              </div>
+              <button class="book-service-btn" @click="bookService(service)">
+                <span>{{ t('Book This Service') }}</span>
+                <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
+              </button>
             </div>
-            <button class="book-service-btn" @click="bookService(service)">
-              <span>{{ t('Book This Service') }}</span>
-              <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
-            </button>
           </div>
-        </div>
-      </div>
+        </template>
+
+        <template #empty>
+          <div class="empty-catalog-state">
+            <i class="pi pi-inbox"></i>
+            <h5>{{ t('No services available') }}</h5>
+          </div>
+        </template>
+      </AppVirtualList>
     </div>
 
     <!-- Content: Doctors Tab -->
     <div v-else class="tab-content-area">
-      <div v-if="globalStore.loading.includes('doctors')" class="loading-state">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>{{ t('Loading...') }}</span>
-      </div>
-
-      <div v-else-if="filteredDoctors.length === 0" class="empty-catalog-state">
-        <i class="pi pi-users"></i>
-        <h5>{{ t('No doctors available') }}</h5>
-      </div>
-
-      <div v-else class="doctors-grid">
-        <div 
-          v-for="doc in filteredDoctors" 
-          :key="doc.id" 
-          class="doctor-catalog-card"
-        >
-          <div class="doc-main-row">
-            <div class="doc-img-wrap">
-              <img v-if="doc.avatar" :src="doc.avatar" :alt="doc.name" />
-              <div v-else class="doc-initial-badge">
-                <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
+      <AppVirtualList
+        :items="filteredDoctors"
+        :has-more="doctorsHasMore"
+        :loading="doctorsLoading || globalStore.loading.includes('doctors')"
+        :page-size="10"
+        @load-more="loadMoreDoctors"
+      >
+        <template #item="{ item: doc }">
+          <div class="doctor-catalog-card">
+            <div class="doc-main-row">
+              <div class="doc-img-wrap">
+                <img v-if="doc.avatar" :src="doc.avatar" :alt="doc.name" />
+                <div v-else class="doc-initial-badge">
+                  <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
+                </div>
+                <span class="star-pill">⭐ {{ doc.rating || '4.9' }}</span>
               </div>
-              <span class="star-pill">⭐ {{ doc.rating || '4.9' }}</span>
-            </div>
-            <div class="doc-info-block">
-              <h5>{{ doc.name }}</h5>
-              <p v-if="doc.specialty || doc.clinic?.name" class="specialty-title">{{ doc.specialty || doc.clinic?.name }}</p>
-              <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-map-marker"></i> {{ doc.clinic.name }}</span>
-              <div v-if="doc.consultation_fee" class="fee-badge">
-                {{ t('Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
+              <div class="doc-info-block">
+                <h5>{{ doc.name }}</h5>
+                <p v-if="doc.specialty || doc.clinic?.name" class="specialty-title">{{ doc.specialty || doc.clinic?.name }}</p>
+                <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-map-marker"></i> {{ doc.clinic.name }}</span>
+                <div v-if="doc.consultation_fee" class="fee-badge">
+                  {{ t('Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
+                </div>
               </div>
             </div>
+            <button class="doc-book-btn" @click="bookDoctor(doc)">
+              {{ t('Book Consultation') }}
+            </button>
           </div>
-          <button class="doc-book-btn" @click="bookDoctor(doc)">
-            {{ t('Book Consultation') }}
-          </button>
-        </div>
-      </div>
+        </template>
+
+        <template #empty>
+          <div class="empty-catalog-state">
+            <i class="pi pi-users"></i>
+            <h5>{{ t('No doctors available') }}</h5>
+          </div>
+        </template>
+      </AppVirtualList>
     </div>
   </div>
 </template>
@@ -123,6 +125,7 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
+import AppVirtualList from '../common/AppVirtualList.vue';
 
 const router = useRouter();
 
@@ -142,8 +145,14 @@ const activeTab = ref<'services' | 'doctors'>('services');
 const searchQuery = ref('');
 
 const services = ref<any[]>([]);
+const servicesPage = ref(1);
+const servicesHasMore = ref(false);
+const servicesLoading = ref(false);
 
 const doctors = ref<any[]>([]);
+const doctorsPage = ref(1);
+const doctorsHasMore = ref(false);
+const doctorsLoading = ref(false);
 
 // 3. Computed (computed properties)
 const filteredServices = computed(() => {
@@ -170,37 +179,69 @@ const switchTab = (tab: 'services' | 'doctors') => {
   router.replace({ query: { tab } });
 };
 
-const loadServices = async () => {
+const SERVICES = async (page = 1) => {
   try {
-    const res = await api.apiRequest({ service: 'SERVICES' });
-    if (res && res.status && Array.isArray(res.data)) {
-      services.value = res.data;
+    servicesLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'SERVICES',
+      filter: { page, limit: 10 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    if (page === 1) {
+      services.value = raw;
     } else {
-      services.value = [];
+      services.value.push(...raw);
     }
+    servicesPage.value = page;
+    servicesHasMore.value = res?.hasMore ?? (raw.length >= 10);
   } catch (e) {
-    services.value = [];
+    if (page === 1) services.value = [];
+  } finally {
+    servicesLoading.value = false;
   }
 };
 
-const loadDoctors = async () => {
+const loadMoreServices = () => {
+  if (servicesHasMore.value && !servicesLoading.value) {
+    SERVICES(servicesPage.value + 1);
+  }
+};
+
+const DOCTORS = async (page = 1) => {
   try {
-    const res = await api.apiRequest({ service: 'DOCTORS' });
-    if (res && res.status && Array.isArray(res.data)) {
-      doctors.value = res.data.map((d: any) => ({
-        id: d.id,
-        name: d.user?.name || d.name,
-        specialty: d.clinic?.name || (t('Specialist Consultant')),
-        clinic: d.clinic,
-        rating: '4.9',
-        avatar: d.user?.avatar || d.avatar || '',
-        consultation_fee: d.consultation_fee || 250,
-      }));
+    doctorsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'DOCTORS',
+      filter: { page, limit: 10 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    const items = raw.map((d: any) => ({
+      id: d.id,
+      name: d.user?.name || d.name,
+      specialty: d.clinic?.name || (t('Specialist Consultant')),
+      clinic: d.clinic,
+      rating: '4.9',
+      avatar: d.user?.avatar || d.avatar || '',
+      consultation_fee: d.consultation_fee || 250,
+    }));
+
+    if (page === 1) {
+      doctors.value = items;
     } else {
-      doctors.value = [];
+      doctors.value.push(...items);
     }
+    doctorsPage.value = page;
+    doctorsHasMore.value = res?.hasMore ?? (items.length >= 10);
   } catch (e) {
-    doctors.value = [];
+    if (page === 1) doctors.value = [];
+  } finally {
+    doctorsLoading.value = false;
+  }
+};
+
+const loadMoreDoctors = () => {
+  if (doctorsHasMore.value && !doctorsLoading.value) {
+    DOCTORS(doctorsPage.value + 1);
   }
 };
 
@@ -224,8 +265,8 @@ watch(() => route.query.tab, (newTab) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadServices();
-  loadDoctors();
+  SERVICES();
+  DOCTORS();
 });
 
 // 7. Meta (useHead, useSeoMeta)

@@ -1,57 +1,61 @@
 <template>
   <div class="records-list-wrapper">
-    <!-- Loading Skeleton -->
-    <div v-if="loading" class="loading-state">
-      <div v-for="i in 3" :key="i" class="skeleton-card"></div>
-    </div>
-
-    <!-- Empty State -->
-    <div v-else-if="items.length === 0" class="empty-state">
-      <div class="empty-icon">
-        <i class="pi pi-folder-open"></i>
-      </div>
-      <h3 class="empty-title">{{ t('No medical records found') }}</h3>
-      <p class="empty-sub">{{ t('Your medical visit reports, lab diagnostics and doctor prescriptions will appear here.') }}</p>
-    </div>
-
-    <!-- Items List -->
-    <div v-else class="cards-list">
-      <div v-for="item in items" :key="item.id" class="record-card">
-        <div class="card-header">
-          <div class="record-meta">
-            <span class="record-type-badge">{{ item.badge || t('Visit Reports') }}</span>
-            <span class="record-date">{{ item.date }}</span>
+    <AppVirtualList
+      :items="items"
+      :has-more="hasMore"
+      :loading="loading"
+      :page-size="10"
+      @load-more="$emit('load-more')"
+    >
+      <template #item="{ item }">
+        <div class="record-card">
+          <div class="card-header">
+            <div class="record-meta">
+              <span class="record-type-badge">{{ item.badge || t('Visit Reports') }}</span>
+              <span class="record-date">{{ item.date }}</span>
+            </div>
+            <span class="record-status" :class="item.status">{{ item.statusLabel }}</span>
           </div>
-          <span class="record-status" :class="item.status">{{ item.statusLabel }}</span>
-        </div>
 
-        <div class="card-body">
-          <h4 class="record-title">{{ item.title }}</h4>
-          <p class="record-doctor" v-if="item.doctor">
-            <i class="pi pi-user-md"></i>
-            <span>{{ item.doctor }}</span>
-          </p>
-          <p class="record-summary">{{ item.summary }}</p>
-        </div>
+          <div class="card-body">
+            <h4 class="record-title">{{ item.title }}</h4>
+            <p class="record-doctor" v-if="item.doctor">
+              <i class="pi pi-user-md"></i>
+              <span>{{ item.doctor }}</span>
+            </p>
+            <p class="record-summary">{{ item.summary }}</p>
+          </div>
 
-        <div class="card-footer">
-          <button class="action-btn outline-btn" @click="$emit('download', item)">
-            <i class="pi pi-download"></i>
-            <span>{{ t('Download Report (PDF)') }}</span>
-          </button>
-          <button class="action-btn primary-btn" v-if="item.hasDetails" @click="$emit('view', item)">
-            <i class="pi pi-eye"></i>
-            <span>{{ t('View Report') }}</span>
-          </button>
+          <div class="card-footer">
+            <button class="action-btn outline-btn" @click="$emit('download', item)">
+              <i class="pi pi-download"></i>
+              <span>{{ t('Download Report (PDF)') }}</span>
+            </button>
+            <button class="action-btn primary-btn" v-if="item.hasDetails" @click="$emit('view', item)">
+              <i class="pi pi-eye"></i>
+              <span>{{ t('View Report') }}</span>
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
+      </template>
+
+      <template #empty>
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="pi pi-folder-open"></i>
+          </div>
+          <h3 class="empty-title">{{ t('No medical records found') }}</h3>
+          <p class="empty-sub">{{ t('Your medical visit reports, lab diagnostics and doctor prescriptions will appear here.') }}</p>
+        </div>
+      </template>
+    </AppVirtualList>
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
+import AppVirtualList from '../common/AppVirtualList.vue';
 
 interface RecordItem {
   id: string;
@@ -59,20 +63,29 @@ interface RecordItem {
   doctor?: string;
   date: string;
   summary: string;
+  badge?: string;
   status: string;
   statusLabel: string;
-  badge?: string;
   hasDetails?: boolean;
 }
 
-defineProps<{
-  items: RecordItem[];
-  loading: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    items: RecordItem[];
+    loading?: boolean;
+    hasMore?: boolean;
+  }>(),
+  {
+    items: () => [],
+    loading: false,
+    hasMore: false,
+  }
+);
 
 defineEmits<{
   (e: 'download', item: RecordItem): void;
   (e: 'view', item: RecordItem): void;
+  (e: 'load-more'): void;
 }>();
 
 const { t } = useI18n();

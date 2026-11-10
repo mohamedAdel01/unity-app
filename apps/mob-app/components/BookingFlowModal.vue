@@ -286,7 +286,7 @@ const totalFee = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-const loadSlots = async () => {
+const DOCTOR_SLOTS = async () => {
   if (!props.doctor?.id) return;
   try {
     slotsLoading.value = true;
@@ -373,7 +373,7 @@ watch(() => props.modelValue, (isOpen) => {
     secondsLeft.value = 15 * 60;
     bookingSuccess.value = false;
     currentSlot.value = props.selectedSlot || null;
-    loadSlots();
+    DOCTOR_SLOTS();
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
       if (secondsLeft.value > 0) {

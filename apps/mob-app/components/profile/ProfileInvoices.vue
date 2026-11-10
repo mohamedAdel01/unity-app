@@ -56,7 +56,7 @@ const invoices = ref<any[]>([]);
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
-const loadInvoices = async () => {
+const PATIENT_INVOICES = async () => {
   try {
     const res = await api.apiRequest({ service: 'PATIENT_INVOICES' });
     if (res && res.status && Array.isArray(res.data)) {
@@ -73,7 +73,7 @@ const loadInvoices = async () => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  loadInvoices();
+  PATIENT_INVOICES();
 });
 
 // 7. Meta (useHead, useSeoMeta)
