@@ -170,7 +170,6 @@ const loginWithAppleOAuth = async () => {
         service: 'APPLE_LOGIN',
         payload: {
           identityToken: res.response.identityToken,
-          email: res.response.email,
           givenName: res.response.givenName,
           familyName: res.response.familyName,
           userIdentifier: res.response.user,

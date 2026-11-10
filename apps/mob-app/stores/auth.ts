@@ -3,7 +3,6 @@ import { defineStore } from 'pinia';
 export interface AuthUser {
   id: string;
   name: string;
-  email?: string | null;
   phone?: string | null;
   role: 'admin' | 'doctor' | 'patient';
   avatar?: string | null;
