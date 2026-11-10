@@ -21,7 +21,13 @@
 
       <div class="metric-card success">
         <div class="metric-icon">
-          <i class="pi pi-user-plus"></i>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+            <path d="M3 3h3"/>
+            <path d="M16 3h3"/>
+            <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+            <circle cx="17" cy="16" r="2"/>
+          </svg>
         </div>
         <div class="metric-info">
           <span class="label">{{ t('Active Doctors') }}</span>
@@ -64,7 +70,15 @@
         </NuxtLink>
 
         <NuxtLink to="/admin/doctors" class="nav-tile">
-          <div class="tile-icon"><i class="pi pi-user-edit"></i></div>
+          <div class="tile-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+              <path d="M3 3h3"/>
+              <path d="M16 3h3"/>
+              <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+              <circle cx="17" cy="16" r="2"/>
+            </svg>
+          </div>
           <div class="tile-info">
             <strong>{{ t('Doctors & Rosters') }}</strong>
             <small>{{ t('Schedules, shifts & availability') }}</small>
@@ -146,7 +160,7 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
@@ -154,7 +168,7 @@ import { useAppToast } from '../../composables/useAppToast';
 import AdminTopHeader from '../../components/admin/AdminTopHeader.vue';
 
 definePageMeta({
-  title: 'لوحة القيادة الإدارية — لوحة المشرف',
+  layout: 'admin',
 });
 
 const router = useRouter();
@@ -231,6 +245,9 @@ onMounted(() => {
 });
 
 // 7. Meta (useHead, useSeoMeta)
+useHead({
+  title: computed(() => t('Executive Administration — Admin Portal')),
+});
 </script>
 
 <style scoped lang="scss">

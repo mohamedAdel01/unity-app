@@ -1,5 +1,5 @@
 <template>
-  <div class="quick-login-section">
+  <div v-if="showSocialLogins" class="quick-login-section">
     <!-- Divider -->
     <div class="quick-divider">
       <span>{{ t('Or continue with') }}</span>
@@ -37,6 +37,7 @@ const { t } = useI18n();
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
+const showSocialLogins = false;
 
 // 3. Computed (computed properties)
 

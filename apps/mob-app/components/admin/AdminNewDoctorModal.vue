@@ -4,8 +4,8 @@
       <!-- Modal Header -->
       <div class="modal-header">
         <div class="header-title">
-          <i class="pi pi-user-plus"></i>
-          <h4>{{ t('Add New Doctor') }}</h4>
+          <i :class="isEdit ? 'pi pi-user-edit' : 'pi pi-user-plus'"></i>
+          <h4>{{ isEdit ? t('Edit Doctor') : t('Add New Doctor') }}</h4>
         </div>
         <button class="btn-close" :aria-label="t('Close')" @click="close">
           <i class="pi pi-times"></i>
@@ -60,7 +60,7 @@
           </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ t('Register Doctor') }}</span>
+            <span v-else>{{ isEdit ? t('Save Changes') : t('Register Doctor') }}</span>
           </button>
         </div>
       </form>
@@ -76,13 +76,26 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import AppPhoneInput from '../common/AppPhoneInput.vue';
 
+interface Doctor {
+  id?: string | number;
+  name: string;
+  phone: string;
+  clinic?: any;
+  clinic_id?: string | number;
+  specialty?: string;
+  status?: string;
+  is_active?: boolean;
+}
+
 const props = defineProps<{
   isOpen: boolean;
+  doctor?: Doctor | null;
 }>();
 
 const emit = defineEmits<{
   (e: 'close'): void;
   (e: 'created', doc: any): void;
+  (e: 'updated', doc: any): void;
 }>();
 
 const { t } = useI18n();
@@ -101,15 +114,19 @@ const form = ref({
 });
 
 // 3. Computed (computed properties)
+const isEdit = computed(() => !!props.doctor?.id);
+
 const isFormValid = computed(() => {
   return form.value.name.trim().length >= 3 && isPhoneValid.value && !!form.value.clinic_id;
 });
 
 // 4. Methods (functions, handlers)
 const close = () => {
-  form.value.name = '';
-  form.value.phone = '';
-  form.value.clinic_id = '';
+  form.value = {
+    name: '',
+    phone: '',
+    clinic_id: '',
+  };
   emit('close');
 };
 
@@ -128,34 +145,62 @@ const loadClinics = async () => {
 };
 
 const handleSubmit = async () => {
-  if (!isFormValid.value) return;
+  if (!isFormValid.value || loading.value) return;
 
   loading.value = true;
   try {
-    const res = await api.apiRequest({
-      service: 'ADMIN_CREATE_DOCTOR',
-      payload: {
+    const matchedClinic = clinics.value.find(c => String(c.id) === String(form.value.clinic_id)) || null;
+
+    if (isEdit.value && props.doctor?.id) {
+      await api.apiRequest({
+        service: 'ADMIN_UPDATE_DOCTOR',
+        payload: {
+          id: props.doctor.id,
+          name: form.value.name.trim(),
+          phone: form.value.phone.trim(),
+          clinic_id: form.value.clinic_id,
+        },
+      });
+
+      const updatedDoctor = {
+        ...props.doctor,
         name: form.value.name.trim(),
         phone: form.value.phone.trim(),
+        clinic: matchedClinic,
         clinic_id: form.value.clinic_id,
-      },
-    });
+        specialty: matchedClinic?.name || props.doctor.specialty,
+      };
 
-    const createdDoctor = res?.data || {
-      id: `doc-${Date.now()}`,
-      name: form.value.name.trim(),
-      phone: form.value.phone.trim(),
-      clinic: clinics.value.find(c => c.id === form.value.clinic_id) || null,
-      specialty: clinics.value.find(c => c.id === form.value.clinic_id)?.name || '',
-      status: 'active',
-      is_active: true,
-    };
+      emit('updated', updatedDoctor);
+      toast.success(t('Doctor updated successfully!'), t('Doctors'));
+      close();
+    } else {
+      const res = await api.apiRequest({
+        service: 'ADMIN_CREATE_DOCTOR',
+        payload: {
+          name: form.value.name.trim(),
+          phone: form.value.phone.trim(),
+          clinic_id: form.value.clinic_id,
+        },
+      });
 
-    emit('created', createdDoctor);
-    toast.success(t('Doctor registered successfully!'), t('Doctors'));
-    close();
+      const createdDoctor = res?.data || {
+        id: `doc-${Date.now()}`,
+        name: form.value.name.trim(),
+        phone: form.value.phone.trim(),
+        clinic: matchedClinic,
+        clinic_id: form.value.clinic_id,
+        specialty: matchedClinic?.name || '',
+        status: 'active',
+        is_active: true,
+      };
+
+      emit('created', createdDoctor);
+      toast.success(t('Doctor registered successfully!'), t('Doctors'));
+      close();
+    }
   } catch (err: any) {
-    toast.error(err?.message || t('Failed to register doctor'), t('Doctors'));
+    toast.error(err?.message || (isEdit.value ? t('Failed to update doctor') : t('Failed to register doctor')), t('Doctors'));
   } finally {
     loading.value = false;
   }
@@ -163,11 +208,41 @@ const handleSubmit = async () => {
 
 // 5. Watches (watch, watchEffect)
 watch(
+  () => props.doctor,
+  (val) => {
+    if (val) {
+      form.value = {
+        name: val.name || '',
+        phone: val.phone || '',
+        clinic_id: val.clinic?.id || val.clinic_id || '',
+      };
+      isPhoneValid.value = true;
+    } else {
+      form.value = {
+        name: '',
+        phone: '',
+        clinic_id: clinics.value[0]?.id || '',
+      };
+      isPhoneValid.value = false;
+    }
+  },
+  { immediate: true }
+);
+
+watch(
   () => props.isOpen,
   (open) => {
     if (open) {
       if (clinics.value.length === 0) {
         loadClinics();
+      }
+      if (!props.doctor) {
+        form.value = {
+          name: '',
+          phone: '',
+          clinic_id: clinics.value[0]?.id || '',
+        };
+        isPhoneValid.value = false;
       }
     }
   }
@@ -198,26 +273,16 @@ onMounted(() => {
   max-width: 430px;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 20px 20px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
-
-  &[dir='ltr'] {
-    direction: ltr;
-
-    .modal-header .header-title,
-    .form-group label {
-      text-align: left;
-    }
-  }
 
   .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 20px;
 
     .header-title {
       display: flex;
@@ -227,18 +292,23 @@ onMounted(() => {
       i {
         font-size: 1.25rem;
         color: var(--unity-primary);
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        padding: 8px;
+        border-radius: 12px;
       }
 
       h4 {
-        font-size: 1.15rem;
+        margin: 0;
+        font-size: 1.05rem;
         font-weight: 800;
         color: var(--unity-text-main);
       }
     }
 
     .btn-close {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--unity-bg);
       border: 1px solid var(--unity-border);
@@ -259,7 +329,7 @@ onMounted(() => {
   .doctor-form {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
 
     .form-group {
       display: flex;
@@ -268,7 +338,7 @@ onMounted(() => {
       text-align: right;
 
       label {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         font-weight: 700;
         color: var(--unity-text-main);
       }
@@ -277,35 +347,26 @@ onMounted(() => {
         display: flex;
         align-items: center;
         gap: 10px;
-        height: 48px;
         background: var(--unity-bg);
         border: 1.5px solid var(--unity-border);
         border-radius: 14px;
         padding: 0 14px;
+        height: 48px;
         transition: border-color 0.2s;
 
         i {
-          font-size: 0.95rem;
-          color: var(--unity-text-muted);
+          color: var(--unity-text-dim);
+          font-size: 1rem;
         }
 
         input, select {
           flex: 1;
-          height: 100%;
           background: transparent;
           border: none;
           outline: none;
-          font-size: 0.85rem;
+          font-size: 0.88rem;
           color: var(--unity-text-main);
           font-family: inherit;
-
-          &::placeholder {
-            color: var(--unity-text-dim);
-          }
-        }
-
-        &:focus-within {
-          border-color: var(--unity-primary);
         }
       }
     }
@@ -317,7 +378,7 @@ onMounted(() => {
 
       button {
         flex: 1;
-        padding: 13px;
+        height: 46px;
         border-radius: 14px;
         font-size: 0.85rem;
         font-weight: 700;

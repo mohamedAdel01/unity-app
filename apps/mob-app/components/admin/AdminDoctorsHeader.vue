@@ -4,7 +4,7 @@
     <AdminTopHeader 
       :title="t('Doctors Management')"
       :subtitle="t('Unity Clinics • Admin Portal')"
-      icon="pi pi-heart"
+      icon="pi pi-user"
     />
 
     <!-- 2. Page Title Card with Add Doctor Action -->

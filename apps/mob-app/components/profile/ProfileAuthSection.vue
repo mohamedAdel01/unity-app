@@ -46,13 +46,12 @@
               <span v-else>{{ isRegister ? t('Create Account') : t('Sign In') }}</span>
             </button>
 
-            <!-- Social Divider -->
-            <div class="social-divider">
+            <!-- Social Login Options (Disabled for V1 release per instructions) -->
+            <div v-if="false" class="social-divider">
               <span>{{ t('Or continue with') }}</span>
             </div>
 
-            <!-- Social Login Options (Google & Apple - Bya3 Pattern) -->
-            <div class="social-buttons">
+            <div v-if="false" class="social-buttons">
               <!-- Google -->
               <button type="button" class="social-btn google-btn" @click="loginWithGoogleOAuth">
                 <svg viewBox="0 0 24 24" class="social-icon">

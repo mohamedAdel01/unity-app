@@ -64,14 +64,26 @@ export default {
     });
   },
 
+  async EXAMINATIONS({ API }: { API: any }) {
+    return await API('client/examinations', {
+      method: 'GET',
+    });
+  },
+
+  async EXAMINATION_BY_ID({ API, filter }: { API: any; filter: { id: string | number } }) {
+    return await API(`client/examinations/${filter.id}`, {
+      method: 'GET',
+    });
+  },
+
   async SERVICES({ API }: { API: any }) {
-    return await API('client/services', {
+    return await API('client/examinations', {
       method: 'GET',
     });
   },
 
   async SERVICE_BY_ID({ API, filter }: { API: any; filter: { id: string | number } }) {
-    return await API(`client/services/${filter.id}`, {
+    return await API(`client/examinations/${filter.id}`, {
       method: 'GET',
     });
   },
@@ -201,6 +213,14 @@ export default {
     });
   },
 
+  async ADMIN_UPDATE_PATIENT({ API, payload }: { API: any; payload: { id: string | number; name?: string; phone?: string; gender?: string } }) {
+    const { id, ...data } = payload;
+    return await API(`admin/patients/${id}`, {
+      method: 'PUT',
+      body: data,
+    });
+  },
+
   // ==========================================
   // 7. ADMIN DOCTORS & SCHEDULES
   // ==========================================
@@ -281,23 +301,59 @@ export default {
     });
   },
 
-  async ADMIN_TOGGLE_CLINIC({ API, payload }: { API: any; payload: { id: string | number } }) {
+  async ADMIN_TOGGLE_CLINIC({ API, payload }: { API: any; payload: { id: string | number; is_active?: boolean } }) {
     return await API(`admin/clinics/${payload.id}/toggle`, {
       method: 'PATCH',
+      body: JSON.stringify(payload),
     });
   },
 
   // ==========================================
-  // 9. ADMIN MEDICAL SERVICES MANAGEMENT
+  // 9. ADMIN MEDICAL EXAMINATIONS MANAGEMENT
   // ==========================================
+  async ADMIN_EXAMINATIONS({ API }: { API: any }) {
+    return await API('admin/examinations', {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_CREATE_EXAMINATION({ API, payload }: { API: any; payload: any }) {
+    return await API('admin/examinations', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async ADMIN_UPDATE_EXAMINATION({ API, payload }: { API: any; payload: { id: string | number; [key: string]: any } }) {
+    const { id, ...data } = payload;
+    return await API(`admin/examinations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async ADMIN_TOGGLE_EXAMINATION({ API, payload }: { API: any; payload: { id: string | number; is_active?: boolean } }) {
+    return await API(`admin/examinations/${payload.id}/toggle`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async ADMIN_DELETE_EXAMINATION({ API, payload }: { API: any; payload: { id: string | number } }) {
+    return await API(`admin/examinations/${payload.id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Aliases for Services
   async ADMIN_SERVICES({ API }: { API: any }) {
-    return await API('admin/services', {
+    return await API('admin/examinations', {
       method: 'GET',
     });
   },
 
   async ADMIN_CREATE_SERVICE({ API, payload }: { API: any; payload: any }) {
-    return await API('admin/services', {
+    return await API('admin/examinations', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -305,20 +361,20 @@ export default {
 
   async ADMIN_UPDATE_SERVICE({ API, payload }: { API: any; payload: { id: string | number; [key: string]: any } }) {
     const { id, ...data } = payload;
-    return await API(`admin/services/${id}`, {
+    return await API(`admin/examinations/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   },
 
   async ADMIN_TOGGLE_SERVICE({ API, payload }: { API: any; payload: { id: string | number } }) {
-    return await API(`admin/services/${payload.id}/toggle`, {
+    return await API(`admin/examinations/${payload.id}/toggle`, {
       method: 'PATCH',
     });
   },
 
   async ADMIN_DELETE_SERVICE({ API, payload }: { API: any; payload: { id: string | number } }) {
-    return await API(`admin/services/${payload.id}`, {
+    return await API(`admin/examinations/${payload.id}`, {
       method: 'DELETE',
     });
   },

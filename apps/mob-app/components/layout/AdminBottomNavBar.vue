@@ -8,13 +8,19 @@
 
     <!-- Tab 2: Doctors / الأطباء -->
     <NuxtLink to="/admin/doctors" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/doctors') }">
-      <i class="pi pi-heart"></i>
+      <svg viewBox="0 0 24 24" class="nav-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+        <path d="M3 3h3"/>
+        <path d="M16 3h3"/>
+        <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+        <circle cx="17" cy="16" r="2"/>
+      </svg>
       <span>{{ t('Doctors') }}</span>
     </NuxtLink>
 
     <!-- Tab 3: Clinics / العيادات -->
     <NuxtLink to="/admin/clinics" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/clinics') }">
-      <i class="pi pi-plus-circle"></i>
+      <i class="pi pi-building"></i>
       <span>{{ t('Clinics') }}</span>
     </NuxtLink>
 
@@ -26,7 +32,7 @@
 
     <!-- Tab 5: Bookings / الحجوزات -->
     <NuxtLink to="/admin/appointments" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
-      <i class="pi pi-ticket"></i>
+      <i class="pi pi-calendar"></i>
       <span>{{ t('Manage Bookings') }}</span>
     </NuxtLink>
   </nav>
@@ -86,8 +92,10 @@ const { t } = useI18n();
     border-radius: 14px;
     transition: all 0.2s ease;
 
-    i {
+    i, .nav-svg {
       font-size: 1.25rem;
+      width: 20px;
+      height: 20px;
       transition: transform 0.2s ease;
     }
 
@@ -99,7 +107,7 @@ const { t } = useI18n();
       color: var(--unity-primary-dark);
       background: var(--unity-primary-light);
 
-      i {
+      i, .nav-svg {
         transform: scale(1.1);
         color: var(--unity-primary);
       }

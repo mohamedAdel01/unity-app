@@ -66,7 +66,7 @@ import AdminBookingCard from '../../components/admin/AdminBookingCard.vue';
 import AdminRescheduleModal from '../../components/admin/AdminRescheduleModal.vue';
 
 definePageMeta({
-  title: 'إدارة الحجوزات والفوترة — لوحة المشرف',
+  layout: 'admin',
 });
 
 const { t } = useI18n();
@@ -203,6 +203,9 @@ onMounted(() => {
 });
 
 // 7. Meta (useHead, useSeoMeta)
+useHead({
+  title: computed(() => t('Bookings & Billing Management — Admin Portal')),
+});
 </script>
 
 <style scoped lang="scss">

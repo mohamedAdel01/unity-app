@@ -30,10 +30,18 @@
         </div>
       </div>
 
-      <!-- Left Side: Status / Appointments Count -->
-      <div class="doctor-status-badge" :class="getStatusBadgeClass(doctor.status_badge)">
-        <span>{{ doctor.status_badge || t('Open Clinic') }}</span>
-      </div>
+      <!-- Left Side: Status Switch Toggle -->
+      <button 
+        type="button" 
+        class="unity-switch-toggle" 
+        :class="{ 'active': doctor.is_active }" 
+        :aria-checked="doctor.is_active"
+        role="switch"
+        :title="doctor.is_active ? t('Open Clinic') : t('Unavailable')"
+        @click.stop="emit('toggle-status', doctor)"
+      >
+        <span class="switch-slider"></span>
+      </button>
     </div>
 
     <!-- 2. Schedule Row (Optional / If provided) -->
@@ -44,6 +52,12 @@
 
     <!-- 3. Action Buttons Row -->
     <div class="card-action-buttons">
+      <!-- Edit Doctor Profile Action -->
+      <button class="btn-edit-doctor" :title="t('Edit Doctor')" @click="emit('edit', doctor)">
+        <i class="pi pi-pencil"></i>
+        <span>{{ t('Edit') }}</span>
+      </button>
+
       <!-- Edit Schedule Action -->
       <button 
         class="btn-edit-schedule" 
@@ -72,8 +86,10 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
+  (e: 'edit', doctor: any): void;
   (e: 'edit-schedule', doctor: any): void;
   (e: 'view-cases', doctor: any): void;
+  (e: 'toggle-status', doctor: any): void;
 }>();
 
 const { t } = useI18n();
@@ -218,21 +234,38 @@ const resolveAvatar = (url?: string) => {
       }
     }
 
-    .doctor-status-badge {
-      font-size: 0.74rem;
-      font-weight: 700;
-      white-space: nowrap;
+    .unity-switch-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      border-radius: 9999px;
+      background: #cbd5e1;
+      border: none;
+      padding: 2px;
+      cursor: pointer;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      transition: background-color 0.25s ease;
+      flex-shrink: 0;
+      direction: ltr;
 
-      &.badge-open {
-        color: #047857;
+      .switch-slider {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateX(0);
       }
 
-      &.badge-today {
-        color: var(--unity-text-main);
-      }
+      &.active {
+        background: #059669;
 
-      &.badge-later {
-        color: var(--unity-text-muted);
+        .switch-slider {
+          transform: translateX(20px);
+        }
       }
     }
   }
@@ -278,6 +311,16 @@ const resolveAvatar = (url?: string) => {
 
       i {
         font-size: 0.85rem;
+      }
+    }
+
+    .btn-edit-doctor {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+
+      &:hover {
+        background: #d1fae5;
       }
     }
 

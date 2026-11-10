@@ -4,7 +4,7 @@
     <AdminTopHeader 
       :title="t('Admin Bookings Billing')"
       :subtitle="t('Unity Clinics • Bookings & Billing')"
-      icon="pi pi-ticket"
+      icon="pi pi-calendar"
     />
 
     <!-- 2. Dual Tab Selector (Direct Bookings vs Invoices & Billing) -->

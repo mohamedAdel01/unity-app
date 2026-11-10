@@ -6,7 +6,7 @@
       :active-count="activeDoctorsCount"
       @search="onSearch"
       @filter="onFilter"
-      @new-doctor="isNewDoctorModalOpen = true"
+      @new-doctor="openNewDoctorModal"
     />
 
     <!-- 2. Doctors List -->
@@ -15,8 +15,10 @@
         v-for="doc in filteredDoctors" 
         :key="doc.id"
         :doctor="doc"
+        @edit="openEditDoctor"
         @edit-schedule="openEditSchedule"
         @view-cases="onViewCases"
+        @toggle-status="onToggleDoctorStatus"
       />
     </div>
 
@@ -42,18 +44,20 @@
       @updated="onScheduleUpdated"
     />
 
-    <!-- Modal: Add New Doctor -->
+    <!-- Modal: Add / Edit Doctor -->
     <AdminNewDoctorModal 
       :is-open="isNewDoctorModalOpen"
+      :doctor="selectedDoctorToEdit"
       @close="isNewDoctorModalOpen = false"
       @created="onDoctorCreated"
+      @updated="onDoctorUpdated"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
@@ -63,7 +67,7 @@ import AdminEditScheduleModal from '../../components/admin/AdminEditScheduleModa
 import AdminNewDoctorModal from '../../components/admin/AdminNewDoctorModal.vue';
 
 definePageMeta({
-  title: 'إدارة طاقم الأطباء — لوحة المشرف',
+  layout: 'admin',
 });
 
 const { t } = useI18n();
@@ -82,6 +86,7 @@ const isEditScheduleModalOpen = ref(false);
 const isNewDoctorModalOpen = ref(false);
 
 const selectedDoctorForSchedule = ref<any>(null);
+const selectedDoctorToEdit = ref<any>(null);
 
 const doctors = ref<any[]>([]);
 
@@ -191,12 +196,70 @@ const onScheduleUpdated = async (payload: any) => {
   toast.success(t('Doctor schedule updated successfully!'));
 };
 
+const openNewDoctorModal = () => {
+  selectedDoctorToEdit.value = null;
+  isNewDoctorModalOpen.value = true;
+};
+
+const openEditDoctor = (doc: any) => {
+  selectedDoctorToEdit.value = doc;
+  isNewDoctorModalOpen.value = true;
+};
+
 const onDoctorCreated = (newDoc: any) => {
   doctors.value.unshift(newDoc);
 };
 
+const onDoctorUpdated = (updatedDoc: any) => {
+  const index = doctors.value.findIndex(d => d.id === updatedDoc.id);
+  if (index !== -1) {
+    doctors.value[index] = { ...doctors.value[index], ...updatedDoc };
+  }
+};
+
 const onViewCases = (doc: any) => {
   toast.info(t('Viewing cases for doctor'));
+};
+
+// Debounce state tracking
+const doctorTimers: Record<string | number, any> = {};
+const doctorOriginalStates: Record<string | number, boolean> = {};
+
+const onToggleDoctorStatus = (doc: any) => {
+  const id = doc.id;
+
+  if (doctorOriginalStates[id] === undefined) {
+    doctorOriginalStates[id] = doc.is_active;
+  }
+
+  // Instant optimistic UI update
+  doc.is_active = !doc.is_active;
+  doc.status_badge = doc.is_active ? t('Open Clinic') : t('Unavailable');
+
+  if (doctorTimers[id]) {
+    clearTimeout(doctorTimers[id]);
+  }
+
+  doctorTimers[id] = setTimeout(async () => {
+    const targetState = doc.is_active;
+    const originalState = doctorOriginalStates[id];
+    delete doctorTimers[id];
+    delete doctorOriginalStates[id];
+
+    if (targetState === originalState) return;
+
+    try {
+      await api.apiRequest({
+        service: 'ADMIN_UPDATE_DOCTOR',
+        payload: { id, is_active: targetState },
+      });
+      toast.success(targetState ? t('Doctor marked active') : t('Doctor marked inactive'));
+    } catch (err: any) {
+      doc.is_active = originalState;
+      doc.status_badge = originalState ? t('Open Clinic') : t('Unavailable');
+      toast.error(err.message || t('Failed to update doctor'));
+    }
+  }, 500);
 };
 
 // 5. Watches (watch, watchEffect)
@@ -206,7 +269,14 @@ onMounted(() => {
   loadBackendDoctors();
 });
 
+onBeforeUnmount(() => {
+  Object.values(doctorTimers).forEach(clearTimeout);
+});
+
 // 7. Meta (useHead, useSeoMeta)
+useHead({
+  title: computed(() => t('Doctors Management — Admin Portal')),
+});
 </script>
 
 <style scoped lang="scss">

@@ -226,6 +226,7 @@ import { useAppToast } from '../composables/useAppToast';
 const props = defineProps<{
   modelValue: boolean;
   doctor?: any;
+  examination?: any;
   service?: any;
   selectedDate?: string;
   selectedSlot?: any;
@@ -320,7 +321,8 @@ const submitBooking = async () => {
 
     const payload = {
       doctor_id: props.doctor?.id || 'doc-1',
-      service_id: props.service?.id || undefined,
+      examination_id: props.examination?.id || props.service?.id || undefined,
+      service_id: props.examination?.id || props.service?.id || undefined,
       date: dateStr,
       start_time: slot.start_time.replace(/[^0-9:]/g, '') || '10:00:00',
       end_time: slot.end_time?.replace(/[^0-9:]/g, '') || '10:30:00',

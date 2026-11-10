@@ -4,8 +4,8 @@
       <!-- Modal Header -->
       <div class="modal-header">
         <div class="header-title">
-          <i class="pi pi-user-plus"></i>
-          <h4>{{ t('Add New Patient') }}</h4>
+          <i :class="isEdit ? 'pi pi-user-edit' : 'pi pi-user-plus'"></i>
+          <h4>{{ isEdit ? t('Edit Patient') : t('Add New Patient') }}</h4>
         </div>
         <button class="btn-close" :aria-label="t('Close')" @click="close">
           <i class="pi pi-times"></i>
@@ -46,7 +46,7 @@
           </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ t('Save Patient') }}</span>
+            <span v-else>{{ isEdit ? t('Save Changes') : t('Save Patient') }}</span>
           </button>
         </div>
       </form>
@@ -56,30 +56,38 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useAppToast } from '../../composables/useAppToast';
 import AppPhoneInput from '../common/AppPhoneInput.vue';
 
+interface Patient {
+  id?: string | number;
+  name: string;
+  phone: string;
+  mrn?: string;
+  gender?: string | null;
+  status?: string;
+}
+
 const props = defineProps<{
   isOpen: boolean;
+  patient?: Patient | null;
 }>();
 
 const emit = defineEmits<{
   (e: 'close'): void;
   (e: 'created', patient: any): void;
+  (e: 'updated', patient: any): void;
 }>();
 
 const api = useUnityApi();
-
 const { t } = useI18n();
-
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const loading = ref(false);
-
 const isPhoneValid = ref(false);
 
 const form = ref({
@@ -88,6 +96,8 @@ const form = ref({
 });
 
 // 3. Computed (computed properties)
+const isEdit = computed(() => !!props.patient?.id);
+
 const isFormValid = computed(() => {
   return form.value.name.trim().length >= 3 && isPhoneValid.value;
 });
@@ -100,37 +110,91 @@ const close = () => {
 };
 
 const handleSubmit = async () => {
-  if (!isFormValid.value) return;
+  if (!isFormValid.value || loading.value) return;
 
   loading.value = true;
   try {
-    const res = await api.apiRequest({
-      service: 'ADMIN_CREATE_PATIENT',
-      payload: {
+    if (isEdit.value && props.patient?.id) {
+      await api.apiRequest({
+        service: 'ADMIN_UPDATE_PATIENT',
+        payload: {
+          id: props.patient.id,
+          name: form.value.name.trim(),
+          phone: form.value.phone.trim(),
+        },
+      });
+
+      const updatedPatient = {
+        ...props.patient,
         name: form.value.name.trim(),
         phone: form.value.phone.trim(),
-      },
-    });
+      };
 
-    const createdPatient = res?.data || {
-      id: `pt-${Date.now()}`,
-      name: form.value.name.trim(),
-      phone: form.value.phone.trim(),
-      mrn: String(Math.floor(1000000 + Math.random() * 9000000)),
-      status: 'active',
-      created_at: new Date().toISOString(),
-    };
+      emit('updated', updatedPatient);
+      toast.success(t('Patient updated successfully!'), t('Patients'));
+      close();
+    } else {
+      const res = await api.apiRequest({
+        service: 'ADMIN_CREATE_PATIENT',
+        payload: {
+          name: form.value.name.trim(),
+          phone: form.value.phone.trim(),
+        },
+      });
 
-    emit('created', createdPatient);
-    close();
+      const createdPatient = res?.data || {
+        id: `pt-${Date.now()}`,
+        name: form.value.name.trim(),
+        phone: form.value.phone.trim(),
+        mrn: String(Math.floor(1000000 + Math.random() * 9000000)),
+        status: 'active',
+        created_at: new Date().toISOString(),
+      };
+
+      emit('created', createdPatient);
+      toast.success(t('Patient registered successfully!'), t('Patients'));
+      close();
+    }
   } catch (err: any) {
-    toast.error(err?.message || t('Failed to register patient'), t('Patients'));
+    toast.error(err?.message || (isEdit.value ? t('Failed to update patient') : t('Failed to register patient')), t('Patients'));
   } finally {
     loading.value = false;
   }
 };
 
 // 5. Watches (watch, watchEffect)
+watch(
+  () => props.patient,
+  (val) => {
+    if (val) {
+      form.value = {
+        name: val.name || '',
+        phone: val.phone || '',
+      };
+      isPhoneValid.value = true;
+    } else {
+      form.value = {
+        name: '',
+        phone: '',
+      };
+      isPhoneValid.value = false;
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open && !props.patient) {
+      form.value = {
+        name: '',
+        phone: '',
+      };
+      isPhoneValid.value = false;
+    }
+  }
+);
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 
@@ -159,6 +223,7 @@ const handleSubmit = async () => {
   flex-direction: column;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  direction: rtl;
 
   .modal-header {
     display: flex;
@@ -170,23 +235,27 @@ const handleSubmit = async () => {
       display: flex;
       align-items: center;
       gap: 10px;
-      color: var(--unity-primary-dark);
 
       i {
         font-size: 1.25rem;
         color: var(--unity-primary);
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        padding: 8px;
+        border-radius: 12px;
       }
 
       h4 {
-        font-size: 1.15rem;
+        margin: 0;
+        font-size: 1.05rem;
         font-weight: 800;
         color: var(--unity-text-main);
       }
     }
 
     .btn-close {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--unity-bg);
       border: 1px solid var(--unity-border);
@@ -213,43 +282,38 @@ const handleSubmit = async () => {
       display: flex;
       flex-direction: column;
       gap: 6px;
+      text-align: right;
 
       label {
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         font-weight: 700;
         color: var(--unity-text-main);
       }
 
       .input-shell {
-        position: relative;
         display: flex;
         align-items: center;
+        gap: 10px;
+        background: var(--unity-bg);
+        border: 1.5px solid var(--unity-border);
+        border-radius: 14px;
+        padding: 0 14px;
+        height: 48px;
+        transition: border-color 0.2s;
 
         i {
-          position: absolute;
-          inset-inline-start: 14px;
           color: var(--unity-text-dim);
-          font-size: 0.95rem;
-          pointer-events: none;
+          font-size: 1rem;
         }
 
         input {
-          width: 100%;
-          height: 48px;
-          background: var(--unity-bg);
-          border: 1.5px solid var(--unity-border);
-          border-radius: 14px;
-          padding-inline-start: 40px;
-          padding-inline-end: 14px;
+          flex: 1;
+          background: transparent;
+          border: none;
+          outline: none;
           font-size: 0.88rem;
           color: var(--unity-text-main);
-          transition: all 0.2s;
-
-          &:focus {
-            outline: none;
-            border-color: var(--unity-primary);
-            background: #fff;
-          }
+          font-family: inherit;
         }
       }
     }
@@ -257,45 +321,45 @@ const handleSubmit = async () => {
     .modal-actions {
       display: flex;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 8px;
 
       button {
         flex: 1;
-        height: 48px;
+        height: 46px;
         border-radius: 14px;
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         font-weight: 700;
         cursor: pointer;
+        border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 6px;
         transition: all 0.2s;
       }
 
       .btn-cancel {
         background: var(--unity-bg);
-        border: 1.5px solid var(--unity-border);
-        color: var(--unity-text-main);
+        border: 1px solid var(--unity-border);
+        color: var(--unity-text-muted);
 
         &:hover {
           background: var(--unity-border);
+          color: var(--unity-text-main);
         }
       }
 
       .btn-submit {
         background: var(--unity-primary);
         color: #fff;
-        border: none;
-        box-shadow: 0 4px 14px rgba(0, 118, 99, 0.25);
+        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
 
         &:hover:not(:disabled) {
           background: var(--unity-primary-dark);
-          transform: translateY(-1px);
         }
 
         &:disabled {
-          opacity: 0.6;
+          opacity: 0.55;
           cursor: not-allowed;
         }
       }

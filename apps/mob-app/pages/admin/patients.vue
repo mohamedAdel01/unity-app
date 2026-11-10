@@ -32,11 +32,13 @@
       </button>
     </div>
 
-    <!-- Modal: Add New Patient -->
+    <!-- Modal: Add / Edit Patient -->
     <AdminNewPatientModal 
       :is-open="isNewPatientModalOpen" 
+      :patient="selectedPatientToEdit"
       @close="isNewPatientModalOpen = false"
       @created="onPatientCreated"
+      @updated="onPatientUpdated"
     />
 
     <!-- Modal: View Medical File -->
@@ -61,7 +63,7 @@ import AdminNewPatientModal from '../../components/admin/AdminNewPatientModal.vu
 import AdminPatientFileModal from '../../components/admin/AdminPatientFileModal.vue';
 
 definePageMeta({
-  title: 'سجلات المرضى — لوحة الإشراف',
+  layout: 'admin',
 });
 
 const { t } = useI18n();
@@ -82,6 +84,7 @@ const isNewPatientModalOpen = ref(false);
 const isMedicalFileModalOpen = ref(false);
 
 const selectedPatientForFile = ref<any>(null);
+const selectedPatientToEdit = ref<any>(null);
 
 const patients = ref<any[]>([]);
 
@@ -168,13 +171,20 @@ const resetFilters = () => {
 };
 
 const openNewPatientModal = () => {
+  selectedPatientToEdit.value = null;
   isNewPatientModalOpen.value = true;
 };
 
 const onPatientCreated = (newPatient: any) => {
   patients.value.unshift(newPatient);
   totalDisplayCount.value += 1;
-  toast.success(t('New patient registered successfully!'), t('Patients'));
+};
+
+const onPatientUpdated = (updatedPatient: any) => {
+  const index = patients.value.findIndex(p => p.id === updatedPatient.id);
+  if (index !== -1) {
+    patients.value[index] = { ...patients.value[index], ...updatedPatient };
+  }
 };
 
 const onViewMedicalFile = (patient: any) => {
@@ -189,8 +199,8 @@ const onBookAppointment = (patient: any) => {
 };
 
 const onEditPatient = (patient: any) => {
-  selectedPatientForFile.value = patient;
-  isMedicalFileModalOpen.value = true;
+  selectedPatientToEdit.value = patient;
+  isNewPatientModalOpen.value = true;
 };
 
 // 5. Watches (watch, watchEffect)
@@ -201,6 +211,9 @@ onMounted(() => {
 });
 
 // 7. Meta (useHead, useSeoMeta)
+useHead({
+  title: computed(() => t('Patients Records — Admin Portal')),
+});
 </script>
 
 <style scoped lang="scss">
