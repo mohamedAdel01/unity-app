@@ -38,6 +38,13 @@
       @created="onDoctorCreated"
       @updated="ADMIN_DOCTORS(1)"
     />
+
+    <!-- Modal: Doctor Cases & Consultations Virtual List -->
+    <AdminDoctorCasesModal 
+      :is-open="isDoctorCasesModalOpen"
+      :doctor="selectedDoctorForCases"
+      @close="isDoctorCasesModalOpen = false"
+    />
   </div>
 </template>
 
@@ -51,6 +58,7 @@ import AdminDoctorsHeader from '../../components/admin/AdminDoctorsHeader.vue';
 import AdminDoctorsList from '../../components/admin/AdminDoctorsList.vue';
 import AdminEditScheduleModal from '../../components/admin/AdminEditScheduleModal.vue';
 import AdminDoctorModal from '../../components/admin/AdminDoctorModal.vue';
+import AdminDoctorCasesModal from '../../components/admin/AdminDoctorCasesModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -66,9 +74,11 @@ const activeFilter = ref('all');
 
 const isEditScheduleModalOpen = ref(false);
 const isDoctorModalOpen = ref(false);
+const isDoctorCasesModalOpen = ref(false);
 
 const selectedDoctorForSchedule = ref<any>(null);
 const selectedDoctorToEdit = ref<any>(null);
+const selectedDoctorForCases = ref<any>(null);
 
 const doctors = ref<any[]>([]);
 const totalDoctorsCount = ref(0);
@@ -221,7 +231,8 @@ const openEditDoctor = (doc: any) => {
 };
 
 const onViewCases = (doc: any) => {
-  toast.info(t('Viewing cases for doctor'));
+  selectedDoctorForCases.value = doc;
+  isDoctorCasesModalOpen.value = true;
 };
 
 // Debounce state tracking

@@ -220,7 +220,7 @@ export default {
   async ADMIN_CREATE_PATIENT({ API, payload }: { API: any; payload: { name: string; phone: string } }) {
     return await API('admin/patients', {
       method: 'POST',
-      body: payload,
+      body: JSON.stringify(payload),
     });
   },
 
@@ -228,7 +228,7 @@ export default {
     const { id, ...data } = payload;
     return await API(`admin/patients/${id}`, {
       method: 'PUT',
-      body: data,
+      body: JSON.stringify(data),
     });
   },
 

@@ -154,7 +154,6 @@ const saveExamination = async () => {
           price: Number(form.value.price),
           duration: Number(form.value.duration),
           description: form.value.description?.trim() || null,
-          is_active: true,
         },
       });
 

@@ -2,9 +2,9 @@
   <div class="admin-clinics-page">
     <AdminClinicsHeader
       :active-tab="activeTab"
-      :clinics-count="clinics.length"
-      :examinations-count="services.length"
-      @tab-change="activeTab = $event"
+      :clinics-count="clinicsTotal || clinics.length"
+      :examinations-count="servicesTotal || services.length"
+      @tab-change="onTabChange"
       @new-clinic="openNewClinicModal"
       @new-examination="openNewExaminationModal"
     />
@@ -50,6 +50,7 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
@@ -64,6 +65,7 @@ definePageMeta({
 });
 
 const { t } = useI18n();
+const route = useRoute();
 const api = useUnityApi();
 const toast = useAppToast();
 
@@ -71,12 +73,16 @@ const toast = useAppToast();
 const activeTab = ref<'clinics' | 'services'>('clinics');
 const clinics = ref<any[]>([]);
 const services = ref<any[]>([]);
+const clinicsTotal = ref(0);
+const servicesTotal = ref(0);
 const clinicsPage = ref(1);
 const clinicsHasMore = ref(false);
 const clinicsLoading = ref(false);
+const clinicsLoaded = ref(false);
 const servicesPage = ref(1);
 const servicesHasMore = ref(false);
 const servicesLoading = ref(false);
+const servicesLoaded = ref(false);
 const isClinicModalOpen = ref(false);
 const isExaminationModalOpen = ref(false);
 const selectedClinicToEdit = ref<any | null>(null);
@@ -92,6 +98,15 @@ const serviceOriginalStates: Record<string | number, boolean> = {};
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const onTabChange = (tab: 'clinics' | 'services') => {
+  activeTab.value = tab;
+  if (tab === 'clinics' && !clinicsLoaded.value) {
+    ADMIN_CLINICS();
+  } else if (tab === 'services' && !servicesLoaded.value) {
+    ADMIN_EXAMINATIONS();
+  }
+};
+
 const openNewClinicModal = () => {
   selectedClinicToEdit.value = null;
   isClinicModalOpen.value = true;
@@ -134,7 +149,9 @@ const ADMIN_CLINICS = async (page: any = 1) => {
       clinics.value.push(...items);
     }
     clinicsPage.value = targetPage;
+    clinicsTotal.value = res?.pagination?.total ?? res?.total ?? items.length;
     clinicsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+    clinicsLoaded.value = true;
   } catch (err) {
     if (targetPage === 1) clinics.value = [];
   } finally {
@@ -172,7 +189,9 @@ const ADMIN_EXAMINATIONS = async (page: any = 1) => {
       services.value.push(...items);
     }
     servicesPage.value = targetPage;
+    servicesTotal.value = res?.pagination?.total ?? res?.total ?? items.length;
     servicesHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+    servicesLoaded.value = true;
   } catch (err) {
     if (targetPage === 1) services.value = [];
   } finally {
@@ -266,8 +285,12 @@ const toggleServiceStatus = (srv: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  ADMIN_CLINICS();
-  ADMIN_EXAMINATIONS();
+  if (route.query.tab === 'services') {
+    activeTab.value = 'services';
+    ADMIN_EXAMINATIONS();
+  } else {
+    ADMIN_CLINICS();
+  }
 });
 
 onBeforeUnmount(() => {
@@ -290,3 +313,4 @@ useHead({
   direction: rtl;
 }
 </style>
+

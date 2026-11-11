@@ -39,11 +39,11 @@
 
           <button class="menu-item-row" @click="emit('action', 'admin')">
             <div class="item-icon-box green">
-              <i class="pi pi-users"></i>
+              <i class="pi pi-shield"></i>
             </div>
             <div class="item-text-box">
-              <h6>{{ t('Admin Panel • Patient Records') }}</h6>
-              <small>{{ t('Manage patients records and files') }}</small>
+              <h6>{{ t('Executive Administration • Overview') }}</h6>
+              <small>{{ t('Hospital operations & administrative overview') }}</small>
             </div>
             <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
           </button>

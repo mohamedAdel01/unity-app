@@ -131,7 +131,7 @@ const handleSubmit = async () => {
       };
 
       emit('updated', updatedPatient);
-      toast.success(t('Patient updated successfully!'), t('Patients'));
+      toast.success(t('Patient updated successfully!'));
       close();
     } else {
       const res = await api.apiRequest({
@@ -152,11 +152,11 @@ const handleSubmit = async () => {
       };
 
       emit('created', createdPatient);
-      toast.success(t('Patient registered successfully!'), t('Patients'));
+      toast.success(t('Patient registered successfully!'));
       close();
     }
   } catch (err: any) {
-    toast.error(err?.message || (isEdit.value ? t('Failed to update patient') : t('Failed to register patient')), t('Patients'));
+    toast.error(err?.message || (isEdit.value ? t('Failed to update patient') : t('Failed to register patient')));
   } finally {
     loading.value = false;
   }

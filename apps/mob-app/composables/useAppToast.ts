@@ -115,6 +115,21 @@ export function useAppToast() {
     let message = t(options.message, options.message);
     let title = options.title ? t(options.title, options.title) : undefined;
 
+    // Never show generic title for success toasts - keep message direct and brief ("الهدف فقط")
+    if (type === 'success') {
+      title = undefined;
+    } else if (title && (
+      title.includes('نجاح') ||
+      title === 'تم' ||
+      title.toLowerCase() === 'success' ||
+      title.toLowerCase() === 'info' ||
+      title === t('Success') ||
+      title === t('Notification') ||
+      title === t('Notice')
+    )) {
+      title = undefined;
+    }
+
     if (type === 'error') {
       const formatted = formatErrorMessage(options.message, t);
       if (!title && formatted.title) {
@@ -149,19 +164,19 @@ export function useAppToast() {
   };
 
   const error = (message: string, title?: string, duration?: number) => {
-    return show({ type: 'error', message, title: title || t('Error'), duration });
+    return show({ type: 'error', message, title, duration });
   };
 
   const success = (message: string, title?: string, duration?: number) => {
-    return show({ type: 'success', message, title: title || t('Success'), duration });
+    return show({ type: 'success', message, title, duration });
   };
 
   const warning = (message: string, title?: string, duration?: number) => {
-    return show({ type: 'warning', message, title: title || t('Notice'), duration });
+    return show({ type: 'warning', message, title, duration });
   };
 
   const info = (message: string, title?: string, duration?: number) => {
-    return show({ type: 'info', message, title: title || t('Notification'), duration });
+    return show({ type: 'info', message, title, duration });
   };
 
   const remove = (id: string) => {

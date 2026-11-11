@@ -54,15 +54,26 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import AdminTopHeader from './AdminTopHeader.vue';
 
-const props = defineProps<{
-  totalCount: number;
-  todayCount?: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    totalCount: number;
+    todayCount?: number;
+    recentCount?: number;
+    underReviewCount?: number;
+    activeFilter?: string;
+  }>(),
+  {
+    todayCount: 0,
+    recentCount: 0,
+    underReviewCount: 0,
+    activeFilter: 'all',
+  }
+);
 
 const emit = defineEmits<{
   (e: 'search', q: string): void;
@@ -77,16 +88,16 @@ const { t } = useI18n();
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
 
-const activeFilter = ref('all');
+const activeFilter = ref(props.activeFilter || 'all');
 
 let debounceTimer: any = null;
 
 // 3. Computed (computed properties)
 const filterOptions = computed(() => [
-  { key: 'all', label: `${t('All')} (${props.totalCount})` },
-  { key: 'today', label: `${t('Today')} (${props.todayCount || 18})` },
-  { key: 'recent', label: t('Recently Active') },
-  { key: 'under_review', label: t('Under Review') },
+  { key: 'all', label: `${t('All')} (${props.totalCount ?? 0})` },
+  { key: 'today', label: `${t('Today')} (${props.todayCount ?? 0})` },
+  { key: 'recent', label: `${t('Recently Active')} (${props.recentCount ?? 0})` },
+  { key: 'under_review', label: `${t('Under Review')} (${props.underReviewCount ?? 0})` },
 ]);
 
 // 4. Methods (functions, handlers)
@@ -108,6 +119,12 @@ const selectFilter = (key: string) => {
 };
 
 // 5. Watches (watch, watchEffect)
+watch(
+  () => props.activeFilter,
+  (val) => {
+    if (val) activeFilter.value = val;
+  }
+);
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 
@@ -275,7 +292,7 @@ const selectFilter = (key: string) => {
 
     .search-icon {
       position: absolute;
-      inset-inline-end: 16px;
+      inset-inline-start: 16px;
       color: var(--unity-text-dim);
       font-size: 1rem;
       pointer-events: none;
@@ -287,8 +304,8 @@ const selectFilter = (key: string) => {
       background: var(--unity-surface);
       border: 1.5px solid var(--unity-border);
       border-radius: 24px;
-      padding-inline-start: 16px;
-      padding-inline-end: 42px;
+      padding-inline-start: 44px;
+      padding-inline-end: 40px;
       font-size: 0.85rem;
       color: var(--unity-text-main);
       transition: all 0.2s;
@@ -307,7 +324,7 @@ const selectFilter = (key: string) => {
 
     .clear-search-btn {
       position: absolute;
-      inset-inline-start: 14px;
+      inset-inline-end: 14px;
       background: transparent;
       border: none;
       color: var(--unity-text-dim);

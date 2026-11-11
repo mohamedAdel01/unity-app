@@ -136,51 +136,53 @@ const getStackStyle = (stackIndex: number) => {
 <style scoped lang="scss">
 .toast-portal-root {
   position: absolute;
-  top: max(10px, env(safe-area-inset-top, 10px));
+  top: max(8px, env(safe-area-inset-top, 8px));
   left: 0;
   right: 0;
   z-index: 999999;
   pointer-events: none;
   display: flex;
   justify-content: center;
-  padding: 0 16px;
+  padding: 0 12px;
 }
 
 .toast-stack-wrapper {
   position: relative;
-  width: 100%;
-  max-width: 320px;
-  min-height: 44px;
+  width: auto;
+  max-width: fit-content;
+  min-height: 32px;
   display: flex;
   justify-content: center;
   pointer-events: none;
-  transition: min-height 0.28s ease;
+  transition: min-height 0.25s ease;
 
   &.is-fanned {
-    min-height: 140px;
+    min-height: 100px;
   }
 }
 
 .toast-card {
   position: absolute;
   top: 0;
-  width: 100%;
-  display: flex;
+  width: auto;
+  max-width: min(88vw, 300px);
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 14px;
+  gap: 7px;
+  padding: 5px 9px 5px 10px;
+  border-radius: 999px;
   background: var(--unity-surface, #ffffff);
   border: 1px solid var(--unity-border, rgba(0, 0, 0, 0.08));
-  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transform-origin: top center;
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.32s ease;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s ease;
   overflow: hidden;
   cursor: pointer;
+  white-space: nowrap;
 
   &.is-front {
     cursor: default;
@@ -301,7 +303,7 @@ const getStackStyle = (stackIndex: number) => {
   :global([data-theme='dark']) & {
     background: #1e293b;
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.45);
 
     &.toast-error {
       background: rgba(69, 10, 10, 0.95);
@@ -331,13 +333,13 @@ const getStackStyle = (stackIndex: number) => {
 
   .toast-icon-wrapper {
     flex-shrink: 0;
-    width: 22px;
-    height: 22px;
+    width: 17px;
+    height: 17px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.72rem;
+    font-size: 0.62rem;
   }
 
   .toast-body {
@@ -345,13 +347,13 @@ const getStackStyle = (stackIndex: number) => {
     min-width: 0;
 
     .toast-text-line {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      gap: 5px;
+      max-width: 100%;
 
       .toast-title {
-        font-size: 0.76rem;
+        font-size: 0.72rem;
         font-weight: 700;
         line-height: 1.2;
         white-space: nowrap;
@@ -363,18 +365,20 @@ const getStackStyle = (stackIndex: number) => {
       }
 
       .toast-message {
-        font-size: 0.74rem;
-        font-weight: 500;
-        line-height: 1.3;
-        word-break: break-word;
+        font-size: 0.72rem;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
 
   .toast-close-btn {
     flex-shrink: 0;
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     background: transparent;
     border: none;
@@ -382,7 +386,7 @@ const getStackStyle = (stackIndex: number) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.65rem;
+    font-size: 0.58rem;
     cursor: pointer;
     transition: all 0.2s ease;
     padding: 0;
@@ -398,8 +402,8 @@ const getStackStyle = (stackIndex: number) => {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    opacity: 0.65;
+    height: 1.5px;
+    opacity: 0.75;
     animation-name: toastProgress;
     animation-timing-function: linear;
     animation-fill-mode: forwards;

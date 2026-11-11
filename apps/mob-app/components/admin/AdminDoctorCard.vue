@@ -30,18 +30,30 @@
         </div>
       </div>
 
-      <!-- Left Side: Status Switch Toggle -->
-      <button 
-        type="button" 
-        class="unity-switch-toggle" 
-        :class="{ 'active': doctor.is_active }" 
-        :aria-checked="doctor.is_active"
-        role="switch"
-        :title="doctor.is_active ? t('Open Clinic') : t('Unavailable')"
-        @click.stop="emit('toggle-status', doctor)"
-      >
-        <span class="switch-slider"></span>
-      </button>
+      <!-- Left Side: Controls Cell (Edit Icon Button + Status Switch Toggle) -->
+      <div class="doctor-controls-cell">
+        <button 
+          type="button" 
+          class="btn-icon-edit" 
+          :title="t('Edit Doctor')" 
+          :aria-label="t('Edit Doctor')"
+          @click.stop="emit('edit', doctor)"
+        >
+          <i class="pi pi-pencil"></i>
+        </button>
+
+        <button 
+          type="button" 
+          class="unity-switch-toggle" 
+          :class="{ 'active': doctor.is_active }" 
+          :aria-checked="doctor.is_active"
+          role="switch"
+          :title="doctor.is_active ? t('Open Clinic') : t('Unavailable')"
+          @click.stop="emit('toggle-status', doctor)"
+        >
+          <span class="switch-slider"></span>
+        </button>
+      </div>
     </div>
 
     <!-- 2. Schedule Row (Optional / If provided) -->
@@ -50,16 +62,11 @@
       <span>{{ doctor.schedule_time }}</span>
     </div>
 
-    <!-- 3. Action Buttons Row -->
+    <!-- 3. Action Buttons Row (Full Width - 2 Buttons) -->
     <div class="card-action-buttons">
-      <!-- Edit Doctor Profile Action -->
-      <button class="btn-edit-doctor" :title="t('Edit Doctor')" @click="emit('edit', doctor)">
-        <i class="pi pi-pencil"></i>
-        <span>{{ t('Edit') }}</span>
-      </button>
-
       <!-- Edit Schedule Action -->
       <button 
+        type="button"
         class="btn-edit-schedule" 
         :class="{ 'is-primary': doctor.primary_action }"
         @click="emit('edit-schedule', doctor)"
@@ -69,7 +76,11 @@
       </button>
 
       <!-- View Cases Action -->
-      <button class="btn-view-cases" @click="emit('view-cases', doctor)">
+      <button 
+        type="button"
+        class="btn-view-cases" 
+        @click="emit('view-cases', doctor)"
+      >
         <i class="pi pi-file"></i>
         <span>{{ t('Cases') }}<template v-if="doctor.cases_count !== undefined && doctor.cases_count !== null"> ({{ doctor.cases_count }})</template></span>
       </button>
@@ -234,37 +245,68 @@ const resolveAvatar = (url?: string) => {
       }
     }
 
-    .unity-switch-toggle {
-      position: relative;
-      width: 44px;
-      height: 24px;
-      border-radius: 9999px;
-      background: #cbd5e1;
-      border: none;
-      padding: 2px;
-      cursor: pointer;
-      outline: none;
-      display: inline-flex;
+    .doctor-controls-cell {
+      display: flex;
       align-items: center;
-      transition: background-color 0.25s ease;
-      flex-shrink: 0;
-      direction: ltr;
+      gap: 10px;
 
-      .switch-slider {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateX(0);
+      .btn-icon-edit {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #047857;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0;
+
+        &:hover {
+          background: #d1fae5;
+          transform: translateY(-1px);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
       }
 
-      &.active {
-        background: #059669;
+      .unity-switch-toggle {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        border-radius: 9999px;
+        background: #cbd5e1;
+        border: none;
+        padding: 2px;
+        cursor: pointer;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        transition: background-color 0.25s ease;
+        flex-shrink: 0;
+        direction: ltr;
 
         .switch-slider {
-          transform: translateX(20px);
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #ffffff;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+          transform: translateX(0);
+        }
+
+        &.active {
+          background: #059669;
+
+          .switch-slider {
+            transform: translateX(20px);
+          }
         }
       }
     }
@@ -311,16 +353,6 @@ const resolveAvatar = (url?: string) => {
 
       i {
         font-size: 0.85rem;
-      }
-    }
-
-    .btn-edit-doctor {
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
-
-      &:hover {
-        background: #d1fae5;
       }
     }
 

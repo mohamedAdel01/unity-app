@@ -33,8 +33,18 @@ export default defineNuxtPlugin((nuxtApp) => {
       ...headers,
     };
 
-    if (!(body instanceof FormData)) {
-      finalHeaders['Content-Type'] = 'application/json';
+    let serializedBody = body;
+    if (body !== undefined && body !== null) {
+      if (body instanceof FormData) {
+        delete finalHeaders['Content-Type'];
+      } else {
+        if (!finalHeaders['Content-Type']) {
+          finalHeaders['Content-Type'] = 'application/json';
+        }
+        if (typeof body === 'object') {
+          serializedBody = JSON.stringify(body);
+        }
+      }
     }
 
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
@@ -42,7 +52,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     const response = await fetch(url, {
       headers: finalHeaders,
-      body,
+      body: serializedBody,
       ...restOptions,
     });
 

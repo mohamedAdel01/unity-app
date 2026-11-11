@@ -4,8 +4,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
   ssr: false, // SPA Mode for smooth mobile-app interactions
 
-  experimental: {
-    appManifest: false, // Disables #app-manifest virtual import for clean SPA & Capacitor builds
+  nitro: {
+    prerender: {
+      crawlLinks: false,
+      failOnError: false,
+    },
   },
 
   modules: [

@@ -2,8 +2,11 @@
   <div class="admin-patients-page">
     <!-- Admin Header with Switch to Patient Mode & Search & Filters -->
     <AdminPatientsHeader 
-      :total-count="totalDisplayCount" 
-      :today-count="todayPatientsCount"
+      :total-count="filterCounts.all" 
+      :today-count="filterCounts.today"
+      :recent-count="filterCounts.recent"
+      :under-review-count="filterCounts.under_review"
+      :active-filter="activeFilter"
       @search="onSearch"
       @filter="onFilter"
       @new-patient="openNewPatientModal"
@@ -11,7 +14,7 @@
 
     <!-- Modular Patients Virtual List (10 by 10) -->
     <AdminPatientsList
-      :patients="filteredPatients"
+      :patients="patients"
       :has-more="patientsHasMore"
       :loading="patientsLoading"
       @view-file="onViewMedicalFile"
@@ -79,54 +82,46 @@ const patients = ref<any[]>([]);
 const patientsPage = ref(1);
 const patientsHasMore = ref(false);
 const patientsLoading = ref(false);
-const totalDisplayCount = ref(0);
+
+const filterCounts = ref({
+  all: 0,
+  today: 0,
+  recent: 0,
+  under_review: 0,
+});
 
 // 3. Computed (computed properties)
-const todayPatientsCount = computed(() => {
-  return patients.value.filter(p => p.is_today).length;
-});
-
-// Search and Filter computation
-const filteredPatients = computed(() => {
-  let list = patients.value;
-
-  // Search filter
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase();
-    list = list.filter((p) => {
-      const matchName = p.name?.toLowerCase().includes(q);
-      const matchMrn = p.mrn?.includes(q);
-      const matchPhone = p.phone?.includes(q);
-      const matchNational = p.national_id?.includes(q);
-      const matchClinic = p.clinic?.toLowerCase().includes(q);
-      return matchName || matchMrn || matchPhone || matchNational || matchClinic;
-    });
-  }
-
-  // Pill filter
-  if (activeFilter.value === 'today') {
-    list = list.filter(p => p.is_today);
-  } else if (activeFilter.value === 'recent') {
-    list = list.slice(0, 3);
-  } else if (activeFilter.value === 'under_review') {
-    list = list.filter(p => p.status === 'review');
-  }
-
-  return list;
-});
 
 // 4. Methods (functions, handlers)
-// Load backend patients (10 by 10)
+// Load backend patients (10 by 10) with server-side search and filters
 const ADMIN_PATIENTS = async (page: any = 1) => {
   const targetPage = typeof page === 'number' ? page : 1;
   try {
     patientsLoading.value = true;
+    const filterParams: any = { page: targetPage, limit: 10 };
+    if (activeFilter.value && activeFilter.value !== 'all') {
+      filterParams.filter = activeFilter.value;
+    }
+    if (searchQuery.value) {
+      filterParams.search = searchQuery.value;
+    }
+
     const res = await api.apiRequest({ 
       service: 'ADMIN_PATIENTS',
-      filter: { page: targetPage, limit: 10 },
+      filter: filterParams,
     });
-    const raw = res?.data?.patients || (Array.isArray(res?.data) ? res.data : []);
-    totalDisplayCount.value = res?.data?.total || res?.total || raw.length;
+    const raw = res?.data?.patients || (Array.isArray(res?.data) ? res.data : (res?.data?.items || []));
+    
+    if (res?.data?.counts) {
+      filterCounts.value = {
+        all: res.data.counts.all ?? 0,
+        today: res.data.counts.today ?? 0,
+        recent: res.data.counts.recent ?? 0,
+        under_review: res.data.counts.under_review ?? 0,
+      };
+    } else {
+      filterCounts.value.all = res?.pagination?.total ?? raw.length;
+    }
 
     const items = raw.map((p: any) => ({
       id: p.id,
@@ -155,7 +150,6 @@ const ADMIN_PATIENTS = async (page: any = 1) => {
   } catch (err) {
     if (targetPage === 1) {
       patients.value = [];
-      totalDisplayCount.value = 0;
     }
   } finally {
     patientsLoading.value = false;
@@ -170,15 +164,18 @@ const loadMorePatients = () => {
 
 const onSearch = (q: string) => {
   searchQuery.value = q;
+  ADMIN_PATIENTS(1);
 };
 
 const onFilter = (key: string) => {
   activeFilter.value = key;
+  ADMIN_PATIENTS(1);
 };
 
 const resetFilters = () => {
   searchQuery.value = '';
   activeFilter.value = 'all';
+  ADMIN_PATIENTS(1);
 };
 
 const openNewPatientModal = () => {

@@ -92,7 +92,7 @@ const saveClinic = async () => {
     } else {
       const res = await api.apiRequest({
         service: 'ADMIN_CREATE_CLINIC',
-        payload: { name: newClinicName.value.trim(), is_active: true },
+        payload: { name: newClinicName.value.trim() },
       });
       if (res?.status && res?.data) {
         const created = {

@@ -155,31 +155,31 @@ const bookOffer = (offer: any) => {
 
   .offers-carousel {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     overflow-x: auto;
     scrollbar-width: none;
-    padding: 4px 4px 10px;
+    padding: 2px 2px 8px;
 
     &::-webkit-scrollbar {
       display: none;
     }
 
     .offer-card {
-      width: 208px;
+      width: 172px;
       flex-shrink: 0;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
-      border-radius: 16px;
+      border-radius: 14px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
       cursor: pointer;
       transition: all 0.2s ease;
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.05);
         border-color: var(--unity-primary-tint);
 
         .offer-img {
@@ -195,7 +195,7 @@ const bookOffer = (offer: any) => {
       .offer-image-box {
         position: relative;
         width: 100%;
-        height: 92px;
+        height: 76px;
         background: #f1f5f9;
         overflow: hidden;
 
@@ -219,38 +219,38 @@ const bookOffer = (offer: any) => {
 
         .discount-tag {
           position: absolute;
-          top: 8px;
-          inset-inline-start: 8px;
+          top: 6px;
+          inset-inline-start: 6px;
           background: #ef4444;
           color: #ffffff;
-          font-size: 0.65rem;
+          font-size: 0.60rem;
           font-weight: 800;
-          padding: 2px 7px;
-          border-radius: 10px;
-          box-shadow: 0 2px 5px rgba(239, 68, 68, 0.3);
+          padding: 1.5px 6px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
           direction: ltr;
         }
       }
 
       .offer-body {
-        padding: 10px 12px 12px;
+        padding: 8px 10px 10px;
         display: flex;
         flex-direction: column;
         flex: 1;
 
         h5 {
           margin: 0;
-          font-size: 0.84rem;
+          font-size: 0.78rem;
           font-weight: 800;
           color: var(--unity-text-main);
-          line-height: 1.32;
+          line-height: 1.28;
         }
 
         p {
-          margin: 3px 0 8px;
-          font-size: 0.68rem;
+          margin: 2px 0 6px;
+          font-size: 0.64rem;
           color: var(--unity-text-muted);
-          line-height: 1.35;
+          line-height: 1.32;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -262,7 +262,7 @@ const bookOffer = (offer: any) => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 6px;
+          padding-top: 5px;
           border-top: 1px dashed var(--unity-border-subtle);
 
           .prices {
@@ -270,13 +270,13 @@ const bookOffer = (offer: any) => {
             flex-direction: column;
 
             .current-price {
-              font-size: 0.88rem;
+              font-size: 0.80rem;
               font-weight: 800;
               color: var(--unity-primary);
             }
 
             .original-price {
-              font-size: 0.68rem;
+              font-size: 0.62rem;
               color: var(--unity-text-dim);
               text-decoration: line-through;
               font-weight: 600;
@@ -287,12 +287,12 @@ const bookOffer = (offer: any) => {
             background: var(--unity-primary);
             color: #ffffff;
             border: none;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 0.70rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.66rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(4, 120, 87, 0.18);
+            box-shadow: 0 2px 5px rgba(4, 120, 87, 0.16);
             transition: all 0.2s ease;
 
             &:hover {
