@@ -1,16 +1,7 @@
 <template>
   <div class="catalog-container">
-    <!-- Switcher Tabs (خدمات وفحوصات / أطباء واستشاريين) -->
+    <!-- Switcher Tabs (أطباء واستشاريين / خدمات وفحوصات) -->
     <div class="view-tabs-switch">
-      <button 
-        class="tab-btn" 
-        :class="{ 'active': activeTab === 'services' }"
-        @click="switchTab('services')"
-      >
-        <i class="pi pi-heart-fill"></i>
-        <span>{{ t('Services & Labs') }}</span>
-      </button>
-
       <button 
         class="tab-btn" 
         :class="{ 'active': activeTab === 'doctors' }"
@@ -18,6 +9,19 @@
       >
         <i class="pi pi-user-plus"></i>
         <span>{{ t('Top Specialists') }}</span>
+      </button>
+
+      <button 
+        class="tab-btn" 
+        :class="{ 'active': activeTab === 'services' }"
+        @click="switchTab('services')"
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon-svg">
+          <path d="M10 2v7.31L4.35 18.5A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.72-3.5L14 9.31V2"/>
+          <path d="M8.5 2h7"/>
+          <path d="M7 16h10"/>
+        </svg>
+        <span>{{ t('Services & Labs') }}</span>
       </button>
     </div>
 
@@ -89,12 +93,12 @@
                 <div v-else class="doc-initial-badge">
                   <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
                 </div>
-                <span class="star-pill">⭐ {{ doc.rating || '4.9' }}</span>
+                <span v-if="doc.rating" class="star-pill">⭐ {{ doc.rating }}</span>
               </div>
               <div class="doc-info-block">
                 <h5>{{ doc.name }}</h5>
-                <p v-if="doc.specialty || doc.clinic?.name" class="specialty-title">{{ doc.specialty || doc.clinic?.name }}</p>
-                <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-map-marker"></i> {{ doc.clinic.name }}</span>
+                <p v-if="doc.specialty && doc.specialty !== doc.clinic?.name" class="specialty-title">{{ doc.specialty }}</p>
+                <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-building"></i> {{ doc.clinic.name }}</span>
                 <div v-if="doc.consultation_fee" class="fee-badge">
                   {{ t('Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
                 </div>
@@ -140,7 +144,7 @@ const bookingModal = useBookingModal();
 const globalStore = useGlobalStore();
 
 // 2. Data (refs, reactive state)
-const activeTab = ref<'services' | 'doctors'>('services');
+const activeTab = ref<'services' | 'doctors'>('doctors');
 
 const searchQuery = ref('');
 
@@ -218,9 +222,9 @@ const DOCTORS = async (page = 1) => {
     const items = raw.map((d: any) => ({
       id: d.id,
       name: d.user?.name || d.name,
-      specialty: d.clinic?.name || (t('Specialist Consultant')),
+      specialty: d.specialty || '',
       clinic: d.clinic,
-      rating: '4.9',
+      rating: d.rating || null,
       avatar: d.user?.avatar || d.avatar || '',
       consultation_fee: d.consultation_fee || 250,
     }));

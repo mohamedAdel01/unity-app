@@ -234,7 +234,7 @@ useHead({
 
 <style scoped lang="scss">
 .admin-patients-page {
-  padding: 14px 18px 36px;
+  padding: 14px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;

@@ -34,7 +34,7 @@
           </div>
           <div class="form-group">
             <label>{{ t('New Time Slot') }}</label>
-            <input v-model="form.time" type="time" required />
+            <AppTimePicker v-model="form.time" :title="t('New Time Slot')" />
           </div>
         </div>
 
@@ -51,6 +51,7 @@
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import AppTimePicker from '../common/AppTimePicker.vue';
 
 const props = defineProps<{
   isOpen: boolean;

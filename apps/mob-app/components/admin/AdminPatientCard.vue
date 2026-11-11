@@ -144,16 +144,12 @@ const getInitial = (name?: string) => {
 };
 
 const formatPhone = (phone?: string) => {
-  if (!phone) return '+966 50 123 4567';
-  if (phone.startsWith('+')) return phone;
-  if (phone.startsWith('05')) {
-    return `+966 ${phone.substring(1, 3)} ${phone.substring(3, 6)} ${phone.substring(6)}`;
-  }
+  if (!phone) return '';
   return phone;
 };
 
 const maskNationalId = (id?: string) => {
-  if (!id) return '••••••1042';
+  if (!id) return '';
   if (id.length <= 4) return `••••••${id}`;
   const lastFour = id.slice(-4);
   return `••••••${lastFour}`;
@@ -374,23 +370,32 @@ const resolveAvatar = (url?: string) => {
       .info-cell {
         display: flex;
         flex-direction: column;
-        text-align: right;
+        align-items: flex-start;
+        text-align: start;
 
         .cell-label {
           font-size: 0.72rem;
           color: var(--unity-text-dim);
           font-weight: 500;
           margin-bottom: 2px;
+          width: 100%;
         }
 
         .cell-value {
           font-size: 0.88rem;
           font-weight: 700;
           color: var(--unity-text-main);
+          width: 100%;
 
           &.ltr-text {
             direction: ltr;
-            text-align: start;
+            text-align: right;
+            unicode-bidi: isolate;
+
+            :global([dir='ltr']) &,
+            :global(html:not([dir='rtl'])) & {
+              text-align: left;
+            }
           }
         }
       }

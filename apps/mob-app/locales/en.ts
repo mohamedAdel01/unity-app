@@ -28,6 +28,7 @@ export default {
   "Time": "Time",
   "Date": "Date",
   "minute": "minute",
+  "minutes": "minutes",
   "mins": "mins",
   "SAR": "SAR",
   "EGP": "EGP",

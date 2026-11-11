@@ -115,7 +115,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .records-page {
-  padding: 14px 18px 48px;
+  padding: 14px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;

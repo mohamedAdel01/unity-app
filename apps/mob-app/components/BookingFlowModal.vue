@@ -57,9 +57,9 @@
                 </div>
 
                 <div class="meta-item">
-                  <div class="meta-icon"><i class="pi pi-map-marker"></i></div>
+                  <div class="meta-icon"><i class="pi pi-building"></i></div>
                   <div class="meta-text">
-                    <span class="meta-label">{{ t('Clinic Location') }}</span>
+                    <span class="meta-label">{{ t('Clinic') }}</span>
                     <strong class="meta-val">{{ doctor?.clinic?.name || t('Certified Medical Center') }}</strong>
                   </div>
                 </div>

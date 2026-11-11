@@ -213,6 +213,10 @@ const onDoctorCreated = (newDoc?: any) => {
     activeFilter.value = 'all';
   }
   ADMIN_DOCTORS(1);
+
+  if (newDoc) {
+    openEditSchedule(newDoc);
+  }
 };
 
 const openEditSchedule = (doc: any) => {
@@ -300,7 +304,7 @@ useHead({
 
 <style scoped lang="scss">
 .admin-doctors-page {
-  padding: 14px 18px 40px;
+  padding: 14px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;

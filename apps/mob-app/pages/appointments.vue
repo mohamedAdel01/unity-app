@@ -40,7 +40,7 @@ const onRefresh = async () => {
 
 <style scoped lang="scss">
 .appointments-page {
-  padding: 16px 18px 48px;
+  padding: 16px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;

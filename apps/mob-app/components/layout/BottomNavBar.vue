@@ -21,7 +21,7 @@
       >
         <i class="pi pi-plus"></i>
       </button>
-      <span class="fab-label">{{ t('Doctors') }}</span>
+      <span class="fab-label">{{ t('Book') }}</span>
     </div>
 
     <!-- Tab 4: Records -->
@@ -65,38 +65,46 @@ const bookingModal = useBookingModal();
 
 <style scoped lang="scss">
 .bottom-nav-bar {
-  position: relative;
-  flex-shrink: 0;
-  width: 100%;
-  height: 68px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--unity-surface);
-  border-top: 1px solid var(--unity-border);
+  position: absolute;
+  bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  left: 16px;
+  right: 16px;
+  height: 66px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding-left: 10px;
-  padding-right: 10px;
-  z-index: 40;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  padding: 0 8px;
+  z-index: 45;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+
+  :global([data-theme='dark']) & {
+    background: rgba(30, 41, 59, 0.82);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
 
   .nav-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     color: var(--unity-text-muted);
     text-decoration: none;
     font-size: 0.72rem;
-    font-weight: 600;
-    width: 62px;
-    height: 52px;
-    border-radius: 14px;
-    transition: all 0.2s ease;
+    font-weight: 700;
+    width: 58px;
+    height: 48px;
+    border-radius: 24px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
     i {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       transition: transform 0.2s ease;
     }
 
@@ -109,7 +117,7 @@ const bookingModal = useBookingModal();
       background: var(--unity-primary-light);
 
       i {
-        transform: scale(1.1);
+        transform: scale(1.12);
         color: var(--unity-primary);
       }
     }
@@ -118,7 +126,7 @@ const bookingModal = useBookingModal();
   // Center FAB Button (+)
   .center-fab-wrapper {
     position: relative;
-    top: -14px;
+    top: -16px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -130,18 +138,23 @@ const bookingModal = useBookingModal();
       border-radius: 50%;
       background: var(--unity-primary);
       color: #ffffff;
-      border: 4px solid var(--unity-surface);
+      border: 4px solid rgba(255, 255, 255, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.35rem;
       cursor: pointer;
-      box-shadow: 0 6px 18px rgba(13, 148, 136, 0.35);
+      box-shadow: 0 3px 10px rgba(4, 120, 87, 0.16);
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      :global([data-theme='dark']) & {
+        border-color: rgba(30, 41, 59, 0.85);
+      }
 
       &:hover {
         transform: scale(1.08) rotate(90deg);
         background: var(--unity-primary-dark);
+        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.22);
       }
 
       &:active {
@@ -151,7 +164,7 @@ const bookingModal = useBookingModal();
 
     .fab-label {
       font-size: 0.68rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--unity-text-muted);
       margin-top: 1px;
     }

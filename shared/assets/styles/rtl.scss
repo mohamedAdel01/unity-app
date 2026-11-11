@@ -15,13 +15,17 @@
     margin-left: auto;
   }
   
-  // Flip directional navigation chevrons
+  // Flip directional navigation chevrons and exit icons
   .icon-arrow-next {
     transform: rotate(180deg);
   }
   
   .icon-arrow-prev {
     transform: rotate(0deg);
+  }
+
+  .rtl-flip {
+    transform: scaleX(-1);
   }
 }
 

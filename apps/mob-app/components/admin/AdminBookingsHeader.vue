@@ -52,7 +52,8 @@
           <span>{{ t('Pending Invoices') }}</span>
         </div>
         <h3 class="stat-amount-main">
-          <span>{{ stats.pending_invoices || 0 }} {{ t('Invoices') }}</span>
+          <span>{{ stats.pending_invoices || 0 }}</span>
+          <small>{{ t('Invoices') }}</small>
         </h3>
         <span class="stat-sub-link">{{ t('Under Review') }}</span>
       </div>
@@ -296,7 +297,7 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
       border: none;
       background: transparent;
       color: var(--unity-text-muted);
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
@@ -338,44 +339,69 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.72rem;
+        font-size: 0.8rem;
         color: var(--unity-text-muted);
         font-weight: 600;
 
         i {
-          font-size: 0.85rem;
+          font-size: 0.9rem;
           color: #047857;
         }
       }
 
-      .stat-amount-green {
+      .stat-amount-green,
+      .stat-amount-main {
         font-size: 1.35rem;
         font-weight: 800;
-        color: #047857;
-        margin: 2px 0;
+        margin: 4px 0;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+
+        span {
+          font-size: 1.35rem;
+          font-weight: 800;
+          line-height: 1.2;
+        }
 
         small {
-          font-size: 0.72rem;
+          font-size: 0.8rem;
           font-weight: 700;
-          margin-inline-start: 4px;
+        }
+      }
+
+      .stat-amount-green {
+        color: #047857;
+
+        span {
+          color: #047857;
+        }
+
+        small {
+          color: #047857;
         }
       }
 
       .stat-amount-main {
-        font-size: 1.25rem;
-        font-weight: 800;
         color: var(--unity-text-main);
-        margin: 2px 0;
+
+        span {
+          color: var(--unity-text-main);
+        }
+
+        small {
+          color: var(--unity-text-muted);
+        }
       }
 
       .stat-sub-caption {
-        font-size: 0.72rem;
+        font-size: 0.78rem;
         color: var(--unity-text-muted);
         font-weight: 500;
       }
 
       .stat-sub-link {
-        font-size: 0.72rem;
+        font-size: 0.78rem;
         color: #047857;
         font-weight: 700;
       }
@@ -401,7 +427,7 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
       color: var(--unity-text-muted);
-      font-size: 0.76rem;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
@@ -448,13 +474,13 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
       gap: 6px;
 
       h4 {
-        font-size: 1.05rem;
+        font-size: 1.02rem;
         font-weight: 800;
         color: var(--unity-text-main);
       }
 
       small {
-        font-size: 0.75rem;
+        font-size: 0.82rem;
         color: var(--unity-text-muted);
         font-weight: 600;
       }

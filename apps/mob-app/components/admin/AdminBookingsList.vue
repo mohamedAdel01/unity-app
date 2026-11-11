@@ -135,18 +135,18 @@ const { t } = useI18n();
     }
 
     h5 {
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 800;
       color: var(--unity-text-main);
       margin: 0;
     }
 
     p {
-      font-size: 0.8rem;
+      font-size: 0.84rem;
       color: var(--unity-text-muted);
       margin: 0;
       max-width: 280px;
-      line-height: 1.4;
+      line-height: 1.5;
     }
   }
 

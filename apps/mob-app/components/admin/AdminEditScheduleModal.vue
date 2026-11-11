@@ -68,14 +68,6 @@
             <i class="pi pi-calendar"></i>
             <h6>{{ t('No working hours for this day') }}</h6>
             <p>{{ t('Click add slot to enable working hours') }}</p>
-            <button 
-              type="button" 
-              class="btn-add-first-slot"
-              @click="addSlot(selectedDay)"
-            >
-              <i class="pi pi-plus"></i>
-              <span>{{ t('Add Slot') }}</span>
-            </button>
           </div>
 
           <!-- List of Slots for This Day -->
@@ -120,18 +112,12 @@
               <div class="slot-time-inputs">
                 <div class="time-field">
                   <label>{{ t('Start Time') }}</label>
-                  <div class="time-input-shell">
-                    <i class="pi pi-clock"></i>
-                    <input v-model="slot.start_time" type="time" required />
-                  </div>
+                  <AppTimePicker v-model="slot.start_time" :title="t('Start Time')" />
                 </div>
 
                 <div class="time-field">
                   <label>{{ t('End Time') }}</label>
-                  <div class="time-input-shell">
-                    <i class="pi pi-clock"></i>
-                    <input v-model="slot.end_time" type="time" required />
-                  </div>
+                  <AppTimePicker v-model="slot.end_time" :title="t('End Time')" />
                 </div>
               </div>
             </div>
@@ -159,6 +145,7 @@ import { ref, computed, watch } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
+import AppTimePicker from '../common/AppTimePicker.vue';
 
 interface ScheduleSlot {
   id?: string;
@@ -603,36 +590,6 @@ watch(
           margin: 0;
           font-size: 0.74rem;
           color: var(--unity-text-muted);
-        }
-
-        .btn-add-first-slot {
-          margin-top: 10px;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 8px 18px;
-          border-radius: 20px;
-          background: var(--unity-primary);
-          color: #ffffff;
-          border: none;
-          font-size: 0.8rem;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
-          transition: all 0.2s ease;
-
-          i {
-            font-size: 0.78rem;
-          }
-
-          &:hover {
-            background: var(--unity-primary-dark);
-            transform: translateY(-1px);
-          }
-
-          &:active {
-            transform: scale(0.97);
-          }
         }
       }
 

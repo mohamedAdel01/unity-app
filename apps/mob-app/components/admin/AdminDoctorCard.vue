@@ -268,16 +268,16 @@ const resolveAvatar = (url?: string) => {
       gap: 10px;
 
       .btn-icon-edit {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
         background: #ecfdf5;
         border: 1px solid #a7f3d0;
         color: #047857;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
+        font-size: 0.72rem;
         cursor: pointer;
         transition: all 0.2s ease;
         padding: 0;

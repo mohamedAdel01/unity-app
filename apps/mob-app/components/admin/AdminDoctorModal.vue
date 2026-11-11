@@ -420,20 +420,21 @@ const handleSubmit = async () => {
         },
       });
 
-      const createdDoctor = res?.data || {
-        id: `doc-${Date.now()}`,
+      const createdDoctor = {
+        id: res?.data?.id || `doc-${Date.now()}`,
         name: form.value.name.trim(),
         phone: form.value.phone.trim(),
-        avatar: form.value.avatar || null,
-        clinic: matchedClinic,
+        avatar: res?.data?.avatar || form.value.avatar || null,
+        clinic: matchedClinic || res?.data?.clinic,
         clinic_id: form.value.clinic_id,
-        specialty: matchedClinic?.name || '',
+        specialty: matchedClinic?.name || res?.data?.specialty || '',
         status: 'active',
         is_active: true,
         consultation_fee: numConsultation,
         follow_up_fee: numFollowUp,
         slot_duration: numSlotDuration,
         bio: cleanBio,
+        schedules: [],
       };
 
       emit('created', createdDoctor);

@@ -21,7 +21,7 @@
       :title="t('Patient Mode')" 
       @click="router.push('/')"
     >
-      <i class="pi pi-sign-out"></i>
+      <i class="pi pi-sign-out" :class="{ 'rtl-flip': isRtl }"></i>
     </button>
   </div>
 </template>
@@ -44,7 +44,7 @@ withDefaults(
 );
 
 const router = useRouter();
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 
@@ -107,7 +107,7 @@ const { t } = useI18n();
         gap: 8px;
 
         .role-title {
-          font-size: 0.98rem;
+          font-size: 1.02rem;
           font-weight: 800;
           color: var(--unity-text-main);
           margin: 0;
@@ -117,7 +117,7 @@ const { t } = useI18n();
         .supervisor-badge {
           background: #d1fae5;
           color: #065f46;
-          font-size: 0.65rem;
+          font-size: 0.72rem;
           font-weight: 700;
           padding: 2px 8px;
           border-radius: 20px;
@@ -126,7 +126,7 @@ const { t } = useI18n();
       }
 
       .facility-subline {
-        font-size: 0.72rem;
+        font-size: 0.76rem;
         color: var(--unity-text-muted);
         line-height: 1.2;
       }
@@ -153,6 +153,10 @@ const { t } = useI18n();
       font-size: 1.05rem;
       color: #ef4444;
       transition: all 0.2s ease;
+
+      &.rtl-flip {
+        transform: scaleX(-1);
+      }
     }
 
     &:hover {
@@ -163,6 +167,10 @@ const { t } = useI18n();
       i {
         color: #dc2626;
         transform: scale(1.08);
+
+        &.rtl-flip {
+          transform: scaleX(-1) scale(1.08);
+        }
       }
     }
 

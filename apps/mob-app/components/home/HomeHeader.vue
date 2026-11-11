@@ -13,10 +13,6 @@
         <span class="online-indicator"></span>
       </div>
       <div class="user-details">
-        <div class="location-tag">
-          <i class="pi pi-map-marker"></i>
-          <span>{{ t('Riyadh, Al-Nakheel District') }}</span>
-        </div>
         <h2 class="greeting-name">
           {{ t('Welcome,') }} {{ currentUser?.name || '' }}
         </h2>
@@ -161,23 +157,11 @@ const toggleLanguage = () => {
     .user-details {
       display: flex;
       flex-direction: column;
-
-      .location-tag {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.72rem;
-        color: var(--unity-text-muted);
-
-        i {
-          font-size: 0.72rem;
-          color: var(--unity-primary);
-        }
-      }
+      justify-content: center;
 
       .greeting-name {
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: 1.05rem;
+        font-weight: 700;
         color: var(--unity-text-main);
       }
     }

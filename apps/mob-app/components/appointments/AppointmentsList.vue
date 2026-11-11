@@ -64,7 +64,7 @@
             <h5>{{ apt.doctor?.name || apt.doctor?.user?.name || '' }}</h5>
             <p v-if="apt.doctor?.specialty || apt.service?.name">{{ apt.doctor?.specialty || apt.service?.name }}</p>
             <div v-if="apt.clinic?.name || apt.doctor?.clinic?.name" class="clinic-sub">
-              <i class="pi pi-map-marker"></i>
+              <i class="pi pi-building"></i>
               <span>{{ apt.clinic?.name || apt.doctor?.clinic?.name }}</span>
             </div>
           </div>
@@ -168,7 +168,7 @@
             <span>{{ selectedAptToCancel.start_time }} {{ selectedAptToCancel.end_time ? '- ' + selectedAptToCancel.end_time : '' }}</span>
           </div>
           <div v-if="selectedAptToCancel.clinic?.name || selectedAptToCancel.doctor?.clinic?.name" class="summary-item full">
-            <i class="pi pi-map-marker"></i>
+            <i class="pi pi-building"></i>
             <span>{{ selectedAptToCancel.clinic?.name || selectedAptToCancel.doctor?.clinic?.name }}</span>
           </div>
         </div>

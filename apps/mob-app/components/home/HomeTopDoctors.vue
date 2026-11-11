@@ -34,15 +34,15 @@
             </div>
             <div class="doc-texts">
               <h5>{{ doctor.name }}</h5>
-              <p v-if="doctor.specialty || doctor.clinic?.name">{{ doctor.specialty || doctor.clinic?.name }}</p>
+              <p v-if="doctor.specialty && doctor.specialty !== doctor.clinic?.name">{{ doctor.specialty }}</p>
               <div v-if="doctor.clinic?.name" class="doc-clinic-name">
                 <i class="pi pi-building"></i>
                 <span>{{ doctor.clinic.name }}</span>
               </div>
             </div>
           </div>
-          <div class="doc-rating-badge">
-            <span>⭐ {{ doctor.rating || '4.9' }}</span>
+          <div v-if="doctor.rating" class="doc-rating-badge">
+            <span>⭐ {{ doctor.rating }}</span>
           </div>
         </div>
 
@@ -106,9 +106,9 @@ const DOCTORS = async () => {
       doctors.value = res.data.map((d: any) => ({
         id: d.id,
         name: d.user?.name || d.name,
-        specialty: d.clinic?.name || (t('Specialist Consultant')),
+        specialty: d.specialty || '',
         clinic: d.clinic,
-        rating: '4.9',
+        rating: d.rating || null,
         availabilityText: t('Available Today'),
         avatar: d.user?.avatar || d.avatar || '',
         consultation_fee: d.consultation_fee || 250,

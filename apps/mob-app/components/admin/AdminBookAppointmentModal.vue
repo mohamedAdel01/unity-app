@@ -96,7 +96,11 @@
             @click="selectType('examination')"
           >
             <div class="card-icon exam-icon">
-              <i class="pi pi-heart"></i>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2v7.31L4.35 18.5A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.72-3.5L14 9.31V2"/>
+                <path d="M8.5 2h7"/>
+                <path d="M7 16h10"/>
+              </svg>
             </div>
             <div class="card-info">
               <h5>{{ t('Medical Examination') }}</h5>
@@ -249,7 +253,11 @@
                 @click="selectedExam = exam"
               >
                 <div class="exam-icon-cell">
-                  <i class="pi pi-heart-pulse"></i>
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 2v7.31L4.35 18.5A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.72-3.5L14 9.31V2"/>
+                    <path d="M8.5 2h7"/>
+                    <path d="M7 16h10"/>
+                  </svg>
                 </div>
 
                 <div class="item-details">
@@ -708,6 +716,28 @@ const generateSlots = async () => {
         }));
         selectedSlot.value = timeSlots.value.find((s: any) => s.is_available) || timeSlots.value[0];
         return;
+      }
+    }
+
+    // If examination is selected, check its examination_schedule via EXAMINATION_SLOTS endpoint
+    if (bookingType.value === 'examination' && selectedExam.value) {
+      const res = await api.apiRequest({
+        service: 'EXAMINATION_SLOTS',
+        filter: { id: selectedExam.value.id, date: selectedDate.value },
+      });
+
+      if (res?.data) {
+        if (!res.data.is_working_day) {
+          timeSlots.value = [];
+          selectedSlot.value = null;
+          return;
+        }
+
+        if (Array.isArray(res.data.slots)) {
+          timeSlots.value = res.data.slots;
+          selectedSlot.value = timeSlots.value.find((s: any) => s.is_available) || timeSlots.value[0];
+          return;
+        }
       }
     }
 

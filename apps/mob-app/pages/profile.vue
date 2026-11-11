@@ -6,12 +6,18 @@
     <ProfileThemeSelector />
     <ProfileLanguageSelector />
     <ProfileFooterInfo />
+    <ProfileEditModal 
+      :is-open="isEditModalOpen" 
+      :user="user" 
+      @close="isEditModalOpen = false" 
+      @updated="onProfileUpdated" 
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUnityApi } from '../composables/useUnityApi';
 import ProfileTopHeader from '../components/profile/ProfileTopHeader.vue';
@@ -20,23 +26,28 @@ import ProfileMenuSection from '../components/profile/ProfileMenuSection.vue';
 import ProfileThemeSelector from '../components/profile/ProfileThemeSelector.vue';
 import ProfileLanguageSelector from '../components/profile/ProfileLanguageSelector.vue';
 import ProfileFooterInfo from '../components/profile/ProfileFooterInfo.vue';
+import ProfileEditModal from '../components/profile/ProfileEditModal.vue';
 
 definePageMeta({
   middleware: ['auth'],
 });
 
 const router = useRouter();
-
 const api = useUnityApi();
 
 // 2. Data (refs, reactive state)
+const isEditModalOpen = ref(false);
 
 // 3. Computed (computed properties)
 const user = computed(() => api.currentUser.value);
 
 // 4. Methods (functions, handlers)
 const onEditProfile = () => {
-  // Handles profile editing navigation or modal
+  isEditModalOpen.value = true;
+};
+
+const onProfileUpdated = (_updatedUser: any) => {
+  isEditModalOpen.value = false;
 };
 
 const onMenuAction = (key: string) => {

@@ -2,7 +2,7 @@
   <div class="profile-footer-section">
     <!-- Logout Button -->
     <button class="logout-action-btn" @click="handleLogout">
-      <i class="pi pi-sign-out"></i>
+      <i class="pi pi-sign-out" :class="{ 'rtl-flip': isRtl }"></i>
       <span>{{ t('Log Out of Account') }}</span>
     </button>
 
@@ -33,7 +33,7 @@ const router = useRouter();
 
 const api = useUnityApi();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 
@@ -78,6 +78,10 @@ const handleLogout = async () => {
 
     i {
       font-size: 0.95rem;
+
+      &.rtl-flip {
+        transform: scaleX(-1);
+      }
     }
 
     &:hover {

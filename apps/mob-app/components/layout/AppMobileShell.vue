@@ -8,6 +8,8 @@
         <!-- Main Page Scrollable Viewport -->
         <main class="mobile-content-viewport" :class="{ 'no-bottom-nav': hideBottomNav, 'is-onboarding': isOnboarding }">
           <slot />
+          <!-- Global Bottom Spacing Sentinel to guarantee content clears the floating navbar -->
+          <div v-if="!hideBottomNav" class="mobile-bottom-nav-spacer" aria-hidden="true" />
         </main>
 
         <!-- Bottom Navigation Bar (Admin vs Patient) -->
@@ -144,7 +146,7 @@ onMounted(() => {
   }
 
   padding-top: max(32px, env(safe-area-inset-top, 32px));
-  padding-bottom: 96px;
+  padding-bottom: 0;
   background: var(--unity-bg);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
@@ -157,5 +159,13 @@ onMounted(() => {
   &.no-bottom-nav {
     padding-bottom: 24px;
   }
+}
+
+.mobile-bottom-nav-spacer {
+  width: 100%;
+  height: calc(115px + max(16px, env(safe-area-inset-bottom, 16px)));
+  min-height: calc(115px + max(16px, env(safe-area-inset-bottom, 16px)));
+  flex-shrink: 0;
+  pointer-events: none;
 }
 </style>

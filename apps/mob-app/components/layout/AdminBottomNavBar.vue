@@ -62,38 +62,46 @@ const { t } = useI18n();
 
 <style scoped lang="scss">
 .admin-bottom-nav {
-  position: relative;
-  flex-shrink: 0;
-  width: 100%;
-  height: 68px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--unity-surface);
-  border-top: 1px solid var(--unity-border);
+  position: absolute;
+  bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  left: 16px;
+  right: 16px;
+  height: 66px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding-left: 12px;
-  padding-right: 12px;
-  z-index: 40;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  padding: 0 8px;
+  z-index: 45;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+
+  :global([data-theme='dark']) & {
+    background: rgba(30, 41, 59, 0.82);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
 
   .admin-nav-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     color: var(--unity-text-muted);
     text-decoration: none;
     font-size: 0.72rem;
-    font-weight: 600;
-    width: 64px;
-    height: 52px;
-    border-radius: 14px;
-    transition: all 0.2s ease;
+    font-weight: 700;
+    width: 62px;
+    height: 48px;
+    border-radius: 24px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
     i, .nav-svg {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       width: 20px;
       height: 20px;
       transition: transform 0.2s ease;
@@ -108,7 +116,7 @@ const { t } = useI18n();
       background: var(--unity-primary-light);
 
       i, .nav-svg {
-        transform: scale(1.1);
+        transform: scale(1.12);
         color: var(--unity-primary);
       }
     }
