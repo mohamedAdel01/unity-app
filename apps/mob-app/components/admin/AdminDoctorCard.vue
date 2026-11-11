@@ -7,10 +7,14 @@
         <!-- Avatar Holder -->
         <div class="avatar-holder">
           <img 
+            v-if="doctor.avatar"
             :src="resolveAvatar(doctor.avatar)" 
             :alt="doctor.name" 
             class="avatar-photo" 
           />
+          <div v-else class="avatar-placeholder">
+            <i class="pi pi-user"></i>
+          </div>
           <span class="status-dot" :class="doctor.is_active ? 'online' : 'offline'"></span>
         </div>
 
@@ -81,8 +85,8 @@
         class="btn-view-cases" 
         @click="emit('view-cases', doctor)"
       >
-        <i class="pi pi-file"></i>
-        <span>{{ t('Cases') }}<template v-if="doctor.cases_count !== undefined && doctor.cases_count !== null"> ({{ doctor.cases_count }})</template></span>
+        <i class="pi pi-calendar"></i>
+        <span>{{ t('Doctor Bookings') }}<template v-if="doctor.cases_count !== undefined && doctor.cases_count !== null"> ({{ doctor.cases_count }})</template></span>
       </button>
     </div>
   </div>
@@ -119,7 +123,7 @@ const getStatusBadgeClass = (status?: string) => {
 };
 
 const resolveAvatar = (url?: string) => {
-  if (!url) return 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=160&auto=format&fit=crop&q=80';
+  if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
     return url;
   }
@@ -178,6 +182,19 @@ const resolveAvatar = (url?: string) => {
           border-radius: 50%;
           object-fit: cover;
           border: 1.5px solid #e2e8f0;
+        }
+
+        .avatar-placeholder {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: #f1f5f9;
+          border: 1.5px solid #e2e8f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #94a3b8;
+          font-size: 1.25rem;
         }
 
         .status-dot {

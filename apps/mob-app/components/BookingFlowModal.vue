@@ -8,7 +8,7 @@
             <button class="top-nav-btn" @click="close">
               <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
             </button>
-            <h3 class="top-title">{{ t('Confirm & Pay Booking') }}</h3>
+            <h3 class="top-title">{{ isAdmin ? t('Confirm Booking') : t('Confirm & Pay Booking') }}</h3>
             <div class="avatar-wrap">
               <i class="pi pi-user"></i>
             </div>
@@ -122,12 +122,14 @@
             <div class="payment-method-section">
               <div class="section-head">
                 <h5>{{ t('Payment Method') }}</h5>
-                <span class="secure-tag"><i class="pi pi-lock"></i> {{ t('Bank-grade encryption') }}</span>
+                <span v-if="isAdmin" class="secure-tag"><i class="pi pi-building"></i> {{ t('Reception Counter') }}</span>
+                <span v-else class="secure-tag"><i class="pi pi-lock"></i> {{ t('Bank-grade encryption') }}</span>
               </div>
 
               <div class="payment-options">
-                <!-- Apple Pay -->
+                <!-- Apple Pay (Patient Only) -->
                 <div 
+                  v-if="!isAdmin"
                   class="pay-opt" 
                   :class="{ 'selected': selectedMethod === 'apple_pay' }"
                   @click="selectedMethod = 'apple_pay'"
@@ -145,8 +147,9 @@
                   </div>
                 </div>
 
-                <!-- Card (Paymob) -->
+                <!-- Card (Paymob) (Patient Only) -->
                 <div 
+                  v-if="!isAdmin"
                   class="pay-opt" 
                   :class="{ 'selected': selectedMethod === 'card' }"
                   @click="selectedMethod = 'card'"
@@ -201,7 +204,7 @@
               @click="submitBooking"
             >
               <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
-              <span v-else>{{ t('Complete Payment & Confirm') }} ({{ totalFee }} {{ t('EGP') }})</span>
+              <span v-else>{{ isAdmin || selectedMethod === 'cash' ? t('Confirm Booking') : t('Complete Payment & Confirm') }} ({{ totalFee }} {{ t('EGP') }})</span>
               <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
             </button>
 
@@ -219,6 +222,7 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onUnmounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
 import { useAppToast } from '../composables/useAppToast';
@@ -238,6 +242,7 @@ const emit = defineEmits<{
 }>();
 
 const api = useUnityApi();
+const route = useRoute();
 
 const { t, isRtl } = useI18n();
 
@@ -261,6 +266,10 @@ const secondsLeft = ref(15 * 60);
 let timerInterval: any = null;
 
 // 3. Computed (computed properties)
+const isAdmin = computed(() => {
+  return route.path.startsWith('/admin') || api.currentUser.value?.role === 'admin' || api.user.value?.role === 'admin';
+});
+
 const formattedTime = computed(() => {
   const m = Math.floor(secondsLeft.value / 60);
   const s = secondsLeft.value % 60;
@@ -370,6 +379,11 @@ const close = () => {
 // 5. Watches (watch, watchEffect)
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
+    if (isAdmin.value) {
+      selectedMethod.value = 'cash';
+    } else {
+      selectedMethod.value = 'apple_pay';
+    }
     secondsLeft.value = 15 * 60;
     bookingSuccess.value = false;
     currentSlot.value = props.selectedSlot || null;

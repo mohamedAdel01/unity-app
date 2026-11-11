@@ -356,6 +356,25 @@ export default {
     });
   },
 
+  async ADMIN_EXAMINATION_BY_ID({ API, filter }: { API: any; filter: { id: string | number } }) {
+    return await API(`admin/examinations/${filter.id}`, {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_UPDATE_EXAMINATION_SCHEDULE({ API, payload }: { API: any; payload: { id: string | number; schedules: any[] } }) {
+    return await API(`admin/examinations/${payload.id}/schedule`, {
+      method: 'PUT',
+      body: JSON.stringify({ schedules: payload.schedules }),
+    });
+  },
+
+  async EXAMINATION_SLOTS({ API, filter }: { API: any; filter: { id: string | number; date: string } }) {
+    return await API(`client/examinations/${filter.id}/slots?date=${filter.date}`, {
+      method: 'GET',
+    });
+  },
+
   // Aliases for Services
   async ADMIN_SERVICES({ API, filter }: { API: any; filter?: any }) {
     return await API(`admin/examinations${toQuery(filter)}`, {

@@ -131,7 +131,7 @@ const getStatusClass = (status?: string) => {
 };
 
 const resolveAvatar = (url?: string) => {
-  if (!url) return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=160&auto=format&fit=crop&q=80';
+  if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
     return url;
   }

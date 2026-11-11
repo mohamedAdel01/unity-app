@@ -39,6 +39,14 @@
       :patient="selectedPatientForFile"
       @close="isMedicalFileModalOpen = false"
     />
+
+    <!-- Modal: Book Appointment for Patient (Multi-Step Wizard) -->
+    <AdminBookAppointmentModal
+      :is-open="isBookAppointmentModalOpen"
+      :patient="selectedPatientForBooking"
+      @close="isBookAppointmentModalOpen = false"
+      @booked="ADMIN_PATIENTS"
+    />
   </div>
 </template>
 
@@ -53,6 +61,7 @@ import AdminPatientsHeader from '../../components/admin/AdminPatientsHeader.vue'
 import AdminPatientsList from '../../components/admin/AdminPatientsList.vue';
 import AdminPatientModal from '../../components/admin/AdminPatientModal.vue';
 import AdminPatientFileModal from '../../components/admin/AdminPatientFileModal.vue';
+import AdminBookAppointmentModal from '../../components/admin/AdminBookAppointmentModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -75,8 +84,11 @@ const isPatientModalOpen = ref(false);
 
 const isMedicalFileModalOpen = ref(false);
 
+const isBookAppointmentModalOpen = ref(false);
+
 const selectedPatientForFile = ref<any>(null);
 const selectedPatientToEdit = ref<any>(null);
+const selectedPatientForBooking = ref<any>(null);
 
 const patients = ref<any[]>([]);
 const patientsPage = ref(1);
@@ -123,22 +135,31 @@ const ADMIN_PATIENTS = async (page: any = 1) => {
       filterCounts.value.all = res?.pagination?.total ?? raw.length;
     }
 
-    const items = raw.map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      avatar: p.avatar,
-      phone: p.phone,
-      mrn: p.mrn || '',
-      clinic: p.clinic || '',
-      insurance: p.insurance || '',
-      badge: p.badge || '',
-      national_id: p.national_id || '',
-      last_visit: p.last_visit || '',
-      next_appointment: p.next_appointment || '',
-      diagnosis: p.diagnosis || '',
-      is_today: !!p.is_today,
-      status: p.status || 'active',
-    }));
+    const items = raw.map((p: any) => {
+      const latestAppt = p.patient_appointments?.[0];
+      const isToday = latestAppt?.date
+        ? (new Date(latestAppt.date).toDateString() === new Date().toDateString())
+        : !!p.is_today;
+
+      return {
+        id: p.id,
+        name: p.name,
+        avatar: p.avatar,
+        phone: p.phone,
+        mrn: p.patient?.mrn || p.mrn || '',
+        clinic: latestAppt?.doctor?.doctor?.clinic?.name || p.clinic || '',
+        insurance: p.insurance || '',
+        badge: p.badge || '',
+        national_id: p.national_id || '',
+        last_visit: p.last_visit || '',
+        next_appointment: latestAppt
+          ? `${new Date(latestAppt.date).toISOString().split('T')[0]} ${latestAppt.start_time || ''}`
+          : (p.next_appointment || ''),
+        diagnosis: p.diagnosis || '',
+        is_today: isToday,
+        status: p.status || 'active',
+      };
+    });
 
     if (targetPage === 1) {
       patients.value = items;
@@ -189,9 +210,8 @@ const onViewMedicalFile = (patient: any) => {
 };
 
 const onBookAppointment = (patient: any) => {
-  bookingModal.openBookingFlow({
-    specialty: patient.clinic || t('Internal Medicine Clinic'),
-  });
+  selectedPatientForBooking.value = patient;
+  isBookAppointmentModalOpen.value = true;
 };
 
 const onEditPatient = (patient: any) => {

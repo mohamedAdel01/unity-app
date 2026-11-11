@@ -39,20 +39,20 @@
           <span>{{ t("Today's Revenue") }}</span>
         </div>
         <h3 class="stat-amount-green">
-          <span>٥,٤٠٠</span>
+          <span>{{ formatNumber(stats.today_revenue || 0) }}</span>
           <small>{{ t('EGP') }}</small>
         </h3>
-        <span class="stat-sub-caption">١٨ {{ t('Paid Bookings') }}</span>
+        <span class="stat-sub-caption">{{ stats.today_paid_invoices || 0 }} {{ t('Paid Bookings') }}</span>
       </div>
 
-      <!-- Left Card: Insurance Claims -->
+      <!-- Left Card: Insurance Claims / Pending Invoices -->
       <div class="metric-stat-card">
         <div class="card-icon-title">
-          <i class="pi pi-shield"></i>
-          <span>{{ t('Insurance Claims') }}</span>
+          <i class="pi pi-receipt"></i>
+          <span>{{ t('Pending Invoices') }}</span>
         </div>
         <h3 class="stat-amount-main">
-          <span>٤ {{ t('Claims') }}</span>
+          <span>{{ stats.pending_invoices || 0 }} {{ t('Invoices') }}</span>
         </h3>
         <span class="stat-sub-link">{{ t('Under Review') }}</span>
       </div>
@@ -67,7 +67,7 @@
         @click="selectPeriod('today')"
       >
         <i class="pi pi-clock"></i>
-        <span>{{ t('Today') }} (٢٤ {{ t('Bookings') }})</span>
+        <span>{{ t('Today') }} ({{ stats.today_appointments ?? todayCount ?? 0 }})</span>
       </button>
 
       <button 
@@ -85,16 +85,16 @@
         :class="{ 'active': activePeriod === 'pending' }"
         @click="selectPeriod('pending')"
       >
-        <span class="red-alert-dot"></span>
-        <span>{{ t('Pending Invoices') }}</span>
+        <span v-if="(stats.pending_invoices || 0) > 0" class="red-alert-dot"></span>
+        <span>{{ t('Pending Invoices') }} ({{ stats.pending_invoices || 0 }})</span>
       </button>
     </div>
 
     <!-- 5. Section Header with Sort Icon -->
     <div class="list-section-header">
       <div class="section-title-wrap">
-        <h4>{{ t('Bookings Log') }}</h4>
-        <small>(٢٤ {{ t('Today') }})</small>
+        <h4>{{ activeTab === 'bookings' ? t('Bookings Log') : t('Invoices Log') }}</h4>
+        <small v-if="activePeriod === 'today'">({{ stats.today_appointments ?? todayCount ?? 0 }} {{ t('Today') }})</small>
       </div>
 
       <button class="btn-sort-filter" :aria-label="t('Sort & Filter')" @click="emit('toggle-sort')">
@@ -110,6 +110,31 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import AdminTopHeader from './AdminTopHeader.vue';
+
+const props = withDefaults(
+  defineProps<{
+    stats?: {
+      today_revenue?: number;
+      today_paid_invoices?: number;
+      pending_invoices?: number;
+      today_appointments?: number;
+      total_revenue?: number;
+    };
+    todayCount?: number;
+    pendingCount?: number;
+  }>(),
+  {
+    stats: () => ({
+      today_revenue: 0,
+      today_paid_invoices: 0,
+      pending_invoices: 0,
+      today_appointments: 0,
+      total_revenue: 0,
+    }),
+    todayCount: 0,
+    pendingCount: 0,
+  }
+);
 
 const emit = defineEmits<{
   (e: 'tab-change', tab: 'bookings' | 'invoices'): void;
@@ -129,6 +154,10 @@ const activePeriod = ref<'today' | 'week' | 'pending'>('today');
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const formatNumber = (val?: number) => {
+  if (val === undefined || val === null) return '0';
+  return Number(val).toLocaleString('ar-EG-u-nu-latn');
+};
 const selectTab = (tab: 'bookings' | 'invoices') => {
   activeTab.value = tab;
   emit('tab-change', tab);

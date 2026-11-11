@@ -12,8 +12,59 @@
         </button>
       </div>
 
-      <!-- Modal Body (Name, Phone & Clinic Only) -->
+      <!-- Modal Body -->
       <form class="doctor-form" @submit.prevent="handleSubmit">
+        <!-- Doctor Avatar Upload -->
+        <div class="avatar-upload-section">
+          <div class="avatar-preview-wrapper">
+            <img 
+              v-if="form.avatar" 
+              :src="resolvePreview(form.avatar)" 
+              alt="Doctor Avatar" 
+              class="avatar-preview-img" 
+            />
+            <div v-else class="avatar-preview-placeholder">
+              <i class="pi pi-user"></i>
+            </div>
+
+            <!-- Upload / Change Button -->
+            <button 
+              type="button" 
+              class="btn-avatar-camera" 
+              :title="t('Upload Photo')"
+              :aria-label="t('Upload Photo')"
+              @click="triggerFileInput"
+            >
+              <i class="pi pi-camera"></i>
+            </button>
+
+            <!-- Delete / Clear Avatar Button -->
+            <button 
+              v-if="form.avatar" 
+              type="button" 
+              class="btn-avatar-trash" 
+              :title="t('Remove Photo')"
+              :aria-label="t('Remove Photo')"
+              @click="removeAvatar"
+            >
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+
+          <div class="avatar-info-hint">
+            <span class="avatar-label">{{ t('Doctor Photo') }}</span>
+            <span class="avatar-subtext">{{ form.avatar ? t('Click camera to change') : t('Optional (JPG, PNG or WebP)') }}</span>
+          </div>
+
+          <input 
+            ref="fileInputRef" 
+            type="file" 
+            accept="image/*" 
+            class="hidden-file-input" 
+            @change="handleFileChange" 
+          />
+        </div>
+
         <!-- Doctor Full Name -->
         <div class="form-group">
           <label>{{ t('Doctor Name') }}</label>
@@ -82,6 +133,63 @@
           </div>
         </div>
 
+        <!-- Fees (Two-Col Grid: Consultation Fee & Follow-up Fee) -->
+        <div class="two-col-grid">
+          <div class="form-group">
+            <label>{{ t('Consultation Fee') }} ({{ t('EGP') }})</label>
+            <div class="input-shell">
+              <i class="pi pi-wallet"></i>
+              <input 
+                v-model="form.consultation_fee" 
+                type="number" 
+                min="0"
+                step="1"
+                placeholder="0" 
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ t('Follow-up Fee') }} ({{ t('EGP') }})</label>
+            <div class="input-shell">
+              <i class="pi pi-wallet"></i>
+              <input 
+                v-model="form.follow_up_fee" 
+                type="number" 
+                min="0"
+                step="1"
+                placeholder="0" 
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Consultation Duration -->
+        <div class="form-group">
+          <label>{{ t('Consultation Duration') }}</label>
+          <div class="input-shell">
+            <i class="pi pi-clock"></i>
+            <input 
+              v-model="form.slot_duration" 
+              type="number" 
+              min="5"
+              max="120"
+              step="5"
+              placeholder="15" 
+            />
+          </div>
+        </div>
+
+        <!-- Doctor Professional Bio -->
+        <div class="form-group">
+          <label>{{ t('Professional Bio (Optional)') }}</label>
+          <textarea 
+            v-model="form.bio" 
+            rows="2"
+            class="textarea-shell"
+            :placeholder="t('e.g. Senior consultant with extensive clinical experience')"
+          ></textarea>
+        </div>
+
         <!-- Modal Actions -->
         <div class="modal-actions">
           <button type="button" class="btn-cancel" @click="close">
@@ -115,6 +223,10 @@ interface Doctor {
   specialty?: string;
   status?: string;
   is_active?: boolean;
+  consultation_fee?: number | string | null;
+  follow_up_fee?: number | string | null;
+  slot_duration?: number | string | null;
+  bio?: string | null;
 }
 
 const props = defineProps<{
@@ -137,11 +249,26 @@ const loading = ref(false);
 const isPhoneValid = ref(false);
 const isClinicDropdownOpen = ref(false);
 const clinics = ref<any[]>([]);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
-const form = ref({
+const form = ref<{
+  name: string;
+  phone: string;
+  avatar: string;
+  clinic_id: string | number;
+  consultation_fee: number | string;
+  follow_up_fee: number | string;
+  slot_duration: number | string;
+  bio: string;
+}>({
   name: '',
   phone: '',
+  avatar: '',
   clinic_id: '',
+  consultation_fee: '',
+  follow_up_fee: '',
+  slot_duration: '',
+  bio: '',
 });
 
 // 3. Computed (computed properties)
@@ -158,6 +285,44 @@ const isFormValid = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
+const triggerFileInput = () => {
+  fileInputRef.value?.click();
+};
+
+const handleFileChange = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    toast.error(t('Image size exceeds 5MB'));
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (uploadEvent) => {
+    form.value.avatar = (uploadEvent.target?.result as string) || '';
+  };
+  reader.readAsDataURL(file);
+};
+
+const removeAvatar = () => {
+  form.value.avatar = '';
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
+  }
+};
+
+const resolvePreview = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
+    return url;
+  }
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  return `${baseUrl}${url}`;
+};
+
 const selectClinic = (id: any) => {
   form.value.clinic_id = id;
   isClinicDropdownOpen.value = false;
@@ -168,8 +333,16 @@ const close = () => {
   form.value = {
     name: '',
     phone: '',
+    avatar: '',
     clinic_id: '',
+    consultation_fee: '',
+    follow_up_fee: '',
+    slot_duration: '',
+    bio: '',
   };
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
+  }
   emit('close');
 };
 
@@ -194,14 +367,24 @@ const handleSubmit = async () => {
   try {
     const matchedClinic = clinics.value.find((c) => String(c.id) === String(form.value.clinic_id)) || null;
 
+    const numConsultation = form.value.consultation_fee !== '' && form.value.consultation_fee !== null ? Number(form.value.consultation_fee) : 0;
+    const numFollowUp = form.value.follow_up_fee !== '' && form.value.follow_up_fee !== null ? Number(form.value.follow_up_fee) : 0;
+    const numSlotDuration = form.value.slot_duration !== '' && form.value.slot_duration !== null ? Number(form.value.slot_duration) : 15;
+    const cleanBio = form.value.bio?.trim() || null;
+
     if (isEdit.value && props.doctor?.id) {
-      await api.apiRequest({
+      const res = await api.apiRequest({
         service: 'ADMIN_UPDATE_DOCTOR',
         payload: {
           id: props.doctor.id,
           name: form.value.name.trim(),
           phone: form.value.phone.trim(),
+          avatar: form.value.avatar || null,
           clinic_id: form.value.clinic_id,
+          consultation_fee: numConsultation,
+          follow_up_fee: numFollowUp,
+          slot_duration: numSlotDuration,
+          bio: cleanBio,
         },
       });
 
@@ -209,9 +392,14 @@ const handleSubmit = async () => {
         ...props.doctor,
         name: form.value.name.trim(),
         phone: form.value.phone.trim(),
+        avatar: res?.data?.user?.avatar || res?.data?.avatar || form.value.avatar || null,
         clinic: matchedClinic,
         clinic_id: form.value.clinic_id,
         specialty: matchedClinic?.name || props.doctor.specialty,
+        consultation_fee: numConsultation,
+        follow_up_fee: numFollowUp,
+        slot_duration: numSlotDuration,
+        bio: cleanBio,
       };
 
       emit('updated', updatedDoctor);
@@ -223,7 +411,12 @@ const handleSubmit = async () => {
         payload: {
           name: form.value.name.trim(),
           phone: form.value.phone.trim(),
+          avatar: form.value.avatar || null,
           clinic_id: form.value.clinic_id,
+          consultation_fee: numConsultation,
+          follow_up_fee: numFollowUp,
+          slot_duration: numSlotDuration,
+          bio: cleanBio,
         },
       });
 
@@ -231,11 +424,16 @@ const handleSubmit = async () => {
         id: `doc-${Date.now()}`,
         name: form.value.name.trim(),
         phone: form.value.phone.trim(),
+        avatar: form.value.avatar || null,
         clinic: matchedClinic,
         clinic_id: form.value.clinic_id,
         specialty: matchedClinic?.name || '',
         status: 'active',
         is_active: true,
+        consultation_fee: numConsultation,
+        follow_up_fee: numFollowUp,
+        slot_duration: numSlotDuration,
+        bio: cleanBio,
       };
 
       emit('created', createdDoctor);
@@ -255,16 +453,26 @@ watch(
   (val) => {
     if (val) {
       form.value = {
-        name: val.name || '',
+        name: val.name || val.user?.name || '',
         phone: val.phone || val.user?.phone || '',
+        avatar: val.avatar || val.user?.avatar || '',
         clinic_id: val.clinic?.id || val.clinic_id || '',
+        consultation_fee: val.consultation_fee !== undefined && val.consultation_fee !== null ? Number(val.consultation_fee) : '',
+        follow_up_fee: val.follow_up_fee !== undefined && val.follow_up_fee !== null ? Number(val.follow_up_fee) : '',
+        slot_duration: val.slot_duration !== undefined && val.slot_duration !== null ? Number(val.slot_duration) : '',
+        bio: val.bio || '',
       };
       isPhoneValid.value = true;
     } else {
       form.value = {
         name: '',
         phone: '',
+        avatar: '',
         clinic_id: clinics.value[0]?.id || '',
+        consultation_fee: '',
+        follow_up_fee: '',
+        slot_duration: '',
+        bio: '',
       };
       isPhoneValid.value = false;
     }
@@ -282,16 +490,26 @@ watch(
       }
       if (props.doctor) {
         form.value = {
-          name: props.doctor.name || '',
+          name: props.doctor.name || props.doctor.user?.name || '',
           phone: props.doctor.phone || props.doctor.user?.phone || '',
+          avatar: props.doctor.avatar || props.doctor.user?.avatar || '',
           clinic_id: props.doctor.clinic?.id || props.doctor.clinic_id || '',
+          consultation_fee: props.doctor.consultation_fee !== undefined && props.doctor.consultation_fee !== null ? Number(props.doctor.consultation_fee) : '',
+          follow_up_fee: props.doctor.follow_up_fee !== undefined && props.doctor.follow_up_fee !== null ? Number(props.doctor.follow_up_fee) : '',
+          slot_duration: props.doctor.slot_duration !== undefined && props.doctor.slot_duration !== null ? Number(props.doctor.slot_duration) : '',
+          bio: props.doctor.bio || '',
         };
         isPhoneValid.value = true;
       } else {
         form.value = {
           name: '',
           phone: '',
+          avatar: '',
           clinic_id: clinics.value[0]?.id || '',
+          consultation_fee: '',
+          follow_up_fee: '',
+          slot_duration: '',
+          bio: '',
         };
         isPhoneValid.value = false;
       }
@@ -322,6 +540,8 @@ onMounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 430px;
+  max-height: 90vh;
+  overflow-y: auto;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
   padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
@@ -382,6 +602,125 @@ onMounted(() => {
     flex-direction: column;
     gap: 16px;
 
+    .avatar-upload-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 14px;
+      background: var(--unity-bg);
+      border: 1.5px dashed var(--unity-border);
+      border-radius: 18px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: var(--unity-primary);
+      }
+
+      .avatar-preview-wrapper {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        flex-shrink: 0;
+
+        .avatar-preview-img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid var(--unity-primary);
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        .avatar-preview-placeholder {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: var(--unity-surface);
+          border: 1.5px solid var(--unity-border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #94a3b8;
+          font-size: 1.6rem;
+        }
+
+        .btn-avatar-camera {
+          position: absolute;
+          bottom: -2px;
+          inset-inline-start: -2px;
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          background: var(--unity-primary);
+          color: #ffffff;
+          border: 2px solid #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          transition: transform 0.2s;
+
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+
+        .btn-avatar-trash {
+          position: absolute;
+          top: -2px;
+          inset-inline-end: -2px;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: #ef4444;
+          color: #ffffff;
+          border: 2px solid #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.7rem;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          transition: transform 0.2s;
+
+          &:hover {
+            transform: scale(1.1);
+          }
+        }
+      }
+
+      .avatar-info-hint {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        text-align: right;
+        flex: 1;
+
+        .avatar-label {
+          font-size: 0.88rem;
+          font-weight: 700;
+          color: var(--unity-text-main);
+        }
+
+        .avatar-subtext {
+          font-size: 0.75rem;
+          color: var(--unity-text-muted);
+        }
+      }
+
+      .hidden-file-input {
+        display: none;
+      }
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
     .form-group {
       display: flex;
       flex-direction: column;
@@ -418,6 +757,25 @@ onMounted(() => {
           font-size: 0.88rem;
           color: var(--unity-text-main);
           font-family: inherit;
+        }
+      }
+
+      .textarea-shell {
+        width: 100%;
+        background: var(--unity-bg);
+        border: 1.5px solid var(--unity-border);
+        border-radius: 14px;
+        padding: 10px 14px;
+        font-size: 0.88rem;
+        color: var(--unity-text-main);
+        font-family: inherit;
+        outline: none;
+        resize: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+
+        &:focus {
+          border-color: var(--unity-primary);
         }
       }
 

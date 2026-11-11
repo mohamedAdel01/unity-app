@@ -6,16 +6,20 @@
         <div class="doctor-info-head">
           <div class="avatar-holder">
             <img 
+              v-if="doctor.avatar"
               :src="resolveAvatar(doctor.avatar)" 
               :alt="doctor.name" 
               class="avatar-photo" 
             />
+            <div v-else class="avatar-placeholder">
+              <i class="pi pi-user"></i>
+            </div>
             <span class="status-dot" :class="doctor.is_active ? 'online' : 'offline'"></span>
           </div>
           <div class="doctor-titles">
             <div class="name-badge-row">
               <h3>{{ doctor.name }}</h3>
-              <span class="cases-total-pill">{{ totalCases }} {{ t('Cases') }}</span>
+              <span class="cases-total-pill">{{ totalCases }} {{ t('Doctor Bookings') }}</span>
             </div>
             <p class="specialty-clinic">
               <span>{{ doctor.specialty || doctor.clinic?.name || t('Specialist') }}</span>
@@ -34,6 +38,17 @@
 
       <!-- 2. Date & Filter Bar -->
       <div class="filters-container">
+        <!-- Active Filter Indicator Banner if Date is selected -->
+        <div v-if="selectedDate" class="active-date-banner">
+          <div class="date-banner-content">
+            <i class="pi pi-calendar-clock"></i>
+            <span>{{ t('Filtered by date:') }} <strong>{{ formatHumanDate(selectedDate) }}</strong></span>
+          </div>
+          <button type="button" class="btn-clear-date" :title="t('Clear date filter')" @click="setDatePreset('all')">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
         <!-- Date Presets Row -->
         <div class="preset-scroll-row">
           <button 
@@ -64,16 +79,23 @@
             <span>{{ t('Tomorrow') }}</span>
           </button>
 
-          <label class="filter-pill custom-date-pill" :class="{ active: datePreset === 'custom' }">
+          <button 
+            type="button" 
+            class="filter-pill custom-date-pill" 
+            :class="{ active: datePreset === 'custom' }"
+            @click="openDatePicker"
+          >
             <i class="pi pi-calendar-plus"></i>
-            <span>{{ selectedDate || t('Pick Date') }}</span>
-            <input 
-              type="date" 
-              class="hidden-date-picker" 
-              :value="selectedDate"
-              @change="onCustomDatePick(($event.target as HTMLInputElement).value)"
-            />
-          </label>
+            <span>{{ selectedDate ? formatShortDate(selectedDate) : t('Pick Date') }}</span>
+          </button>
+          <input 
+            ref="dateInputRef"
+            type="date" 
+            class="hidden-native-date-input" 
+            :value="selectedDate"
+            @change="onCustomDatePick(($event.target as HTMLInputElement).value)"
+            @input="onCustomDatePick(($event.target as HTMLInputElement).value)"
+          />
         </div>
 
         <!-- Status Filter Pills -->
@@ -136,8 +158,8 @@
           :has-more="hasMore"
           :loading="loading"
           :page-size="10"
-          :empty-title="t('No cases scheduled')"
-          :empty-subtitle="t('No consultations found for this doctor matching the selected filter.')"
+          :empty-title="t('No bookings scheduled')"
+          :empty-subtitle="t('No bookings found for this doctor matching the selected filter.')"
           @load-more="loadMore"
         >
           <template #item="{ item }">
@@ -165,11 +187,11 @@
 
               <!-- Mid Row: Service & Time Details -->
               <div class="case-details-grid">
-                <div class="detail-item">
+                <div class="detail-item date-pill">
                   <i class="pi pi-calendar"></i>
-                  <span>{{ formatDate(item.date) }}</span>
+                  <span>{{ formatHumanDate(item.date) }}</span>
                 </div>
-                <div class="detail-item">
+                <div class="detail-item time-pill">
                   <i class="pi pi-clock"></i>
                   <span dir="ltr">{{ item.start_time }} - {{ item.end_time }}</span>
                 </div>
@@ -179,7 +201,7 @@
                 </div>
                 <div v-if="item.invoice?.total" class="detail-item price">
                   <i class="pi pi-wallet"></i>
-                  <span>{{ item.invoice.total }} {{ t('SAR') }}</span>
+                  <span>{{ item.invoice.total }} {{ t('EGP') }}</span>
                   <span class="invoice-status" :class="item.invoice.status">{{ item.invoice.status }}</span>
                 </div>
               </div>
@@ -222,6 +244,7 @@ const totalCases = ref(0);
 const currentPage = ref(1);
 const hasMore = ref(false);
 const loading = ref(false);
+const dateInputRef = ref<HTMLInputElement | null>(null);
 
 const datePreset = ref<'all' | 'today' | 'tomorrow' | 'custom'>('all');
 const selectedDate = ref('');
@@ -230,12 +253,26 @@ const selectedStatus = ref('all');
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const openDatePicker = () => {
+  if (!dateInputRef.value) return;
+  try {
+    if (typeof dateInputRef.value.showPicker === 'function') {
+      dateInputRef.value.showPicker();
+    } else {
+      dateInputRef.value.focus();
+      dateInputRef.value.click();
+    }
+  } catch {
+    dateInputRef.value.focus();
+    dateInputRef.value.click();
+  }
+};
 const close = () => {
   emit('close');
 };
 
 const resolveAvatar = (url?: string) => {
-  if (!url) return 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=160&auto=format&fit=crop&q=80';
+  if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
     return url;
   }
@@ -244,16 +281,23 @@ const resolveAvatar = (url?: string) => {
   return `${baseUrl}${url}`;
 };
 
+const getLocalDateString = (d = new Date()) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const setDatePreset = (preset: 'all' | 'today' | 'tomorrow') => {
   datePreset.value = preset;
   if (preset === 'all') {
     selectedDate.value = '';
   } else if (preset === 'today') {
-    selectedDate.value = new Date().toISOString().split('T')[0];
+    selectedDate.value = getLocalDateString(new Date());
   } else if (preset === 'tomorrow') {
     const d = new Date();
     d.setDate(d.getDate() + 1);
-    selectedDate.value = d.toISOString().split('T')[0];
+    selectedDate.value = getLocalDateString(d);
   }
 };
 
@@ -261,6 +305,35 @@ const onCustomDatePick = (val: string) => {
   if (val) {
     datePreset.value = 'custom';
     selectedDate.value = val;
+  }
+};
+
+const formatHumanDate = (val?: string) => {
+  if (!val) return '';
+  try {
+    const d = new Date(val);
+    return new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).format(d);
+  } catch {
+    return val;
+  }
+};
+
+const formatShortDate = (val?: string) => {
+  if (!val) return '';
+  try {
+    const d = new Date(val);
+    return new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    }).format(d);
+  } catch {
+    return val;
   }
 };
 
@@ -424,6 +497,19 @@ watch(
           border: 2px solid #e2e8f0;
         }
 
+        .avatar-placeholder {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: #f1f5f9;
+          border: 2px solid #e2e8f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #94a3b8;
+          font-size: 1.25rem;
+        }
+
         .status-dot {
           position: absolute;
           bottom: 0;
@@ -509,6 +595,50 @@ watch(
     background: var(--unity-bg, #f8fafc);
     border-bottom: 1px solid var(--unity-border, #f1f5f9);
 
+    .active-date-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 0.76rem;
+      color: #065f46;
+
+      .date-banner-content {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        i {
+          font-size: 0.82rem;
+          color: #059669;
+        }
+
+        strong {
+          color: #047857;
+        }
+      }
+
+      .btn-clear-date {
+        background: transparent;
+        border: none;
+        color: #059669;
+        cursor: pointer;
+        padding: 2px 4px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          background: #d1fae5;
+          color: #065f46;
+        }
+      }
+    }
+
     .preset-scroll-row,
     .status-scroll-row {
       display: flex;
@@ -552,15 +682,19 @@ watch(
     .custom-date-pill {
       position: relative;
       cursor: pointer;
+    }
 
-      .hidden-date-picker {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        cursor: pointer;
-        width: 100%;
-        height: 100%;
-      }
+    .hidden-native-date-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      bottom: 0;
+      left: 0;
+      border: none;
+      padding: 0;
+      margin: 0;
+      pointer-events: none;
     }
 
     .status-pill {

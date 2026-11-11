@@ -144,11 +144,15 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
       room: d.room || '',
       status_badge: (d.user?.status === 'active' || d.status === 'active') ? t('Open Clinic') : t('Unavailable'),
       schedule_time: '',
-      cases_count: d._count?.appointments || d.cases_count || 0,
+      cases_count: d._count?.appointments ?? d.cases_count ?? 0,
       is_active: d.user?.status === 'active' || d.status === 'active',
       is_evening: false,
       primary_action: false,
-      schedules: d.schedules || d.user?.doctor_schedules || [],
+      schedules: d.user?.doctor_schedules || d.schedules || [],
+      consultation_fee: d.consultation_fee ?? 0,
+      follow_up_fee: d.follow_up_fee ?? 0,
+      slot_duration: d.slot_duration ?? 15,
+      bio: d.bio ?? '',
     }));
 
     if (targetPage === 1) {

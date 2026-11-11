@@ -2,6 +2,9 @@
   <div class="admin-bookings-page">
     <!-- 1. Header with Mode Tabs & Metrics Cards -->
     <AdminBookingsHeader 
+      :stats="stats"
+      :today-count="stats.today_appointments"
+      :pending-count="stats.pending_invoices"
       @tab-change="onTabChange"
       @period-change="onPeriodChange"
       @toggle-sort="toggleSortOrder"
@@ -58,6 +61,14 @@ const isRescheduleModalOpen = ref(false);
 
 const selectedBookingForReschedule = ref<any>(null);
 
+const stats = ref({
+  today_revenue: 0,
+  today_paid_invoices: 0,
+  pending_invoices: 0,
+  today_appointments: 0,
+  total_revenue: 0,
+});
+
 const bookings = ref<any[]>([]);
 const bookingsPage = ref(1);
 const bookingsHasMore = ref(false);
@@ -98,12 +109,12 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
       patient_name: a.patient?.name || '',
       avatar: a.patient?.avatar,
       time_badge: a.start_time || '',
-      clinic_name: a.service?.name || a.doctor?.specialty || '',
+      clinic_name: a.examination?.name || a.doctor?.doctor?.clinic?.name || a.service?.name || a.doctor?.specialty || '',
       doctor_name: a.doctor?.name || '',
       time: a.start_time || '',
       status: a.status === 'confirmed' ? 'confirmed' : 'pending',
-      payment_method: a.payment_method || 'مدى',
-      price: a.service?.price || a.total || 0,
+      payment_method: a.invoice?.payment_method || a.payment_method || 'cash',
+      price: a.invoice?.total || a.examination?.price || a.total || 0,
       period: 'today',
     }));
 
@@ -197,6 +208,7 @@ const onBookingRescheduled = async (payload: any) => {
       service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
       payload: { id: payload.bookingId, status: 'confirmed' },
     });
+    ADMIN_BILLING_STATS();
   } catch (err) {}
 
   toast.success(t('Booking rescheduled successfully!'));
@@ -209,11 +221,30 @@ const downloadInvoice = (booking: any) => {
   );
 };
 
+const ADMIN_BILLING_STATS = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'ADMIN_BILLING_STATS' });
+    if (res?.data) {
+      stats.value = {
+        today_revenue: Number(res.data.today_revenue || 0),
+        today_paid_invoices: Number(res.data.today_paid_invoices || 0),
+        pending_invoices: Number(res.data.pending_invoices || 0),
+        today_appointments: Number(res.data.today_appointments || 0),
+        total_revenue: Number(res.data.total_revenue || 0),
+      };
+    }
+  } catch (err) {
+    // silently catch
+  }
+};
+
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   ADMIN_APPOINTMENTS();
+  ADMIN_BILLING_INVOICES();
+  ADMIN_BILLING_STATS();
 });
 
 // 7. Meta (useHead, useSeoMeta)
