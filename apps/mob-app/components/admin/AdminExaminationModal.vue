@@ -264,12 +264,12 @@ interface ScheduleSlot {
 const selectedDay = ref<'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'>('saturday');
 
 const schedulesByDay = ref<Record<string, ScheduleSlot[]>>({
-  saturday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-  sunday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-  monday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-  tuesday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-  wednesday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-  thursday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
+  saturday: [],
+  sunday: [],
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
   friday: [],
 });
 
@@ -323,12 +323,12 @@ const removeSlot = (day: string, idx: number) => {
 
 const resetSchedulesState = () => {
   schedulesByDay.value = {
-    saturday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-    sunday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-    monday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-    tuesday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-    wednesday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
-    thursday: [{ start_time: '09:00', end_time: '17:00', is_active: true }],
+    saturday: [],
+    sunday: [],
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
     friday: [],
   };
 };

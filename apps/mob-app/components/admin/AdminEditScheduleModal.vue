@@ -76,7 +76,10 @@
               v-for="(slot, idx) in schedulesByDay[selectedDay]" 
               :key="idx" 
               class="slot-card"
-              :class="{ 'is-disabled': !slot.is_active }"
+              :class="{ 
+                'is-disabled': !slot.is_active,
+                'slot-overlap-error': isSlotOverlapping(selectedDay, idx)
+              }"
             >
               <!-- Slot Top Row: Status Switch & Delete -->
               <div class="slot-header-row">
@@ -120,6 +123,12 @@
                   <AppTimePicker v-model="slot.end_time" :title="t('End Time')" />
                 </div>
               </div>
+
+              <!-- Overlap / Invalid Warning Banner -->
+              <div v-if="isSlotOverlapping(selectedDay, idx)" class="overlap-warning-box">
+                <i class="pi pi-exclamation-triangle"></i>
+                <span>{{ isSlotTimeInvalid(slot) ? t('End time must be after start time') : t('This shift overlaps with another shift') }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -129,7 +138,7 @@
           <button type="button" class="btn-cancel" @click="close">
             {{ t('Cancel') }}
           </button>
-          <button type="submit" class="btn-submit" :disabled="loading">
+          <button type="submit" class="btn-submit" :disabled="loading || hasAnyScheduleOverlap">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ t('Save Changes') }}</span>
           </button>
@@ -198,6 +207,56 @@ const currentDayLabel = computed(() => {
   return match ? match.label : '';
 });
 
+const timeToMinutes = (timeStr?: string): number => {
+  if (!timeStr) return 0;
+  const trimmed = String(timeStr).trim();
+  const parts = trimmed.split(':');
+  if (parts.length < 2) return 0;
+  const h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  return h * 60 + m;
+};
+
+const isSlotTimeInvalid = (slot: ScheduleSlot): boolean => {
+  if (!slot.start_time || !slot.end_time) return false;
+  return timeToMinutes(slot.end_time) <= timeToMinutes(slot.start_time);
+};
+
+const isSlotOverlapping = (dayKey: string, slotIndex: number): boolean => {
+  const slots = schedulesByDay.value[dayKey] || [];
+  const current = slots[slotIndex];
+  if (!current || !current.is_active || !current.start_time || !current.end_time) return false;
+
+  const cStart = timeToMinutes(current.start_time);
+  const cEnd = timeToMinutes(current.end_time);
+  if (cEnd <= cStart) return true;
+
+  for (let i = 0; i < slots.length; i++) {
+    if (i === slotIndex) continue;
+    const other = slots[i];
+    if (!other.is_active || !other.start_time || !other.end_time) continue;
+
+    const oStart = timeToMinutes(other.start_time);
+    const oEnd = timeToMinutes(other.end_time);
+
+    // Overlap condition: max(start) < min(end)
+    if (Math.max(cStart, oStart) < Math.min(cEnd, oEnd)) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const hasAnyScheduleOverlap = computed(() => {
+  for (const day of weekDays) {
+    const slots = schedulesByDay.value[day.key] || [];
+    for (let i = 0; i < slots.length; i++) {
+      if (isSlotOverlapping(day.key, i)) return true;
+    }
+  }
+  return false;
+});
+
 // 4. Methods (functions, handlers)
 const resetSchedulesState = () => {
   schedulesByDay.value = {
@@ -261,6 +320,11 @@ const close = () => {
 
 const saveSchedule = async () => {
   if (!props.doctor?.id || loading.value) return;
+
+  if (hasAnyScheduleOverlap.value) {
+    toast.error(t('Please resolve overlapping work shifts before saving'));
+    return;
+  }
 
   loading.value = true;
   try {
@@ -613,6 +677,29 @@ watch(
           &.is-disabled {
             opacity: 0.65;
             background: #f8fafc;
+          }
+
+          &.slot-overlap-error {
+            border: 1.5px solid #ef4444 !important;
+            background: rgba(239, 68, 68, 0.03);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+          }
+
+          .overlap-warning-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 10px;
+            color: #dc2626;
+            font-size: 0.72rem;
+            font-weight: 700;
+
+            i {
+              font-size: 0.8rem;
+              flex-shrink: 0;
+            }
           }
 
           .slot-header-row {

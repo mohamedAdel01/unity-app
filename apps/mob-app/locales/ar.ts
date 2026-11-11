@@ -2,6 +2,11 @@ export default {
   // ==========================================
   // Bya3 Pattern: Direct English Key -> Arabic Translation
   // ==========================================
+  "This shift overlaps with another shift": "توجد فترة عمل أخرى متداخلة مع هذا الوقت",
+  "End time must be after start time": "وقت الانتهاء يجب أن يكون بعد وقت البدء",
+  "Please resolve overlapping work shifts before saving": "يرجى تعديل فترات العمل المتداخلة قبل الحفظ",
+  "No bookings for today": "لا توجد حجوزات لليوم",
+  "You have no scheduled appointments for today": "ليس لديك أي مواعيد مسجلة اليوم",
   "Clinic Type": "نوع العيادة",
   "General Clinic": "عيادة عامة",
   "Pending Confirmation": "قيد التأكيد",

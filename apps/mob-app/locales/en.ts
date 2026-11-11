@@ -2,6 +2,11 @@ export default {
   // ==========================================
   // Flat English Keys (Bya3 Pattern)
   // ==========================================
+  "This shift overlaps with another shift": "This shift overlaps with another shift",
+  "End time must be after start time": "End time must be after start time",
+  "Please resolve overlapping work shifts before saving": "Please resolve overlapping work shifts before saving",
+  "No bookings for today": "No bookings for today",
+  "You have no scheduled appointments for today": "You have no scheduled appointments for today",
   "Clinic Type": "Clinic Type",
   "General Clinic": "General Clinic",
   "Search in Obour Directory": "Search in Obour Directory",

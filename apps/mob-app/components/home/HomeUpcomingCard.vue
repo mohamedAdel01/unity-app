@@ -1,5 +1,5 @@
 <template>
-  <section v-if="appointmentsList.length > 0" class="section-container">
+  <section class="section-container">
     <div class="section-header">
       <div class="title-with-count">
         <h4>{{ t('My Bookings') }}</h4>
@@ -13,8 +13,8 @@
       </NuxtLink>
     </div>
 
-    <!-- Multi-appointment Carousel / Single Compact Card -->
-    <div class="bookings-scroll-wrapper" :class="{ 'is-single': appointmentsList.length === 1 }">
+    <!-- Case A: User has 1 or more bookings today/upcoming -->
+    <div v-if="appointmentsList.length > 0" class="bookings-scroll-wrapper" :class="{ 'is-single': appointmentsList.length === 1 }">
       <div 
         v-for="apt in appointmentsList" 
         :key="apt.id" 
@@ -61,6 +61,23 @@
           <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
         </div>
       </div>
+    </div>
+
+    <!-- Case B: No bookings for today (Compact empty state with quick book button) -->
+    <div v-else class="empty-today-card" @click="bookingModal.openQuickBook">
+      <div class="empty-left">
+        <div class="cal-icon-wrap">
+          <i class="pi pi-calendar"></i>
+        </div>
+        <div class="empty-text">
+          <h5>{{ t('No bookings for today') }}</h5>
+          <p>{{ t('You have no scheduled appointments for today') }}</p>
+        </div>
+      </div>
+      <button class="empty-action-pill" type="button">
+        <span>{{ t('Book Now') }}</span>
+        <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
+      </button>
     </div>
   </section>
 </template>
@@ -342,6 +359,92 @@ const openDetails = (apt: any) => {
     color: var(--unity-text-dim);
     font-size: 0.72rem;
     flex-shrink: 0;
+  }
+}
+
+// Compact Empty State Card for Today
+.empty-today-card {
+  background: var(--unity-surface);
+  border: 1.5px dashed var(--unity-border);
+  border-radius: 18px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: var(--unity-shadow-subtle);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--unity-primary);
+    background: var(--unity-primary-light);
+  }
+
+  .empty-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+
+    .cal-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: var(--unity-primary-light);
+      color: var(--unity-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .empty-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+
+      h5 {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--unity-text-main);
+        margin: 0;
+        white-space: nowrap;
+      }
+
+      p {
+        font-size: 0.68rem;
+        color: var(--unity-text-muted);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .empty-action-pill {
+    background: var(--unity-primary);
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--unity-primary-dark);
+    }
   }
 }
 </style>
