@@ -3,9 +3,9 @@
     <!-- 1. Top Greeting Header -->
     <HomeHeader />
 
-    <!-- 2. Current/Upcoming Appointment Card (shows only if patient has an appointment today/upcoming) -->
+    <!-- 2. Current/Upcoming Appointments (Compact sleek card / carousel for today & upcoming) -->
     <HomeUpcomingCard 
-      :appointment="upcomingAppointment" 
+      :appointments="upcomingAppointments" 
       @refresh="PATIENT_APPOINTMENTS"
     />
 
@@ -38,7 +38,7 @@ const api = useUnityApi();
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
 const activeFilter = ref('all');
-const upcomingAppointment = ref<any | null>(null);
+const upcomingAppointments = ref<any[]>([]);
 
 // 3. Computed (computed properties)
 
@@ -46,15 +46,16 @@ const upcomingAppointment = ref<any | null>(null);
 const PATIENT_APPOINTMENTS = async () => {
   try {
     const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
-    if (res && res.status && Array.isArray(res.data) && res.data.length > 0) {
-      // Find active upcoming/today appointment
-      const active = res.data.find((a: any) => a.status === 'confirmed' || a.status === 'pending');
-      upcomingAppointment.value = active || null;
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    if (raw.length > 0) {
+      // Find all active upcoming/today appointments (confirmed or pending)
+      const active = raw.filter((a: any) => a.status === 'confirmed' || a.status === 'pending');
+      upcomingAppointments.value = active;
     } else {
-      upcomingAppointment.value = null;
+      upcomingAppointments.value = [];
     }
   } catch (err) {
-    upcomingAppointment.value = null;
+    upcomingAppointments.value = [];
   }
 };
 
@@ -70,7 +71,8 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .home-screen {
-  padding: 16px 20px 24px;
+  padding: 16px 20px 48px;
+  margin-bottom: 24px;
   display: flex;
   flex-direction: column;
   gap: 22px;

@@ -67,10 +67,10 @@ const { t } = useI18n();
   left: 16px;
   right: 16px;
   height: 66px;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--unity-navbar-bg, rgba(255, 255, 255, 0.85));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  border: 1.5px solid var(--unity-navbar-border, rgba(255, 255, 255, 0.65));
   border-radius: 50px;
   display: flex;
   align-items: center;
@@ -78,12 +78,7 @@ const { t } = useI18n();
   padding: 0 8px;
   z-index: 45;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-
-  :global([data-theme='dark']) & {
-    background: rgba(30, 41, 59, 0.82);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  }
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 
   .admin-nav-btn {
     display: flex;

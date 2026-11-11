@@ -6,10 +6,10 @@
       <span>{{ t('Home') }}</span>
     </NuxtLink>
 
-    <!-- Tab 2: Appointments -->
+    <!-- Tab 2: Bookings (حجوزاتي) -->
     <NuxtLink to="/appointments" class="nav-btn" :class="{ 'active': route.path === '/appointments' }">
       <i class="pi pi-calendar"></i>
-      <span>{{ t('Appointments') }}</span>
+      <span>{{ t('My Bookings') }}</span>
     </NuxtLink>
 
     <!-- Tab 3: Center Floating Plus (+) Button -->
@@ -70,10 +70,10 @@ const bookingModal = useBookingModal();
   left: 16px;
   right: 16px;
   height: 66px;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--unity-navbar-bg, rgba(255, 255, 255, 0.85));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  border: 1.5px solid var(--unity-navbar-border, rgba(255, 255, 255, 0.65));
   border-radius: 50px;
   display: flex;
   align-items: center;
@@ -81,12 +81,7 @@ const bookingModal = useBookingModal();
   padding: 0 8px;
   z-index: 45;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-
-  :global([data-theme='dark']) & {
-    background: rgba(30, 41, 59, 0.82);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  }
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 
   .nav-btn {
     display: flex;
@@ -113,7 +108,7 @@ const bookingModal = useBookingModal();
     }
 
     &.active {
-      color: var(--unity-primary-dark);
+      color: var(--unity-active-tab-text, var(--unity-primary-dark));
       background: var(--unity-primary-light);
 
       i {
@@ -138,7 +133,7 @@ const bookingModal = useBookingModal();
       border-radius: 50%;
       background: var(--unity-primary);
       color: #ffffff;
-      border: 4px solid rgba(255, 255, 255, 0.85);
+      border: 4px solid var(--unity-navbar-fab-border, rgba(255, 255, 255, 0.85));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -146,10 +141,6 @@ const bookingModal = useBookingModal();
       cursor: pointer;
       box-shadow: 0 3px 10px rgba(4, 120, 87, 0.16);
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-      :global([data-theme='dark']) & {
-        border-color: rgba(30, 41, 59, 0.85);
-      }
 
       &:hover {
         transform: scale(1.08) rotate(90deg);

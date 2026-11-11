@@ -149,18 +149,18 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
       border: 1.5px solid rgba(16, 185, 129, 0.22);
 
       .icon-doctor {
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-        color: #059669;
+        background: var(--unity-primary-light);
+        color: var(--unity-primary);
         box-shadow: 0 6px 14px rgba(16, 185, 129, 0.18);
-        border: 1px solid #a7f3d0;
+        border: 1px solid rgba(16, 185, 129, 0.25);
       }
 
       .card-action-cue {
-        color: #059669;
-        background: rgba(16, 185, 129, 0.08);
+        color: var(--unity-primary);
+        background: var(--unity-primary-light);
 
         &:hover {
-          background: rgba(16, 185, 129, 0.16);
+          background: rgba(16, 185, 129, 0.25);
         }
       }
     }
@@ -170,18 +170,18 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
       border: 1.5px solid rgba(13, 148, 136, 0.22);
 
       .icon-lab {
-        background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
-        color: #0d9488;
+        background: var(--unity-primary-light);
+        color: var(--unity-accent);
         box-shadow: 0 6px 14px rgba(13, 148, 136, 0.18);
-        border: 1px solid #99f6e4;
+        border: 1px solid rgba(13, 148, 136, 0.25);
       }
 
       .card-action-cue {
-        color: #0d9488;
-        background: rgba(13, 148, 136, 0.08);
+        color: var(--unity-accent);
+        background: var(--unity-primary-light);
 
         &:hover {
-          background: rgba(13, 148, 136, 0.16);
+          background: rgba(13, 148, 136, 0.25);
         }
       }
     }

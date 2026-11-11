@@ -122,7 +122,7 @@ const DOCTORS = async () => {
 };
 
 const bookDoctor = (doctor: any) => {
-  bookingModal.openBookingFlow({ doctor });
+  bookingModal.openBookingFlow({ doctor, type: 'consultation' });
 };
 
 // 5. Watches (watch, watchEffect)
@@ -195,10 +195,10 @@ onMounted(() => {
     margin-bottom: 14px;
 
     .doc-rating-badge {
-      background: #ecfdf5;
-      color: #047857;
+      background: var(--unity-primary-light);
+      color: var(--unity-primary);
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       padding: 2px 8px;
       border-radius: 10px;
     }
@@ -279,18 +279,19 @@ onMounted(() => {
     }
 
     .book-appointment-btn {
-      background: var(--unity-primary-dark);
+      background: var(--unity-primary);
       color: #fff;
       border: none;
       padding: 8px 18px;
       border-radius: 12px;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
       transition: all 0.2s;
 
       &:hover {
-        background: #022c22;
+        background: var(--unity-primary-dark);
         transform: translateY(-1px);
       }
     }

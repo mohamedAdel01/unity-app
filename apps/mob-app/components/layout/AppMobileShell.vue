@@ -146,7 +146,7 @@ onMounted(() => {
   }
 
   padding-top: max(32px, env(safe-area-inset-top, 32px));
-  padding-bottom: 0;
+  padding-bottom: calc(105px + max(20px, env(safe-area-inset-bottom, 20px)));
   background: var(--unity-bg);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;

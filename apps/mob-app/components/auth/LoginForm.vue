@@ -33,6 +33,12 @@
       </div>
     </div>
 
+    <div class="forgot-row">
+      <NuxtLink to="/auth/forgot-password" class="btn-otp-switch">
+        <span>{{ t('Forgot Password?') }}</span>
+      </NuxtLink>
+    </div>
+
     <button type="submit" class="submit-login-btn" :disabled="globalStore.loading.includes('login') || !form.login">
       <i v-if="globalStore.loading.includes('login')" class="pi pi-spin pi-spinner"></i>
       <span v-else>{{ t('Sign In') }}</span>

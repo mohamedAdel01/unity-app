@@ -104,9 +104,9 @@
               <i class="pi pi-file"></i>
               <span>{{ t('View Medical Report') }}</span>
             </button>
-            <button class="btn-rebook" @click="rebook(apt)">
-              <i class="pi pi-refresh"></i>
-              <span>{{ t('Rebook') }}</span>
+            <button class="btn-followup" @click="bookFollowUp(apt)">
+              <i class="pi pi-calendar-plus"></i>
+              <span>{{ t('Book Follow-up') }}</span>
             </button>
           </template>
 
@@ -187,11 +187,6 @@ import { useGlobalStore } from '../../stores/global';
 import { useAppToast } from '../../composables/useAppToast';
 import AppConfirmModal from '../common/AppConfirmModal.vue';
 import AppVirtualList from '../common/AppVirtualList.vue';
-
-defineExpose({
-  PATIENT_APPOINTMENTS,
-  loadAppointments: PATIENT_APPOINTMENTS,
-});
 
 const api = useUnityApi();
 
@@ -319,12 +314,21 @@ const handleConfirmCancel = async () => {
 };
 
 const rebook = (apt: any) => {
-  bookingModal.openBookingFlow({ doctor: apt.doctor });
+  bookingModal.openBookingFlow({ doctor: apt.doctor, type: 'consultation' });
+};
+
+const bookFollowUp = (apt: any) => {
+  bookingModal.openBookingFlow({ doctor: apt.doctor, type: 'follow_up' });
 };
 
 const viewReport = (apt: any) => {
   toast.info(t('Medical Report: Health vitals optimal. Follow-up in 2 weeks.'), 'الملف الطبي');
 };
+
+defineExpose({
+  PATIENT_APPOINTMENTS: (page = 1) => PATIENT_APPOINTMENTS(page),
+  loadAppointments: (page = 1) => PATIENT_APPOINTMENTS(page),
+});
 
 // 5. Watches (watch, watchEffect)
 
@@ -570,6 +574,7 @@ onMounted(() => {
       color: var(--unity-text-main);
     }
 
+    .btn-followup,
     .btn-rebook {
       background: var(--unity-primary);
       color: #fff;

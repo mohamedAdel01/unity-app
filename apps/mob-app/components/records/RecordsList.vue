@@ -27,6 +27,10 @@
           </div>
 
           <div class="card-footer">
+            <button class="action-btn book-action-btn" @click="$emit('book', item)">
+              <i class="pi pi-calendar-plus"></i>
+              <span>{{ t('Book Consultation from Result') }}</span>
+            </button>
             <button class="action-btn outline-btn" @click="$emit('download', item)">
               <i class="pi pi-download"></i>
               <span>{{ t('Download Report (PDF)') }}</span>
@@ -85,6 +89,7 @@ const props = withDefaults(
 defineEmits<{
   (e: 'download', item: RecordItem): void;
   (e: 'view', item: RecordItem): void;
+  (e: 'book', item: RecordItem): void;
   (e: 'load-more'): void;
 }>();
 
@@ -273,6 +278,17 @@ const { t } = useI18n();
       cursor: pointer;
       border: none;
       transition: all 0.2s ease;
+
+      &.book-action-btn {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+
+        &:hover {
+          background: #047857;
+          color: #ffffff;
+        }
+      }
 
       &.outline-btn {
         background: var(--unity-surface);

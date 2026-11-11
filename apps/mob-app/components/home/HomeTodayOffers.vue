@@ -1,5 +1,5 @@
 <template>
-  <section class="today-offers-section">
+  <section v-if="offers.length > 0 || loading" class="today-offers-section">
     <div class="section-header">
       <div class="header-texts">
         <h4>{{ t("Today's Special Offers") }}</h4>
@@ -51,53 +51,54 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { useUnityApi } from '../../composables/useUnityApi';
 
 const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
+const api = useUnityApi();
 
 // 2. Data (refs, reactive state)
-const offers = ref([
-  {
-    id: 'cardio-check',
-    title: 'باقة الفحص الشامل للقلب',
-    description: 'رسم قلب + إيكو واستشارة استشاري قلب وأوعية دموية',
-    image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=380&auto=format&fit=crop&q=75&fm=webp',
-    price: 320,
-    originalPrice: 550,
-    discountPercent: 42,
-  },
-  {
-    id: 'lab-liver-kidney',
-    title: 'تحاليل وظائف الكبد والكلى',
-    description: 'فحص إنزيمات كبد كاملة + كرياتينين ويوريا والنتيجة فورية',
-    image: 'https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=380&auto=format&fit=crop&q=75&fm=webp',
-    price: 190,
-    originalPrice: 320,
-    discountPercent: 40,
-  },
-  {
-    id: 'diabetes-profile',
-    title: 'كشف باطنة وسكر + فحص HBA1c',
-    description: 'السكر التراكمي الدقيق ومتابعة ضغط الدم ومراجعة خطة العلاج',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=380&auto=format&fit=crop&q=75&fm=webp',
-    price: 240,
-    originalPrice: 420,
-    discountPercent: 43,
-  },
-]);
+const offers = ref<any[]>([]);
+const loading = ref(false);
 
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const OFFERS = async () => {
+  try {
+    loading.value = true;
+    const res = await api.apiRequest({ service: 'OFFERS' });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    if (raw.length > 0) {
+      offers.value = raw.map((o: any) => ({
+        id: o.id,
+        title: o.title,
+        description: o.description,
+        image: o.image,
+        price: Number(o.price),
+        originalPrice: o.original_price ? Number(o.original_price) : null,
+        discountPercent: o.discount_percentage || (o.original_price ? Math.round(((Number(o.original_price) - Number(o.price)) / Number(o.original_price)) * 100) : null),
+      }));
+    } else {
+      offers.value = [];
+    }
+  } catch (err) {
+    offers.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
 const bookOffer = (offer: any) => {
   bookingModal.openBookingFlow({
     service: {
       id: offer.id,
       name: offer.title,
       price: offer.price,
+      is_offer: true,
     },
   });
 };
@@ -105,6 +106,9 @@ const bookOffer = (offer: any) => {
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  OFFERS();
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>

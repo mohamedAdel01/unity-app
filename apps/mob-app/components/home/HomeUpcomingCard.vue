@@ -1,56 +1,65 @@
 <template>
-  <section v-if="currentAppointment" class="section-container">
+  <section v-if="appointmentsList.length > 0" class="section-container">
     <div class="section-header">
-      <h4>{{ t('Upcoming Appointments') }}</h4>
+      <div class="title-with-count">
+        <h4>{{ t('My Bookings') }}</h4>
+        <span v-if="appointmentsList.length > 1" class="count-pill">
+          {{ appointmentsList.length }}
+        </span>
+      </div>
       <NuxtLink to="/appointments" class="see-all-link">
         {{ t('View All') }} 
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>
     </div>
 
-    <div class="upcoming-appointment-card">
-      <div class="card-top">
-        <div class="doc-profile">
-          <img 
-            v-if="currentAppointment.doctor?.avatar || currentAppointment.doctor?.user?.avatar"
-            :src="currentAppointment.doctor?.avatar || currentAppointment.doctor?.user?.avatar" 
-            alt="Doctor" 
-          />
-          <div v-else class="doc-avatar-initial">
-            <span>{{ (currentAppointment.doctor?.name || currentAppointment.doctor?.user?.name || 'D').charAt(0).toUpperCase() }}</span>
+    <!-- Multi-appointment Carousel / Single Compact Card -->
+    <div class="bookings-scroll-wrapper" :class="{ 'is-single': appointmentsList.length === 1 }">
+      <div 
+        v-for="apt in appointmentsList" 
+        :key="apt.id" 
+        class="compact-booking-card"
+        @click="openDetails(apt)"
+      >
+        <div class="card-left-part">
+          <!-- Doctor / Exam Avatar -->
+          <div class="avatar-wrap">
+            <img 
+              v-if="apt.doctor?.avatar || apt.doctor?.user?.avatar"
+              :src="apt.doctor?.avatar || apt.doctor?.user?.avatar" 
+              alt="Doctor" 
+            />
+            <div v-else class="initial-box">
+              <span>{{ (apt.doctor?.name || apt.doctor?.user?.name || apt.examination?.name || 'D').charAt(0).toUpperCase() }}</span>
+            </div>
           </div>
-          <div class="doc-text">
-            <h5>{{ currentAppointment.doctor?.name || currentAppointment.doctor?.user?.name || '' }}</h5>
-            <span v-if="currentAppointment.doctor?.specialty">{{ currentAppointment.doctor?.specialty }}</span>
+
+          <!-- Doctor & Time Info -->
+          <div class="info-wrap">
+            <div class="top-row">
+              <h5 class="doc-title">{{ apt.doctor?.name || apt.doctor?.user?.name || apt.examination?.name || apt.offer?.title || t('Medical Appointment') }}</h5>
+              <span class="status-chip" :class="apt.status">
+                {{ apt.status === 'confirmed' ? t('Confirmed') : t('Pending Confirmation') }}
+              </span>
+            </div>
+            
+            <div class="meta-row">
+              <span class="time-item">
+                <i class="pi pi-clock"></i>
+                {{ formatSlotTime(apt.start_time) }}
+              </span>
+              <span class="bullet-dot">•</span>
+              <span class="date-item">
+                <i class="pi pi-calendar"></i>
+                {{ formatAppointmentDate(apt.date) }}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="card-schedule-boxes">
-        <div v-if="currentAppointment.start_time" class="schedule-box">
-          <i class="pi pi-clock"></i>
-          <div>
-            <small>{{ t('Time') }}</small>
-            <strong>{{ currentAppointment.start_time }} {{ currentAppointment.end_time ? '- ' + currentAppointment.end_time : '' }}</strong>
-          </div>
+        <div class="card-action-icon">
+          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
         </div>
-
-        <div v-if="currentAppointment.date" class="schedule-box">
-          <i class="pi pi-calendar"></i>
-          <div>
-            <small>{{ t('Date') }}</small>
-            <strong>{{ currentAppointment.date }}</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-action-buttons">
-        <button class="btn-reschedule" @click="openReschedule(currentAppointment)">
-          {{ t('Reschedule') }}
-        </button>
-        <button class="btn-view-profile" @click="viewDoctor(currentAppointment.doctor)">
-          {{ t('View Profile') }}
-        </button>
       </div>
     </div>
   </section>
@@ -58,68 +67,71 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, onMounted } from 'vue';
-import { useUnityApi } from '../../composables/useUnityApi';
+import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 
 const props = defineProps<{
   appointment?: any | null;
+  appointments?: any[];
 }>();
 
 const emit = defineEmits<{
   (e: 'refresh'): void;
 }>();
 
-const api = useUnityApi();
-
 const { t, isRtl } = useI18n();
-
 const bookingModal = useBookingModal();
 
 // 2. Data (refs, reactive state)
-const internalAppointment = ref<any | null>(null);
 
 // 3. Computed (computed properties)
-const currentAppointment = computed(() => {
-  if (props.appointment !== undefined) {
-    return props.appointment;
+const appointmentsList = computed<any[]>(() => {
+  if (Array.isArray(props.appointments) && props.appointments.length > 0) {
+    return props.appointments;
   }
-  return internalAppointment.value;
+  if (props.appointment) {
+    return [props.appointment];
+  }
+  return [];
 });
 
 // 4. Methods (functions, handlers)
-const PATIENT_APPOINTMENTS = async () => {
-  try {
-    const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
-    if (res && res.status && Array.isArray(res.data) && res.data.length > 0) {
-      const active = res.data.find((a: any) => a.status === 'confirmed' || a.status === 'pending');
-      internalAppointment.value = active || null;
-    } else {
-      internalAppointment.value = null;
-    }
-  } catch (err) {
-    internalAppointment.value = null;
+const formatSlotTime = (timeStr?: string) => {
+  if (!timeStr) return '';
+  const trimmed = String(timeStr).trim();
+  if (/am|pm/i.test(trimmed)) return trimmed;
+
+  const parts = trimmed.split(':');
+  if (parts.length < 2) return trimmed;
+
+  let h = parseInt(parts[0], 10);
+  const m = parts[1].slice(0, 2);
+  if (isNaN(h)) return trimmed;
+
+  const isPm = h >= 12;
+  h = h % 12;
+  if (h === 0) h = 12;
+  const hPadded = h.toString().padStart(2, '0');
+  const period = isPm ? 'PM' : 'AM';
+  return `${hPadded}:${m} ${period}`;
+};
+
+const formatAppointmentDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+};
+
+const openDetails = (apt: any) => {
+  if (apt?.doctor) {
+    bookingModal.openBookingFlow({ doctor: apt.doctor });
   }
-};
-
-const openReschedule = (apt: any) => {
-  bookingModal.openBookingFlow({ doctor: apt.doctor });
-};
-
-const viewDoctor = (doctor: any) => {
-  bookingModal.openBookingFlow({ doctor });
 };
 
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
-onMounted(() => {
-  // Only self-fetch if not provided by parent
-  if (props.appointment === undefined) {
-    PATIENT_APPOINTMENTS();
-  }
-});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
@@ -128,154 +140,208 @@ onMounted(() => {
 .section-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  width: 100%;
 
   .section-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    h4 {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: var(--unity-text-main);
+    .title-with-count {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      h4 {
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: var(--unity-text-main);
+        margin: 0;
+      }
+
+      .count-pill {
+        background: var(--unity-primary);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 800;
+        padding: 1px 7px;
+        border-radius: 10px;
+      }
     }
 
     .see-all-link {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 700;
       color: var(--unity-primary);
       text-decoration: none;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 2px;
+      transition: gap 0.2s;
+
+      &:hover {
+        gap: 5px;
+      }
     }
   }
 }
 
-.upcoming-appointment-card {
-  background: var(--unity-primary-gradient);
-  border-radius: 24px;
-  padding: 18px;
-  color: #fff;
-  box-shadow: 0 10px 25px -5px rgba(4, 120, 87, 0.35);
-  direction: rtl;
+// Scroll wrapper for 1 or more bookings
+.bookings-scroll-wrapper {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 
-  &[dir='ltr'] {
-    direction: ltr;
-
-    .card-top .doc-profile .doc-text {
-      text-align: left;
-    }
+  &::-webkit-scrollbar {
+    display: none;
   }
 
-  .card-top {
+  &.is-single {
+    .compact-booking-card {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+}
+
+.compact-booking-card {
+  flex: 0 0 calc(100% - 24px);
+  min-width: 280px;
+  max-width: 100%;
+  scroll-snap-align: start;
+  background: var(--unity-surface);
+  border: 1.5px solid var(--unity-border);
+  border-radius: 18px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: var(--unity-shadow-subtle);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--unity-primary);
+    box-shadow: var(--unity-shadow-card);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .card-left-part {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 16px;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
 
-    .doc-profile {
+  .avatar-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .initial-box {
+      width: 100%;
+      height: 100%;
+      background: var(--unity-primary-gradient);
+      color: #ffffff;
       display: flex;
       align-items: center;
-      gap: 12px;
-
-      img, .doc-avatar-initial {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.7);
-        object-fit: cover;
-        flex-shrink: 0;
-      }
-
-      .doc-avatar-initial {
-        background: rgba(255, 255, 255, 0.25);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #ffffff;
-      }
-
-      .doc-text {
-        text-align: right;
-
-        h5 {
-          font-size: 1.05rem;
-          font-weight: 700;
-          margin-bottom: 2px;
-        }
-
-        span {
-          font-size: 0.78rem;
-          opacity: 0.9;
-        }
-      }
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
     }
   }
 
-  .card-schedule-boxes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
+  .info-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
 
-    .schedule-box {
-      background: rgba(255, 255, 255, 0.14);
-      border-radius: 14px;
-      padding: 10px;
+    .top-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+      gap: 6px;
+
+      .doc-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--unity-text-main);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .status-chip {
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 8px;
+        white-space: nowrap;
+        flex-shrink: 0;
+
+        &.confirmed {
+          background: rgba(16, 185, 129, 0.12);
+          color: #059669;
+        }
+
+        &.pending {
+          background: rgba(245, 158, 11, 0.12);
+          color: #d97706;
+        }
+      }
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.70rem;
+      color: var(--unity-text-muted);
+      font-weight: 600;
 
       i {
-        font-size: 1.1rem;
-        opacity: 0.9;
+        font-size: 0.68rem;
+        color: var(--unity-primary);
+        margin-inline-end: 2px;
       }
 
-      div {
-        display: flex;
-        flex-direction: column;
-
-        small {
-          font-size: 0.65rem;
-          opacity: 0.75;
-        }
-
-        strong {
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
+      .bullet-dot {
+        opacity: 0.5;
+        font-size: 0.65rem;
       }
     }
   }
 
-  .card-action-buttons {
+  .card-action-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
     display: flex;
-    gap: 10px;
-
-    button {
-      flex: 1;
-      padding: 10px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-    }
-
-    .btn-reschedule {
-      background: #fff;
-      color: #064e3b;
-    }
-
-    .btn-view-profile {
-      background: rgba(255, 255, 255, 0.18);
-      color: #fff;
-    }
+    align-items: center;
+    justify-content: center;
+    color: var(--unity-text-dim);
+    font-size: 0.72rem;
+    flex-shrink: 0;
   }
 }
 </style>

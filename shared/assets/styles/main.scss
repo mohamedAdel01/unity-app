@@ -33,6 +33,11 @@
   --unity-shadow-card: 0 4px 14px -3px rgba(15, 23, 42, 0.08);
   --unity-shadow-elevated: 0 10px 25px -5px rgba(4, 120, 87, 0.25);
 
+  --unity-navbar-bg: rgba(255, 255, 255, 0.85);
+  --unity-navbar-border: rgba(255, 255, 255, 0.65);
+  --unity-navbar-fab-border: rgba(255, 255, 255, 0.85);
+  --unity-active-tab-text: var(--unity-primary-dark);
+
   --unity-radius-xs: 8px;
   --unity-radius-sm: 12px;
   --unity-radius-md: 18px;
@@ -54,7 +59,7 @@
   --unity-shadow-elevated: 0 10px 25px -5px rgba(15, 118, 110, 0.25);
 }
 
-[data-theme='dark'] {
+[data-theme='dark'], html.dark, body.dark {
   --unity-bg: #090d16;
   --unity-surface: #111827;
   --unity-surface-soft: #1f2937;
@@ -63,11 +68,22 @@
   --unity-text-dim: #6b7280;
   --unity-border: #1f2937;
   --unity-border-light: #374151;
-  --unity-primary-light: rgba(4, 120, 87, 0.18);
-  --unity-primary-tint: rgba(4, 120, 87, 0.3);
+  --unity-border-subtle: #1f2937;
+  --unity-primary: #10b981;
+  --unity-primary-dark: #34d399;
+  --unity-primary-hover: #059669;
+  --unity-primary-light: rgba(16, 185, 129, 0.18);
+  --unity-primary-tint: rgba(16, 185, 129, 0.3);
+  --unity-accent: #34d399;
+  --unity-accent-glow: rgba(52, 211, 153, 0.25);
   --unity-shadow-subtle: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
   --unity-shadow-card: 0 4px 14px -3px rgba(0, 0, 0, 0.5);
   --web-outer-bg: #030712;
+
+  --unity-navbar-bg: rgba(17, 24, 39, 0.88);
+  --unity-navbar-border: rgba(255, 255, 255, 0.1);
+  --unity-navbar-fab-border: #111827;
+  --unity-active-tab-text: #34d399;
 }
 
 // ==========================================

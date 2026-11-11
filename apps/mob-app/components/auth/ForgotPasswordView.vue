@@ -1,0 +1,52 @@
+<template>
+  <div class="auth-page">
+    <div class="auth-content-wrapper">
+      <AuthHeader :title="t('Reset Password')" />
+      <ForgotPasswordCard />
+      <AuthFooterLink :is-register="false" />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { useI18n } from '../../composables/useI18n';
+import AuthHeader from './AuthHeader.vue';
+import ForgotPasswordCard from './ForgotPasswordCard.vue';
+import AuthFooterLink from './AuthFooterLink.vue';
+
+const { t } = useI18n();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+
+// 4. Methods (functions, handlers)
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
+</script>
+
+<style scoped lang="scss">
+.auth-page {
+  flex: 1;
+  min-height: 100%;
+  padding: 12px 18px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+
+  .auth-content-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: auto 0;
+  }
+}
+</style>
+

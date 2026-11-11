@@ -19,6 +19,7 @@
       :service="bookingModal.activeService.value"
       :selected-date="bookingModal.activeDate.value"
       :selected-slot="bookingModal.activeSlot.value"
+      :initial-type="bookingModal.activeType.value"
       @booking-completed="onBookingCompleted"
     />
   </div>

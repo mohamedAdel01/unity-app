@@ -28,6 +28,27 @@ export default {
     });
   },
 
+  async FORGOT_PASSWORD_REQUEST_OTP({ API, payload }: { API: any; payload: any }) {
+    return await API('auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async FORGOT_PASSWORD_VERIFY_OTP({ API, payload }: { API: any; payload: any }) {
+    return await API('auth/verify-reset-otp', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async FORGOT_PASSWORD_RESET({ API, payload }: { API: any; payload: any }) {
+    return await API('auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
   async GET_PROFILE({ API }: { API: any }) {
     return await API('auth/profile', {
       method: 'GET',
@@ -100,6 +121,18 @@ export default {
     });
   },
 
+  async OFFERS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`client/offers${toQuery(filter)}`, {
+      method: 'GET',
+    });
+  },
+
+  async OFFER_BY_ID({ API, filter }: { API: any; filter: { id: string | number } }) {
+    return await API(`client/offers/${filter.id}`, {
+      method: 'GET',
+    });
+  },
+
   async DOCTORS({ API, filter }: { API: any; filter?: any }) {
     return await API(`client/doctors${toQuery(filter)}`, {
       method: 'GET',
@@ -115,6 +148,13 @@ export default {
   async DOCTOR_SLOTS({ API, filter }: { API: any; filter: { id: string | number; date: string } }) {
     const query = filter?.date ? `?date=${encodeURIComponent(filter.date)}` : '';
     return await API(`client/doctors/${filter.id}/slots${query}`, {
+      method: 'GET',
+    });
+  },
+
+  async DOCTOR_AVAILABLE_DAYS({ API, filter }: { API: any; filter: { id: string | number; days?: number } }) {
+    const query = filter?.days ? `?days=${encodeURIComponent(filter.days)}` : '';
+    return await API(`client/doctors/${filter.id}/available-days${query}`, {
       method: 'GET',
     });
   },
@@ -180,8 +220,22 @@ export default {
     });
   },
 
-  async PAYMOB_INITIATE({ API, payload }: { API: any; payload: { invoice_id: string | number } }) {
+  async PAYMOB_INITIATE({ API, payload }: { API: any; payload: { invoice_id?: string | number; appointment_id?: string | number } }) {
     return await API('client/payments/paymob/initiate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async PAYMOB_CONFIRM({ API, payload }: { API: any; payload: { invoice_id?: string | number; appointment_id?: string | number } }) {
+    return await API('client/payments/paymob/confirm', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async VERIFY_PROMOCODE({ API, payload }: { API: any; payload: { code: string; amount?: number } }) {
+    return await API('client/payments/verify-promocode', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -409,6 +463,40 @@ export default {
     });
   },
 
+  // 9.5 ADMIN OFFERS & DEALS MANAGEMENT
+  async ADMIN_OFFERS({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/offers${toQuery(filter)}`, {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_CREATE_OFFER({ API, payload }: { API: any; payload: any }) {
+    return await API('admin/offers', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async ADMIN_UPDATE_OFFER({ API, payload }: { API: any; payload: { id: string | number; [key: string]: any } }) {
+    const { id, ...data } = payload;
+    return await API(`admin/offers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async ADMIN_TOGGLE_OFFER({ API, payload }: { API: any; payload: { id: string | number } }) {
+    return await API(`admin/offers/${payload.id}/toggle`, {
+      method: 'PATCH',
+    });
+  },
+
+  async ADMIN_DELETE_OFFER({ API, payload }: { API: any; payload: { id: string | number } }) {
+    return await API(`admin/offers/${payload.id}`, {
+      method: 'DELETE',
+    });
+  },
+
   // ==========================================
   // 10. ADMIN APPOINTMENTS MANAGEMENT
   // ==========================================
@@ -480,6 +568,47 @@ export default {
     return await API('admin/notifications/send', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  },
+
+  // ==========================================
+  // 13. ADMIN PROMOCODES
+  // ==========================================
+  async ADMIN_PROMOCODES({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/promocodes${toQuery(filter)}`, {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_PROMOCODE_BY_ID({ API, filter }: { API: any; filter: { id: string | number } }) {
+    return await API(`admin/promocodes/${filter.id}`, {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_CREATE_PROMOCODE({ API, payload }: { API: any; payload: any }) {
+    return await API('admin/promocodes', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async ADMIN_UPDATE_PROMOCODE({ API, payload }: { API: any; payload: { id: string | number; [key: string]: any } }) {
+    return await API(`admin/promocodes/${payload.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async ADMIN_DELETE_PROMOCODE({ API, payload }: { API: any; payload: { id: string | number } }) {
+    return await API(`admin/promocodes/${payload.id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async ADMIN_TOGGLE_PROMOCODE({ API, payload }: { API: any; payload: { id: string | number } }) {
+    return await API(`admin/promocodes/${payload.id}/toggle`, {
+      method: 'PATCH',
     });
   },
 } as Record<string, (args: { API: any; payload?: any; filter?: any }) => Promise<any>>;

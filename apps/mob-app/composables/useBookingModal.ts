@@ -8,6 +8,7 @@ const activeDoctor = ref<any>(null);
 const activeService = ref<any>(null);
 const activeDate = ref<string>('');
 const activeSlot = ref<any>(null);
+const activeType = ref<'consultation' | 'follow_up'>('consultation');
 
 export function useBookingModal() {
   const openQuickBook = () => {
@@ -23,11 +24,13 @@ export function useBookingModal() {
     service?: any;
     date?: string;
     slot?: any;
+    type?: 'consultation' | 'follow_up';
   } = {}) => {
     activeDoctor.value = options.doctor || null;
     activeService.value = options.service || null;
     activeDate.value = options.date || '';
     activeSlot.value = options.slot || null;
+    activeType.value = options.type || 'consultation';
     isBookingFlowOpen.value = true;
   };
 
@@ -51,6 +54,7 @@ export function useBookingModal() {
     activeService,
     activeDate,
     activeSlot,
+    activeType,
     openQuickBook,
     closeQuickBook,
     openBookingFlow,
