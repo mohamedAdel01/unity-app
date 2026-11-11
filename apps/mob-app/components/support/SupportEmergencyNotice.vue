@@ -39,11 +39,15 @@ const { t } = useI18n();
 .emergency-notice-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: rgba(239, 68, 68, 0.06);
   border: 1px solid rgba(239, 68, 68, 0.22);
   border-radius: 16px;
   padding: 12px 14px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 
   .notice-icon-box {
     width: 38px;

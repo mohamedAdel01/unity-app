@@ -531,6 +531,7 @@ export default {
   "New Date": "التاريخ الجديد",
   "New Time Slot": "الوقت الجديد",
   "Today's Revenue": "إيرادات اليوم",
+  "Today's Key Metrics": "مؤشرات اليوم الرئيسية",
   "Paid Bookings": "حجز مسدد",
   "Insurance Claims": "مطالبات التأمين",
   "Claims": "مطالبات",
@@ -859,6 +860,7 @@ export default {
 
   // Admin & Dashboard Translations
   "No clinics registered yet": "لا توجد عيادات مسجلة حتى الآن",
+  "No clinics available": "لا توجد عيادات متاحة",
   "Add specialized clinics to start assigning doctors and services.": "أضف عيادات تخصصية للبدء في تعيين الأطباء والخدمات.",
   "No invoices found": "لا توجد فواتير مسجلة",
   "No billing records found for this period.": "لا توجد سجلات فواتير في هذه الفترة.",

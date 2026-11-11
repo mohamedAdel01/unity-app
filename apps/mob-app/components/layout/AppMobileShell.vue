@@ -129,10 +129,20 @@ onMounted(() => {
 .mobile-content-viewport {
   flex: 1;
   min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+
+  & > * {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
   padding-top: max(32px, env(safe-area-inset-top, 32px));
   padding-bottom: 96px;
   background: var(--unity-bg);

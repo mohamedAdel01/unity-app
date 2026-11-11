@@ -40,7 +40,9 @@ const kpis = ref({
   today_appointments: 0,
   pending_appointments: 0,
   completed_appointments: 0,
+  today_revenue: 0,
   total_revenue: 0,
+  date: '',
 });
 
 // 3. Computed (computed properties)
@@ -58,7 +60,9 @@ const ADMIN_DASHBOARD = async () => {
         today_appointments: res.data.kpis.today_appointments || 0,
         pending_appointments: res.data.kpis.pending_appointments || 0,
         completed_appointments: res.data.kpis.completed_appointments || 0,
+        today_revenue: res.data.kpis.today_revenue !== undefined ? res.data.kpis.today_revenue : (res.data.kpis.total_revenue || 0),
         total_revenue: res.data.kpis.total_revenue || 0,
+        date: res.data.kpis.date || '',
       };
     }
   } catch (err) {}

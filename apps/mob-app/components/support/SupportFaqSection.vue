@@ -210,11 +210,19 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 
   .faq-section-header {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 
     .faq-title-box {
       .section-title {
@@ -236,6 +244,10 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 
     .search-icon {
       position: absolute;
@@ -247,6 +259,9 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
 
     .faq-search-input {
       width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       height: 44px;
       padding-inline-start: 38px;
       padding-inline-end: 36px;
@@ -279,6 +294,10 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
   .faq-category-pills {
     display: flex;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     overflow-x: auto;
     padding-bottom: 4px;
     scrollbar-width: none;
@@ -301,6 +320,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
+      flex-shrink: 0;
       transition: all 0.15s ease;
 
       i {
@@ -320,6 +340,10 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .faq-item {
@@ -327,6 +351,10 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     border: 1px solid var(--unity-border, #e2e8f0);
     border-radius: 14px;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &.expanded {
@@ -336,6 +364,9 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
 
     .faq-question-btn {
       width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       gap: 12px;

@@ -25,26 +25,25 @@
           <div class="form-group">
             <label class="field-label">{{ t('Price') }} ({{ t('EGP') }})</label>
             <input 
-              v-model.number="form.price" 
+              v-model="form.price" 
               type="number" 
               min="0" 
               step="1" 
               class="input-field" 
-              placeholder="250"
+              placeholder="0"
               required
             />
           </div>
           <div class="form-group">
             <label class="field-label">{{ t('Duration') }}</label>
             <input 
-              v-model.number="form.duration" 
+              v-model="form.duration" 
               type="number" 
-              min="5" 
+              min="0" 
               max="180" 
               step="5" 
               class="input-field" 
-              placeholder="15"
-              required
+              placeholder="0"
             />
           </div>
         </div>
@@ -105,10 +104,15 @@ const api = useUnityApi();
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
-const form = ref({
+const form = ref<{
+  name: string;
+  price: number | string;
+  duration: number | string;
+  description: string;
+}>({
   name: '',
-  price: 200,
-  duration: 15,
+  price: '',
+  duration: '',
   description: '',
 });
 const submitting = ref(false);
@@ -117,7 +121,13 @@ const submitting = ref(false);
 const isEdit = computed(() => !!props.examination?.id);
 
 const isFormValid = computed(() => {
-  return form.value.name.trim().length >= 2 && form.value.price >= 0;
+  return (
+    form.value.name.trim().length >= 2 &&
+    form.value.price !== '' &&
+    form.value.price !== null &&
+    !isNaN(Number(form.value.price)) &&
+    Number(form.value.price) >= 0
+  );
 });
 
 // 4. Methods (functions, handlers)
@@ -125,22 +135,25 @@ const saveExamination = async () => {
   if (!isFormValid.value || submitting.value) return;
   submitting.value = true;
   try {
+    const numPrice = Number(form.value.price || 0);
+    const numDuration = form.value.duration !== '' && form.value.duration !== null ? Number(form.value.duration) : 0;
+
     if (isEdit.value && props.examination?.id) {
       const res = await api.apiRequest({
         service: 'ADMIN_UPDATE_EXAMINATION',
         payload: {
           id: props.examination.id,
           name: form.value.name.trim(),
-          price: Number(form.value.price),
-          duration: Number(form.value.duration),
+          price: numPrice,
+          duration: numDuration,
           description: form.value.description?.trim() || null,
         },
       });
       const updated = {
         ...props.examination,
         name: form.value.name.trim(),
-        price: Number(form.value.price),
-        duration: Number(form.value.duration),
+        price: numPrice,
+        duration: numDuration,
         description: form.value.description?.trim() || null,
       };
       emit('updated', updated);
@@ -151,8 +164,8 @@ const saveExamination = async () => {
         service: 'ADMIN_CREATE_EXAMINATION',
         payload: {
           name: form.value.name.trim(),
-          price: Number(form.value.price),
-          duration: Number(form.value.duration),
+          price: numPrice,
+          duration: numDuration,
           description: form.value.description?.trim() || null,
         },
       });
@@ -168,8 +181,8 @@ const saveExamination = async () => {
         };
         form.value = {
           name: '',
-          price: 200,
-          duration: 15,
+          price: '',
+          duration: '',
           description: '',
         };
         emit('created', created);
@@ -191,15 +204,15 @@ watch(
     if (val) {
       form.value = {
         name: val.name || '',
-        price: Number(val.price) || 0,
-        duration: Number(val.duration) || 15,
+        price: val.price !== undefined && val.price !== null ? Number(val.price) : '',
+        duration: val.duration !== undefined && val.duration !== null ? Number(val.duration) : '',
         description: val.description || '',
       };
     } else {
       form.value = {
         name: '',
-        price: 200,
-        duration: 15,
+        price: '',
+        duration: '',
         description: '',
       };
     }
@@ -213,8 +226,8 @@ watch(
     if (open && !props.examination) {
       form.value = {
         name: '',
-        price: 200,
-        duration: 15,
+        price: '',
+        duration: '',
         description: '',
       };
     }

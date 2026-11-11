@@ -103,6 +103,10 @@ const supportEmail = 'support@unity-health.app';
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 
   .section-title-box {
     .section-title {
@@ -123,6 +127,10 @@ const supportEmail = 'support@unity-health.app';
     display: grid;
     grid-template-columns: 1fr;
     gap: 10px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 
     @media (min-width: 640px) {
       grid-template-columns: repeat(2, 1fr);
@@ -144,6 +152,9 @@ const supportEmail = 'support@unity-health.app';
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     text-align: inherit;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 
     &:active {
       transform: scale(0.98);

@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="modal-backdrop" @click="close">
-    <div class="modal-sheet" @click.stop>
+    <div class="modal-sheet" @click.stop="isClinicDropdownOpen = false">
       <!-- Modal Header -->
       <div class="modal-header">
         <div class="header-title">
@@ -39,17 +39,46 @@
           />
         </div>
 
-        <!-- Clinic -->
+        <!-- Clinic Custom Dropdown (100% inside modal, never overflows screen) -->
         <div class="form-group">
           <label>{{ t('Clinic') }}</label>
-          <div class="input-shell">
-            <i class="pi pi-building"></i>
-            <select v-model="form.clinic_id" required>
-              <option value="" disabled>{{ t('Select Clinic...') }}</option>
-              <option v-for="clinic in clinics" :key="clinic.id" :value="clinic.id">
-                {{ clinic.name }}
-              </option>
-            </select>
+          <div class="custom-select-shell" :class="{ 'is-open': isClinicDropdownOpen }" @click.stop>
+            <button 
+              type="button" 
+              class="select-trigger-btn" 
+              @click="isClinicDropdownOpen = !isClinicDropdownOpen"
+            >
+              <div class="trigger-label-group">
+                <i class="pi pi-building"></i>
+                <span class="selected-text" :class="{ 'is-placeholder': !form.clinic_id }">
+                  {{ selectedClinicName || t('Select Clinic...') }}
+                </span>
+              </div>
+              <i class="pi pi-chevron-down chevron-icon" :class="{ 'rotated': isClinicDropdownOpen }"></i>
+            </button>
+
+            <!-- Dropdown Options List -->
+            <transition name="dropdown-fade">
+              <div v-if="isClinicDropdownOpen" class="dropdown-menu-list">
+                <div 
+                  v-for="clinic in clinics" 
+                  :key="clinic.id" 
+                  class="dropdown-option-item"
+                  :class="{ 'is-selected': String(clinic.id) === String(form.clinic_id) }"
+                  @click="selectClinic(clinic.id)"
+                >
+                  <div class="option-content">
+                    <span class="clinic-bullet"></span>
+                    <span class="clinic-name">{{ clinic.name }}</span>
+                  </div>
+                  <i v-if="String(clinic.id) === String(form.clinic_id)" class="pi pi-check check-icon"></i>
+                </div>
+
+                <div v-if="clinics.length === 0" class="empty-clinics-hint">
+                  {{ t('No clinics available') }}
+                </div>
+              </div>
+            </transition>
           </div>
         </div>
 
@@ -106,6 +135,7 @@ const toast = useAppToast();
 // 2. Data (refs, reactive state)
 const loading = ref(false);
 const isPhoneValid = ref(false);
+const isClinicDropdownOpen = ref(false);
 const clinics = ref<any[]>([]);
 
 const form = ref({
@@ -117,12 +147,24 @@ const form = ref({
 // 3. Computed (computed properties)
 const isEdit = computed(() => !!props.doctor?.id);
 
+const selectedClinicName = computed(() => {
+  if (!form.value.clinic_id) return '';
+  const match = clinics.value.find((c) => String(c.id) === String(form.value.clinic_id));
+  return match?.name || '';
+});
+
 const isFormValid = computed(() => {
   return form.value.name.trim().length >= 3 && isPhoneValid.value && !!form.value.clinic_id;
 });
 
 // 4. Methods (functions, handlers)
+const selectClinic = (id: any) => {
+  form.value.clinic_id = id;
+  isClinicDropdownOpen.value = false;
+};
+
 const close = () => {
+  isClinicDropdownOpen.value = false;
   form.value = {
     name: '',
     phone: '',
@@ -150,7 +192,7 @@ const handleSubmit = async () => {
 
   loading.value = true;
   try {
-    const matchedClinic = clinics.value.find(c => String(c.id) === String(form.value.clinic_id)) || null;
+    const matchedClinic = clinics.value.find((c) => String(c.id) === String(form.value.clinic_id)) || null;
 
     if (isEdit.value && props.doctor?.id) {
       await api.apiRequest({
@@ -234,6 +276,7 @@ watch(
   () => props.isOpen,
   (open) => {
     if (open) {
+      isClinicDropdownOpen.value = false;
       if (clinics.value.length === 0) {
         ADMIN_CLINICS();
       }
@@ -367,7 +410,7 @@ onMounted(() => {
           font-size: 1rem;
         }
 
-        input, select {
+        input {
           flex: 1;
           background: transparent;
           border: none;
@@ -375,6 +418,151 @@ onMounted(() => {
           font-size: 0.88rem;
           color: var(--unity-text-main);
           font-family: inherit;
+        }
+      }
+
+      .custom-select-shell {
+        position: relative;
+        width: 100%;
+        box-sizing: border-box;
+
+        .select-trigger-btn {
+          width: 100%;
+          height: 48px;
+          background: var(--unity-bg);
+          border: 1.5px solid var(--unity-border);
+          border-radius: 14px;
+          padding: 0 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: inherit;
+          font-family: inherit;
+
+          &:hover,
+          &:focus {
+            border-color: var(--unity-primary);
+          }
+
+          .trigger-label-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+
+            i {
+              color: var(--unity-text-dim);
+              font-size: 1rem;
+              flex-shrink: 0;
+            }
+
+            .selected-text {
+              font-size: 0.88rem;
+              font-weight: 600;
+              color: var(--unity-text-main);
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+
+              &.is-placeholder {
+                color: var(--unity-text-muted);
+                font-weight: normal;
+              }
+            }
+          }
+
+          .chevron-icon {
+            font-size: 0.8rem;
+            color: var(--unity-text-dim);
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+
+            &.rotated {
+              transform: rotate(180deg);
+            }
+          }
+        }
+
+        &.is-open .select-trigger-btn {
+          border-color: var(--unity-primary);
+          box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+        }
+
+        .dropdown-menu-list {
+          position: absolute;
+          top: calc(100% + 6px);
+          inset-inline-start: 0;
+          width: 100%;
+          max-height: 190px;
+          overflow-y: auto;
+          background: var(--unity-surface);
+          border: 1.5px solid var(--unity-border);
+          border-radius: 14px;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          z-index: 50;
+          padding: 6px;
+          box-sizing: border-box;
+
+          .dropdown-option-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+
+            .option-content {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+
+              .clinic-bullet {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--unity-text-dim);
+                transition: background 0.15s;
+              }
+
+              .clinic-name {
+                font-size: 0.86rem;
+                font-weight: 600;
+                color: var(--unity-text-main);
+              }
+            }
+
+            .check-icon {
+              color: var(--unity-primary);
+              font-size: 0.85rem;
+            }
+
+            &:hover {
+              background: var(--unity-bg);
+            }
+
+            &.is-selected {
+              background: rgba(4, 120, 87, 0.08);
+
+              .clinic-bullet {
+                background: var(--unity-primary);
+              }
+
+              .clinic-name {
+                color: var(--unity-primary);
+                font-weight: 700;
+              }
+            }
+          }
+
+          .empty-clinics-hint {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--unity-text-muted);
+          }
         }
       }
     }
@@ -426,6 +614,17 @@ onMounted(() => {
       }
     }
   }
+}
+
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 @keyframes slideUp {

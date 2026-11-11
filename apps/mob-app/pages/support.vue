@@ -52,12 +52,14 @@ useHead({
 
 <style scoped lang="scss">
 .support-page {
-  padding: 14px 18px 28px;
+  padding: 14px 16px 28px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 680px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 </style>
 

@@ -44,11 +44,18 @@ const { t, isRtl } = useI18n();
 <style scoped lang="scss">
 .support-header {
   padding: 12px 0 6px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 
   .header-main-row {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .back-action-btn {
