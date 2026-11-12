@@ -116,7 +116,7 @@
             @click="selectedStatus = 'confirmed'"
           >
             <i class="pi pi-check-circle"></i>
-            <span>{{ t('Confirmed') }}</span>
+            <span>{{ t('Confirmed Status') }}</span>
           </button>
 
           <button 
@@ -126,7 +126,7 @@
             @click="selectedStatus = 'completed'"
           >
             <i class="pi pi-verified"></i>
-            <span>{{ t('Completed') }}</span>
+            <span>{{ t('Completed Status') }}</span>
           </button>
 
           <button 
@@ -136,7 +136,7 @@
             @click="selectedStatus = 'pending'"
           >
             <i class="pi pi-clock"></i>
-            <span>{{ t('Pending') }}</span>
+            <span>{{ t('Pending Status') }}</span>
           </button>
 
           <button 
@@ -146,7 +146,7 @@
             @click="selectedStatus = 'cancelled'"
           >
             <i class="pi pi-times-circle"></i>
-            <span>{{ t('Cancelled') }}</span>
+            <span>{{ t('Cancelled Status') }}</span>
           </button>
         </div>
       </div>
@@ -193,16 +193,18 @@
                 </div>
                 <div class="detail-item time-pill">
                   <i class="pi pi-clock"></i>
-                  <span dir="ltr">{{ item.start_time }} - {{ item.end_time }}</span>
+                  <span>{{ formatSlotRange(item.start_time, item.end_time) }}</span>
                 </div>
                 <div v-if="item.examination?.name || item.service?.name" class="detail-item examination">
                   <i class="pi pi-file-edit"></i>
                   <span>{{ item.examination?.name || item.service?.name }}</span>
                 </div>
-                <div v-if="item.invoice?.total" class="detail-item price">
+                <div v-if="item.invoice?.total || item.price" class="detail-item price">
                   <i class="pi pi-wallet"></i>
-                  <span>{{ item.invoice.total }} {{ t('EGP') }}</span>
-                  <span class="invoice-status" :class="item.invoice.status">{{ item.invoice.status }}</span>
+                  <span>{{ item.invoice?.total || item.price }} {{ t('EGP') }}</span>
+                  <span class="invoice-status" :class="isItemPaid(item) ? 'paid' : 'pending'">
+                    {{ isItemPaid(item) ? t('Paid Status') : t('Unpaid Status') }}
+                  </span>
                 </div>
               </div>
 
@@ -235,7 +237,7 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 const api = useUnityApi();
 
 // 2. Data (refs, reactive state)
@@ -312,7 +314,7 @@ const formatHumanDate = (val?: string) => {
   if (!val) return '';
   try {
     const d = new Date(val);
-    return new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
+    return new Intl.DateTimeFormat(isRtl.value ? 'ar-EG-u-nu-latn' : 'en-US', {
       weekday: 'short',
       day: 'numeric',
       month: 'short',
@@ -327,7 +329,7 @@ const formatShortDate = (val?: string) => {
   if (!val) return '';
   try {
     const d = new Date(val);
-    return new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
+    return new Intl.DateTimeFormat(isRtl.value ? 'ar-EG-u-nu-latn' : 'en-US', {
       day: 'numeric',
       month: 'numeric',
       year: 'numeric',
@@ -347,12 +349,39 @@ const formatDate = (val?: string) => {
   }
 };
 
+const formatTime12h = (timeStr?: string) => {
+  if (!timeStr) return '';
+  const trimmed = String(timeStr).trim();
+  const parts = trimmed.split(':');
+  if (parts.length < 2) return trimmed;
+  let h = parseInt(parts[0], 10);
+  const m = parts[1].slice(0, 2);
+  if (isNaN(h)) return trimmed;
+  const period = h >= 12 ? (isRtl.value ? 'م' : 'PM') : (isRtl.value ? 'ص' : 'AM');
+  h = h % 12;
+  if (h === 0) h = 12;
+  const hPadded = h.toString().padStart(2, '0');
+  return `${hPadded}:${m} ${period}`;
+};
+
+const formatSlotRange = (start?: string, end?: string) => {
+  if (!start) return '';
+  const s = formatTime12h(start);
+  if (!end) return s;
+  const e = formatTime12h(end);
+  return `${s} - ${e}`;
+};
+
+const isItemPaid = (item: any) => {
+  return item?.invoice?.status === 'paid' || item?.payment_status === 'paid' || item?.is_paid === true;
+};
+
 const formatStatus = (st?: string) => {
   switch (st) {
-    case 'confirmed': return t('Confirmed');
-    case 'completed': return t('Completed');
-    case 'pending': return t('Pending');
-    case 'cancelled': return t('Cancelled');
+    case 'confirmed': return t('Confirmed Status');
+    case 'completed': return t('Completed Status');
+    case 'pending': return t('Pending Status');
+    case 'cancelled': return t('Cancelled Status');
     default: return st || t('Unknown');
   }
 };
@@ -590,8 +619,8 @@ watch(
   .filters-container {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 12px 20px;
+    gap: 6px;
+    padding: 10px 16px 8px;
     background: var(--unity-bg, #f8fafc);
     border-bottom: 1px solid var(--unity-border, #f1f5f9);
 
@@ -601,18 +630,18 @@ watch(
       justify-content: space-between;
       background: #ecfdf5;
       border: 1px solid #a7f3d0;
-      border-radius: 10px;
-      padding: 6px 10px;
-      font-size: 0.76rem;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.70rem;
       color: #065f46;
 
       .date-banner-content {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
 
         i {
-          font-size: 0.82rem;
+          font-size: 0.74rem;
           color: #059669;
         }
 
@@ -643,10 +672,11 @@ watch(
     .status-scroll-row {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       overflow-x: auto;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      padding-bottom: 1px;
 
       &::-webkit-scrollbar {
         display: none;
@@ -658,24 +688,26 @@ watch(
       flex-shrink: 0;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 0.74rem;
+      justify-content: center;
+      gap: 4px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 8px;
+      font-size: 0.70rem;
       font-weight: 700;
       background: var(--unity-surface, #ffffff);
       border: 1px solid var(--unity-border, #e2e8f0);
       color: var(--unity-text-muted, #64748b);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s ease;
 
-      i { font-size: 0.75rem; }
+      i { font-size: 0.70rem; }
 
       &.active {
         background: var(--unity-primary, #047857);
         color: #ffffff;
         border-color: var(--unity-primary, #047857);
-        box-shadow: 0 2px 8px rgba(4, 120, 87, 0.22);
+        box-shadow: 0 1px 4px rgba(4, 120, 87, 0.2);
       }
     }
 
@@ -698,6 +730,10 @@ watch(
     }
 
     .status-pill {
+      height: 26px;
+      padding: 0 8px;
+      font-size: 0.68rem;
+
       &.confirmed.active { background: #059669; border-color: #059669; color: #fff; }
       &.completed.active { background: #2563eb; border-color: #2563eb; color: #fff; }
       &.pending.active { background: #d97706; border-color: #d97706; color: #fff; }

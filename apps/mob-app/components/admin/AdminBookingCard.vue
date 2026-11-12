@@ -195,7 +195,7 @@ const toggleExpand = () => {
   isExpanded.value = !isExpanded.value;
 };
 
-const formatTime = (timeStr?: string) => {
+const formatSingleTime = (timeStr?: string) => {
   if (!timeStr) return '';
   const trimmed = String(timeStr).trim();
   const parts = trimmed.split(':');
@@ -208,6 +208,16 @@ const formatTime = (timeStr?: string) => {
   if (h === 0) h = 12;
   const hPadded = h.toString().padStart(2, '0');
   return `${hPadded}:${m} ${period}`;
+};
+
+const formatTime = (timeStr?: string) => {
+  if (!timeStr) return '';
+  const str = String(timeStr).trim();
+  if (str.includes('-')) {
+    const [start, end] = str.split('-');
+    return `${formatSingleTime(start)} - ${formatSingleTime(end)}`;
+  }
+  return formatSingleTime(str);
 };
 
 const getStatusLabel = (status?: string) => {

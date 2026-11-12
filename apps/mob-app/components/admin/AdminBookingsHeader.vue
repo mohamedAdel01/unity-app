@@ -7,12 +7,6 @@
       icon="pi pi-calendar"
     />
 
-    <!-- Quick Action: Book Appointment for Patient -->
-    <button type="button" class="btn-book-patient" @click="emit('new-booking')">
-      <i class="pi pi-user-plus"></i>
-      <span>{{ t('Book Appointment for Patient') }}</span>
-    </button>
-
     <!-- 2. Dual Tab Selector (Direct Bookings vs Invoices & Billing) (Hidden for Receptionist) -->
     <div v-if="!isReceptionist" class="mode-tabs-container">
       <button 
@@ -150,7 +144,6 @@ const emit = defineEmits<{
   (e: 'tab-change', tab: 'bookings' | 'invoices'): void;
   (e: 'period-change', period: 'today' | 'week' | 'pending'): void;
   (e: 'toggle-sort'): void;
-  (e: 'new-booking'): void;
 }>();
 
 const router = useRouter();
@@ -200,34 +193,6 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
     .metric-stat-card,
     .list-section-header .section-title-wrap {
       text-align: left;
-    }
-  }
-
-  // Book Patient Appointment Button
-  .btn-book-patient {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 13px 18px;
-    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-    color: #ffffff;
-    border: none;
-    border-radius: 16px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.28);
-    transition: all 0.2s ease;
-
-    i {
-      font-size: 1.1rem;
-    }
-
-    &:active {
-      transform: scale(0.98);
-      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
     }
   }
 

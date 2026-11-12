@@ -8,7 +8,6 @@
       @tab-change="onTabChange"
       @period-change="onPeriodChange"
       @toggle-sort="toggleSortOrder"
-      @new-booking="isNewBookingModalOpen = true"
     />
 
     <!-- 2. Modular Bookings & Invoices Virtual List (10 by 10) -->
@@ -32,14 +31,6 @@
       @close="isRescheduleModalOpen = false"
       @rescheduled="onBookingRescheduled"
     />
-
-    <!-- Modal: New Patient Booking (Search & Register) -->
-    <AdminBookAppointmentModal
-      :is-open="isNewBookingModalOpen"
-      :patient="null"
-      @close="isNewBookingModalOpen = false"
-      @booked="onNewBookingCreated"
-    />
   </div>
 </template>
 
@@ -52,7 +43,6 @@ import { useAppToast } from '../../composables/useAppToast';
 import AdminBookingsHeader from '../../components/admin/AdminBookingsHeader.vue';
 import AdminBookingsList from '../../components/admin/AdminBookingsList.vue';
 import AdminRescheduleModal from '../../components/admin/AdminRescheduleModal.vue';
-import AdminBookAppointmentModal from '../../components/admin/AdminBookAppointmentModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -68,7 +58,6 @@ const toast = useAppToast();
 const activeTab = ref<'bookings' | 'invoices'>('bookings');
 const activePeriod = ref<'today' | 'week' | 'pending'>('today');
 const isRescheduleModalOpen = ref(false);
-const isNewBookingModalOpen = ref(false);
 const selectedBookingForReschedule = ref<any>(null);
 
 const stats = ref({
@@ -279,11 +268,6 @@ const ADMIN_BILLING_STATS = async () => {
   } catch (err) {
     // silently catch
   }
-};
-
-const onNewBookingCreated = (_data?: any) => {
-  ADMIN_APPOINTMENTS(1);
-  ADMIN_BILLING_STATS();
 };
 
 // 5. Watches (watch, watchEffect)

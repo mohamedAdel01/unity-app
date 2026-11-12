@@ -55,8 +55,9 @@
       <!-- Visit History Timeline (Dynamic) -->
       <div class="timeline-block-card">
         <div class="block-title">
-          <i class="pi pi-history"></i>
-          <h5>{{ t('Visit History & Medical Reports') }}</h5>
+          <i class="pi pi-calendar"></i>
+          <h5>{{ t('Patient Appointments & Medical Visits') }}</h5>
+          <span v-if="appointmentsList.length > 0" class="count-pill">({{ appointmentsList.length }})</span>
         </div>
 
         <!-- Loading State -->
@@ -70,7 +71,12 @@
           <div v-for="apt in appointmentsList" :key="apt.id" class="timeline-item">
             <span class="timeline-dot" :class="isUpcoming(apt.status) ? 'upcoming' : 'past'"></span>
             <div class="timeline-details">
-              <strong>{{ apt.service?.name || apt.type || t('Medical Consultation') }}</strong>
+              <div class="timeline-title-row">
+                <span class="timeline-type-pill" :class="apt.examination ? 'pill-exam' : 'pill-consult'">
+                  {{ apt.examination ? t('Medical Exam') : t('Consultation') }}
+                </span>
+                <strong>{{ apt.examination?.name || apt.doctor?.name || apt.service?.name || (apt.type === 'examination' ? t('Medical Exam') : t('Consultation')) }}</strong>
+              </div>
               <small>{{ formatAptMeta(apt) }}</small>
             </div>
             <span class="status-chip" :class="apt.status">{{ formatStatus(apt.status) }}</span>
@@ -156,19 +162,47 @@ const resolveAvatar = (url?: string) => {
   return `${baseUrl}${url}`;
 };
 
+const formatTime12h = (timeStr?: string) => {
+  if (!timeStr) return '';
+  const trimmed = String(timeStr).trim();
+  const parts = trimmed.split(':');
+  if (parts.length < 2) return trimmed;
+  let h = parseInt(parts[0], 10);
+  const m = parts[1].slice(0, 2);
+  if (isNaN(h)) return trimmed;
+  const period = h >= 12 ? (isRtl.value ? 'م' : 'PM') : (isRtl.value ? 'ص' : 'AM');
+  h = h % 12;
+  if (h === 0) h = 12;
+  const hPadded = h.toString().padStart(2, '0');
+  return `${hPadded}:${m} ${period}`;
+};
+
+const formatTimeRange = (timeStr?: string) => {
+  if (!timeStr) return '';
+  const str = String(timeStr).trim();
+  if (str.includes('-')) {
+    const [start, end] = str.split('-');
+    return `${formatTime12h(start)} - ${formatTime12h(end)}`;
+  }
+  return formatTime12h(str);
+};
+
 const formatAptMeta = (apt: any) => {
   const parts: string[] = [];
   if (apt.date) {
     const d = new Date(apt.date);
     parts.push(d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
   }
-  if (apt.time) {
-    parts.push(apt.time);
+  const timeVal = apt.start_time || apt.time;
+  if (timeVal) {
+    parts.push(formatTimeRange(timeVal));
   }
-  if (apt.doctor?.name) {
+  if (apt.doctor?.name && apt.examination) {
     parts.push(apt.doctor.name);
   } else if (apt.doctor?.doctor?.clinic?.name) {
     parts.push(apt.doctor.doctor.clinic.name);
+  } else if (apt.clinic?.name) {
+    parts.push(apt.clinic.name);
   }
   return parts.join(' • ');
 };
@@ -402,6 +436,15 @@ watch(
         font-weight: 700;
         color: var(--unity-text-main);
       }
+
+      .count-pill {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--unity-primary);
+        background: #ecfdf5;
+        padding: 1px 6px;
+        border-radius: 6px;
+      }
     }
 
     .block-content {
@@ -468,10 +511,34 @@ watch(
         flex: 1;
         display: flex;
         flex-direction: column;
+        gap: 3px;
 
-        strong {
-          font-size: 0.82rem;
-          color: var(--unity-text-main);
+        .timeline-title-row {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          .timeline-type-pill {
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 6px;
+
+            &.pill-consult {
+              background: #ecfdf5;
+              color: #047857;
+            }
+
+            &.pill-exam {
+              background: #f0f9ff;
+              color: #0284c7;
+            }
+          }
+
+          strong {
+            font-size: 0.82rem;
+            color: var(--unity-text-main);
+          }
         }
 
         small {

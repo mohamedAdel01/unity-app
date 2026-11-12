@@ -665,6 +665,8 @@ export default {
   "Unpaid Status": "Unpaid",
   "Consultation": "Consultation",
   "Medical Exam": "Examination",
+  "Patient Appointments & Medical Visits": "Patient Appointments & Medical Visits",
+  "No appointments or medical visits recorded for this patient": "No appointments or medical visits recorded for this patient",
   "This Week": "This Week",
   "Pending Invoices": "Pending Invoices",
   "Pending Payment": "Pending Payment",
