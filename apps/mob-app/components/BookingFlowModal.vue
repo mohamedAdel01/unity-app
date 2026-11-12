@@ -13,17 +13,18 @@
               <i v-else class="pi pi-times"></i>
             </button>
             <h3 class="top-title">
-              <span v-if="currentStep === 1">{{ isExamination ? t('Book Medical Examination') : t('Select Date & Time') }}</span>
+              <span v-if="currentStep === 1">{{ isRescheduling ? t('Modify Appointment Slot') : (isExamination ? t('Book Medical Examination') : t('Select Date & Time')) }}</span>
               <span v-else-if="currentStep === 2">{{ isAdmin ? t('Confirm Booking') : t('Payment & Confirmation') }}</span>
-              <span v-else>{{ t('Booking Confirmed Successfully!') }}</span>
+              <span v-else>{{ isRescheduling ? t('Appointment Rescheduled Successfully!') : t('Booking Confirmed Successfully!') }}</span>
             </h3>
             <div class="avatar-wrap">
-              <i :class="isExamination ? 'pi pi-shield' : 'pi pi-user'"></i>
+              <AppExamIcon v-if="isExamination" :size="20" />
+              <i v-else class="pi pi-user"></i>
             </div>
           </div>
 
-          <!-- Step Indicator (Only for Step 1 and 2) -->
-          <div v-if="currentStep < 3" class="booking-steps-bar">
+          <!-- Step Indicator (Only for Step 1 and 2, hidden when modifying existing slot) -->
+          <div v-if="currentStep < 3 && !isRescheduling" class="booking-steps-bar">
             <div class="step-pill" :class="{ 'active': currentStep === 1, 'done': currentStep > 1 }">
               <span class="circle"><i v-if="currentStep > 1" class="pi pi-check"></i><span v-else>1</span></span>
               <span class="label">{{ t('Select Date & Time') }}</span>
@@ -47,7 +48,7 @@
                   <span>⭐ {{ doctor.rating }}</span>
                 </div>
                 <div v-else-if="isExamination" class="doc-badge-rating exam-badge">
-                  <span><i class="pi pi-shield"></i> {{ t('Hospital Examination') }}</span>
+                  <span><AppExamIcon :size="12" /> {{ t('Hospital Examination') }}</span>
                 </div>
                 <div class="doc-header">
                   <div class="doc-avatar" :class="{ 'exam-avatar': isExamination }">
@@ -60,7 +61,7 @@
                     </template>
                     <template v-else>
                       <div class="exam-icon-circle">
-                        <i class="pi pi-shield"></i>
+                        <AppExamIcon :size="26" />
                       </div>
                     </template>
                   </div>
@@ -93,17 +94,53 @@
                 </div>
               </div>
 
-              <!-- Date Picker Chips (Shows only days with available slots) -->
+              <!-- Date Picker Chips & Full Calendar Mode -->
               <div class="date-selection-box">
                 <div class="box-head">
-                  <h5 class="box-title"><i class="pi pi-calendar"></i> {{ t('Select Day') }}</h5>
-                  <span v-if="nextDays.length > 0" class="date-current-badge">{{ appointmentDateFormatted }}</span>
+                  <div class="box-head-top">
+                    <h5 class="box-title"><i class="pi pi-calendar"></i> {{ t('Select Day') }}</h5>
+                    <span v-if="nextDays.length > 0" class="date-current-badge">{{ appointmentDateFormatted }}</span>
+                  </div>
+
+                  <!-- Quick View vs Calendar View Toggle -->
+                  <div class="view-mode-toggle-group">
+                    <button
+                      type="button"
+                      class="view-toggle-pill"
+                      :class="{ 'active': dateViewMode === 'chips' }"
+                      :title="t('Quick View')"
+                      @click="dateViewMode = 'chips'"
+                    >
+                      <i class="pi pi-bars"></i>
+                      <span>{{ t('Quick View') }}</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="view-toggle-pill"
+                      :class="{ 'active': dateViewMode === 'calendar' }"
+                      :title="t('Calendar View')"
+                      @click="dateViewMode = 'calendar'"
+                    >
+                      <i class="pi pi-calendar"></i>
+                      <span>{{ t('Calendar View') }}</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div v-if="daysLoading" class="days-loading">
                   <i class="pi pi-spin pi-spinner"></i> {{ t('Checking available days...') }}
                 </div>
 
+                <!-- Mode 1: Full Month Calendar (Only available days enabled & clickable) -->
+                <div v-else-if="dateViewMode === 'calendar'" class="calendar-view-wrap">
+                  <AppBookingCalendar
+                    v-model="selectedBookingDate"
+                    :available-dates="onlyAvailableDates"
+                    @select="selectDate"
+                  />
+                </div>
+
+                <!-- Mode 2: Horizontal Scrollable Quick Chips -->
                 <div v-else-if="nextDays.length > 0" class="days-scroll-row">
                   <button
                     v-for="d in nextDays"
@@ -114,6 +151,16 @@
                   >
                     <span class="day-lbl">{{ d.label }}</span>
                     <strong class="day-num">{{ d.dayNum }}</strong>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="day-chip-btn open-cal-chip"
+                    :title="t('Calendar View')"
+                    @click="dateViewMode = 'calendar'"
+                  >
+                    <i class="pi pi-calendar"></i>
+                    <span class="day-lbl">{{ t('Calendar View') }}</span>
                   </button>
                 </div>
 
@@ -138,11 +185,16 @@
                   <button
                     v-for="slot in availableSlots"
                     :key="slot.start_time"
+                    type="button"
                     class="slot-chip"
-                    :class="{ 'active': currentSlot?.start_time === slot.start_time }"
-                    @click="currentSlot = slot"
+                    :class="{ 
+                      'active': currentSlot?.start_time === slot.start_time && slot.is_available,
+                      'is-booked': !slot.is_available
+                    }"
+                    :disabled="!slot.is_available"
+                    @click="slot.is_available && (currentSlot = slot)"
                   >
-                    <i class="pi pi-check slot-tick" v-if="currentSlot?.start_time === slot.start_time"></i>
+                    <i v-if="currentSlot?.start_time === slot.start_time && slot.is_available" class="pi pi-check slot-tick"></i>
                     <span>{{ formatSlotTime(slot.start_time) }}</span>
                   </button>
                 </div>
@@ -170,7 +222,7 @@
                     </template>
                     <template v-else>
                       <div class="exam-icon-circle">
-                        <i class="pi pi-shield"></i>
+                        <AppExamIcon :size="26" />
                       </div>
                     </template>
                   </div>
@@ -361,7 +413,11 @@
 
                   <div class="ticket-body">
                     <div class="ticket-row">
-                      <span class="lbl"><i :class="isExamination ? 'pi pi-shield' : 'pi pi-user'"></i> {{ isExamination ? t('Examination / Service') : t('Doctor') }}</span>
+                      <span class="lbl">
+                        <AppExamIcon v-if="isExamination" :size="14" />
+                        <i v-else class="pi pi-user"></i> 
+                        {{ isExamination ? t('Examination / Service') : t('Doctor') }}
+                      </span>
                       <strong class="val">{{ isExamination ? (service?.name || examination?.name || confirmedAppointment?.examination?.name) : (doctor?.name || confirmedAppointment?.doctor?.name) }}</strong>
                     </div>
 
@@ -402,15 +458,18 @@
 
           <!-- Bottom Sticky Action Bar (Step 1 & 2) -->
           <div v-if="currentStep < 3" class="booking-bottom-action">
-            <!-- Step 1 Button: Continue to Payment -->
+            <!-- Step 1 Button: Continue to Payment OR Confirm Slot Change when rescheduling -->
             <button 
               v-if="currentStep === 1"
               class="confirm-pay-btn" 
-              :disabled="!currentSlot"
-              @click="goToStep2"
+              :disabled="!currentSlot || submitting"
+              @click="isRescheduling ? submitBooking() : goToStep2()"
             >
-              <span>{{ t('Continue to Payment') }}</span>
-              <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
+              <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
+              <template v-else>
+                <span>{{ isRescheduling ? t('Confirm Slot Change') : t('Continue to Payment') }}</span>
+                <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
+              </template>
             </button>
 
             <!-- Step 2 Button: Confirm & Pay -->
@@ -483,6 +542,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
 import { useAppToast } from '../composables/useAppToast';
+import AppBookingCalendar from './common/AppBookingCalendar.vue';
+import AppExamIcon from './common/AppExamIcon.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -535,6 +596,8 @@ const availableDaysList = ref<Array<{ date: string; label: string; dayNum: strin
 
 const daysLoading = ref(false);
 
+const dateViewMode = ref<'chips' | 'calendar'>('chips');
+
 // Promocode State
 const promoCodeInput = ref('');
 const appliedPromoCode = ref('');
@@ -561,8 +624,16 @@ const isExamination = computed(() => {
   return props.initialType === 'examination' || Boolean(props.service || props.examination);
 });
 
+const isRescheduling = computed(() => {
+  return Boolean(props.appointment?.id);
+});
+
 const nextDays = computed(() => {
   return availableDaysList.value;
+});
+
+const onlyAvailableDates = computed(() => {
+  return availableDaysList.value.map((d) => d.date);
 });
 
 const appointmentDateFormatted = computed(() => {
@@ -682,6 +753,15 @@ const toMinutes = (timeStr?: string): number => {
   return h * 60 + m;
 };
 
+const to24Hour = (timeStr?: string) => {
+  if (!timeStr) return '10:00:00';
+  const mins = toMinutes(timeStr);
+  if (mins < 0) return '10:00:00';
+  const h = Math.floor(mins / 60).toString().padStart(2, '0');
+  const m = (mins % 60).toString().padStart(2, '0');
+  return `${h}:${m}:00`;
+};
+
 const formatSlotTime = (timeStr?: string) => {
   if (!timeStr) return '';
   const trimmed = String(timeStr).trim();
@@ -724,7 +804,7 @@ const DOCTOR_AVAILABLE_DAYS = async () => {
         daysLoading.value = true;
         const res = await api.apiRequest({
           service: 'EXAMINATION_AVAILABLE_DAYS',
-          filter: { id: examId, days: 21 },
+          filter: { id: examId, days: 60 },
         });
 
         if (res?.status && Array.isArray(res.data) && res.data.length > 0) {
@@ -814,7 +894,7 @@ const DOCTOR_AVAILABLE_DAYS = async () => {
     daysLoading.value = true;
     const res = await api.apiRequest({
       service: 'DOCTOR_AVAILABLE_DAYS',
-      filter: { id: props.doctor.id, days: 21 },
+      filter: { id: props.doctor.id, days: 60 },
     });
 
     if (res?.status && Array.isArray(res.data) && res.data.length > 0) {
@@ -880,13 +960,14 @@ const DOCTOR_SLOTS = async () => {
           filter: { id: examId, date: dateStr, no_cache: 1 },
         });
         if (res?.status && Array.isArray(res.data?.slots)) {
-          availableSlots.value = res.data.slots.filter((s: any) => s.is_available);
+          availableSlots.value = res.data.slots;
+          const firstAvailable = availableSlots.value.find((s: any) => s.is_available);
 
           const targetTime = props.selectedSlot?.start_time || props.appointment?.start_time || currentSlot.value?.start_time;
           if (targetTime) {
             const targetMins = toMinutes(targetTime);
             const matched = availableSlots.value.find((s: any) => toMinutes(s.start_time) === targetMins);
-            if (matched) {
+            if (matched && matched.is_available) {
               currentSlot.value = matched;
             } else if (props.appointment?.start_time) {
               const currentBookedSlot = {
@@ -897,11 +978,15 @@ const DOCTOR_SLOTS = async () => {
               availableSlots.value.unshift(currentBookedSlot);
               availableSlots.value.sort((a, b) => toMinutes(a.start_time) - toMinutes(b.start_time));
               currentSlot.value = currentBookedSlot;
-            } else if (availableSlots.value.length > 0 && !currentSlot.value) {
-              currentSlot.value = availableSlots.value[0];
+            } else if (firstAvailable) {
+              currentSlot.value = firstAvailable;
+            } else {
+              currentSlot.value = null;
             }
-          } else if (availableSlots.value.length > 0 && !currentSlot.value) {
-            currentSlot.value = availableSlots.value[0];
+          } else if (firstAvailable) {
+            currentSlot.value = firstAvailable;
+          } else {
+            currentSlot.value = null;
           }
           return;
         }
@@ -949,14 +1034,15 @@ const DOCTOR_SLOTS = async () => {
       filter: { id: docId, date: dateStr, no_cache: 1 },
     });
     if (res.status && Array.isArray(res.data?.slots)) {
-      availableSlots.value = res.data.slots.filter((s: any) => s.is_available);
+      availableSlots.value = res.data.slots;
+      const firstAvailable = availableSlots.value.find((s: any) => s.is_available);
 
       // Match target preselected/appointment time slot if provided
       const targetTime = props.selectedSlot?.start_time || props.appointment?.start_time || currentSlot.value?.start_time;
       if (targetTime) {
         const targetMins = toMinutes(targetTime);
         const matched = availableSlots.value.find((s: any) => toMinutes(s.start_time) === targetMins);
-        if (matched) {
+        if (matched && matched.is_available) {
           currentSlot.value = matched;
         } else if (props.appointment?.start_time) {
           const currentBookedSlot = {
@@ -967,11 +1053,15 @@ const DOCTOR_SLOTS = async () => {
           availableSlots.value.unshift(currentBookedSlot);
           availableSlots.value.sort((a, b) => toMinutes(a.start_time) - toMinutes(b.start_time));
           currentSlot.value = currentBookedSlot;
-        } else if (availableSlots.value.length > 0 && !currentSlot.value) {
-          currentSlot.value = availableSlots.value[0];
+        } else if (firstAvailable) {
+          currentSlot.value = firstAvailable;
+        } else {
+          currentSlot.value = null;
         }
-      } else if (availableSlots.value.length > 0 && !currentSlot.value) {
-        currentSlot.value = availableSlots.value[0];
+      } else if (firstAvailable) {
+        currentSlot.value = firstAvailable;
+      } else {
+        currentSlot.value = null;
       }
     }
   } catch (err) {
@@ -1008,8 +1098,8 @@ const submitBooking = async () => {
         filter: { id: props.appointment.id },
         payload: {
           date: dateStr,
-          start_time: slot.start_time.replace(/[^0-9:]/g, '') || '10:00:00',
-          end_time: slot.end_time?.replace(/[^0-9:]/g, '') || '10:30:00',
+          start_time: to24Hour(slot.start_time),
+          end_time: slot.end_time ? to24Hour(slot.end_time) : to24Hour(slot.start_time),
         },
       });
 
@@ -1029,8 +1119,8 @@ const submitBooking = async () => {
       service_id: !isOffer ? (props.examination?.id || props.service?.id || undefined) : undefined,
       offer_id: isOffer ? props.service?.id : undefined,
       date: dateStr,
-      start_time: slot.start_time.replace(/[^0-9:]/g, '') || '10:00:00',
-      end_time: slot.end_time?.replace(/[^0-9:]/g, '') || '10:30:00',
+      start_time: to24Hour(slot.start_time),
+      end_time: slot.end_time ? to24Hour(slot.end_time) : to24Hour(slot.start_time),
       type: isExamination.value ? 'consultation' : selectedType.value,
       payment_method: selectedMethod.value === 'cash' ? 'cash' : 'paymob',
       promocode: promoApplied.value ? appliedPromoCode.value : undefined,
@@ -1721,30 +1811,90 @@ onUnmounted(() => {
 
   .box-head {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 10px;
     margin-bottom: 12px;
 
-    .box-title {
-      font-size: 0.86rem;
-      font-weight: 700;
-      color: var(--unity-text-main);
+    .box-head-top {
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
 
-      i {
+      .box-title {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: var(--unity-text-main);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        i {
+          color: var(--unity-primary);
+        }
+      }
+
+      .date-current-badge {
+        font-size: 0.72rem;
         color: var(--unity-primary);
+        font-weight: 700;
+        background: #ecfdf5;
+        padding: 3px 8px;
+        border-radius: 8px;
       }
     }
 
-    .date-current-badge {
-      font-size: 0.72rem;
-      color: var(--unity-primary);
-      font-weight: 700;
-      background: #ecfdf5;
-      padding: 3px 8px;
-      border-radius: 8px;
+    .view-mode-toggle-group {
+      display: flex;
+      align-items: center;
+      background: var(--unity-bg);
+      border: 1px solid var(--unity-border);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 4px;
+
+      .view-toggle-pill {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 9px;
+        border: none;
+        background: transparent;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: var(--unity-text-muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        i {
+          font-size: 0.78rem;
+        }
+
+        &.active {
+          background: var(--unity-surface);
+          color: var(--unity-primary);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          font-weight: 700;
+        }
+      }
+    }
+  }
+
+  .calendar-view-wrap {
+    margin-top: 4px;
+    animation: fadeInCal 0.22s ease-in-out;
+  }
+
+  @keyframes fadeInCal {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -1793,6 +1943,24 @@ onUnmounted(() => {
 
         .day-num {
           color: #fff;
+        }
+      }
+
+      &.open-cal-chip {
+        border-style: dashed;
+        border-color: var(--unity-primary);
+        color: var(--unity-primary);
+        background: rgba(16, 185, 129, 0.05);
+
+        i {
+          font-size: 0.95rem;
+          color: var(--unity-primary);
+          margin-bottom: 2px;
+        }
+
+        .day-lbl {
+          color: var(--unity-primary);
+          font-weight: 700;
         }
       }
     }
@@ -1891,6 +2059,17 @@ onUnmounted(() => {
 
       .slot-tick {
         font-size: 0.7rem;
+      }
+
+      &.is-booked,
+      &:disabled {
+        background: var(--unity-surface-muted, #f1f5f9);
+        border-color: var(--unity-border);
+        color: var(--unity-text-dim, #94a3b8);
+        cursor: not-allowed;
+        opacity: 0.45;
+        pointer-events: none;
+        box-shadow: none;
       }
 
       &.active {

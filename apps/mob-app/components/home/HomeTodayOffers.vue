@@ -21,7 +21,7 @@
       >
         <!-- Card Image, Soft Veil & Discount Badge -->
         <div class="offer-image-box">
-          <img :src="offer.image" :alt="offer.title" class="offer-img" loading="lazy" />
+          <img :src="resolveImageUrl(offer.image)" :alt="offer.title" class="offer-img" loading="lazy" />
           <div class="image-soft-veil"></div>
           <div class="discount-tag">
             <span>-{{ offer.discountPercent }}%</span>
@@ -67,6 +67,16 @@ const loading = ref(false);
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const resolveImageUrl = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
+    return url;
+  }
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  return `${baseUrl}${url}`;
+};
+
 const OFFERS = async () => {
   try {
     loading.value = true;
@@ -75,8 +85,8 @@ const OFFERS = async () => {
     if (raw.length > 0) {
       offers.value = raw.map((o: any) => ({
         id: o.id,
-        title: o.title,
-        description: o.description,
+        title: isRtl.value ? (o.title_ar || o.title) : (o.title_en || o.title),
+        description: isRtl.value ? (o.description_ar || o.description) : (o.description_en || o.description),
         image: o.image,
         price: Number(o.price),
         originalPrice: o.original_price ? Number(o.original_price) : null,

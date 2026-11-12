@@ -11,7 +11,8 @@
       </div>
 
       <div class="entity-info">
-        <h4>{{ clinic.name }}</h4>
+        <h4>{{ primaryName }}</h4>
+        <span v-if="secondaryName" class="secondary-lang-pill">{{ secondaryName }}</span>
       </div>
 
       <button 
@@ -54,11 +55,14 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
 interface Clinic {
   id: string | number;
   name: string;
+  name_ar?: string;
+  name_en?: string;
   doctors_count: number;
   is_active: boolean;
 }
@@ -72,11 +76,24 @@ const emit = defineEmits<{
   (e: 'edit', clinic: Clinic): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
+const primaryName = computed(() => {
+  if (isRtl.value) {
+    return props.clinic.name_ar || props.clinic.name;
+  }
+  return props.clinic.name_en || props.clinic.name;
+});
+
+const secondaryName = computed(() => {
+  if (isRtl.value) {
+    return props.clinic.name_en && props.clinic.name_en !== primaryName.value ? props.clinic.name_en : '';
+  }
+  return props.clinic.name_ar && props.clinic.name_ar !== primaryName.value ? props.clinic.name_ar : '';
+});
 
 // 4. Methods (functions, handlers)
 
@@ -143,6 +160,14 @@ const { t } = useI18n();
       span {
         font-size: 0.72rem;
         color: var(--unity-text-muted);
+      }
+
+      .secondary-lang-pill {
+        display: inline-block;
+        font-size: 0.72rem;
+        color: var(--unity-primary);
+        font-weight: 600;
+        opacity: 0.85;
       }
     }
 

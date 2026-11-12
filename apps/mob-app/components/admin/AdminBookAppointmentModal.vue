@@ -428,8 +428,12 @@
               :key="slot.start_time"
               type="button" 
               class="slot-btn"
-              :class="{ active: selectedSlot?.start_time === slot.start_time }"
-              @click="selectedSlot = slot"
+              :class="{ 
+                active: selectedSlot?.start_time === slot.start_time,
+                'is-booked': !slot.is_available 
+              }"
+              :disabled="!slot.is_available"
+              @click="slot.is_available && (selectedSlot = slot)"
             >
               <i class="pi pi-clock"></i>
               <span>{{ formatSlotTime(slot.start_time) }}</span>
@@ -1791,6 +1795,21 @@ onMounted(() => {
 
         i {
           color: #fff;
+        }
+      }
+
+      &.is-booked,
+      &:disabled {
+        background: var(--unity-surface-muted, #f1f5f9);
+        border-color: var(--unity-border);
+        color: var(--unity-text-dim, #94a3b8);
+        cursor: not-allowed;
+        opacity: 0.45;
+        pointer-events: none;
+        box-shadow: none;
+
+        i {
+          color: var(--unity-text-dim, #94a3b8);
         }
       }
     }

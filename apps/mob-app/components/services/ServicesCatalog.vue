@@ -47,14 +47,14 @@
         <template #item="{ item: service }">
           <div class="service-item-card">
             <div class="card-side-icon">
-              <i class="pi pi-shield"></i>
+              <AppExamIcon :size="22" />
             </div>
             <div class="card-details">
               <div class="details-top">
-                <h5>{{ service.name }}</h5>
+                <h5>{{ getLocalizedName(service) }}</h5>
                 <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
               </div>
-              <p v-if="service.description">{{ service.description }}</p>
+              <p v-if="getLocalizedDesc(service)">{{ getLocalizedDesc(service) }}</p>
               <div class="card-meta">
                 <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
                 <span><i class="pi pi-check"></i> {{ t('Available now') }}</span>
@@ -97,7 +97,7 @@
           @click="selectClinic(clinic.id)"
         >
           <i class="pi pi-building"></i>
-          <span>{{ clinic.name }}</span>
+          <span>{{ getLocalizedName(clinic) }}</span>
           <span v-if="clinic._count?.doctors" class="count-bubble">{{ clinic._count.doctors }}</span>
         </button>
       </div>
@@ -128,7 +128,7 @@
                 <span>{{ clinic._count?.doctors || 1 }} {{ t('Doctors') }}</span>
               </span>
             </div>
-            <h6 class="clinic-title">{{ clinic.name }}</h6>
+            <h6 class="clinic-title">{{ getLocalizedName(clinic) }}</h6>
             <div class="card-action-row">
               <span class="action-text">{{ t('View Doctors') }}</span>
               <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
@@ -176,7 +176,7 @@
               <div class="doc-info-block">
                 <h5>{{ doc.name }}</h5>
                 <p v-if="doc.specialty && doc.specialty !== doc.clinic?.name" class="specialty-title">{{ doc.specialty }}</p>
-                <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-building"></i> {{ doc.clinic.name }}</span>
+                <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-building"></i> {{ getLocalizedName(doc.clinic) }}</span>
                 <div v-if="doc.consultation_fee" class="fee-badge">
                   {{ t('Examination Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
                 </div>
@@ -208,6 +208,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
 import AppVirtualList from '../common/AppVirtualList.vue';
+import AppExamIcon from '../common/AppExamIcon.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -235,10 +236,42 @@ const doctorsHasMore = ref(false);
 const doctorsLoading = ref(false);
 
 // 3. Computed (computed properties)
+const getLocalizedName = (item: any): string => {
+  if (!item) return '';
+  if (isRtl.value && item.name_ar) return item.name_ar;
+  if (!isRtl.value && item.name_en) return item.name_en;
+  if (typeof item.name === 'string') {
+    try {
+      const p = JSON.parse(item.name);
+      if (p && typeof p === 'object') {
+        return isRtl.value ? (p.ar || p.en || '') : (p.en || p.ar || '');
+      }
+    } catch (_) {}
+    return item.name;
+  }
+  return '';
+};
+
+const getLocalizedDesc = (item: any): string => {
+  if (!item) return '';
+  if (isRtl.value && item.description_ar) return item.description_ar;
+  if (!isRtl.value && item.description_en) return item.description_en;
+  if (typeof item.description === 'string') {
+    try {
+      const p = JSON.parse(item.description);
+      if (p && typeof p === 'object') {
+        return isRtl.value ? (p.ar || p.en || '') : (p.en || p.ar || '');
+      }
+    } catch (_) {}
+    return item.description;
+  }
+  return '';
+};
+
 const activeClinicName = computed(() => {
   if (selectedClinicId.value === 'all') return t('All Clinics');
   const c = clinics.value.find(cl => cl.id === selectedClinicId.value);
-  return c ? c.name : '';
+  return c ? getLocalizedName(c) : '';
 });
 
 const filteredServices = computed(() => {

@@ -188,3 +188,15 @@ input, textarea {
   transform: translateY(100%);
   opacity: 0;
 }
+
+// Standard Disabled State (Clean Opacity Standard)
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+.is-disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}

@@ -125,9 +125,20 @@ const openNewExaminationModal = () => {
   isExaminationModalOpen.value = true;
 };
 
-const openEditExaminationModal = (srv: any) => {
+const openEditExaminationModal = async (srv: any) => {
   selectedExaminationToEdit.value = srv;
   isExaminationModalOpen.value = true;
+  if (srv?.id) {
+    try {
+      const res = await api.apiRequest({
+        service: 'ADMIN_EXAMINATION_BY_ID',
+        filter: { id: srv.id },
+      });
+      if (res?.data) {
+        selectedExaminationToEdit.value = res.data;
+      }
+    } catch (e) {}
+  }
 };
 
 const ADMIN_CLINICS = async (page: any = 1) => {
@@ -184,6 +195,7 @@ const ADMIN_EXAMINATIONS = async (page: any = 1) => {
       duration: s.duration,
       description: s.description,
       is_active: s.is_active ?? true,
+      schedules: s.schedules || [],
     }));
 
     if (targetPage === 1) {

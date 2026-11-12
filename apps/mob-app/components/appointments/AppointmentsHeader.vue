@@ -4,8 +4,14 @@
       <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
     </button>
     <h3 class="page-title">{{ t('My Bookings & Appointments') }}</h3>
-    <button class="refresh-btn" @click="emit('refresh')">
-      <i class="pi pi-refresh" :class="{ 'pi-spin': loading }"></i>
+    <button 
+      class="refresh-btn" 
+      :class="{ 'loading': loading }"
+      :disabled="loading" 
+      :title="t('Refresh')"
+      @click="emit('refresh')"
+    >
+      <i class="pi pi-refresh" :class="{ 'is-spinning': loading }"></i>
     </button>
   </div>
 </template>
@@ -57,6 +63,35 @@ const { t, isRtl } = useI18n();
     justify-content: center;
     color: var(--unity-text-main);
     cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:active:not(:disabled) {
+      transform: scale(0.92);
+    }
+  }
+
+  .refresh-btn {
+    &.loading {
+      cursor: wait;
+      opacity: 0.9;
+      background: rgba(16, 185, 129, 0.08);
+      border-color: var(--unity-primary);
+      color: var(--unity-primary);
+    }
+
+    i.is-spinning {
+      animation: spinRefresh 0.75s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      color: var(--unity-primary);
+    }
+  }
+
+  @keyframes spinRefresh {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .page-title {

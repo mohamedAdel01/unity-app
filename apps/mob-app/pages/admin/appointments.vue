@@ -115,17 +115,22 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
     const raw = res?.data?.appointments || (Array.isArray(res?.data) ? res.data : []);
     const items = raw.map((a: any, idx: number) => ({
       id: a.id,
-      booking_number: `BK-${7830 + idx + (page - 1) * 10}`,
-      patient_name: a.patient?.name || '',
+      booking_number: a.id ? a.id.slice(-6).toUpperCase() : `BK-${7830 + idx + (page - 1) * 10}`,
+      patient_name: a.patient?.name || a.patient?.user?.name || `مريض #${a.id ? a.id.slice(-4) : idx + 1}`,
       avatar: a.patient?.avatar,
       time_badge: a.start_time || '',
-      clinic_name: a.examination?.name || a.doctor?.doctor?.clinic?.name || a.service?.name || a.doctor?.specialty || '',
+      clinic_name: a.examination?.name || a.doctor?.doctor?.clinic?.name || a.service?.name || a.doctor?.specialty || (a.examination_id ? 'فحص' : 'عيادة عامة'),
       doctor_name: a.doctor?.name || '',
+      examination_name: a.examination?.name || '',
+      is_examination: Boolean(a.examination_id || a.examination),
       time: a.start_time || '',
-      status: a.status === 'confirmed' ? 'confirmed' : 'pending',
+      status: a.status || 'pending',
+      payment_status: a.invoice?.status || (a.status === 'confirmed' ? 'paid' : 'pending'),
+      is_paid: a.invoice?.status === 'paid',
       payment_method: a.invoice?.payment_method || a.payment_method || 'cash',
       price: a.invoice?.total || a.examination?.price || a.total || 0,
       period: 'today',
+      raw: a,
     }));
 
     if (page === 1) {

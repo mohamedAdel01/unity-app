@@ -147,8 +147,11 @@ const openDetails = (apt: any) => {
     bookingModal.openBookingFlow({
       appointment: apt,
       doctor: apt.doctor,
-      service: apt.examination || apt.offer,
-      type: apt.type || 'consultation',
+      service: apt.examination || apt.offer || null,
+      examination: apt.examination || null,
+      date: apt.date ? new Date(apt.date).toISOString().split('T')[0] : '',
+      slot: apt.start_time ? { start_time: apt.start_time, end_time: apt.end_time } : null,
+      type: apt.type || (apt.examination ? 'examination' : 'consultation'),
     });
   } else {
     router.push('/appointments');

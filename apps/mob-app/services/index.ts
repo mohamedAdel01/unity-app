@@ -484,6 +484,13 @@ export default {
     });
   },
 
+  async ADMIN_UPLOAD_OFFER_IMAGE({ API, payload }: { API: any; payload: { image: string } }) {
+    return await API('admin/offers/upload-image', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
   async ADMIN_CREATE_OFFER({ API, payload }: { API: any; payload: any }) {
     return await API('admin/offers', {
       method: 'POST',

@@ -45,6 +45,15 @@
         </div>
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
       </NuxtLink>
+
+      <NuxtLink to="/admin/promotions" class="nav-tile">
+        <div class="tile-icon promo-icon"><i class="pi pi-tag"></i></div>
+        <div class="tile-info">
+          <strong>{{ t('Offers & Promocodes') }}</strong>
+          <small>{{ t('Manage deals, discounts & coupons') }}</small>
+        </div>
+        <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -114,6 +123,12 @@ const { t, isRtl } = useI18n();
         justify-content: center;
         color: var(--unity-primary);
         font-size: 1.1rem;
+
+        &.promo-icon {
+          color: #f59e0b;
+          background: rgba(245, 158, 11, 0.08);
+          border-color: rgba(245, 158, 11, 0.2);
+        }
       }
 
       .tile-info {

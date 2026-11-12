@@ -174,6 +174,12 @@ describe('Unity Medical Mobile App — Comprehensive E2E Test Suite', () => {
       cy.get('.admin-bookings-page', { timeout: 10000 }).should('be.visible');
       cy.get('.admin-bookings-header').should('be.visible');
     });
+
+    it('loads Admin Promotions & Deals Management', () => {
+      visitAsAdmin('/admin/promotions');
+      cy.get('.admin-promotions-page', { timeout: 10000 }).should('be.visible');
+      cy.get('.admin-promotions-header').should('be.visible');
+    });
   });
 
   // ==========================================

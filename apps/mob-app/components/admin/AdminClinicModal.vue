@@ -9,15 +9,30 @@
       </div>
 
       <div class="modal-body">
-        <label class="field-label">{{ t('Clinic Name') }}</label>
-        <input 
-          v-model="newClinicName" 
-          type="text" 
-          class="input-field" 
-          :placeholder="t('e.g. Cardiology Clinic')"
-          autofocus
-          @keyup.enter="saveClinic"
-        />
+        <div class="form-group">
+          <label class="field-label">{{ t('Clinic Name (Arabic)') }} <span class="required">*</span></label>
+          <input 
+            v-model="form.name_ar" 
+            type="text" 
+            class="input-field" 
+            :placeholder="t('e.g. Cardiology Clinic')"
+            dir="rtl"
+            autofocus
+            @keyup.enter="saveClinic"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">{{ t('Clinic Name (English)') }} <span class="required">*</span></label>
+          <input 
+            v-model="form.name_en" 
+            type="text" 
+            class="input-field" 
+            placeholder="e.g. Cardiology Clinic"
+            dir="ltr"
+            @keyup.enter="saveClinic"
+          />
+        </div>
       </div>
 
       <div class="modal-foot">
@@ -25,7 +40,7 @@
         <button 
           type="button" 
           class="btn-confirm" 
-          :disabled="!newClinicName.trim() || submitting" 
+          :disabled="!isFormValid || submitting" 
           @click="saveClinic"
         >
           <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
@@ -46,6 +61,8 @@ import { useAppToast } from '../../composables/useAppToast';
 interface Clinic {
   id?: string | number;
   name: string;
+  name_ar?: string;
+  name_en?: string;
   doctors_count?: number;
   is_active?: boolean;
 }
@@ -66,25 +83,51 @@ const api = useUnityApi();
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
-const newClinicName = ref('');
+const form = ref({
+  name_ar: '',
+  name_en: '',
+});
 const submitting = ref(false);
 
 // 3. Computed (computed properties)
 const isEdit = computed(() => !!props.clinic?.id);
 
+const isFormValid = computed(() => {
+  return form.value.name_ar.trim().length > 0 || form.value.name_en.trim().length > 0;
+});
+
 // 4. Methods (functions, handlers)
+const parseClinicName = (c: any) => {
+  if (!c) return { ar: '', en: '' };
+  if (c.name_ar || c.name_en) return { ar: c.name_ar || '', en: c.name_en || '' };
+  try {
+    const p = JSON.parse(c.name);
+    if (p && typeof p === 'object') return { ar: p.ar || '', en: p.en || '' };
+  } catch (_) {}
+  return { ar: c.name || '', en: c.name || '' };
+};
+
 const saveClinic = async () => {
-  if (!newClinicName.value.trim() || submitting.value) return;
+  if (!isFormValid.value || submitting.value) return;
   submitting.value = true;
   try {
+    const payload = {
+      name_ar: form.value.name_ar.trim(),
+      name_en: form.value.name_en.trim(),
+      name: form.value.name_ar.trim() || form.value.name_en.trim(),
+    };
+
     if (isEdit.value && props.clinic?.id) {
       const res = await api.apiRequest({
         service: 'ADMIN_UPDATE_CLINIC',
-        payload: { id: props.clinic.id, name: newClinicName.value.trim() },
+        payload: { id: props.clinic.id, ...payload },
       });
       const updated = {
         ...props.clinic,
-        name: res?.data?.name || newClinicName.value.trim(),
+        ...payload,
+        name: res?.data?.name || payload.name,
+        name_ar: res?.data?.name_ar || payload.name_ar,
+        name_en: res?.data?.name_en || payload.name_en,
       };
       emit('updated', updated);
       emit('close');
@@ -92,16 +135,18 @@ const saveClinic = async () => {
     } else {
       const res = await api.apiRequest({
         service: 'ADMIN_CREATE_CLINIC',
-        payload: { name: newClinicName.value.trim() },
+        payload,
       });
       if (res?.status && res?.data) {
         const created = {
           id: res.data.id,
           name: res.data.name,
+          name_ar: res.data.name_ar,
+          name_en: res.data.name_en,
           doctors_count: 0,
           is_active: true,
         };
-        newClinicName.value = '';
+        form.value = { name_ar: '', name_en: '' };
         emit('created', created);
         emit('close');
         toast.success(t('New clinic added successfully!'));
@@ -118,7 +163,11 @@ const saveClinic = async () => {
 watch(
   () => props.clinic,
   (val) => {
-    newClinicName.value = val ? val.name : '';
+    const loc = parseClinicName(val);
+    form.value = {
+      name_ar: loc.ar,
+      name_en: loc.en,
+    };
   },
   { immediate: true }
 );
@@ -127,7 +176,7 @@ watch(
   () => props.isOpen,
   (open) => {
     if (open && !props.clinic) {
-      newClinicName.value = '';
+      form.value = { name_ar: '', name_en: '' };
     }
   }
 );
@@ -196,13 +245,23 @@ watch(
   .modal-body {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     text-align: right;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
     .field-label {
       font-size: 0.8rem;
       font-weight: 700;
       color: var(--unity-text-main);
+
+      .required {
+        color: #ef4444;
+      }
     }
 
     .input-field {

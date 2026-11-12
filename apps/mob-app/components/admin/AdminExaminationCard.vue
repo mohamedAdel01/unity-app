@@ -13,8 +13,9 @@
       </div>
 
       <div class="entity-info">
-        <h4>{{ examination.name }}</h4>
-        <p v-if="examination.description" class="srv-desc">{{ examination.description }}</p>
+        <h4>{{ primaryName }}</h4>
+        <span v-if="secondaryName" class="secondary-lang-pill">{{ secondaryName }}</span>
+        <p v-if="displayDescription" class="srv-desc">{{ displayDescription }}</p>
       </div>
 
       <button 
@@ -52,14 +53,19 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
 interface Examination {
   id: string | number;
   name: string;
+  name_ar?: string;
+  name_en?: string;
   price: number;
   duration?: number;
   description?: string | null;
+  description_ar?: string | null;
+  description_en?: string | null;
   is_active: boolean;
 }
 
@@ -72,11 +78,31 @@ const emit = defineEmits<{
   (e: 'edit', examination: Examination): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
+const primaryName = computed(() => {
+  if (isRtl.value) {
+    return props.examination.name_ar || props.examination.name;
+  }
+  return props.examination.name_en || props.examination.name;
+});
+
+const secondaryName = computed(() => {
+  if (isRtl.value) {
+    return props.examination.name_en && props.examination.name_en !== primaryName.value ? props.examination.name_en : '';
+  }
+  return props.examination.name_ar && props.examination.name_ar !== primaryName.value ? props.examination.name_ar : '';
+});
+
+const displayDescription = computed(() => {
+  if (isRtl.value) {
+    return props.examination.description_ar || props.examination.description || '';
+  }
+  return props.examination.description_en || props.examination.description || '';
+});
 
 // 4. Methods (functions, handlers)
 
@@ -138,6 +164,14 @@ const { t } = useI18n();
         font-weight: 800;
         color: var(--unity-text-main);
         margin: 0;
+      }
+
+      .secondary-lang-pill {
+        display: inline-block;
+        font-size: 0.72rem;
+        color: var(--unity-primary);
+        font-weight: 600;
+        opacity: 0.85;
       }
 
       .srv-desc {

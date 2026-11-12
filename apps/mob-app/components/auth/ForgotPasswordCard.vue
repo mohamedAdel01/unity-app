@@ -82,6 +82,9 @@
           :ref="el => otpInputRefs[idx - 1] = el"
           v-model="otpDigits[idx - 1]"
           type="tel"
+          size="1"
+          inputmode="numeric"
+          pattern="[0-9]*"
           maxlength="1"
           class="otp-digit-input"
           :class="{ 'filled': !!otpDigits[idx - 1] }"
@@ -122,7 +125,7 @@
       <div class="back-link-row">
         <button type="button" class="back-btn" @click="currentStep = 1">
           <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
-          <span>{{ t('Change Phone Number') || t('Back') }}</span>
+          <span>{{ t('Change Phone Number') }}</span>
         </button>
       </div>
     </form>
@@ -640,14 +643,21 @@ onBeforeUnmount(() => {
 .otp-inputs-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   width: 100%;
-  margin: 6px 0;
+  max-width: 100%;
+  margin: 14px auto;
+  box-sizing: border-box;
 
   .otp-digit-input {
-    flex: 1;
+    width: 44px;
     height: 52px;
+    flex: 0 0 44px;
+    min-width: 0;
+    max-width: 44px;
+    padding: 0;
+    box-sizing: border-box;
     border-radius: 14px;
     background: var(--unity-bg);
     border: 1.5px solid var(--unity-border);
@@ -657,6 +667,14 @@ onBeforeUnmount(() => {
     text-align: center;
     outline: none;
     transition: all 0.2s ease;
+
+    @media (max-width: 360px) {
+      width: 38px;
+      height: 48px;
+      flex: 0 0 38px;
+      max-width: 38px;
+      font-size: 1.15rem;
+    }
 
     &:focus {
       border-color: var(--unity-primary);

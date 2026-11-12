@@ -11,14 +11,27 @@
       <form class="modal-body" @submit.prevent="saveExamination">
         <!-- Examination Basic Info -->
         <div class="form-group">
-          <label class="field-label">{{ t('Examination Name') }}</label>
+          <label class="field-label">{{ t('Examination Name (Arabic)') }} <span class="required">*</span></label>
           <input 
-            v-model="form.name" 
+            v-model="form.name_ar" 
             type="text" 
             class="input-field" 
             :placeholder="t('e.g. Complete Blood Count (CBC)')"
+            dir="rtl"
             required 
             autofocus
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">{{ t('Examination Name (English)') }} <span class="required">*</span></label>
+          <input 
+            v-model="form.name_en" 
+            type="text" 
+            class="input-field" 
+            placeholder="e.g. Complete Blood Count (CBC)"
+            dir="ltr"
+            required
           />
         </div>
 
@@ -50,12 +63,24 @@
         </div>
 
         <div class="form-group">
-          <label class="field-label">{{ t('Description (Optional)') }}</label>
+          <label class="field-label">{{ t('Description (Arabic)') }}</label>
           <textarea 
-            v-model="form.description" 
+            v-model="form.description_ar" 
             rows="2" 
             class="input-field textarea" 
             :placeholder="t('e.g. Diagnostic scan including detailed medical report')"
+            dir="rtl"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">{{ t('Description (English)') }}</label>
+          <textarea 
+            v-model="form.description_en" 
+            rows="2" 
+            class="input-field textarea" 
+            placeholder="e.g. Diagnostic scan including detailed medical report"
+            dir="ltr"
           ></textarea>
         </div>
 
@@ -222,9 +247,13 @@ interface ScheduleItem {
 interface Examination {
   id?: string | number;
   name: string;
+  name_ar?: string;
+  name_en?: string;
   price: number;
   duration?: number;
   description?: string | null;
+  description_ar?: string | null;
+  description_en?: string | null;
   is_active?: boolean;
   schedules?: ScheduleItem[];
 }
@@ -256,15 +285,19 @@ const ALL_DAYS: Array<{ key: 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'th
 
 // 2. Data (refs, reactive state)
 const form = ref<{
-  name: string;
+  name_ar: string;
+  name_en: string;
   price: number | string;
   duration: number | string;
-  description: string;
+  description_ar: string;
+  description_en: string;
 }>({
-  name: '',
+  name_ar: '',
+  name_en: '',
   price: '',
   duration: 15,
-  description: '',
+  description_ar: '',
+  description_en: '',
 });
 
 interface ScheduleSlot {
@@ -308,7 +341,7 @@ const hasAnyScheduleOverlap = computed(() => {
 
 const isFormValid = computed(() => {
   return (
-    form.value.name.trim().length >= 2 &&
+    (form.value.name_ar.trim().length >= 2 || form.value.name_en.trim().length >= 2) &&
     form.value.price !== '' &&
     form.value.price !== null &&
     !isNaN(Number(form.value.price)) &&
@@ -399,9 +432,12 @@ const initSchedules = (existingSchedules?: ScheduleItem[]) => {
     existingSchedules.forEach((s) => {
       const day = String(s.day_of_week).toLowerCase();
       if (schedulesByDay.value[day]) {
+        const start = s.start_time ? String(s.start_time).trim().slice(0, 5) : '09:00';
+        const end = s.end_time ? String(s.end_time).trim().slice(0, 5) : '17:00';
         schedulesByDay.value[day].push({
-          start_time: s.start_time || '09:00',
-          end_time: s.end_time || '17:00',
+          id: s.id,
+          start_time: start,
+          end_time: end,
           is_active: s.is_active !== false,
         });
       }
@@ -409,6 +445,41 @@ const initSchedules = (existingSchedules?: ScheduleItem[]) => {
   } else {
     resetSchedulesState();
   }
+};
+
+const parseExaminationLoc = (exam: any) => {
+  if (!exam) return { name_ar: '', name_en: '', desc_ar: '', desc_en: '' };
+  let name_ar = exam.name_ar || '';
+  let name_en = exam.name_en || '';
+  if (!name_ar && !name_en) {
+    try {
+      const p = JSON.parse(exam.name);
+      if (p && typeof p === 'object') {
+        name_ar = p.ar || '';
+        name_en = p.en || '';
+      }
+    } catch (_) {
+      name_ar = exam.name || '';
+      name_en = exam.name || '';
+    }
+  }
+
+  let desc_ar = exam.description_ar || '';
+  let desc_en = exam.description_en || '';
+  if (!desc_ar && !desc_en && exam.description) {
+    try {
+      const p = JSON.parse(exam.description);
+      if (p && typeof p === 'object') {
+        desc_ar = p.ar || '';
+        desc_en = p.en || '';
+      }
+    } catch (_) {
+      desc_ar = exam.description || '';
+      desc_en = exam.description || '';
+    }
+  }
+
+  return { name_ar, name_en, desc_ar, desc_en };
 };
 
 const saveExamination = async () => {
@@ -439,25 +510,45 @@ const saveExamination = async () => {
       });
     });
 
+    const arName = form.value.name_ar.trim();
+    const enName = form.value.name_en.trim();
+    const examName = arName || enName;
+    const arDesc = form.value.description_ar.trim();
+    const enDesc = form.value.description_en.trim();
+    const examDesc = arDesc || enDesc || null;
+
+    const payload = {
+      name_ar: arName,
+      name_en: enName,
+      name: examName,
+      price: numPrice,
+      duration: numDuration,
+      description_ar: arDesc || null,
+      description_en: enDesc || null,
+      description: examDesc,
+      schedules: payloadSchedules,
+    };
+
     if (isEdit.value && props.examination?.id) {
       const res = await api.apiRequest({
         service: 'ADMIN_UPDATE_EXAMINATION',
         payload: {
           id: props.examination.id,
-          name: form.value.name.trim(),
-          price: numPrice,
-          duration: numDuration,
-          description: form.value.description?.trim() || null,
-          schedules: payloadSchedules,
+          ...payload,
         },
       });
 
       const updated = {
         ...props.examination,
-        name: form.value.name.trim(),
+        ...payload,
+        name: res?.data?.name || examName,
+        name_ar: res?.data?.name_ar || arName,
+        name_en: res?.data?.name_en || enName,
+        description: res?.data?.description || examDesc,
+        description_ar: res?.data?.description_ar || arDesc,
+        description_en: res?.data?.description_en || enDesc,
         price: numPrice,
         duration: numDuration,
-        description: form.value.description?.trim() || null,
         schedules: res?.data?.schedules || payloadSchedules,
       };
 
@@ -467,31 +558,31 @@ const saveExamination = async () => {
     } else {
       const res = await api.apiRequest({
         service: 'ADMIN_CREATE_EXAMINATION',
-        payload: {
-          name: form.value.name.trim(),
-          price: numPrice,
-          duration: numDuration,
-          description: form.value.description?.trim() || null,
-          schedules: payloadSchedules,
-        },
+        payload,
       });
 
       if (res?.status && res?.data) {
         const created = {
           id: res.data.id,
           name: res.data.name,
+          name_ar: res.data.name_ar || arName,
+          name_en: res.data.name_en || enName,
           price: res.data.price,
           duration: res.data.duration,
           description: res.data.description,
+          description_ar: res.data.description_ar || arDesc,
+          description_en: res.data.description_en || enDesc,
           schedules: res.data.schedules || payloadSchedules,
           is_active: true,
         };
 
         form.value = {
-          name: '',
+          name_ar: '',
+          name_en: '',
           price: '',
           duration: 15,
-          description: '',
+          description_ar: '',
+          description_en: '',
         };
         initSchedules();
 
@@ -515,19 +606,24 @@ watch(
   () => props.examination,
   (val) => {
     if (val) {
+      const loc = parseExaminationLoc(val);
       form.value = {
-        name: val.name || '',
+        name_ar: loc.name_ar,
+        name_en: loc.name_en,
         price: val.price !== undefined && val.price !== null ? Number(val.price) : '',
         duration: val.duration !== undefined && val.duration !== null ? Number(val.duration) : 15,
-        description: val.description || '',
+        description_ar: loc.desc_ar,
+        description_en: loc.desc_en,
       };
       initSchedules(val.schedules);
     } else {
       form.value = {
-        name: '',
+        name_ar: '',
+        name_en: '',
         price: '',
         duration: 15,
-        description: '',
+        description_ar: '',
+        description_en: '',
       };
       initSchedules();
     }
@@ -540,10 +636,12 @@ watch(
   (open) => {
     if (open && !props.examination) {
       form.value = {
-        name: '',
+        name_ar: '',
+        name_en: '',
         price: '',
         duration: 15,
-        description: '',
+        description_ar: '',
+        description_en: '',
       };
       initSchedules();
     }

@@ -4,49 +4,37 @@
     <!-- Card Header Row (Click to toggle accordion)   -->
     <!-- ============================================== -->
     <div class="booking-header-row" @click="toggleExpand">
-      <!-- Right Side: Avatar / Time Pill + Patient Info -->
-      <div class="patient-main-cell">
-        <!-- Avatar Photo (if available) or Time Pill Badge -->
-        <div v-if="booking.avatar" class="avatar-holder">
-          <img :src="resolveAvatar(booking.avatar)" :alt="booking.patient_name" class="avatar-img" />
-          <span class="online-dot"></span>
-        </div>
-        <div v-else-if="booking.time_badge" class="time-badge-pill">
-          <span>{{ booking.time_badge }}</span>
+      <!-- Right Side: Patient Avatar & Details -->
+      <div class="patient-cell">
+        <div class="avatar-wrap">
+          <img v-if="booking.avatar" :src="resolveAvatar(booking.avatar)" :alt="booking.patient_name" class="avatar-img" />
+          <div v-else class="initial-avatar">
+            <span>{{ patientInitial }}</span>
+          </div>
         </div>
 
-        <!-- Patient Name & Clinic -->
-        <div class="patient-details">
-          <div class="name-id-line">
-            <h5 class="patient-name">{{ booking.patient_name }}</h5>
-            <span class="booking-number">#{{ booking.booking_number }}</span>
+        <div class="patient-info">
+          <div class="patient-name-row">
+            <h5 class="patient-name">{{ booking.patient_name || t('Patient') }}</h5>
           </div>
-          <span class="clinic-subline">{{ booking.clinic_name }}</span>
+          <div class="service-subline">
+            <span class="type-badge" :class="isExamination ? 'badge-exam' : 'badge-consult'">
+              {{ bookingTypeLabel }}
+            </span>
+            <span class="service-name">{{ serviceTitle }}</span>
+          </div>
         </div>
       </div>
 
-      <!-- Left Side: Status Chip & Chevron -->
-      <div class="status-chevron-cell">
-        <!-- Quick Approve Button for Pending Bookings -->
-        <button 
-          v-if="booking.status === 'pending'" 
-          type="button" 
-          class="quick-approve-pill" 
-          @click.stop="emit('approve', booking)"
-        >
-          <i class="pi pi-check"></i>
-          <span>{{ t('Approve') }}</span>
-        </button>
-
-        <span class="status-chip" :class="getStatusClass(booking.status)">
-          <span v-if="booking.status === 'pending'" class="status-red-dot"></span>
-          <span v-else-if="booking.status === 'confirmed'" class="status-green-dot"></span>
-          <span>{{ getStatusLabel(booking.status) }}</span>
-        </span>
-
-        <button class="expand-btn" :aria-label="isExpanded ? 'Collapse' : 'Expand'">
+      <!-- Left Side: Status Chip on Top Left & Expand Arrow -->
+      <div class="meta-cell">
+        <button type="button" class="expand-btn" :aria-label="isExpanded ? 'Collapse' : 'Expand'">
           <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
         </button>
+        <span class="status-badge" :class="getStatusClass(booking.status)">
+          <span class="dot"></span>
+          <span>{{ getStatusLabel(booking.status) }}</span>
+        </span>
       </div>
     </div>
 
@@ -54,67 +42,88 @@
     <!-- Expanded Body (Visible when isExpanded is true)-->
     <!-- ============================================== -->
     <div v-if="isExpanded" class="booking-expanded-body">
-      <!-- Doctor & Time Banner (Light blue pill container) -->
-      <div v-if="booking.doctor_name || booking.time" class="doctor-time-banner">
-        <div v-if="booking.doctor_name" class="doc-cell">
-          <i class="pi pi-user"></i>
-          <span>{{ booking.doctor_name }}</span>
+      <!-- Doctor / Examination & Schedule Banner -->
+      <div class="details-info-box">
+        <div class="info-item" v-if="booking.doctor_name">
+          <div class="info-icon"><i class="pi pi-user"></i></div>
+          <div class="info-content">
+            <strong class="info-val">{{ doctorTitle }}</strong>
+            <span v-if="booking.clinic_name" class="info-subval">{{ booking.clinic_name }}</span>
+          </div>
         </div>
-        <div v-if="booking.time" class="time-cell">
-          <i class="pi pi-clock"></i>
-          <span dir="ltr">{{ booking.time }}</span>
+        <div class="info-item" v-else>
+          <div class="info-icon"><AppExamIcon :size="18" /></div>
+          <div class="info-content">
+            <strong class="info-val">{{ serviceTitle }}</strong>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon"><i class="pi pi-clock"></i></div>
+          <div class="info-content">
+            <span class="info-label">{{ t('Time') }}</span>
+            <strong class="info-val">{{ formatTime(booking.time || booking.time_badge) }}</strong>
+          </div>
         </div>
       </div>
 
-      <!-- Payment Method & Price Row -->
-      <div v-if="booking.payment_method || booking.price" class="payment-price-row">
-        <!-- Right: Payment Method & Invoice ID -->
-        <div v-if="booking.payment_method" class="payment-method-cell">
-          <i class="pi pi-check-circle green-check"></i>
-          <span>{{ booking.payment_method }}</span>
+      <!-- Finance & Payment Bar -->
+      <div class="finance-bar">
+        <div class="payment-method-badge">
+          <i :class="booking.payment_method === 'paymob' ? 'pi pi-credit-card' : 'pi pi-wallet'"></i>
+          <span>{{ getPaymentMethodLabel(booking.payment_method) }}</span>
+          <span class="payment-pill" :class="isPaid ? 'paid' : 'pending'">
+            {{ isPaid ? t('Paid Status') : t('Unpaid Status') }}
+          </span>
         </div>
-
-        <!-- Left: Price -->
-        <div v-if="booking.price" class="price-cell">
-          <strong>{{ booking.price }}</strong>
-          <small>{{ t('EGP') }}</small>
+        <div class="price-badge">
+          <span class="price-val">{{ booking.price || 0 }}</span>
+          <span class="currency">{{ t('EGP') }}</span>
         </div>
       </div>
 
-      <!-- Action Buttons Row -->
-      <div class="actions-buttons-row">
-        <!-- Approve Booking (for pending bookings) -->
+      <!-- Action Buttons Grid -->
+      <div class="actions-grid">
+        <!-- Approve Booking (Prominent when pending) -->
         <button 
           v-if="booking.status === 'pending'" 
           type="button" 
-          class="btn-approve" 
+          class="act-btn btn-approve" 
           @click.stop="emit('approve', booking)"
         >
           <i class="pi pi-check-circle"></i>
           <span>{{ t('Approve Booking') }}</span>
         </button>
 
-        <!-- Cancel Booking (if not already cancelled) -->
+        <!-- Reschedule Slot -->
         <button 
-          v-if="booking.status !== 'cancelled'" 
           type="button" 
-          class="btn-cancel-booking" 
-          @click.stop="emit('cancel', booking)"
+          class="act-btn btn-reschedule" 
+          @click.stop="emit('reschedule', booking)"
         >
-          <i class="pi pi-times"></i>
-          <span>{{ t('Cancel Booking') }}</span>
-        </button>
-
-        <!-- Reschedule / Edit Appointment -->
-        <button class="btn-reschedule" @click="emit('reschedule', booking)">
           <i class="pi pi-calendar"></i>
           <span>{{ t('Reschedule Slot') }}</span>
         </button>
 
-        <!-- Download Invoice Button -->
-        <button class="btn-invoice-download" @click="emit('download-invoice', booking)">
+        <!-- Invoice Button -->
+        <button 
+          type="button" 
+          class="act-btn btn-invoice" 
+          @click.stop="emit('download-invoice', booking)"
+        >
           <i class="pi pi-download"></i>
           <span>{{ t('Invoice') }}</span>
+        </button>
+
+        <!-- Cancel Booking (Only allowed for pending bookings before confirmation) -->
+        <button 
+          v-if="booking.status === 'pending'" 
+          type="button" 
+          class="act-btn btn-cancel" 
+          @click.stop="emit('cancel', booking)"
+        >
+          <i class="pi pi-times"></i>
+          <span>{{ t('Cancel Booking') }}</span>
         </button>
       </div>
     </div>
@@ -123,8 +132,9 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import AppExamIcon from '../common/AppExamIcon.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -143,26 +153,83 @@ const emit = defineEmits<{
   (e: 'cancel', booking: any): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 const isExpanded = ref(props.initiallyExpanded);
 
 // 3. Computed (computed properties)
+const patientInitial = computed(() => {
+  const name = props.booking?.patient_name || '';
+  return name.trim().charAt(0) || 'م';
+});
+
+const isExamination = computed(() => {
+  return Boolean(
+    props.booking?.is_examination || 
+    props.booking?.examination_id || 
+    (!props.booking?.doctor_name && props.booking?.clinic_name)
+  );
+});
+
+const bookingTypeLabel = computed(() => {
+  return isExamination.value ? t('Medical Exam') : t('Consultation');
+});
+
+const isPaid = computed(() => {
+  return props.booking?.is_paid || props.booking?.payment_status === 'paid' || props.booking?.status === 'confirmed';
+});
+
+const serviceTitle = computed(() => {
+  return props.booking?.examination_name || props.booking?.clinic_name || props.booking?.doctor_name || t('General Clinic');
+});
+
+const doctorTitle = computed(() => {
+  const name = props.booking?.doctor_name || '';
+  if (!name) return '';
+  return name.startsWith('د.') ? name : `د. ${name}`;
+});
 
 // 4. Methods (functions, handlers)
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value;
 };
 
+const formatTime = (timeStr?: string) => {
+  if (!timeStr) return '';
+  const trimmed = String(timeStr).trim();
+  const parts = trimmed.split(':');
+  if (parts.length < 2) return trimmed;
+  let h = parseInt(parts[0], 10);
+  const m = parts[1].slice(0, 2);
+  if (isNaN(h)) return trimmed;
+  const period = h >= 12 ? (isRtl.value ? 'م' : 'PM') : (isRtl.value ? 'ص' : 'AM');
+  h = h % 12;
+  if (h === 0) h = 12;
+  const hPadded = h.toString().padStart(2, '0');
+  return `${hPadded}:${m} ${period}`;
+};
+
 const getStatusLabel = (status?: string) => {
-  if (status === 'pending') return t('Pending Payment');
-  return t('Confirmed & Paid');
+  if (status === 'confirmed') return t('Confirmed Status');
+  if (status === 'cancelled') return t('Cancelled Status');
+  if (status === 'completed') return t('Completed Status');
+  return t('Pending Status');
 };
 
 const getStatusClass = (status?: string) => {
-  if (status === 'pending') return 'status-pending';
-  return 'status-confirmed';
+  if (status === 'confirmed') return 'status-confirmed';
+  if (status === 'cancelled') return 'status-cancelled';
+  if (status === 'completed') return 'status-completed';
+  return 'status-pending';
+};
+
+const getPaymentMethodLabel = (method?: string) => {
+  if (!method) return t('Cash on Arrival');
+  const m = String(method).toLowerCase();
+  if (m === 'cash') return t('Cash on Arrival');
+  if (m === 'paymob' || m === 'online' || m === 'card') return t('Electronic Payment');
+  return method;
 };
 
 const resolveAvatar = (url?: string) => {
@@ -186,184 +253,201 @@ const resolveAvatar = (url?: string) => {
 .admin-booking-card {
   background: var(--unity-surface);
   border: 1px solid var(--unity-border);
-  border-radius: 22px;
+  border-radius: 20px;
   padding: 14px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  transition: all 0.2s ease;
-  direction: rtl;
-
-  &[dir='ltr'] {
-    direction: ltr;
-
-    .booking-header-row .patient-main-cell .patient-details {
-      text-align: left;
-    }
-
-    .booking-expanded-body .doctor-time-banner,
-    .booking-expanded-body .payment-price-row {
-      direction: ltr;
-    }
-  }
+  transition: all 0.25s ease;
+  margin-bottom: 12px;
 
   &.is-expanded {
     border-color: #cbd5e1;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
   }
 
   // 1. Header Row
   .booking-header-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: 12px;
     cursor: pointer;
     user-select: none;
 
-    .patient-main-cell {
+    .patient-cell {
       display: flex;
       align-items: center;
       gap: 12px;
+      min-width: 0;
+      flex: 1;
 
-      .avatar-holder {
-        position: relative;
+      .avatar-wrap {
         width: 44px;
         height: 44px;
+        border-radius: 14px;
         flex-shrink: 0;
+        overflow: hidden;
 
         .avatar-img {
           width: 100%;
           height: 100%;
-          border-radius: 50%;
           object-fit: cover;
-          border: 1.5px solid var(--unity-border);
         }
 
-        .online-dot {
-          position: absolute;
-          bottom: 1px;
-          inset-inline-end: 1px;
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: #10b981;
-          border: 2px solid #ffffff;
+        .initial-avatar {
+          width: 100%;
+          height: 100%;
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.15rem;
+          font-weight: 800;
         }
       }
 
-      .time-badge-pill {
-        background: #eef2ff;
-        color: #3730a3;
-        font-size: 0.74rem;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 14px;
-        white-space: nowrap;
-        flex-shrink: 0;
-      }
-
-      .patient-details {
+      .patient-info {
         display: flex;
         flex-direction: column;
-        text-align: right;
+        gap: 3px;
+        min-width: 0;
 
-        .name-id-line {
+        .patient-name-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .patient-name {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: var(--unity-text-main);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        .service-subline {
           display: flex;
           align-items: center;
           gap: 6px;
+          margin-top: 2px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
 
-          .patient-name {
-            font-size: 0.95rem;
+          .type-badge {
+            font-size: 0.68rem;
             font-weight: 800;
-            color: var(--unity-text-main);
+            padding: 1px 7px;
+            border-radius: 6px;
+            line-height: 1.4;
+
+            &.badge-consult {
+              background: rgba(4, 120, 87, 0.1);
+              color: #047857;
+              border: 1px solid rgba(4, 120, 87, 0.2);
+            }
+
+            &.badge-exam {
+              background: rgba(37, 99, 235, 0.1);
+              color: #2563eb;
+              border: 1px solid rgba(37, 99, 235, 0.2);
+            }
           }
 
-          .booking-number {
-            font-size: 0.72rem;
+          .service-name {
+            font-size: 0.78rem;
             font-weight: 700;
             color: var(--unity-text-muted);
-            direction: ltr;
           }
-        }
-
-        .clinic-subline {
-          font-size: 0.74rem;
-          color: var(--unity-text-muted);
-          margin-top: 1px;
         }
       }
     }
 
-    .status-chevron-cell {
+    .meta-cell {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
 
-      .quick-approve-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: var(--unity-primary);
-        color: #fff;
-        border: none;
-        border-radius: 12px;
-        padding: 4px 10px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(18, 93, 73, 0.2);
-        transition: all 0.2s;
-
-        &:hover {
-          background: var(--unity-primary-dark);
-          transform: scale(1.04);
-        }
-      }
-
-      .status-chip {
+      .status-badge {
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        font-size: 0.68rem;
-        font-weight: 700;
-        padding: 3px 10px;
-        border-radius: 12px;
+        padding: 4px 10px;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        font-weight: 800;
         white-space: nowrap;
 
-        .status-green-dot {
+        .dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #059669;
-        }
-
-        .status-red-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #ef4444;
-        }
-
-        &.status-confirmed {
-          background: #d1fae5;
-          color: #065f46;
         }
 
         &.status-pending {
-          background: #ede9fe;
-          color: #6b21a8;
+          background: #f5f3ff;
+          color: #7c3aed;
+          border: 1px solid #ddd6fe;
+
+          .dot {
+            background: #7c3aed;
+          }
+        }
+
+        &.status-confirmed {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+
+          .dot {
+            background: #10b981;
+          }
+        }
+
+        &.status-cancelled {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+
+          .dot {
+            background: #ef4444;
+          }
+        }
+
+        &.status-completed {
+          background: #f0fdf4;
+          color: #15803d;
+          border: 1px solid #bbf7d0;
+
+          .dot {
+            background: #22c55e;
+          }
         }
       }
 
       .expand-btn {
         background: transparent;
         border: none;
-        color: var(--unity-text-muted);
-        cursor: pointer;
+        color: #94a3b8;
         font-size: 0.85rem;
+        cursor: pointer;
+        padding: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: color 0.2s;
+
+        &:hover {
+          color: var(--unity-text-main);
+        }
       }
     }
   }
@@ -371,167 +455,196 @@ const resolveAvatar = (url?: string) => {
   // 2. Expanded Body
   .booking-expanded-body {
     margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid var(--unity-border-light);
+    padding-top: 14px;
+    border-top: 1px dashed var(--unity-border);
     display: flex;
     flex-direction: column;
     gap: 12px;
 
-    .doctor-time-banner {
-      background: #f0f7ff;
-      border: 1px solid #e0f2fe;
+    .details-info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       border-radius: 14px;
       padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--unity-text-main);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
 
-      .doc-cell, .time-cell {
+      .info-item {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
 
-        i {
-          color: #0284c7;
-          font-size: 0.9rem;
+        .info-icon {
+          width: 32px;
+          height: 32px;
+          border-radius: 10px;
+          background: #e2e8f0;
+          color: #334155;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.85rem;
+          flex-shrink: 0;
+        }
+
+        .info-content {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+
+          .info-label {
+            font-size: 0.68rem;
+            color: #64748b;
+            font-weight: 600;
+          }
+
+          .info-val {
+            font-size: 0.84rem;
+            color: #0f172a;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .info-subval {
+            font-size: 0.70rem;
+            color: #64748b;
+            font-weight: 600;
+          }
         }
       }
     }
 
-    .payment-price-row {
+    .finance-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 4px;
+      padding: 8px 12px;
+      background: var(--unity-surface);
+      border: 1px solid var(--unity-border);
+      border-radius: 12px;
 
-      .payment-method-cell {
-        display: flex;
+      .payment-method-badge {
+        display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         font-weight: 700;
-        color: var(--unity-text-main);
+        color: #0f172a;
 
-        .green-check {
+        i {
           color: #10b981;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
+        }
+
+        .payment-pill {
+          font-size: 0.68rem;
+          font-weight: 700;
+          padding: 1px 6px;
+          border-radius: 5px;
+          margin-inline-start: 4px;
+
+          &.paid {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+          }
+
+          &.pending {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+          }
         }
       }
 
-      .price-cell {
-        display: flex;
+      .price-badge {
+        display: inline-flex;
         align-items: baseline;
         gap: 4px;
 
-        strong {
+        .price-val {
           font-size: 1.15rem;
           font-weight: 800;
-          color: var(--unity-text-main);
+          color: var(--unity-primary);
         }
 
-        small {
+        .currency {
           font-size: 0.72rem;
           font-weight: 700;
-          color: var(--unity-text-muted);
+          color: #64748b;
         }
       }
     }
 
-    .actions-buttons-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 2px;
+    // Actions Grid
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+      margin-top: 4px;
 
-      .btn-approve {
-        flex: 1;
-        height: 42px;
-        background: var(--unity-primary);
-        border: none;
+      .act-btn {
+        height: 40px;
         border-radius: 12px;
-        color: #fff;
-        font-size: 0.82rem;
+        font-size: 0.78rem;
         font-weight: 700;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
         cursor: pointer;
-        transition: all 0.2s;
-
-        &:hover {
-          background: var(--unity-primary-dark);
-          transform: translateY(-1px);
-        }
-      }
-
-      .btn-cancel-booking {
-        height: 42px;
-        padding: 0 14px;
-        background: #fef2f2;
-        border: 1px solid #fee2e2;
-        border-radius: 12px;
-        color: #ef4444;
-        font-size: 0.8rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        &:hover {
-          background: #fee2e2;
-        }
-      }
-
-      .btn-reschedule {
-        flex: 1;
-        height: 42px;
-        background: #eef2ff;
-        border: none;
-        border-radius: 12px;
-        color: #3730a3;
-        font-size: 0.82rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
-
-        &:hover {
-          background: #e0e7ff;
-        }
-      }
-
-      .btn-invoice-download {
-        height: 42px;
-        padding: 0 18px;
-        background: #34d399;
-        border: none;
-        border-radius: 12px;
-        color: #022c22;
-        font-size: 0.82rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
+        padding: 0 10px;
+        white-space: nowrap;
 
         i {
-          font-size: 0.9rem;
+          font-size: 0.85rem;
         }
 
-        &:hover {
-          background: #10b981;
+        &.btn-approve {
+          grid-column: 1 / -1;
+          background: var(--unity-primary);
+          color: #fff;
+          border: none;
+          box-shadow: 0 2px 6px rgba(18, 93, 73, 0.25);
+
+          &:hover {
+            background: var(--unity-primary-dark);
+            transform: translateY(-1px);
+          }
+        }
+
+        &.btn-reschedule {
+          background: #f1f5f9;
+          color: #1e293b;
+          border: 1px solid #cbd5e1;
+
+          &:hover {
+            background: #e2e8f0;
+          }
+        }
+
+        &.btn-invoice {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+
+          &:hover {
+            background: #d1fae5;
+          }
+        }
+
+        &.btn-cancel {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+
+          &:hover {
+            background: #fee2e2;
+          }
         }
       }
     }

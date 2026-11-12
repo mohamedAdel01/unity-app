@@ -64,41 +64,48 @@
         <span class="row-value">{{ patient.last_visit }}</span>
       </div>
 
-      <!-- Row 3: Next Appointment -->
-      <div v-if="patient.next_appointment" class="detail-row">
-        <span class="row-label">{{ t('Next Appointment') }}</span>
-        <div class="next-apt-value">
-          <span class="apt-green-dot"></span>
-          <span>{{ patient.next_appointment }}</span>
-        </div>
-      </div>
-
       <!-- Subtle Divider -->
       <div v-if="patient.diagnosis" class="cell-divider"></div>
 
-      <!-- Row 4: Current Diagnosis -->
+      <!-- Row 3: Current Diagnosis -->
       <div v-if="patient.diagnosis" class="diagnosis-box">
         <span class="row-label">{{ t('Current Diagnosis') }}</span>
         <p class="diagnosis-text">{{ patient.diagnosis }}</p>
       </div>
 
-      <!-- Action Buttons Row -->
+      <!-- Action Buttons Row (3 Icon-Only Buttons) -->
       <div class="actions-buttons-row">
-        <!-- Edit Patient (Circle Button) -->
-        <button class="btn-circle-edit" :title="t('Edit Patient')" @click="emit('edit', patient)">
-          <i class="pi pi-pencil"></i>
-        </button>
-
-        <!-- Book Appointment (Outline Button) -->
-        <button class="btn-book-outline" @click="emit('book', patient)">
-          <i class="pi pi-calendar"></i>
-          <span>{{ t('Book Appointment') }}</span>
-        </button>
-
-        <!-- View Medical File (Primary Green Button) -->
-        <button class="btn-view-file-fill" @click="emit('view-file', patient)">
+        <!-- View Medical File (Primary Green Icon) -->
+        <button 
+          type="button" 
+          class="btn-action-icon btn-file" 
+          :title="t('View Medical File')" 
+          :aria-label="t('View Medical File')" 
+          @click="emit('view-file', patient)"
+        >
           <i class="pi pi-folder"></i>
-          <span>{{ t('View Medical File') }}</span>
+        </button>
+
+        <!-- Book Appointment (Secondary Mint Icon) -->
+        <button 
+          type="button" 
+          class="btn-action-icon btn-book" 
+          :title="t('Book Appointment')" 
+          :aria-label="t('Book Appointment')" 
+          @click="emit('book', patient)"
+        >
+          <i class="pi pi-calendar-plus"></i>
+        </button>
+
+        <!-- Edit Patient (Neutral Icon) -->
+        <button 
+          type="button" 
+          class="btn-action-icon btn-edit" 
+          :title="t('Edit Patient')" 
+          :aria-label="t('Edit Patient')" 
+          @click="emit('edit', patient)"
+        >
+          <i class="pi pi-pencil"></i>
         </button>
       </div>
     </div>
@@ -466,86 +473,55 @@ const resolveAvatar = (url?: string) => {
     .actions-buttons-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 4px;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
 
-      .btn-circle-edit {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
-        color: var(--unity-text-muted);
+      .btn-action-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
+        font-size: 1rem;
         cursor: pointer;
-        flex-shrink: 0;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
 
-        &:hover {
-          background: var(--unity-border);
-          color: var(--unity-text-main);
-        }
-      }
+        &.btn-file {
+          background: var(--unity-primary);
+          color: #ffffff;
+          box-shadow: 0 4px 10px rgba(4, 120, 87, 0.2);
 
-      .btn-book-outline {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 9px 14px;
-        border-radius: 12px;
-        background: var(--unity-surface);
-        border: 1.5px solid var(--unity-border);
-        color: var(--unity-text-main);
-        font-size: 0.78rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s;
-        white-space: nowrap;
-
-        i {
-          font-size: 0.85rem;
-          color: var(--unity-text-muted);
-        }
-
-        &:hover {
-          border-color: var(--unity-primary);
-          color: var(--unity-primary);
-
-          i {
-            color: var(--unity-primary);
+          &:hover {
+            background: var(--unity-primary-dark);
+            transform: translateY(-1px);
           }
         }
-      }
 
-      .btn-view-file-fill {
-        flex: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 12px;
-        background: var(--unity-primary-dark);
-        color: #ffffff;
-        border: none;
-        font-size: 0.82rem;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(6, 78, 59, 0.22);
-        transition: all 0.2s;
-        white-space: nowrap;
+        &.btn-book {
+          background: #ecfdf5;
+          color: #047857;
+          border-color: #a7f3d0;
 
-        i {
-          font-size: 0.9rem;
+          &:hover {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+            transform: translateY(-1px);
+          }
         }
 
-        &:hover {
-          background: var(--unity-primary);
-          transform: translateY(-1px);
+        &.btn-edit {
+          background: var(--unity-bg);
+          color: var(--unity-text-muted);
+          border-color: var(--unity-border);
+
+          &:hover {
+            background: var(--unity-border);
+            color: var(--unity-text-main);
+            transform: translateY(-1px);
+          }
         }
 
         &:active {

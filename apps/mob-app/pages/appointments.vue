@@ -24,9 +24,18 @@ const loading = ref(false);
 
 // 4. Methods (functions, handlers)
 const onRefresh = async () => {
-  if (listRef.value) {
-    loading.value = true;
-    await (listRef.value.PATIENT_APPOINTMENTS ? listRef.value.PATIENT_APPOINTMENTS() : listRef.value.loadAppointments());
+  if (loading.value) return;
+  loading.value = true;
+  try {
+    const fetchAction = listRef.value?.PATIENT_APPOINTMENTS
+      ? listRef.value.PATIENT_APPOINTMENTS(1)
+      : listRef.value?.loadAppointments?.(1);
+
+    const minAnimationDelay = new Promise((resolve) => setTimeout(resolve, 750));
+    await Promise.all([fetchAction, minAnimationDelay]);
+  } catch (err) {
+    // Graceful recovery
+  } finally {
     loading.value = false;
   }
 };
