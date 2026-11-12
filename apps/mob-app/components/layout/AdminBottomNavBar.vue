@@ -1,40 +1,62 @@
 <template>
   <nav class="admin-bottom-nav">
-    <!-- Tab 1: Overview / نظرة عامة -->
-    <NuxtLink to="/admin" class="admin-nav-btn" :class="{ 'active': route.path === '/admin' }">
-      <i class="pi pi-th-large"></i>
-      <span>{{ t('Overview') }}</span>
-    </NuxtLink>
+    <template v-if="authStore.isReceptionist">
+      <!-- Reception Tab 1: Bookings / الحجوزات الواردة -->
+      <NuxtLink to="/admin/appointments" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
+        <i class="pi pi-calendar"></i>
+        <span>{{ t('Reception Bookings') }}</span>
+      </NuxtLink>
 
-    <!-- Tab 2: Doctors / الأطباء -->
-    <NuxtLink to="/admin/doctors" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/doctors') }">
-      <svg viewBox="0 0 24 24" class="nav-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
-        <path d="M3 3h3"/>
-        <path d="M16 3h3"/>
-        <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
-        <circle cx="17" cy="16" r="2"/>
-      </svg>
-      <span>{{ t('Doctors') }}</span>
-    </NuxtLink>
+      <!-- Reception Tab 2: Patients / المرضى -->
+      <NuxtLink to="/admin/patients" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/patients') }">
+        <i class="pi pi-users"></i>
+        <span>{{ t('Patients') }}</span>
+      </NuxtLink>
 
-    <!-- Tab 3: Clinics / العيادات -->
-    <NuxtLink to="/admin/clinics" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/clinics') }">
-      <i class="pi pi-building"></i>
-      <span>{{ t('Clinics') }}</span>
-    </NuxtLink>
+      <!-- Reception Tab 3: Profile / حسابي -->
+      <NuxtLink to="/profile" class="admin-nav-btn" :class="{ 'active': route.path === '/profile' }">
+        <i class="pi pi-user"></i>
+        <span>{{ t('Profile') }}</span>
+      </NuxtLink>
+    </template>
 
-    <!-- Tab 4: Patients / المرضى -->
-    <NuxtLink to="/admin/patients" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/patients') }">
-      <i class="pi pi-users"></i>
-      <span>{{ t('Patients') }}</span>
-    </NuxtLink>
+    <template v-else>
+      <!-- Tab 1: Overview / نظرة عامة -->
+      <NuxtLink to="/admin" class="admin-nav-btn" :class="{ 'active': route.path === '/admin' }">
+        <i class="pi pi-th-large"></i>
+        <span>{{ t('Overview') }}</span>
+      </NuxtLink>
 
-    <!-- Tab 5: Bookings / الحجوزات -->
-    <NuxtLink to="/admin/appointments" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
-      <i class="pi pi-calendar"></i>
-      <span>{{ t('Manage Bookings') }}</span>
-    </NuxtLink>
+      <!-- Tab 2: Doctors / الأطباء -->
+      <NuxtLink to="/admin/doctors" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/doctors') }">
+        <svg viewBox="0 0 24 24" class="nav-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+          <path d="M3 3h3"/>
+          <path d="M16 3h3"/>
+          <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+          <circle cx="17" cy="16" r="2"/>
+        </svg>
+        <span>{{ t('Doctors') }}</span>
+      </NuxtLink>
+
+      <!-- Tab 3: Clinics / العيادات -->
+      <NuxtLink to="/admin/clinics" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/clinics') }">
+        <i class="pi pi-building"></i>
+        <span>{{ t('Clinics') }}</span>
+      </NuxtLink>
+
+      <!-- Tab 4: Patients / المرضى -->
+      <NuxtLink to="/admin/patients" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/patients') }">
+        <i class="pi pi-users"></i>
+        <span>{{ t('Patients') }}</span>
+      </NuxtLink>
+
+      <!-- Tab 5: Bookings / الحجوزات -->
+      <NuxtLink to="/admin/appointments" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
+        <i class="pi pi-calendar"></i>
+        <span>{{ t('Manage Bookings') }}</span>
+      </NuxtLink>
+    </template>
   </nav>
 </template>
 
@@ -42,10 +64,11 @@
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useRoute } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
+import { useAuthStore } from '../../stores/auth';
 
 const route = useRoute();
-
 const { t } = useI18n();
+const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 

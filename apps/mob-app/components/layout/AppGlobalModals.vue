@@ -14,12 +14,15 @@
 
     <!-- 15-minute Booking & Payment Checkout Wizard -->
     <BookingFlowModal
-      v-model="bookingModal.isBookingFlowOpen.value"
+      :model-value="bookingModal.isBookingFlowOpen.value"
       :doctor="bookingModal.activeDoctor.value"
       :service="bookingModal.activeService.value"
+      :examination="bookingModal.activeService.value"
+      :appointment="bookingModal.activeAppointment.value"
       :selected-date="bookingModal.activeDate.value"
       :selected-slot="bookingModal.activeSlot.value"
       :initial-type="bookingModal.activeType.value"
+      @update:model-value="(val) => { if (!val) bookingModal.closeBookingFlow(); else bookingModal.isBookingFlowOpen.value = val; }"
       @booking-completed="onBookingCompleted"
     />
   </div>

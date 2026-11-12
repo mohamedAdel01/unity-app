@@ -85,7 +85,8 @@
 
         <!-- Actions -->
         <div class="card-actions-row">
-          <template v-if="apt.status === 'confirmed' || apt.status === 'pending'">
+          <!-- Pending appointments: Patient can Cancel OR Modify Slot before clinic approval -->
+          <template v-if="apt.status === 'pending'">
             <button 
               class="btn-cancel" 
               :disabled="cancellingId === apt.id"
@@ -96,6 +97,18 @@
             </button>
             <button class="btn-reschedule" @click="rebook(apt)">
               {{ t('Modify Slot') }}
+            </button>
+          </template>
+
+          <!-- Confirmed appointments: Already approved by clinic, slot cannot be modified directly -->
+          <template v-else-if="apt.status === 'confirmed'">
+            <button 
+              class="btn-cancel full-width" 
+              :disabled="cancellingId === apt.id"
+              @click="promptCancelApt(apt)"
+            >
+              <i v-if="cancellingId === apt.id" class="pi pi-spin pi-spinner"></i>
+              <span v-else>{{ t('Cancel Appointment') }}</span>
             </button>
           </template>
 
@@ -314,7 +327,15 @@ const handleConfirmCancel = async () => {
 };
 
 const rebook = (apt: any) => {
-  bookingModal.openBookingFlow({ doctor: apt.doctor, type: 'consultation' });
+  if (apt.status !== 'pending') {
+    toast.error(t('Cannot modify confirmed appointment. Please contact clinic.'), t('Appointments'));
+    return;
+  }
+  bookingModal.openBookingFlow({
+    appointment: apt,
+    doctor: apt.doctor,
+    type: apt.type || 'consultation',
+  });
 };
 
 const bookFollowUp = (apt: any) => {

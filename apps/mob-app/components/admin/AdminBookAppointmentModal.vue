@@ -1,11 +1,11 @@
 <template>
-  <div v-if="isOpen && patient" class="admin-booking-modal-backdrop" @click="close">
+  <div v-if="isOpen" class="admin-booking-modal-backdrop" @click="close">
     <div class="admin-booking-modal-sheet" @click.stop>
       <!-- Modal Header -->
       <div class="modal-header">
         <div class="header-left-actions">
           <button 
-            v-if="currentStep > 1" 
+            v-if="effectivePatient && currentStep > 1" 
             type="button" 
             class="btn-step-back" 
             :title="t('Previous')"
@@ -15,7 +15,7 @@
           </button>
           <div class="header-title-block">
             <h3>{{ t('Book Patient Appointment') }}</h3>
-            <span class="step-indicator-text">
+            <span v-if="effectivePatient" class="step-indicator-text">
               {{ t('Step') }} {{ currentStep }} / 4
             </span>
           </div>
@@ -26,28 +26,91 @@
         </button>
       </div>
 
-      <!-- Patient Quick Info Bar -->
-      <div class="patient-banner">
-        <div class="patient-avatar-mini">
-          <img 
-            v-if="patient.avatar" 
-            :src="resolveAvatar(patient.avatar)" 
-            :alt="patient.name" 
-            class="avatar-img"
+      <!-- STEP 0: Search & Select Patient (Shown when no patient is preselected) -->
+      <div v-if="!effectivePatient" class="patient-search-step">
+        <div class="search-step-header">
+          <div class="icon-wrap">
+            <i class="pi pi-user-plus"></i>
+          </div>
+          <h4>{{ t('Search & Select Patient') }}</h4>
+          <p>{{ t('Type patient name to find their file') }}</p>
+        </div>
+
+        <div class="patient-search-input-wrap">
+          <i class="pi pi-search search-lens"></i>
+          <input 
+            v-model="patientSearchQuery"
+            type="text"
+            :placeholder="t('Search patient by name, phone or MRN...')"
+            @input="onSearchPatientInput"
           />
-          <div v-else class="avatar-placeholder">
-            <span>{{ getInitial(patient.name) }}</span>
+          <i v-if="searchingPatients" class="pi pi-spin pi-spinner search-spinner"></i>
+        </div>
+
+        <!-- Search Results List -->
+        <div v-if="patientSearchResults.length > 0" class="patient-search-results">
+          <div 
+            v-for="p in patientSearchResults" 
+            :key="p.id"
+            class="patient-search-card"
+            @click="selectPatient(p)"
+          >
+            <div class="p-avatar">
+              <img v-if="p.avatar" :src="resolveAvatar(p.avatar)" :alt="p.name" />
+              <span v-else>{{ getInitial(p.name) }}</span>
+            </div>
+            <div class="p-info">
+              <h5>{{ p.name }}</h5>
+              <small>
+                <span v-if="p.mrn">MRN: {{ p.mrn }}</span>
+                <span v-if="p.mrn && p.phone"> • </span>
+                <span v-if="p.phone" class="ltr-text">{{ p.phone }}</span>
+              </small>
+            </div>
+            <button type="button" class="btn-pick-patient">
+              <span>{{ t('Select Patient') }}</span>
+              <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
+            </button>
           </div>
         </div>
-        <div class="patient-meta">
-          <span class="patient-name">{{ patient.name }}</span>
-          <span class="patient-sub">
-            <span v-if="patient.mrn">MRN - {{ patient.mrn }}</span>
-            <span v-if="patient.mrn && patient.phone" class="sep">•</span>
-            <span v-if="patient.phone" class="ltr-text">{{ patient.phone }}</span>
-          </span>
+        <div v-else-if="patientSearchQuery.trim() && !searchingPatients" class="patient-search-empty">
+          <i class="pi pi-user-times"></i>
+          <p>{{ t('No patients found') }}</p>
         </div>
       </div>
+
+      <template v-else>
+        <!-- Patient Quick Info Bar -->
+        <div class="patient-banner">
+          <div class="patient-avatar-mini">
+            <img 
+              v-if="effectivePatient.avatar" 
+              :src="resolveAvatar(effectivePatient.avatar)" 
+              :alt="effectivePatient.name" 
+              class="avatar-img"
+            />
+            <div v-else class="avatar-placeholder">
+              <span>{{ getInitial(effectivePatient.name) }}</span>
+            </div>
+          </div>
+          <div class="patient-meta">
+            <span class="patient-name">{{ effectivePatient.name }}</span>
+            <span class="patient-sub">
+              <span v-if="effectivePatient.mrn">MRN - {{ effectivePatient.mrn }}</span>
+              <span v-if="effectivePatient.mrn && effectivePatient.phone" class="sep">•</span>
+              <span v-if="effectivePatient.phone" class="ltr-text">{{ effectivePatient.phone }}</span>
+            </span>
+          </div>
+          <button 
+            v-if="!props.patient" 
+            type="button" 
+            class="btn-change-patient"
+            @click="selectedPatient = null"
+          >
+            <i class="pi pi-pencil"></i>
+            <span>{{ t('Change Patient') }}</span>
+          </button>
+        </div>
 
       <!-- Step Progress Bar -->
       <div class="steps-progress-bar">
@@ -481,6 +544,7 @@
           </button>
         </div>
       </div>
+      </template>
     </div>
   </div>
 </template>
@@ -494,7 +558,7 @@ import { useAppToast } from '../../composables/useAppToast';
 
 const props = defineProps<{
   isOpen: boolean;
-  patient: any;
+  patient?: any;
 }>();
 
 const emit = defineEmits<{
@@ -509,6 +573,13 @@ const toast = useAppToast();
 // 2. Data (refs, reactive state)
 const currentStep = ref(1);
 const bookingType = ref<'doctor' | 'examination' | null>(null);
+
+// Patient Search State (for Receptionist / Direct booking)
+const selectedPatient = ref<any>(null);
+const patientSearchQuery = ref('');
+const patientSearchResults = ref<any[]>([]);
+const searchingPatients = ref(false);
+let patientSearchDebounce: any = null;
 
 // Doctors & Clinics State
 const doctorsList = ref<any[]>([]);
@@ -536,6 +607,7 @@ const selectedSlot = ref<any>(null);
 const bookingNotes = ref('');
 
 // 3. Computed (computed properties)
+const effectivePatient = computed(() => props.patient || selectedPatient.value);
 const todayDateString = computed(() => {
   return new Date().toISOString().split('T')[0];
 });
@@ -840,9 +912,42 @@ const ADMIN_EXAMINATIONS = async () => {
   }
 };
 
+// Patient Search Methods
+const selectPatient = (p: any) => {
+  selectedPatient.value = p;
+  goToStep(1);
+};
+
+const onSearchPatientInput = () => {
+  clearTimeout(patientSearchDebounce);
+  const q = patientSearchQuery.value.trim();
+  if (!q) {
+    patientSearchResults.value = [];
+    return;
+  }
+  patientSearchDebounce = setTimeout(async () => {
+    try {
+      searchingPatients.value = true;
+      const res = await api.apiRequest({
+        service: 'ADMIN_PATIENTS',
+        filter: { search: q, limit: 10 },
+      });
+      patientSearchResults.value = Array.isArray(res?.data) ? res.data : [];
+    } catch (e) {
+      patientSearchResults.value = [];
+    } finally {
+      searchingPatients.value = false;
+    }
+  }, 300);
+};
+
 // Submit Booking
 const submitBooking = async () => {
-  if (!props.patient?.id) return;
+  const targetPatientId = effectivePatient.value?.id;
+  if (!targetPatientId) {
+    toast.show({ title: t('Please select a patient first'), type: 'error' });
+    return;
+  }
   if (!selectedDate.value || !selectedSlot.value) {
     toast.show({ title: t('Please select a time slot'), type: 'error' });
     return;
@@ -857,7 +962,7 @@ const submitBooking = async () => {
     : null;
 
   const payload: any = {
-    patient_id: props.patient.id,
+    patient_id: targetPatientId,
     doctor_id: doctorUserId,
     examination_id: examinationId,
     date: selectedDate.value,
@@ -903,6 +1008,11 @@ watch(() => props.isOpen, (newVal) => {
     doctorSearch.value = '';
     examSearch.value = '';
     bookingNotes.value = '';
+    if (!props.patient) {
+      selectedPatient.value = null;
+      patientSearchQuery.value = '';
+      patientSearchResults.value = [];
+    }
     setDatePreset('today');
   }
 });
@@ -1024,6 +1134,179 @@ onMounted(() => {
   }
 }
 
+.patient-search-step {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  max-height: 70vh;
+
+  .search-step-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    .icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--unity-primary-soft);
+      color: var(--unity-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+    }
+
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--unity-text-main);
+      margin: 0;
+    }
+
+    p {
+      font-size: 0.8rem;
+      color: var(--unity-text-dim);
+      margin: 0;
+    }
+  }
+
+  .patient-search-input-wrap {
+    position: relative;
+    width: 100%;
+
+    .search-lens {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--unity-text-dim);
+      font-size: 0.95rem;
+    }
+
+    input {
+      width: 100%;
+      height: 44px;
+      padding: 0 40px 0 14px;
+      border-radius: 14px;
+      border: 1px solid var(--unity-border);
+      background: var(--unity-bg);
+      color: var(--unity-text-main);
+      font-size: 0.88rem;
+      transition: all 0.2s;
+
+      &:focus {
+        border-color: var(--unity-primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+      }
+    }
+
+    .search-spinner {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--unity-primary);
+    }
+  }
+
+  .patient-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .patient-search-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--unity-bg);
+      border: 1px solid var(--unity-border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: var(--unity-primary);
+        background: var(--unity-primary-soft);
+      }
+
+      .p-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--unity-surface);
+        border: 1.5px solid var(--unity-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        font-weight: 700;
+        color: var(--unity-primary);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .p-info {
+        flex: 1;
+        min-width: 0;
+
+        h5 {
+          font-size: 0.92rem;
+          font-weight: 700;
+          color: var(--unity-text-main);
+          margin: 0 0 2px;
+        }
+
+        small {
+          font-size: 0.75rem;
+          color: var(--unity-text-dim);
+        }
+      }
+
+      .btn-pick-patient {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: var(--unity-primary);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .patient-search-empty {
+    text-align: center;
+    padding: 30px 10px;
+    color: var(--unity-text-dim);
+
+    i {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.88rem;
+    }
+  }
+}
+
 .patient-banner {
   padding: 10px 20px;
   background: var(--unity-primary-soft);
@@ -1031,6 +1314,21 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid rgba(4, 120, 87, 0.12);
+
+  .btn-change-patient {
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: var(--unity-surface);
+    border: 1px solid var(--unity-primary);
+    border-radius: 8px;
+    color: var(--unity-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
 
   .patient-avatar-mini {
     width: 38px;

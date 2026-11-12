@@ -2,7 +2,7 @@
   <section class="section-container">
     <div class="section-header">
       <h4>{{ t('What are you looking for today?') }}</h4>
-      <NuxtLink to="/services" class="see-all-link">
+      <NuxtLink to="/services?tab=services" class="see-all-link">
         {{ t('Browse Services') }} 
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>

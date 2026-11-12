@@ -127,7 +127,10 @@
                 v-for="(slot, idx) in schedulesByDay[selectedDay]" 
                 :key="idx" 
                 class="slot-card"
-                :class="{ 'is-disabled': !slot.is_active }"
+                :class="{
+                  'is-disabled': !slot.is_active,
+                  'slot-overlap-error': isSlotOverlapping(selectedDay, idx) || isSlotTimeInvalid(slot)
+                }"
               >
                 <!-- Slot Top Row: Status Switch & Delete -->
                 <div class="slot-header-row">
@@ -170,6 +173,16 @@
                     <label>{{ t('End Time') }}</label>
                     <AppTimePicker v-model="slot.end_time" :title="t('End Time')" />
                   </div>
+                </div>
+
+                <!-- Overlap / Invalid Warning -->
+                <div v-if="slot.is_active && isSlotTimeInvalid(slot)" class="overlap-warning-box">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span>{{ t('End time must be after start time') }}</span>
+                </div>
+                <div v-else-if="slot.is_active && isSlotOverlapping(selectedDay, idx)" class="overlap-warning-box">
+                  <i class="pi pi-exclamation-circle"></i>
+                  <span>{{ t('This shift overlaps with another shift') }}</span>
                 </div>
               </div>
             </div>
@@ -283,17 +296,61 @@ const currentDayLabel = computed(() => {
   return match ? match.label : '';
 });
 
+const hasAnyScheduleOverlap = computed(() => {
+  return ALL_DAYS.some((d) => {
+    const slots = schedulesByDay.value[d.key] || [];
+    return slots.some((s, idx) => {
+      if (!s.is_active) return false;
+      return isSlotTimeInvalid(s) || isSlotOverlapping(d.key, idx);
+    });
+  });
+});
+
 const isFormValid = computed(() => {
   return (
     form.value.name.trim().length >= 2 &&
     form.value.price !== '' &&
     form.value.price !== null &&
     !isNaN(Number(form.value.price)) &&
-    Number(form.value.price) >= 0
+    Number(form.value.price) >= 0 &&
+    !hasAnyScheduleOverlap.value
   );
 });
 
 // 4. Methods (functions, handlers)
+const timeToMinutes = (timeStr?: string): number => {
+  if (!timeStr) return 0;
+  const parts = String(timeStr).trim().split(':');
+  if (parts.length < 2) return 0;
+  const h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  return h * 60 + m;
+};
+
+const isSlotTimeInvalid = (slot: ScheduleSlot): boolean => {
+  const start = timeToMinutes(slot.start_time);
+  const end = timeToMinutes(slot.end_time);
+  return end <= start;
+};
+
+const isSlotOverlapping = (dayKey: string, slotIndex: number): boolean => {
+  const slots = schedulesByDay.value[dayKey];
+  if (!slots || slots.length < 2) return false;
+  const target = slots[slotIndex];
+  if (!target || !target.is_active) return false;
+
+  const targetStart = timeToMinutes(target.start_time);
+  const targetEnd = timeToMinutes(target.end_time);
+  if (targetEnd <= targetStart) return true;
+
+  return slots.some((other, oIdx) => {
+    if (oIdx === slotIndex || !other.is_active) return false;
+    const oStart = timeToMinutes(other.start_time);
+    const oEnd = timeToMinutes(other.end_time);
+    if (oEnd <= oStart) return false;
+    return Math.max(targetStart, oStart) < Math.min(targetEnd, oEnd);
+  });
+};
 const addSlot = (day: string) => {
   if (!schedulesByDay.value[day]) {
     schedulesByDay.value[day] = [];
@@ -814,6 +871,28 @@ watch(
           &.is-disabled {
             opacity: 0.65;
             background: #f8fafc;
+          }
+
+          &.slot-overlap-error {
+            border: 1.5px solid #ef4444 !important;
+            background: rgba(239, 68, 68, 0.03);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+          }
+
+          .overlap-warning-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            background: #fef2f2;
+            border-radius: 10px;
+            color: #dc2626;
+            font-size: 0.76rem;
+            font-weight: 700;
+
+            i {
+              font-size: 0.9rem;
+            }
           }
 
           .slot-header-row {

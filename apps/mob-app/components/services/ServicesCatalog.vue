@@ -364,7 +364,8 @@ const loadMoreDoctors = () => {
 const bookService = (service: any) => {
   bookingModal.openBookingFlow({
     service,
-    doctor: doctors.value[0],
+    doctor: null,
+    type: 'examination' as any,
   });
 };
 

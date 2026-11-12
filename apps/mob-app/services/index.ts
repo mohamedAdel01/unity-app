@@ -187,6 +187,13 @@ export default {
     });
   },
 
+  async RESCHEDULE_APPOINTMENT({ API, filter, payload }: { API: any; filter: { id: string | number }; payload: any }) {
+    return await API(`client/appointments/${filter.id}/reschedule`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
   // ==========================================
   // 4. CLIENT PATIENT RECORDS, INVOICES & NOTIFICATIONS
   // ==========================================
@@ -425,6 +432,13 @@ export default {
 
   async EXAMINATION_SLOTS({ API, filter }: { API: any; filter: { id: string | number; date: string } }) {
     return await API(`client/examinations/${filter.id}/slots?date=${filter.date}`, {
+      method: 'GET',
+    });
+  },
+
+  async EXAMINATION_AVAILABLE_DAYS({ API, filter }: { API: any; filter: { id: string | number; days?: number } }) {
+    const query = filter?.days ? `?days=${encodeURIComponent(filter.days)}` : '';
+    return await API(`client/examinations/${filter.id}/available-days${query}`, {
       method: 'GET',
     });
   },

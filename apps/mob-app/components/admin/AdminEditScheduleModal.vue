@@ -209,11 +209,18 @@ const currentDayLabel = computed(() => {
 
 const timeToMinutes = (timeStr?: string): number => {
   if (!timeStr) return 0;
-  const trimmed = String(timeStr).trim();
-  const parts = trimmed.split(':');
+  const str = String(timeStr).trim().toUpperCase();
+  const isPM = str.includes('PM');
+  const isAM = str.includes('AM');
+  const clean = str.replace(/[^0-9:]/g, '');
+  const parts = clean.split(':');
   if (parts.length < 2) return 0;
-  const h = parseInt(parts[0], 10) || 0;
+  let h = parseInt(parts[0], 10) || 0;
   const m = parseInt(parts[1], 10) || 0;
+
+  if (isPM && h < 12) h += 12;
+  if (isAM && h === 12) h = 0;
+
   return h * 60 + m;
 };
 

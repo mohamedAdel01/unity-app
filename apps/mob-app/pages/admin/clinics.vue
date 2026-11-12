@@ -50,9 +50,10 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
+import { useAuthStore } from '../../stores/auth';
 import { useAppToast } from '../../composables/useAppToast';
 import AdminClinicsHeader from '../../components/admin/AdminClinicsHeader.vue';
 import AdminClinicsList from '../../components/admin/AdminClinicsList.vue';
@@ -66,8 +67,10 @@ definePageMeta({
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const api = useUnityApi();
 const toast = useAppToast();
+const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 const activeTab = ref<'clinics' | 'services'>('clinics');
@@ -285,6 +288,10 @@ const toggleServiceStatus = (srv: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
+  if (authStore.isReceptionist) {
+    router.replace('/admin/appointments');
+    return;
+  }
   if (route.query.tab === 'services') {
     activeTab.value = 'services';
     ADMIN_EXAMINATIONS();

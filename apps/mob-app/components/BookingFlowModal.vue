@@ -13,12 +13,12 @@
               <i v-else class="pi pi-times"></i>
             </button>
             <h3 class="top-title">
-              <span v-if="currentStep === 1">{{ t('Select Date & Time') }}</span>
+              <span v-if="currentStep === 1">{{ isExamination ? t('Book Medical Examination') : t('Select Date & Time') }}</span>
               <span v-else-if="currentStep === 2">{{ isAdmin ? t('Confirm Booking') : t('Payment & Confirmation') }}</span>
               <span v-else>{{ t('Booking Confirmed Successfully!') }}</span>
             </h3>
             <div class="avatar-wrap">
-              <i class="pi pi-user"></i>
+              <i :class="isExamination ? 'pi pi-shield' : 'pi pi-user'"></i>
             </div>
           </div>
 
@@ -42,21 +42,34 @@
             <!-- ========================================== -->
             <div v-if="currentStep === 1" class="step-view step-1-view">
               <!-- Doctor / Service Card -->
-              <div class="doctor-summary-card">
-                <div v-if="doctor?.rating" class="doc-badge-rating">
+              <div class="doctor-summary-card" :class="{ 'is-exam-card': isExamination }">
+                <div v-if="!isExamination && doctor?.rating" class="doc-badge-rating">
                   <span>⭐ {{ doctor.rating }}</span>
                 </div>
+                <div v-else-if="isExamination" class="doc-badge-rating exam-badge">
+                  <span><i class="pi pi-shield"></i> {{ t('Hospital Examination') }}</span>
+                </div>
                 <div class="doc-header">
-                  <div class="doc-avatar">
-                    <img v-if="doctor?.avatar" :src="doctor.avatar" :alt="doctor?.name" />
-                    <div v-else class="doc-initial-avatar">
-                      <span>{{ (doctor?.name || 'D').charAt(0).toUpperCase() }}</span>
-                    </div>
-                    <span class="verified-tick"><i class="pi pi-check"></i></span>
+                  <div class="doc-avatar" :class="{ 'exam-avatar': isExamination }">
+                    <template v-if="!isExamination">
+                      <img v-if="doctor?.avatar" :src="doctor.avatar" :alt="doctor?.name" />
+                      <div v-else class="doc-initial-avatar">
+                        <span>{{ (doctor?.name || 'D').charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <span class="verified-tick"><i class="pi pi-check"></i></span>
+                    </template>
+                    <template v-else>
+                      <div class="exam-icon-circle">
+                        <i class="pi pi-shield"></i>
+                      </div>
+                    </template>
                   </div>
                   <div class="doc-info">
-                    <h4>{{ doctor?.name || service?.name || '' }}</h4>
-                    <p v-if="doctor?.specialty || doctor?.clinic?.name" class="doc-spec">
+                    <h4>{{ isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name || '') }}</h4>
+                    <p v-if="isExamination && (service?.description || examination?.description)" class="doc-spec">
+                      {{ service?.description || examination?.description }}
+                    </p>
+                    <p v-else-if="doctor?.specialty || doctor?.clinic?.name" class="doc-spec">
                       {{ doctor?.specialty || doctor?.clinic?.name }}
                     </p>
                   </div>
@@ -64,10 +77,10 @@
 
                 <div class="doc-meta-grid">
                   <div class="meta-item">
-                    <div class="meta-icon"><i class="pi pi-building"></i></div>
+                    <div class="meta-icon"><i :class="isExamination ? 'pi pi-clock' : 'pi pi-building'"></i></div>
                     <div class="meta-text">
-                      <span class="meta-label">{{ t('Clinic Type') }}</span>
-                      <strong class="meta-val">{{ doctorClinicType }}</strong>
+                      <span class="meta-label">{{ isExamination ? t('Duration') : t('Clinic Type') }}</span>
+                      <strong class="meta-val">{{ isExamination ? ((service?.duration || examination?.duration || 15) + ' ' + t('mins')) : doctorClinicType }}</strong>
                     </div>
                   </div>
                   <div class="meta-item">
@@ -148,16 +161,26 @@
               <!-- Confirmed Appointment Banner -->
               <div class="appointment-review-card">
                 <div class="review-head">
-                  <div class="rev-doc-avatar">
-                    <img v-if="doctor?.avatar" :src="doctor.avatar" :alt="doctor?.name" />
-                    <div v-else class="doc-initial-avatar">
-                      <span>{{ (doctor?.name || 'D').charAt(0).toUpperCase() }}</span>
-                    </div>
+                  <div class="rev-doc-avatar" :class="{ 'exam-avatar': isExamination }">
+                    <template v-if="!isExamination">
+                      <img v-if="doctor?.avatar" :src="doctor.avatar" :alt="doctor?.name" />
+                      <div v-else class="doc-initial-avatar">
+                        <span>{{ (doctor?.name || 'D').charAt(0).toUpperCase() }}</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="exam-icon-circle">
+                        <i class="pi pi-shield"></i>
+                      </div>
+                    </template>
                   </div>
                   <div class="rev-details">
-                    <h4>{{ doctor?.name || service?.name }}</h4>
-                    <p class="rev-clinic"><i class="pi pi-building"></i> {{ doctorClinicType }}</p>
-                    <span class="rev-type-pill">{{ selectedType === 'follow_up' ? t('Follow-up Consultation') : t('Examination') }}</span>
+                    <h4>{{ isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name) }}</h4>
+                    <p class="rev-clinic">
+                      <i :class="isExamination ? 'pi pi-clock' : 'pi pi-building'"></i> 
+                      {{ isExamination ? ((service?.duration || examination?.duration || 15) + ' ' + t('mins')) : doctorClinicType }}
+                    </p>
+                    <span class="rev-type-pill">{{ isExamination ? t('Medical Examination') : (selectedType === 'follow_up' ? t('Follow-up Consultation') : t('Examination')) }}</span>
                   </div>
                 </div>
 
@@ -338,13 +361,13 @@
 
                   <div class="ticket-body">
                     <div class="ticket-row">
-                      <span class="lbl"><i class="pi pi-user"></i> {{ t('Doctor') }}</span>
-                      <strong class="val">{{ doctor?.name || confirmedAppointment?.doctor?.name }}</strong>
+                      <span class="lbl"><i :class="isExamination ? 'pi pi-shield' : 'pi pi-user'"></i> {{ isExamination ? t('Examination / Service') : t('Doctor') }}</span>
+                      <strong class="val">{{ isExamination ? (service?.name || examination?.name || confirmedAppointment?.examination?.name) : (doctor?.name || confirmedAppointment?.doctor?.name) }}</strong>
                     </div>
 
                     <div class="ticket-row">
-                      <span class="lbl"><i class="pi pi-building"></i> {{ t('Clinic Type') }}</span>
-                      <strong class="val">{{ doctorClinicType }}</strong>
+                      <span class="lbl"><i :class="isExamination ? 'pi pi-clock' : 'pi pi-building'"></i> {{ isExamination ? t('Duration') : t('Clinic Type') }}</span>
+                      <strong class="val">{{ isExamination ? ((service?.duration || examination?.duration || 15) + ' ' + t('mins')) : doctorClinicType }}</strong>
                     </div>
 
                     <div class="ticket-row">
@@ -466,6 +489,7 @@ const props = defineProps<{
   doctor?: any;
   examination?: any;
   service?: any;
+  appointment?: any;
   selectedDate?: string;
   selectedSlot?: any;
   initialType?: 'consultation' | 'follow_up';
@@ -526,10 +550,15 @@ const paymobIframeUrl = ref('');
 const activePaymentAppointment = ref<any>(null);
 const activePaymentInvoice = ref<any>(null);
 const completingPaymob = ref(false);
+const detailedDoctor = ref<any>(null);
 
 // 3. Computed (computed properties)
 const isAdmin = computed(() => {
   return route.path.startsWith('/admin') || api.currentUser.value?.role === 'admin' || api.user.value?.role === 'admin';
+});
+
+const isExamination = computed(() => {
+  return props.initialType === 'examination' || Boolean(props.service || props.examination);
 });
 
 const nextDays = computed(() => {
@@ -544,16 +573,23 @@ const appointmentDateFormatted = computed(() => {
 });
 
 const feeLabel = computed(() => {
-  if (props.service?.price) return t('Service Fee');
-  return t('Examination Fee');
+  if (isExamination.value || props.service?.price) return t('Medical Examination Fee');
+  return t('Consultation Fee');
 });
 
 const subtotalFee = computed(() => {
   if (props.service?.price) return Number(props.service.price);
-  if (props.doctor) {
-    return Number(props.doctor.consultation_fee || 300);
+  if (props.examination?.price) return Number(props.examination.price);
+  const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
+  const apt = props.appointment;
+  if (doc) {
+    const fee = doc.consultation_fee ?? doc.doctor?.consultation_fee ?? apt?.doctor?.doctor?.consultation_fee;
+    if (fee !== undefined && fee !== null && !isNaN(Number(fee))) {
+      return Number(fee);
+    }
   }
-  return 250;
+  if (apt?.invoice?.amount) return Number(apt.invoice.amount);
+  return 300;
 });
 
 const totalFee = computed(() => {
@@ -562,18 +598,31 @@ const totalFee = computed(() => {
 });
 
 const doctorClinicType = computed(() => {
-  const doc = props.doctor;
-  if (doc?.specialty) {
-    const s = doc.specialty.trim();
-    if (s.startsWith('عيادة')) return s;
-    return `${t('Clinic')} ${s}`;
+  if (isExamination.value) {
+    return t('Medical Examinations & Labs');
   }
-  if (doc?.clinic?.name) {
-    return doc.clinic.name;
+
+  const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
+  const apt = props.appointment;
+
+  // 1. Direct or nested clinic name
+  const clinicName = 
+    (typeof doc?.clinic === 'string' ? doc.clinic : doc?.clinic?.name) || 
+    (typeof doc?.doctor?.clinic === 'string' ? doc.doctor.clinic : doc?.doctor?.clinic?.name) || 
+    (typeof apt?.doctor?.doctor?.clinic === 'string' ? apt.doctor.doctor.clinic : apt?.doctor?.doctor?.clinic?.name) || 
+    (typeof apt?.doctor?.clinic === 'string' ? apt.doctor.clinic : apt?.doctor?.clinic?.name) || 
+    (typeof apt?.clinic === 'string' ? apt.clinic : apt?.clinic?.name) ||
+    doc?.clinic_name ||
+    apt?.clinic_name ||
+    doc?.specialty ||
+    doc?.doctor?.specialty ||
+    apt?.doctor?.doctor?.specialty ||
+    apt?.doctor?.specialty;
+
+  if (clinicName) {
+    return String(clinicName);
   }
-  if (props.service?.name) {
-    return props.service.name;
-  }
+
   return t('General Clinic');
 });
 
@@ -618,6 +667,21 @@ const removePromo = () => {
   promoError.value = '';
 };
 
+const toMinutes = (timeStr?: string): number => {
+  if (!timeStr) return -1;
+  const str = String(timeStr).trim().toUpperCase();
+  const isPM = str.includes('PM');
+  const isAM = str.includes('AM');
+  const clean = str.replace(/[^0-9:]/g, '');
+  const parts = clean.split(':');
+  if (parts.length < 2) return -1;
+  let h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  if (isPM && h < 12) h += 12;
+  if (isAM && h === 12) h = 0;
+  return h * 60 + m;
+};
+
 const formatSlotTime = (timeStr?: string) => {
   if (!timeStr) return '';
   const trimmed = String(timeStr).trim();
@@ -653,6 +717,76 @@ const goToStep2 = () => {
 };
 
 const DOCTOR_AVAILABLE_DAYS = async () => {
+  if (isExamination.value) {
+    const examId = props.service?.id || props.examination?.id;
+    if (examId) {
+      try {
+        daysLoading.value = true;
+        const res = await api.apiRequest({
+          service: 'EXAMINATION_AVAILABLE_DAYS',
+          filter: { id: examId, days: 21 },
+        });
+
+        if (res?.status && Array.isArray(res.data) && res.data.length > 0) {
+          const todayStr = new Date().toISOString().split('T')[0];
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+          availableDaysList.value = res.data.map((item: any) => {
+            const d = new Date(item.date);
+            let label = '';
+            if (item.date === todayStr) label = t('Today');
+            else if (item.date === tomorrowStr) label = t('Tomorrow');
+            else label = d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { weekday: 'short' });
+
+            const dayNum = d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short' });
+            return {
+              date: item.date,
+              label,
+              dayNum,
+              count: item.available_slots_count,
+            };
+          });
+
+          const initialDate = props.selectedDate || (props.appointment?.date ? new Date(props.appointment.date).toISOString().split('T')[0] : '');
+          if (initialDate && availableDaysList.value.some(d => d.date === initialDate)) {
+            selectedBookingDate.value = initialDate;
+          } else if (!availableDaysList.value.some(d => d.date === selectedBookingDate.value) && availableDaysList.value.length > 0) {
+            selectedBookingDate.value = availableDaysList.value[0].date;
+          }
+          await DOCTOR_SLOTS();
+          return;
+        }
+      } catch (err) {
+        // Fallback below
+      } finally {
+        daysLoading.value = false;
+      }
+    }
+
+    // Fallback: generate 7 working days
+    const days = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(today.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      let label = '';
+      if (i === 0) label = t('Today');
+      else if (i === 1) label = t('Tomorrow');
+      else label = d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { weekday: 'short' });
+      const dayNum = d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short' });
+      days.push({ date: dateStr, label, dayNum });
+    }
+    availableDaysList.value = days;
+    if (days.length > 0 && !days.some(d => d.date === selectedBookingDate.value)) {
+      selectedBookingDate.value = days[0].date;
+    }
+    await DOCTOR_SLOTS();
+    return;
+  }
+
   if (!props.doctor?.id) {
     // For service / examination without specific doctor, generate 7 working days
     const days = [];
@@ -705,8 +839,11 @@ const DOCTOR_AVAILABLE_DAYS = async () => {
         };
       });
 
-      // Automatically select the first available day if current selection is not valid!
-      if (!availableDaysList.value.some(d => d.date === selectedBookingDate.value)) {
+      // Automatically select preselected/appointment date if present, otherwise first available
+      const initialDate = props.selectedDate || (props.appointment?.date ? new Date(props.appointment.date).toISOString().split('T')[0] : '');
+      if (initialDate && availableDaysList.value.some(d => d.date === initialDate)) {
+        selectedBookingDate.value = initialDate;
+      } else if (!availableDaysList.value.some(d => d.date === selectedBookingDate.value) && availableDaysList.value.length > 0) {
         selectedBookingDate.value = availableDaysList.value[0].date;
       }
     } else {
@@ -732,7 +869,64 @@ const DOCTOR_AVAILABLE_DAYS = async () => {
 };
 
 const DOCTOR_SLOTS = async () => {
-  if (!props.doctor?.id) {
+  if (isExamination.value) {
+    const examId = props.service?.id || props.examination?.id;
+    if (examId) {
+      try {
+        slotsLoading.value = true;
+        const dateStr = selectedBookingDate.value || props.selectedDate || new Date().toISOString().split('T')[0];
+        const res = await api.apiRequest({
+          service: 'EXAMINATION_SLOTS',
+          filter: { id: examId, date: dateStr, no_cache: 1 },
+        });
+        if (res?.status && Array.isArray(res.data?.slots)) {
+          availableSlots.value = res.data.slots.filter((s: any) => s.is_available);
+
+          const targetTime = props.selectedSlot?.start_time || props.appointment?.start_time || currentSlot.value?.start_time;
+          if (targetTime) {
+            const targetMins = toMinutes(targetTime);
+            const matched = availableSlots.value.find((s: any) => toMinutes(s.start_time) === targetMins);
+            if (matched) {
+              currentSlot.value = matched;
+            } else if (props.appointment?.start_time) {
+              const currentBookedSlot = {
+                start_time: props.appointment.start_time,
+                end_time: props.appointment.end_time || '',
+                is_available: true,
+              };
+              availableSlots.value.unshift(currentBookedSlot);
+              availableSlots.value.sort((a, b) => toMinutes(a.start_time) - toMinutes(b.start_time));
+              currentSlot.value = currentBookedSlot;
+            } else if (availableSlots.value.length > 0 && !currentSlot.value) {
+              currentSlot.value = availableSlots.value[0];
+            }
+          } else if (availableSlots.value.length > 0 && !currentSlot.value) {
+            currentSlot.value = availableSlots.value[0];
+          }
+          return;
+        }
+      } catch (err) {
+        // Fallback below
+      } finally {
+        slotsLoading.value = false;
+      }
+    }
+
+    availableSlots.value = [
+      { start_time: '10:00 AM', end_time: '10:30 AM', is_available: true },
+      { start_time: '10:30 AM', end_time: '11:00 AM', is_available: true },
+      { start_time: '11:00 AM', end_time: '11:30 AM', is_available: true },
+      { start_time: '05:30 PM', end_time: '06:00 PM', is_available: true },
+      { start_time: '06:00 PM', end_time: '06:30 PM', is_available: true },
+    ];
+    if (!currentSlot.value) {
+      currentSlot.value = availableSlots.value[0];
+    }
+    return;
+  }
+
+  const docId = props.doctor?.id || props.appointment?.doctor?.id || props.appointment?.doctor_id;
+  if (!docId) {
     availableSlots.value = [
       { start_time: '10:00 AM', end_time: '10:30 AM', is_available: true },
       { start_time: '10:30 AM', end_time: '11:00 AM', is_available: true },
@@ -752,11 +946,31 @@ const DOCTOR_SLOTS = async () => {
     const dateStr = selectedBookingDate.value || props.selectedDate || new Date().toISOString().split('T')[0];
     const res = await api.apiRequest({
       service: 'DOCTOR_SLOTS',
-      filter: { id: props.doctor.id, date: dateStr },
+      filter: { id: docId, date: dateStr, no_cache: 1 },
     });
     if (res.status && Array.isArray(res.data?.slots)) {
       availableSlots.value = res.data.slots.filter((s: any) => s.is_available);
-      if (availableSlots.value.length > 0 && !currentSlot.value) {
+
+      // Match target preselected/appointment time slot if provided
+      const targetTime = props.selectedSlot?.start_time || props.appointment?.start_time || currentSlot.value?.start_time;
+      if (targetTime) {
+        const targetMins = toMinutes(targetTime);
+        const matched = availableSlots.value.find((s: any) => toMinutes(s.start_time) === targetMins);
+        if (matched) {
+          currentSlot.value = matched;
+        } else if (props.appointment?.start_time) {
+          const currentBookedSlot = {
+            start_time: props.appointment.start_time,
+            end_time: props.appointment.end_time || '',
+            is_available: true,
+          };
+          availableSlots.value.unshift(currentBookedSlot);
+          availableSlots.value.sort((a, b) => toMinutes(a.start_time) - toMinutes(b.start_time));
+          currentSlot.value = currentBookedSlot;
+        } else if (availableSlots.value.length > 0 && !currentSlot.value) {
+          currentSlot.value = availableSlots.value[0];
+        }
+      } else if (availableSlots.value.length > 0 && !currentSlot.value) {
         currentSlot.value = availableSlots.value[0];
       }
     }
@@ -782,20 +996,48 @@ const submitBooking = async () => {
     const dateStr = selectedBookingDate.value || props.selectedDate || new Date().toISOString().split('T')[0];
     const slot = currentSlot.value || { start_time: '10:00:00', end_time: '10:30:00' };
 
+    // Case 1: Rescheduling an existing pending appointment
+    if (props.appointment?.id) {
+      if (props.appointment.status !== 'pending') {
+        toast.error(t('Cannot modify confirmed appointment. Please contact clinic.'));
+        return;
+      }
+
+      const rescheduleRes = await api.apiRequest({
+        service: 'RESCHEDULE_APPOINTMENT',
+        filter: { id: props.appointment.id },
+        payload: {
+          date: dateStr,
+          start_time: slot.start_time.replace(/[^0-9:]/g, '') || '10:00:00',
+          end_time: slot.end_time?.replace(/[^0-9:]/g, '') || '10:30:00',
+        },
+      });
+
+      confirmedAppointment.value = rescheduleRes?.data || props.appointment;
+      currentStep.value = 3;
+      toast.success(t('Booking rescheduled successfully!'));
+      emit('booking-completed', confirmedAppointment.value);
+      return;
+    }
+
+    // Case 2: Creating a brand new appointment
     const isOffer = Boolean(props.service?.is_offer);
+    const docId = props.doctor?.id || props.appointment?.doctor?.id || undefined;
     const payload = {
-      doctor_id: props.doctor?.id || undefined,
+      doctor_id: docId,
       examination_id: !isOffer ? (props.examination?.id || props.service?.id || undefined) : undefined,
       service_id: !isOffer ? (props.examination?.id || props.service?.id || undefined) : undefined,
       offer_id: isOffer ? props.service?.id : undefined,
       date: dateStr,
       start_time: slot.start_time.replace(/[^0-9:]/g, '') || '10:00:00',
       end_time: slot.end_time?.replace(/[^0-9:]/g, '') || '10:30:00',
-      type: selectedType.value,
+      type: isExamination.value ? 'consultation' : selectedType.value,
       payment_method: selectedMethod.value === 'cash' ? 'cash' : 'paymob',
       promocode: promoApplied.value ? appliedPromoCode.value : undefined,
       discount: promoDiscount.value,
-      notes: isOffer ? `حجز عرض طبي: ${props.service?.name}` : 'حجز كشف طبي',
+      notes: isOffer 
+        ? `حجز عرض طبي: ${props.service?.name}` 
+        : (isExamination.value ? `حجز فحص طبي: ${props.service?.name || props.examination?.name}` : 'حجز كشف طبي'),
     };
 
     let appointmentRes: any = null;
@@ -905,16 +1147,41 @@ const close = () => {
 
 // 5. Watches (watch, watchEffect)
 watch(
-  () => [props.modelValue, props.doctor],
+  () => [props.modelValue, props.doctor, props.service, props.examination, props.appointment],
   async ([isOpen]) => {
     if (isOpen) {
       currentStep.value = 1;
       confirmedAppointment.value = null;
-      selectedType.value = 'consultation';
+      selectedType.value = props.initialType || props.appointment?.type || 'consultation';
       selectedMethod.value = isAdmin.value ? 'cash' : 'paymob';
       removePromo();
       showPaymobModal.value = false;
-      currentSlot.value = props.selectedSlot || null;
+
+      // Fetch fresh doctor & clinic details if booking a doctor
+      detailedDoctor.value = null;
+      const docId = props.doctor?.id || props.appointment?.doctor_id || props.appointment?.doctor?.id;
+      if (docId && !isExamination.value) {
+        try {
+          const docRes = await api.apiRequest({
+            service: 'DOCTOR_BY_ID',
+            filter: { id: docId },
+          });
+          if (docRes?.data) {
+            detailedDoctor.value = docRes.data;
+          }
+        } catch (e) {}
+      }
+
+      // Extract slot and date from appointment or props
+      const aptDate = props.appointment?.date ? new Date(props.appointment.date).toISOString().split('T')[0] : '';
+      const chosenDate = props.selectedDate || aptDate;
+      if (chosenDate) {
+        selectedBookingDate.value = chosenDate;
+      }
+
+      const initialSlot = props.selectedSlot || (props.appointment?.start_time ? { start_time: props.appointment.start_time, end_time: props.appointment.end_time } : null);
+      currentSlot.value = initialSlot;
+
       await DOCTOR_AVAILABLE_DAYS();
     }
   },
@@ -1125,7 +1392,14 @@ onUnmounted(() => {
   padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+}
+
+.step-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
 }
 
 // Doctor Summary Card
@@ -1136,6 +1410,7 @@ onUnmounted(() => {
   border-radius: 20px;
   padding: 16px;
   box-shadow: var(--unity-shadow-subtle);
+  margin-bottom: 20px;
 
   .doc-badge-rating {
     position: absolute;
@@ -1147,6 +1422,15 @@ onUnmounted(() => {
     font-weight: 600;
     padding: 3px 8px;
     border-radius: 12px;
+
+    &.exam-badge {
+      background: rgba(4, 120, 87, 0.12);
+      color: var(--unity-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+    }
   }
 
   .doc-header {
@@ -1179,6 +1463,19 @@ onUnmounted(() => {
         justify-content: center;
         font-weight: 700;
         font-size: 1.3rem;
+      }
+
+      .exam-icon-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(4, 120, 87, 0.12) 0%, rgba(16, 185, 129, 0.22) 100%);
+        color: var(--unity-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        border: 2px solid var(--unity-primary-tint);
       }
 
       .verified-tick {
@@ -1420,6 +1717,7 @@ onUnmounted(() => {
   border-radius: 20px;
   padding: 14px;
   box-shadow: var(--unity-shadow-subtle);
+  margin-bottom: 20px;
 
   .box-head {
     display: flex;
@@ -1533,6 +1831,7 @@ onUnmounted(() => {
   border-radius: 20px;
   padding: 14px;
   box-shadow: var(--unity-shadow-subtle);
+  margin-bottom: 20px;
 
   .box-head {
     display: flex;
@@ -1653,6 +1952,19 @@ onUnmounted(() => {
         justify-content: center;
         font-weight: 700;
         font-size: 1.2rem;
+      }
+
+      .exam-icon-circle {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(4, 120, 87, 0.12) 0%, rgba(16, 185, 129, 0.22) 100%);
+        color: var(--unity-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        border: 2px solid var(--unity-primary-tint);
       }
     }
 

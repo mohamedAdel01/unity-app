@@ -102,7 +102,12 @@ const handleSubmit = async () => {
     if (res && res.status && res.data?.user) {
       toast.success(t('Welcome back!'));
       emit('success', res.data.user);
-      const target = (route.query.redirect as string) || '/';
+      let target = (route.query.redirect as string);
+      if (!target || target === '/') {
+        if (res.data.user.role === 'admin') target = '/admin';
+        else if (res.data.user.role === 'receptionist') target = '/admin/appointments';
+        else target = '/';
+      }
       router.push(target);
     }
   } catch (err: any) {

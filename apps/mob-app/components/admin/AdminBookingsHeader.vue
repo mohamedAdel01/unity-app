@@ -2,13 +2,19 @@
   <div class="admin-bookings-header">
     <!-- 1. Top Supervisor Identity Bar (Unified) -->
     <AdminTopHeader 
-      :title="t('Admin Bookings Billing')"
-      :subtitle="t('Unity Clinics • Bookings & Billing')"
+      :title="isReceptionist ? t('Reception Desk • Bookings') : t('Admin Bookings Billing')"
+      :subtitle="isReceptionist ? t('Manage, approve, cancel and register patient bookings') : t('Unity Clinics • Bookings & Billing')"
       icon="pi pi-calendar"
     />
 
-    <!-- 2. Dual Tab Selector (Direct Bookings vs Invoices & Billing) -->
-    <div class="mode-tabs-container">
+    <!-- Quick Action: Book Appointment for Patient -->
+    <button type="button" class="btn-book-patient" @click="emit('new-booking')">
+      <i class="pi pi-user-plus"></i>
+      <span>{{ t('Book Appointment for Patient') }}</span>
+    </button>
+
+    <!-- 2. Dual Tab Selector (Direct Bookings vs Invoices & Billing) (Hidden for Receptionist) -->
+    <div v-if="!isReceptionist" class="mode-tabs-container">
       <button 
         type="button" 
         class="mode-tab-btn" 
@@ -32,28 +38,30 @@
 
     <!-- 3. Metrics Cards (2 Column Grid) -->
     <div class="metrics-two-cards-grid">
-      <!-- Right Card: Today's Revenue -->
+      <!-- Card 1: Today's Appointments or Revenue -->
       <div class="metric-stat-card">
         <div class="card-icon-title">
-          <i class="pi pi-wallet"></i>
-          <span>{{ t("Today's Revenue") }}</span>
+          <i :class="isReceptionist ? 'pi pi-calendar' : 'pi pi-wallet'"></i>
+          <span>{{ isReceptionist ? t("Today's Appointments") : t("Today's Revenue") }}</span>
         </div>
-        <h3 class="stat-amount-green">
-          <span>{{ formatNumber(stats.today_revenue || 0) }}</span>
-          <small>{{ t('EGP') }}</small>
+        <h3 :class="isReceptionist ? 'stat-amount-main' : 'stat-amount-green'">
+          <span>{{ isReceptionist ? (stats.today_appointments ?? todayCount ?? 0) : formatNumber(stats.today_revenue || 0) }}</span>
+          <small>{{ isReceptionist ? t('Bookings') : t('EGP') }}</small>
         </h3>
-        <span class="stat-sub-caption">{{ stats.today_paid_invoices || 0 }} {{ t('Paid Bookings') }}</span>
+        <span class="stat-sub-caption">
+          {{ isReceptionist ? t('Scheduled for Today') : `${stats.today_paid_invoices || 0} ${t('Paid Bookings')}` }}
+        </span>
       </div>
 
-      <!-- Left Card: Insurance Claims / Pending Invoices -->
+      <!-- Card 2: Pending Bookings / Invoices -->
       <div class="metric-stat-card">
         <div class="card-icon-title">
-          <i class="pi pi-receipt"></i>
-          <span>{{ t('Pending Invoices') }}</span>
+          <i :class="isReceptionist ? 'pi pi-clock' : 'pi pi-receipt'"></i>
+          <span>{{ isReceptionist ? t('Awaiting Confirmation') : t('Pending Invoices') }}</span>
         </div>
         <h3 class="stat-amount-main">
-          <span>{{ stats.pending_invoices || 0 }}</span>
-          <small>{{ t('Invoices') }}</small>
+          <span>{{ stats.pending_invoices || pendingCount || 0 }}</span>
+          <small>{{ isReceptionist ? t('Bookings') : t('Invoices') }}</small>
         </h3>
         <span class="stat-sub-link">{{ t('Under Review') }}</span>
       </div>
@@ -107,9 +115,10 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
+import { useAuthStore } from '../../stores/auth';
 import AdminTopHeader from './AdminTopHeader.vue';
 
 const props = withDefaults(
@@ -141,18 +150,19 @@ const emit = defineEmits<{
   (e: 'tab-change', tab: 'bookings' | 'invoices'): void;
   (e: 'period-change', period: 'today' | 'week' | 'pending'): void;
   (e: 'toggle-sort'): void;
+  (e: 'new-booking'): void;
 }>();
 
 const router = useRouter();
-
+const authStore = useAuthStore();
 const { t } = useI18n();
 
 // 2. Data (refs, reactive state)
 const activeTab = ref<'bookings' | 'invoices'>('bookings');
-
 const activePeriod = ref<'today' | 'week' | 'pending'>('today');
 
 // 3. Computed (computed properties)
+const isReceptionist = computed(() => authStore.isReceptionist);
 
 // 4. Methods (functions, handlers)
 const formatNumber = (val?: number) => {
@@ -190,6 +200,34 @@ const selectPeriod = (period: 'today' | 'week' | 'pending') => {
     .metric-stat-card,
     .list-section-header .section-title-wrap {
       text-align: left;
+    }
+  }
+
+  // Book Patient Appointment Button
+  .btn-book-patient {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 18px;
+    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.28);
+    transition: all 0.2s ease;
+
+    i {
+      font-size: 1.1rem;
+    }
+
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
     }
   }
 

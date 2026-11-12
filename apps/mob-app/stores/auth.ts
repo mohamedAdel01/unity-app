@@ -4,7 +4,7 @@ export interface AuthUser {
   id: string;
   name: string;
   phone?: string | null;
-  role: 'admin' | 'doctor' | 'patient';
+  role: 'admin' | 'doctor' | 'patient' | 'receptionist';
   avatar?: string | null;
   status: 'active' | 'inactive';
   patient?: any;
@@ -25,6 +25,7 @@ export const useAuthStore = defineStore('auth', {
     isAdmin: (state) => state.user?.role === 'admin',
     isDoctor: (state) => state.user?.role === 'doctor',
     isPatient: (state) => state.user?.role === 'patient',
+    isReceptionist: (state) => state.user?.role === 'receptionist',
     currentUserName: (state) => state.user?.name || '',
   },
 

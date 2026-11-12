@@ -8,6 +8,7 @@
       @tab-change="onTabChange"
       @period-change="onPeriodChange"
       @toggle-sort="toggleSortOrder"
+      @new-booking="isNewBookingModalOpen = true"
     />
 
     <!-- 2. Modular Bookings & Invoices Virtual List (10 by 10) -->
@@ -19,6 +20,8 @@
       :loading="activeTab === 'bookings' ? bookingsLoading : invoicesLoading"
       @reschedule="openReschedule"
       @download-invoice="downloadInvoice"
+      @approve="onApproveBooking"
+      @cancel="onCancelBooking"
       @load-more="onLoadMore"
     />
 
@@ -28,6 +31,14 @@
       :booking="selectedBookingForReschedule"
       @close="isRescheduleModalOpen = false"
       @rescheduled="onBookingRescheduled"
+    />
+
+    <!-- Modal: New Patient Booking (Search & Register) -->
+    <AdminBookAppointmentModal
+      :is-open="isNewBookingModalOpen"
+      :patient="null"
+      @close="isNewBookingModalOpen = false"
+      @booked="onNewBookingCreated"
     />
   </div>
 </template>
@@ -41,6 +52,7 @@ import { useAppToast } from '../../composables/useAppToast';
 import AdminBookingsHeader from '../../components/admin/AdminBookingsHeader.vue';
 import AdminBookingsList from '../../components/admin/AdminBookingsList.vue';
 import AdminRescheduleModal from '../../components/admin/AdminRescheduleModal.vue';
+import AdminBookAppointmentModal from '../../components/admin/AdminBookAppointmentModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -54,11 +66,9 @@ const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const activeTab = ref<'bookings' | 'invoices'>('bookings');
-
 const activePeriod = ref<'today' | 'week' | 'pending'>('today');
-
 const isRescheduleModalOpen = ref(false);
-
+const isNewBookingModalOpen = ref(false);
 const selectedBookingForReschedule = ref<any>(null);
 
 const stats = ref({
@@ -221,6 +231,34 @@ const downloadInvoice = (booking: any) => {
   );
 };
 
+const onApproveBooking = async (booking: any) => {
+  try {
+    await api.apiRequest({
+      service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
+      payload: { id: booking.id, status: 'confirmed' },
+    });
+    booking.status = 'confirmed';
+    toast.success(t('Appointment confirmed successfully!'));
+    ADMIN_BILLING_STATS();
+  } catch (err: any) {
+    toast.error(err?.data?.message || err?.message || t('Failed to update appointment'));
+  }
+};
+
+const onCancelBooking = async (booking: any) => {
+  try {
+    await api.apiRequest({
+      service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
+      payload: { id: booking.id, status: 'cancelled' },
+    });
+    booking.status = 'cancelled';
+    toast.success(t('Appointment cancelled successfully!'));
+    ADMIN_BILLING_STATS();
+  } catch (err: any) {
+    toast.error(err?.data?.message || err?.message || t('Failed to update appointment'));
+  }
+};
+
 const ADMIN_BILLING_STATS = async () => {
   try {
     const res = await api.apiRequest({ service: 'ADMIN_BILLING_STATS' });
@@ -236,6 +274,11 @@ const ADMIN_BILLING_STATS = async () => {
   } catch (err) {
     // silently catch
   }
+};
+
+const onNewBookingCreated = (_data?: any) => {
+  ADMIN_APPOINTMENTS(1);
+  ADMIN_BILLING_STATS();
 };
 
 // 5. Watches (watch, watchEffect)

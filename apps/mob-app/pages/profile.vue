@@ -2,7 +2,7 @@
   <div class="profile-page">
     <ProfileTopHeader :user="user" />
     <ProfileHeroCard :user="user" @edit="onEditProfile" />
-    <ProfileMenuSection @action="onMenuAction" />
+    <ProfileMenuSection />
     <ProfileThemeSelector />
     <ProfileLanguageSelector />
     <ProfileFooterInfo />
@@ -18,7 +18,6 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useUnityApi } from '../composables/useUnityApi';
 import ProfileTopHeader from '../components/profile/ProfileTopHeader.vue';
 import ProfileHeroCard from '../components/profile/ProfileHeroCard.vue';
@@ -32,7 +31,6 @@ definePageMeta({
   middleware: ['auth'],
 });
 
-const router = useRouter();
 const api = useUnityApi();
 
 // 2. Data (refs, reactive state)
@@ -48,20 +46,6 @@ const onEditProfile = () => {
 
 const onProfileUpdated = (_updatedUser: any) => {
   isEditModalOpen.value = false;
-};
-
-const onMenuAction = (key: string) => {
-  if (key === 'wallet') {
-    router.push('/appointments');
-  } else if (key === 'support') {
-    router.push('/support');
-  } else if (key === 'admin') {
-    router.push('/admin');
-  } else if (key === 'terms') {
-    router.push('/terms');
-  } else if (key === 'delete-account') {
-    router.push('/delete-account');
-  }
 };
 
 // 5. Watches (watch, watchEffect)

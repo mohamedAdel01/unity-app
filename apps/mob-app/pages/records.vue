@@ -21,6 +21,7 @@ import { useGlobalStore } from '../stores/global';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useBookingModal } from '../composables/useBookingModal';
 import { useAppToast } from '../composables/useAppToast';
+import { useI18n } from '../composables/useI18n';
 import RecordsHeader from '../components/records/RecordsHeader.vue';
 import RecordsTabs from '../components/records/RecordsTabs.vue';
 import RecordsList from '../components/records/RecordsList.vue';
@@ -36,6 +37,8 @@ const api = useUnityApi();
 const bookingModal = useBookingModal();
 
 const toast = useAppToast();
+
+const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 const activeTab = ref<'reports' | 'labs' | 'prescriptions'>('reports');
@@ -67,19 +70,19 @@ const mapRecordItem = (item: any, defaultType: 'report' | 'lab' | 'prescription'
 
   let title = item.title;
   if (!title) {
-    if (isLab) title = exam?.name || 'تحليل مخبري معتمد';
-    else if (isPresc) title = 'روشتة طبية معتمدة';
-    else title = item.diagnosis ? `كشف طبي: ${item.diagnosis.slice(0, 25)}` : 'تقرير زيارة وفحص إكلينيكي';
+    if (isLab) title = exam?.name || t('Certified Laboratory Diagnostics');
+    else if (isPresc) title = t('Certified Medical Prescription');
+    else title = item.diagnosis ? `${t('Medical Consultation')}: ${item.diagnosis.slice(0, 25)}` : t('Clinical Visit Report');
   }
 
   const d = item.date ? new Date(item.date) : new Date();
-  const dateFormatted = d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+  const dateFormatted = d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return {
     id: item.id || `rec-${Date.now()}`,
     type: item.type || defaultType,
     title,
-    doctor: doc?.name || item.doctor_name || 'د. استشاري العيادة',
+    doctor: doc?.name || item.doctor_name || '',
     rawDoctor: doc ? {
       id: doc.id,
       user_id: doc.id,
@@ -87,13 +90,13 @@ const mapRecordItem = (item: any, defaultType: 'report' | 'lab' | 'prescription'
       avatar: doc.avatar,
       clinic: doc.doctor?.clinic,
     } : null,
-    clinic: doc?.doctor?.clinic?.name || 'عيادات يونيتي التخصصية',
+    clinic: doc?.doctor?.clinic?.name || '',
     examination: exam,
     date: dateFormatted,
-    summary: item.summary || item.diagnosis || item.prescription || 'تم اعتماد نتائج الفحص الطبي والتحاليل التشخيصية بنجاح.',
-    badge: isLab ? 'تحاليل تشخيصية' : (isPresc ? 'روشتة علاجية' : 'كشف سريري'),
-    status: 'completed',
-    statusLabel: 'معتمد وموثق',
+    summary: item.summary || item.diagnosis || item.prescription || item.notes || '',
+    badge: isLab ? t('Diagnostic Lab Tests') : (isPresc ? t('Prescription') : t('Clinical Consultation')),
+    status: item.status || 'completed',
+    statusLabel: t('Certified & Documented'),
     hasDetails: true,
   };
 };
@@ -117,43 +120,9 @@ const PATIENT_RECORDS = async (page = 1) => {
     const newPresc = mapped.filter((r: any) => r.type === 'prescription');
 
     if (page === 1) {
-      if (mapped.length === 0) {
-        // High-standard sample records so patient can immediately experience "Book from result"
-        reportsData.value = [
-          mapRecordItem({
-            id: 'rep-demo-1',
-            type: 'report',
-            title: 'تقرير فحص باطنة واستشارة إكلينيكية',
-            doctor_name: 'د. أحمد المنصوري',
-            date: new Date().toISOString(),
-            summary: 'استقرار المؤشرات الحيوية وضغط الدم. يوصى بإجراء كشف ومتابعة دورية بعد أسبوعين.',
-          }, 'report'),
-        ];
-        labsData.value = [
-          mapRecordItem({
-            id: 'lab-demo-1',
-            type: 'lab',
-            title: 'تحليل صورة دم كاملة (CBC) ووظائف كلى',
-            doctor_name: 'د. سارة خليل',
-            date: new Date().toISOString(),
-            summary: 'النتيجة معتمدة ومطابقة للمعدل الطبيعي مع توصية بمتابعة كشف مع استشاري الباطنة.',
-          }, 'lab'),
-        ];
-        prescriptionsData.value = [
-          mapRecordItem({
-            id: 'pre-demo-1',
-            type: 'prescription',
-            title: 'روشتة علاجية وتوصيات دوائية',
-            doctor_name: 'د. أحمد المنصوري',
-            date: new Date().toISOString(),
-            summary: 'جرعات علاجية منظمة لمدة 14 يوماً مع متابعة موعد الكشف والاستشارة.',
-          }, 'prescription'),
-        ];
-      } else {
-        reportsData.value = newReports;
-        labsData.value = newLabs;
-        prescriptionsData.value = newPresc;
-      }
+      reportsData.value = newReports;
+      labsData.value = newLabs;
+      prescriptionsData.value = newPresc;
     } else {
       reportsData.value.push(...newReports);
       labsData.value.push(...newLabs);
@@ -187,12 +156,24 @@ const onView = (item: any) => {
 };
 
 const onBookRecord = (item: any) => {
-  const doc = item.rawDoctor || (item.doctor ? { id: item.doctor_id || 'cmwbzpxgy0004liq0b3f8w5b7', name: item.doctor, clinic: { name: item.clinic } } : null);
-  bookingModal.openBookingFlow({
-    doctor: doc,
-    service: item.examination,
-    type: 'consultation',
-  });
+  if (item.examination || item.type === 'lab' || item.type === 'radiology') {
+    bookingModal.openBookingFlow({
+      service: item.examination || {
+        id: item.examination_id || item.id,
+        name: item.title,
+        price: item.price || 200,
+        duration: item.duration || 15,
+      },
+      doctor: null,
+      type: 'examination' as any,
+    });
+  } else {
+    const doc = item.rawDoctor || (item.doctor_id ? { id: item.doctor_id, name: item.doctor, clinic: { name: item.clinic } } : null);
+    bookingModal.openBookingFlow({
+      doctor: doc,
+      type: 'consultation',
+    });
+  }
 };
 
 // 5. Watches (watch, watchEffect)

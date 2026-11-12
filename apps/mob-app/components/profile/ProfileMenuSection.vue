@@ -5,7 +5,7 @@
       <span class="group-title">{{ t('Help & Legal Information') }}</span>
       <div class="group-card">
         <!-- Item 1: الدعم الفني -->
-        <button class="menu-item-row" @click="emit('action', 'support')">
+        <button class="menu-item-row" @click="navigate('/support')">
           <div class="item-icon-box light-green">
             <i class="pi pi-headphones"></i>
           </div>
@@ -22,7 +22,7 @@
         <div class="item-divider"></div>
 
         <!-- Item 2: الشروط والسياسات -->
-        <button class="menu-item-row" @click="emit('action', 'terms')">
+        <button class="menu-item-row" @click="navigate('/terms')">
           <div class="item-icon-box slate">
             <i class="pi pi-shield"></i>
           </div>
@@ -37,13 +37,29 @@
         <template v-if="isAdmin">
           <div class="item-divider"></div>
 
-          <button class="menu-item-row" @click="emit('action', 'admin')">
+          <button class="menu-item-row" @click="navigate('/admin')">
             <div class="item-icon-box green">
               <i class="pi pi-shield"></i>
             </div>
             <div class="item-text-box">
               <h6>{{ t('Executive Administration • Overview') }}</h6>
               <small>{{ t('Hospital operations & administrative overview') }}</small>
+            </div>
+            <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
+          </button>
+        </template>
+
+        <!-- Item 4: لوحة الاستقبال (تظهر فقط إذا كان المستخدم موظف استقبال) -->
+        <template v-else-if="isReceptionist">
+          <div class="item-divider"></div>
+
+          <button class="menu-item-row" @click="navigate('/admin/appointments')">
+            <div class="item-icon-box green">
+              <i class="pi pi-calendar"></i>
+            </div>
+            <div class="item-text-box">
+              <h6>{{ t('Reception Dashboard') }}</h6>
+              <small>{{ t('Reception Desk • Bookings') }}</small>
             </div>
             <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
           </button>
@@ -56,6 +72,7 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
 
@@ -67,16 +84,20 @@ const emit = defineEmits<{
   (e: 'action', key: string): void;
 }>();
 
+const router = useRouter();
 const { t, isRtl } = useI18n();
-
 const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
 const isAdmin = computed(() => authStore.isAdmin || authStore.user?.role === 'admin');
+const isReceptionist = computed(() => authStore.isReceptionist || authStore.user?.role === 'receptionist');
 
 // 4. Methods (functions, handlers)
+const navigate = (path: string) => {
+  router.push(path);
+};
 
 // 5. Watches (watch, watchEffect)
 

@@ -27,6 +27,17 @@
 
       <!-- Left Side: Status Chip & Chevron -->
       <div class="status-chevron-cell">
+        <!-- Quick Approve Button for Pending Bookings -->
+        <button 
+          v-if="booking.status === 'pending'" 
+          type="button" 
+          class="quick-approve-pill" 
+          @click.stop="emit('approve', booking)"
+        >
+          <i class="pi pi-check"></i>
+          <span>{{ t('Approve') }}</span>
+        </button>
+
         <span class="status-chip" :class="getStatusClass(booking.status)">
           <span v-if="booking.status === 'pending'" class="status-red-dot"></span>
           <span v-else-if="booking.status === 'confirmed'" class="status-green-dot"></span>
@@ -72,6 +83,28 @@
 
       <!-- Action Buttons Row -->
       <div class="actions-buttons-row">
+        <!-- Approve Booking (for pending bookings) -->
+        <button 
+          v-if="booking.status === 'pending'" 
+          type="button" 
+          class="btn-approve" 
+          @click.stop="emit('approve', booking)"
+        >
+          <i class="pi pi-check-circle"></i>
+          <span>{{ t('Approve Booking') }}</span>
+        </button>
+
+        <!-- Cancel Booking (if not already cancelled) -->
+        <button 
+          v-if="booking.status !== 'cancelled'" 
+          type="button" 
+          class="btn-cancel-booking" 
+          @click.stop="emit('cancel', booking)"
+        >
+          <i class="pi pi-times"></i>
+          <span>{{ t('Cancel Booking') }}</span>
+        </button>
+
         <!-- Reschedule / Edit Appointment -->
         <button class="btn-reschedule" @click="emit('reschedule', booking)">
           <i class="pi pi-calendar"></i>
@@ -106,6 +139,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'reschedule', booking: any): void;
   (e: 'download-invoice', booking: any): void;
+  (e: 'approve', booking: any): void;
+  (e: 'cancel', booking: any): void;
 }>();
 
 const { t } = useI18n();
@@ -264,6 +299,27 @@ const resolveAvatar = (url?: string) => {
       align-items: center;
       gap: 8px;
 
+      .quick-approve-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--unity-primary);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 4px 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(18, 93, 73, 0.2);
+        transition: all 0.2s;
+
+        &:hover {
+          background: var(--unity-primary-dark);
+          transform: scale(1.04);
+        }
+      }
+
       .status-chip {
         display: inline-flex;
         align-items: center;
@@ -389,6 +445,49 @@ const resolveAvatar = (url?: string) => {
       align-items: center;
       gap: 10px;
       margin-top: 2px;
+
+      .btn-approve {
+        flex: 1;
+        height: 42px;
+        background: var(--unity-primary);
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background: var(--unity-primary-dark);
+          transform: translateY(-1px);
+        }
+      }
+
+      .btn-cancel-booking {
+        height: 42px;
+        padding: 0 14px;
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        border-radius: 12px;
+        color: #ef4444;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          background: #fee2e2;
+        }
+      }
 
       .btn-reschedule {
         flex: 1;

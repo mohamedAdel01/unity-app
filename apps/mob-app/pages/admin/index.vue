@@ -17,8 +17,10 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
+import { useAuthStore } from '../../stores/auth';
 import AdminTopHeader from '../../components/admin/AdminTopHeader.vue';
 import AdminDashboardMetrics from '../../components/admin/AdminDashboardMetrics.vue';
 import AdminDashboardNav from '../../components/admin/AdminDashboardNav.vue';
@@ -30,6 +32,8 @@ definePageMeta({
 
 const { t } = useI18n();
 const api = useUnityApi();
+const router = useRouter();
+const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 const kpis = ref({
@@ -72,6 +76,10 @@ const ADMIN_DASHBOARD = async () => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
+  if (authStore.isReceptionist) {
+    router.replace('/admin/appointments');
+    return;
+  }
   ADMIN_DASHBOARD();
 });
 

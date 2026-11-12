@@ -15,6 +15,8 @@
           :initially-expanded="index === 0"
           @reschedule="emit('reschedule', $event)"
           @download-invoice="emit('download-invoice', $event)"
+          @approve="emit('approve', $event)"
+          @cancel="emit('cancel', $event)"
         />
       </template>
 
@@ -91,6 +93,8 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'reschedule', booking: any): void;
   (e: 'download-invoice', booking: any): void;
+  (e: 'approve', booking: any): void;
+  (e: 'cancel', booking: any): void;
   (e: 'load-more'): void;
 }>();
 

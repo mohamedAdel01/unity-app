@@ -162,15 +162,20 @@ onMounted(() => {
     gap: 12px;
     overflow-x: auto;
     scrollbar-width: none;
-    padding: 2px 2px 8px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    margin-inline: -20px;
+    padding-inline: 20px;
+    padding-block: 4px 10px;
 
     &::-webkit-scrollbar {
       display: none;
     }
 
     .offer-card {
-      width: 172px;
+      width: 176px;
       flex-shrink: 0;
+      scroll-snap-align: start;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
       border-radius: 14px;

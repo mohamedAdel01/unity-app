@@ -85,6 +85,7 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 
@@ -97,6 +98,7 @@ const emit = defineEmits<{
   (e: 'refresh'): void;
 }>();
 
+const router = useRouter();
 const { t, isRtl } = useI18n();
 const bookingModal = useBookingModal();
 
@@ -141,8 +143,15 @@ const formatAppointmentDate = (dateStr?: string) => {
 };
 
 const openDetails = (apt: any) => {
-  if (apt?.doctor) {
-    bookingModal.openBookingFlow({ doctor: apt.doctor });
+  if (apt?.status === 'pending') {
+    bookingModal.openBookingFlow({
+      appointment: apt,
+      doctor: apt.doctor,
+      service: apt.examination || apt.offer,
+      type: apt.type || 'consultation',
+    });
+  } else {
+    router.push('/appointments');
   }
 };
 

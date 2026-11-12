@@ -51,8 +51,10 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
+import { useAuthStore } from '../../stores/auth';
 import { useAppToast } from '../../composables/useAppToast';
 import AdminDoctorsHeader from '../../components/admin/AdminDoctorsHeader.vue';
 import AdminDoctorsList from '../../components/admin/AdminDoctorsList.vue';
@@ -67,6 +69,8 @@ definePageMeta({
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const router = useRouter();
+const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
@@ -288,6 +292,10 @@ const onToggleDoctorStatus = (doc: any) => {
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
+  if (authStore.isReceptionist) {
+    router.replace('/admin/appointments');
+    return;
+  }
   ADMIN_DOCTORS();
   ADMIN_CLINICS();
 });
