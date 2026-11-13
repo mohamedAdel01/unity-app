@@ -2,7 +2,8 @@ import { defineNuxtConfig } from 'nuxt/config';
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
-  ssr: false, // SPA Mode for smooth mobile-app interactions
+
+  ssr: false,
 
   experimental: {
     appManifest: false,
@@ -11,13 +12,6 @@ export default defineNuxtConfig({
   vite: {
     build: {
       reportCompressedSize: false,
-    },
-  },
-
-  nitro: {
-    prerender: {
-      routes: ['/'],
-      crawlLinks: false,
     },
   },
 
@@ -46,7 +40,10 @@ export default defineNuxtConfig({
       },
       meta: [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+        },
         { name: 'theme-color', content: '#007663' },
       ],
       link: [
@@ -55,7 +52,10 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap',
+        },
       ],
     },
   },
