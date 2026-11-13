@@ -1,0 +1,253 @@
+workflows:
+  # ========================================================
+  # 1. ANDROID RELEASE WORKFLOW (Google Play AAB & APK)
+  # ========================================================
+  android-release:
+    name: Android Release
+    max_build_duration: 60
+    instance_type: linux_x2
+
+    environment:
+      groups:
+        - google_play # Defined in Codemagic UI: GCLOUD_SERVICE_ACCOUNT_CREDENTIALS, ANDROID_KEYSTORE, etc.
+      vars:
+        PACKAGE_NAME: "com.unityClinics.app"
+        BASE_URL: "https://api.unityclinics.com"
+        NODE_VERSION: "22"
+      node: 22
+      java: 21
+
+    scripts:
+      - name: Enable pnpm and check versions
+        script: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          node --version
+          pnpm --version
+          java -version
+
+      - name: Export environment variables
+        script: |
+          echo "API_URL=$BASE_URL" > apps/mob-app/.env
+          echo "NODE_ENV=production" >> apps/mob-app/.env
+
+      - name: Install dependencies
+        script: |
+          pnpm install --frozen-lockfile
+
+      - name: Build Nuxt web assets
+        script: |
+          pnpm --filter @unity/mob-app generate
+
+      - name: Sync Capacitor Android
+        script: |
+          pnpm exec cap sync android
+
+      - name: Build Android Release (AAB & APK)
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease assembleRelease
+
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+      - android/app/build/outputs/apk/release/*.apk
+      - android/app/build/outputs/mapping/release/mapping.txt
+
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
+
+  # ========================================================
+  # 2. IOS RELEASE WORKFLOW (TestFlight & App Store)
+  # ========================================================
+  ios-release:
+    name: iOS Release
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+
+    environment:
+      groups:
+        - app_store
+        - app_store # Defined in Codemagic UI: APP_STORE_CONNECT_PRIVATE_KEY, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID
+
+      node: 20
+      node: 22
+      xcode: latest
+      cocoapods: default
+
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bya3.app
+        bundle_identifier: com.unityClinics.app
+
+      vars:
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
+        XCODE_SCHEME: "App"
+        BUNDLE_ID: "com.bya3.app"
+        BASE_URL: "https://api.bya3.net"
+        BUNDLE_ID: "com.unityClinics.app"
+        BASE_URL: "https://api.unityclinics.com"
+        NUXT_PUBLIC_ENV: "production"
+        NUXT_PUBLIC_SENTRY_DSN: "https://13dae38a55b146f34c4fece9cf950eca@o4511524103258112.ingest.de.sentry.io/4511524109680720"
+
+    scripts:
+      - name: Enable pnpm and set Node version
+      - name: Enable pnpm and check versions
+        script: |
+          npm install -g pnpm@9
+          pnpm config set node-linker node-modules
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm --version
+
+      - name: Export environment variables
+        script: |
+          echo "BASE_URL=$BASE_URL" > apps/client/.env
+          echo "NUXT_PUBLIC_ENV=$NUXT_PUBLIC_ENV" >> apps/client/.env
+          echo "NUXT_PUBLIC_SENTRY_DSN=$NUXT_PUBLIC_SENTRY_DSN" >> apps/client/.env
+          echo "API_URL=$BASE_URL" > apps/mob-app/.env
+          echo "NUXT_PUBLIC_ENV=$NUXT_PUBLIC_ENV" >> apps/mob-app/.env
+
+      - name: Install dependencies
+        script: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm rebuild sharp
+          pnpm rebuild esbuild
+          pnpm rebuild @nuxt/image-edge
+          pnpm install --frozen-lockfile
+
+      - name: Build Nuxt app
+        script: |
+          pnpm run generate:client
+          pnpm --filter @unity/mob-app generate
+
+      - name: Sync Capacitor iOS
+        script: |
+          if [ ! -d "ios" ]; then
+            pnpm exec cap add ios
+          fi
+          pnpm exec cap sync ios
+
+      - name: Install CocoaPods
+        script: |
+          cd ios/App
+          pod install
+
+      - name: Configure iOS entitlements and resources
+        script: |
+          cd "$CM_BUILD_DIR/ios/App"
+          gem install xcodeproj
+          ruby -e '
+            require "xcodeproj"
+            project = Xcodeproj::Project.open("App.xcodeproj")
+            target = project.targets.first
+            app_group = project.main_group.find_subpath("App", true)
+            file_name = "GoogleService-Info.plist"
+            if File.exist?(File.join("App", file_name))
+              file_ref = app_group.find_file_by_path(file_name) || app_group.new_file(file_name)
+              unless target.resources_build_phase.files_references.include?(file_ref)
+                target.resources_build_phase.add_file_reference(file_ref)
+              end
+            end
+            project.targets.each do |t|
+              t.build_configurations.each do |config|
+                config.build_settings["CODE_SIGN_ENTITLEMENTS"] = "App/App.entitlements"
+              end
+            end
+            project.save
+
+            if File.exist?("Pods/Pods.xcodeproj")
+              pods_project = Xcodeproj::Project.open("Pods/Pods.xcodeproj")
+              pods_project.targets.each do |t|
+                t.build_configurations.each do |config|
+                  config.build_settings["DEVELOPMENT_TEAM"] = "XW9HMN8J9W"
+                  if ENV["DEVELOPMENT_TEAM"]
+                    config.build_settings["DEVELOPMENT_TEAM"] = ENV["DEVELOPMENT_TEAM"]
+                  end
+                  if t.respond_to?(:product_type) && t.product_type == "com.apple.product-type.bundle"
+                    config.build_settings["CODE_SIGNING_ALLOWED"] = "NO"
+                    config.build_settings["CODE_SIGNING_REQUIRED"] = "NO"
+                    config.build_settings["CODE_SIGN_IDENTITY"] = ""
+                  end
+                end
+              end
+              pods_project.save
+            end
+          '
+
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+
+      - name: Create export options plist
+        script: |
+          PROFILE_UUID=$(grep -r 'UUID' ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | grep -v Binary | head -1 | awk '{print $NF}' || echo "")
+          PROFILE_NAME=$(security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | plutil -extract Name raw - 2>/dev/null || echo "")
+
+          echo "=== Profile UUID: $PROFILE_UUID ==="
+          echo "=== Profile Name: $PROFILE_NAME ==="
+
+          cat > $HOME/export_options.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store-connect</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.bya3.app</key>
+                  <key>com.unityClinics.app</key>
+                  <string>${PROFILE_NAME}</string>
+              </dict>
+              <key>manageAppVersionAndBuildNumber</key>
+              <true/>
+          </dict>
+          </plist>
+          EOF
+
+          echo "=== Export options ==="
+          cat $HOME/export_options.plist
+
+      - name: Set build number
+        script: |
+          cd "$CM_BUILD_DIR/ios/App"
+          BUILD_NUMBER=$(($(date +%s)))
+          echo "Setting build number to: $BUILD_NUMBER"
+          agvtool new-version -all $BUILD_NUMBER
+
+      - name: Build archive
+        script: |
+          xcodebuild \
+            -workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
+            archive \
+            CODE_SIGN_IDENTITY="Apple Distribution"
+
+      - name: Export IPA
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
+            -exportOptionsPlist "$HOME/export_options.plist" \
+            -exportPath "$CM_BUILD_DIR/build/ios/ipa"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
