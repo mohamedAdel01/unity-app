@@ -18,9 +18,7 @@
             <h5 class="patient-name">{{ booking.patient_name || t('Patient') }}</h5>
           </div>
           <div class="service-subline">
-            <span class="type-badge" :class="isExamination ? 'badge-exam' : 'badge-consult'">
-              {{ bookingTypeLabel }}
-            </span>
+            <i :class="isExamination ? 'pi pi-compass' : 'pi pi-building'" class="clinic-sub-icon"></i>
             <span class="service-name">{{ serviceTitle }}</span>
           </div>
         </div>
@@ -28,13 +26,16 @@
 
       <!-- Left Side: Status Chip on Top Left & Expand Arrow -->
       <div class="meta-cell">
-        <button type="button" class="expand-btn" :aria-label="isExpanded ? 'Collapse' : 'Expand'">
-          <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-        </button>
+        <span class="type-badge" :class="isExamination ? 'badge-exam' : 'badge-consult'">
+          {{ bookingTypeLabel }}
+        </span>
         <span class="status-badge" :class="getStatusClass(booking.status)">
           <span class="dot"></span>
           <span>{{ getStatusLabel(booking.status) }}</span>
         </span>
+        <button type="button" class="expand-btn" :aria-label="isExpanded ? 'Collapse' : 'Expand'">
+          <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+        </button>
       </div>
     </div>
 
@@ -72,8 +73,8 @@
         <div class="payment-method-badge">
           <i :class="booking.payment_method === 'paymob' ? 'pi pi-credit-card' : 'pi pi-wallet'"></i>
           <span>{{ getPaymentMethodLabel(booking.payment_method) }}</span>
-          <span class="payment-pill" :class="isPaid ? 'paid' : 'pending'">
-            {{ isPaid ? t('Paid Status') : t('Unpaid Status') }}
+          <span class="payment-pill" :class="paymentStatusClass">
+            {{ paymentStatusLabel }}
           </span>
         </div>
         <div class="price-badge">
@@ -177,7 +178,36 @@ const bookingTypeLabel = computed(() => {
 });
 
 const isPaid = computed(() => {
-  return props.booking?.is_paid || props.booking?.payment_status === 'paid' || props.booking?.status === 'confirmed';
+  return Boolean(
+    props.booking?.is_paid === true || 
+    props.booking?.payment_status === 'paid' || 
+    props.booking?.invoice?.status === 'paid'
+  );
+});
+
+const paymentStatus = computed(() => {
+  if (isPaid.value) return 'paid';
+  const raw = String(props.booking?.payment_status || props.booking?.invoice?.status || '').toLowerCase();
+  if (raw === 'refunded') return 'refunded';
+  if (raw === 'failed') return 'failed';
+  return 'pending';
+});
+
+const paymentStatusLabel = computed(() => {
+  switch (paymentStatus.value) {
+    case 'paid':
+      return t('Paid Status');
+    case 'refunded':
+      return t('Refunded');
+    case 'failed':
+      return t('Failed');
+    default:
+      return t('Unpaid Status');
+  }
+});
+
+const paymentStatusClass = computed(() => {
+  return paymentStatus.value;
 });
 
 const serviceTitle = computed(() => {
@@ -345,36 +375,25 @@ const resolveAvatar = (url?: string) => {
         .service-subline {
           display: flex;
           align-items: center;
-          gap: 6px;
-          margin-top: 2px;
+          gap: 5px;
+          margin-top: 3px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
 
-          .type-badge {
-            font-size: 0.68rem;
-            font-weight: 800;
-            padding: 1px 7px;
-            border-radius: 6px;
-            line-height: 1.4;
-
-            &.badge-consult {
-              background: rgba(4, 120, 87, 0.1);
-              color: #047857;
-              border: 1px solid rgba(4, 120, 87, 0.2);
-            }
-
-            &.badge-exam {
-              background: rgba(37, 99, 235, 0.1);
-              color: #2563eb;
-              border: 1px solid rgba(37, 99, 235, 0.2);
-            }
+          .clinic-sub-icon {
+            font-size: 0.74rem;
+            color: var(--unity-text-dim, #94a3b8);
+            flex-shrink: 0;
           }
 
           .service-name {
             font-size: 0.78rem;
             font-weight: 700;
-            color: var(--unity-text-muted);
+            color: var(--unity-text-muted, #64748b);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
       }
@@ -386,19 +405,41 @@ const resolveAvatar = (url?: string) => {
       gap: 6px;
       flex-shrink: 0;
 
+      .type-badge {
+        font-size: 0.67rem;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 6px;
+        line-height: 1.3;
+        white-space: nowrap;
+
+        &.badge-consult {
+          background: rgba(4, 120, 87, 0.1);
+          color: #047857;
+          border: 1px solid rgba(4, 120, 87, 0.2);
+        }
+
+        &.badge-exam {
+          background: rgba(37, 99, 235, 0.1);
+          color: #2563eb;
+          border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+      }
+
       .status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
-        border-radius: 10px;
-        font-size: 0.72rem;
+        gap: 4px;
+        padding: 2px 7px;
+        border-radius: 6px;
+        font-size: 0.67rem;
         font-weight: 800;
+        line-height: 1.3;
         white-space: nowrap;
 
         .dot {
-          width: 6px;
-          height: 6px;
+          width: 5px;
+          height: 5px;
           border-radius: 50%;
         }
 
@@ -566,6 +607,18 @@ const resolveAvatar = (url?: string) => {
             background: #fff7ed;
             color: #c2410c;
             border: 1px solid #fed7aa;
+          }
+
+          &.refunded {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+          }
+
+          &.failed {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
           }
         }
       }

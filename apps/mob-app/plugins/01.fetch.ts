@@ -1,5 +1,53 @@
 import { storage } from '../utils/storage';
 
+let isHandlingUnauthorized = false;
+
+const handleUnauthorized = async () => {
+  if (isHandlingUnauthorized) return;
+  isHandlingUnauthorized = true;
+
+  try {
+    await storage.remove('unity_token');
+    await storage.remove('token');
+    await storage.remove('unity_user');
+    await storage.remove('user');
+  } catch (_) {}
+
+  if (import.meta.client && typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('unity_token');
+      localStorage.removeItem('token');
+      localStorage.removeItem('unity_user');
+      localStorage.removeItem('user');
+    } catch (_) {}
+
+    try {
+      const { useAuthStore } = await import('../stores/auth');
+      const authStore = useAuthStore();
+      authStore.logout();
+    } catch (_) {}
+
+    try {
+      const { useAppToast } = await import('../composables/useAppToast');
+      const { useI18n } = await import('../composables/useI18n');
+      const toast = useAppToast();
+      const { t } = useI18n();
+      toast.warning(t('Session expired. Please log in again.'));
+    } catch (_) {}
+
+    const pathname = window.location.pathname;
+    if (!pathname.includes('/auth/login') && !pathname.includes('/auth/register')) {
+      const fullUrl = window.location.pathname + window.location.search;
+      const redirectQuery = fullUrl && fullUrl !== '/' ? `?redirect=${encodeURIComponent(fullUrl)}` : '';
+      await navigateTo(`/auth/login${redirectQuery}`, { replace: true });
+    }
+  }
+
+  setTimeout(() => {
+    isHandlingUnauthorized = false;
+  }, 2500);
+};
+
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig();
 
@@ -63,6 +111,19 @@ export default defineNuxtPlugin((nuxtApp) => {
       } catch {
         errData = { message: response.statusText || `Request failed with status ${response.status}` };
       }
+      errData.status = response.status;
+      errData.statusCode = response.status;
+
+      // Handle 401 Unauthorized for non-auth requests (session expired/invalid token)
+      const isAuthEndpoint = cleanEndpoint.startsWith('auth/') || 
+                             cleanEndpoint.includes('login') || 
+                             cleanEndpoint.includes('register') || 
+                             cleanEndpoint.includes('verify-otp');
+
+      if (response.status === 401 && !isAuthEndpoint) {
+        handleUnauthorized();
+      }
+
       throw errData;
     }
 
