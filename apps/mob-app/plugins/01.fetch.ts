@@ -52,14 +52,30 @@ export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig();
 
   const getBaseUrl = () => {
-    // When running in browser on localhost or 127.0.0.1, target local Express server
+    // Check if running on native mobile (iOS / Android) via Capacitor
+    const isNativeMobile = typeof window !== 'undefined' && (
+      window.location.protocol === 'capacitor:' ||
+      window.location.protocol === 'ionic:' ||
+      (window as any).Capacitor?.isNativePlatform?.() === true
+    );
+
+    const configuredUrl = (config.public?.API_URL || config.public?.apiUrl) as string;
+
+    // On native mobile devices (iOS / Android), ALWAYS target the remote production API
+    if (isNativeMobile) {
+      return configuredUrl || 'https://api.unity-clinics.cyou';
+    }
+
+    // When running in local desktop browser on development port (e.g. localhost:3000 / 3001)
     if (import.meta.client && typeof window !== 'undefined') {
       const hostname = window.location.hostname;
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:4000';
+      const port = window.location.port;
+      if ((hostname === 'localhost' || hostname === '127.0.0.1') && ['3000', '3001', '3002', '3003', '4000'].includes(port)) {
+        return 'https://api.unity-clinics.cyou';
       }
     }
-    return config.public?.apiUrl || 'http://localhost:4000';
+
+    return configuredUrl || 'https://api.unity-clinics.cyou';
   };
 
   const fetchInstance = async (endpoint: string, options: any = {}) => {
