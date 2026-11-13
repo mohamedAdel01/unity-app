@@ -49,8 +49,9 @@
               <span class="dot"></span>
               <span>{{ getStatusLabel(apt.status) }}</span>
             </div>
-            <span v-if="apt.booking_number || apt.id" class="booking-tag">
-              #{{ (apt.booking_number || apt.id?.slice(-6))?.toUpperCase() }}
+            <span class="payment-tag" :class="getPaymentClass(apt)">
+              <i :class="getPaymentIcon(apt)"></i>
+              <span>{{ getPaymentLabel(apt) }}</span>
             </span>
           </div>
         </div>
@@ -78,7 +79,7 @@
           </div>
         </div>
 
-        <!-- Date, Time & Payment Status Banner -->
+        <!-- Date & Time Banner -->
         <div class="datetime-banner">
           <div class="dt-item">
             <i class="pi pi-calendar"></i>
@@ -88,11 +89,6 @@
           <div class="dt-item">
             <i class="pi pi-clock"></i>
             <span>{{ formatSlotRange(apt.start_time, apt.end_time) }}</span>
-          </div>
-          <div class="dt-divider"></div>
-          <div class="dt-item dt-payment" :class="apt.invoice?.status === 'paid' ? 'paid' : 'pending'">
-            <i :class="apt.invoice?.status === 'paid' ? 'pi pi-check-circle' : 'pi pi-wallet'"></i>
-            <span>{{ apt.invoice?.status === 'paid' ? t('Fully Paid') : t('Pay at Reception') }}</span>
           </div>
         </div>
 
@@ -418,6 +414,31 @@ const bookFollowUp = (apt: any) => {
   bookingModal.openBookingFlow({ doctor: apt.doctor, type: 'follow_up' });
 };
 
+const isAptPaid = (apt: any) => {
+  return apt?.invoice?.status === 'paid' || apt?.payment_status === 'paid' || apt?.is_paid === true;
+};
+
+const getPaymentLabel = (apt: any) => {
+  if (isAptPaid(apt)) return t('Fully Paid');
+  if (apt?.payment_status === 'refunded' || apt?.invoice?.status === 'refunded') return t('Refunded');
+  if (apt?.payment_status === 'failed' || apt?.invoice?.status === 'failed') return t('Failed');
+  return t('Pay at Reception');
+};
+
+const getPaymentClass = (apt: any) => {
+  if (isAptPaid(apt)) return 'paid';
+  if (apt?.payment_status === 'refunded' || apt?.invoice?.status === 'refunded') return 'refunded';
+  if (apt?.payment_status === 'failed' || apt?.invoice?.status === 'failed') return 'failed';
+  return 'pending';
+};
+
+const getPaymentIcon = (apt: any) => {
+  if (isAptPaid(apt)) return 'pi pi-check-circle';
+  if (apt?.payment_status === 'refunded' || apt?.invoice?.status === 'refunded') return 'pi pi-replay';
+  if (apt?.payment_status === 'failed' || apt?.invoice?.status === 'failed') return 'pi pi-exclamation-circle';
+  return 'pi pi-wallet';
+};
+
 const viewReport = (apt: any) => {
   toast.info(t('Medical Report: Health vitals optimal. Follow-up in 2 weeks.'), 'الملف الطبي');
 };
@@ -570,14 +591,59 @@ onMounted(() => {
         }
       }
 
-      .booking-tag {
+      .payment-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         font-size: 0.70rem;
         font-weight: 700;
-        color: var(--unity-text-dim);
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
-        padding: 2px 7px;
+        padding: 2.5px 8px;
         border-radius: 8px;
+        white-space: nowrap;
+
+        i {
+          font-size: 0.74rem;
+        }
+
+        &.paid {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid rgba(4, 120, 87, 0.2);
+
+          i {
+            color: #10b981;
+          }
+        }
+
+        &.pending {
+          background: #fff7ed;
+          color: #c2410c;
+          border: 1px solid #fed7aa;
+
+          i {
+            color: #ea580c;
+          }
+        }
+
+        &.refunded {
+          background: #eff6ff;
+          color: #1d4ed8;
+          border: 1px solid #bfdbfe;
+
+          i {
+            color: #2563eb;
+          }
+        }
+
+        &.failed {
+          background: #fef2f2;
+          color: #b91c1c;
+          border: 1px solid #fecaca;
+
+          i {
+            color: #dc2626;
+          }
+        }
       }
     }
   }
@@ -652,8 +718,7 @@ onMounted(() => {
     padding: 8px 12px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
+    gap: 12px;
     margin-bottom: 14px;
     border: 1px solid var(--unity-border-light, #f1f5f9);
 
@@ -661,7 +726,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       gap: 5px;
-      font-size: 0.73rem;
+      font-size: 0.74rem;
       font-weight: 700;
       color: var(--unity-text-main);
       white-space: nowrap;
@@ -669,17 +734,6 @@ onMounted(() => {
       i {
         color: var(--unity-primary);
         font-size: 0.8rem;
-      }
-
-      &.dt-payment {
-        &.paid {
-          color: #059669;
-          i { color: #059669; }
-        }
-        &.pending {
-          color: #d97706;
-          i { color: #d97706; }
-        }
       }
     }
 

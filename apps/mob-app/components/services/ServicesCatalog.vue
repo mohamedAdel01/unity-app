@@ -46,24 +46,26 @@
       >
         <template #item="{ item: service }">
           <div class="service-item-card">
-            <div class="card-side-icon">
-              <AppExamIcon :size="22" />
-            </div>
-            <div class="card-details">
-              <div class="details-top">
-                <h5>{{ getLocalizedName(service) }}</h5>
-                <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
+            <div class="service-main-row">
+              <div class="card-side-icon">
+                <AppExamIcon :size="22" />
               </div>
-              <p v-if="getLocalizedDesc(service)">{{ getLocalizedDesc(service) }}</p>
-              <div class="card-meta">
-                <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
-                <span><i class="pi pi-check"></i> {{ t('Available now') }}</span>
+              <div class="card-details">
+                <div class="details-top">
+                  <h5>{{ getLocalizedName(service) }}</h5>
+                  <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
+                </div>
+                <p v-if="getLocalizedDesc(service)">{{ getLocalizedDesc(service) }}</p>
+                <div class="card-meta">
+                  <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
+                  <span><i class="pi pi-check"></i> {{ t('Available now') }}</span>
+                </div>
               </div>
-              <button class="book-service-btn" @click="bookService(service)">
-                <span>{{ t('Book This Service') }}</span>
-                <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
-              </button>
             </div>
+            <button class="book-service-btn" @click="bookService(service)">
+              <span>{{ t('Book This Service') }}</span>
+              <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
+            </button>
           </div>
         </template>
 
@@ -847,87 +849,96 @@ onMounted(() => {
   border-radius: 20px;
   padding: 16px;
   display: flex;
-  gap: 14px;
+  flex-direction: column;
+  gap: 12px;
   box-shadow: var(--unity-shadow-subtle);
 
-  .card-side-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: #ecfdf5;
-    color: #047857;
+  .service-main-row {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
 
-  .card-details {
-    flex: 1;
-
-    .details-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      h5 {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--unity-text-main);
-      }
-
-      .price-tag {
-        font-size: 0.9rem;
-        font-weight: 800;
-        color: var(--unity-primary);
-      }
-    }
-
-    p {
-      font-size: 0.76rem;
-      color: var(--unity-text-muted);
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-
-    .card-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 8px;
-      font-size: 0.7rem;
-      color: var(--unity-text-dim);
-
-      span {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
-    }
-
-    .book-service-btn {
-      margin-top: 12px;
-      width: 100%;
-      padding: 9px;
-      border-radius: 10px;
-      background: var(--unity-bg);
-      border: 1px solid var(--unity-border);
-      color: var(--unity-text-main);
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
+    .card-side-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      color: #047857;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: all 0.2s;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
 
-      &:hover {
-        background: var(--unity-primary-dark);
-        color: #fff;
-        border-color: var(--unity-primary-dark);
+    .card-details {
+      flex: 1;
+      min-width: 0;
+
+      .details-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h5 {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: var(--unity-text-main);
+        }
+
+        .price-tag {
+          font-size: 0.9rem;
+          font-weight: 800;
+          color: var(--unity-primary);
+        }
       }
+
+      p {
+        font-size: 0.76rem;
+        color: var(--unity-text-muted);
+        margin-top: 4px;
+        line-height: 1.4;
+      }
+
+      .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+        font-size: 0.7rem;
+        color: var(--unity-text-dim);
+
+        span {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+      }
+    }
+  }
+
+  .book-service-btn {
+    width: 100%;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: var(--unity-bg);
+    border: 1.5px solid var(--unity-border);
+    color: var(--unity-text-main);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--unity-primary-dark);
+      color: #fff;
+      border-color: var(--unity-primary-dark);
     }
   }
 }

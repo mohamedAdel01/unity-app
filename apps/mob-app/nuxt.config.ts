@@ -2,8 +2,12 @@ import { defineNuxtConfig } from 'nuxt/config';
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
-
   ssr: false,
+  runtimeConfig: {
+    public: {
+      apiUrl: process.env.BASE_URL || 'http://localhost:4000',
+    },
+  },
 
   experimental: {
     appManifest: false,
@@ -15,6 +19,10 @@ export default defineNuxtConfig({
     },
   },
 
+  devServer: {
+    port: 4000,
+  },
+
   modules: [
     '@pinia/nuxt',
   ],
@@ -24,12 +32,6 @@ export default defineNuxtConfig({
     '../../shared/assets/styles/main.scss',
     '../../shared/assets/styles/rtl.scss',
   ],
-
-  runtimeConfig: {
-    public: {
-      apiUrl: process.env.API_URL || 'http://localhost:4000',
-    },
-  },
 
   app: {
     head: {
