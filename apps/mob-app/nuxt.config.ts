@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   ssr: false,
   runtimeConfig: {
     public: {
-      apiUrl: process.env.API_URL || 'http://localhost:4000',
+      API_URL: process.env.NUXT_PUBLIC_API_URL || 'https://api.unity-clinics.cyou',
     },
   },
 

@@ -20,7 +20,7 @@ workflows:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.unityClinics.app"
-        BASE_URL: "https://api.unityclinics.com"
+        API_URL: "https://api.unity-clinics.cyou"
         NUXT_PUBLIC_ENV: "production"
 
     scripts:
@@ -33,7 +33,7 @@ workflows:
 
       - name: Export environment variables
         script: |
-          echo "API_URL=$BASE_URL" > apps/mob-app/.env
+          echo "API_URL=$API_URL" > apps/mob-app/.env
           echo "NODE_ENV=production" >> apps/mob-app/.env
           echo "NUXT_PUBLIC_ENV=$NUXT_PUBLIC_ENV" >> apps/mob-app/.env
 
