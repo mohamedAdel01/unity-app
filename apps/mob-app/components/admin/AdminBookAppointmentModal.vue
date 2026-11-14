@@ -1,5 +1,6 @@
 <template>
-  <div v-if="isOpen" class="admin-booking-modal-backdrop" @click="close">
+  <Teleport to="body">
+    <div v-if="isOpen" class="admin-booking-modal-backdrop" @click="close">
     <div class="admin-booking-modal-sheet" @click.stop>
       <!-- Modal Header -->
       <div class="modal-header">
@@ -551,14 +552,16 @@
       </template>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
+import { useModalState } from '../../composables/useModalState';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -573,6 +576,7 @@ const emit = defineEmits<{
 const { t, isRtl } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const currentStep = ref(1);
@@ -1004,6 +1008,7 @@ const submitBooking = async () => {
 // 5. Watches (watch, watchEffect)
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
+    registerModalOpen();
     currentStep.value = 1;
     bookingType.value = null;
     selectedDoctor.value = null;
@@ -1018,13 +1023,21 @@ watch(() => props.isOpen, (newVal) => {
       patientSearchResults.value = [];
     }
     setDatePreset('today');
+  } else {
+    registerModalClose();
   }
-});
+}, { immediate: true });
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   if (props.isOpen) {
     setDatePreset('today');
+  }
+});
+
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
   }
 });
 

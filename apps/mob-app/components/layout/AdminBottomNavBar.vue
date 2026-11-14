@@ -1,5 +1,5 @@
 <template>
-  <nav class="admin-bottom-nav">
+  <nav v-show="!isAnyModalOpen" class="admin-bottom-nav" :class="{ 'is-modal-hidden': isAnyModalOpen }">
     <template v-if="authStore.isReceptionist">
       <!-- Reception Tab 1: Bookings / الحجوزات الواردة -->
       <NuxtLink to="/admin/appointments" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
@@ -65,10 +65,12 @@
 import { useRoute } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
+import { useModalState } from '../../composables/useModalState';
 
 const route = useRoute();
 const { t } = useI18n();
 const authStore = useAuthStore();
+const { isAnyModalOpen } = useModalState();
 
 // 2. Data (refs, reactive state)
 
@@ -103,6 +105,14 @@ const authStore = useAuthStore();
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: background-color 0.25s ease, border-color 0.25s ease;
 
+  &.is-modal-hidden {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    transform: translateY(200%) !important;
+  }
+
   .admin-nav-btn {
     display: flex;
     flex-direction: column;
@@ -111,8 +121,8 @@ const authStore = useAuthStore();
     gap: 3px;
     color: var(--unity-text-muted);
     text-decoration: none;
-    font-size: 0.72rem;
-    font-weight: 700;
+    font-size: 0.63rem;
+    font-weight: 600;
     width: 62px;
     height: 48px;
     border-radius: 24px;
@@ -136,6 +146,7 @@ const authStore = useAuthStore();
     &.active {
       color: var(--unity-primary-dark);
       background: var(--unity-primary-light);
+      font-weight: 700;
 
       i, .nav-svg {
         transform: scale(1.12);

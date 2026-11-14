@@ -100,44 +100,48 @@
     </div>
 
     <!-- Confirmation Modal -->
-    <div v-if="showConfirmDialog" class="modal-backdrop" @click.self="showConfirmDialog = false">
-      <div class="modal-card">
-        <div class="modal-icon-badge">
-          <i class="pi pi-trash"></i>
-        </div>
-        <h3>{{ t('Permanent Deletion') }}</h3>
-        <p>
-          {{
-            t('Are you absolutely sure you want to delete this account? You will be signed out immediately and your data deletion will be processed.')
-          }}
-        </p>
+    <Teleport to="body">
+      <div v-if="showConfirmDialog" class="modal-backdrop" @click.self="showConfirmDialog = false">
+        <div class="modal-card">
+          <div class="modal-icon-badge">
+            <i class="pi pi-trash"></i>
+          </div>
+          <h3>{{ t('Permanent Deletion') }}</h3>
+          <p>
+            {{
+              t('Are you absolutely sure you want to delete this account? You will be signed out immediately and your data deletion will be processed.')
+            }}
+          </p>
 
-        <div class="modal-actions">
-          <button class="modal-btn cancel" @click="showConfirmDialog = false">
-            {{ t('Cancel') }}
-          </button>
-          <button class="modal-btn delete" :disabled="isDeleting" @click="handleDeleteAccount">
-            <i v-if="isDeleting" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ t('Yes, Delete Account') }}</span>
-          </button>
+          <div class="modal-actions">
+            <button class="modal-btn cancel" @click="showConfirmDialog = false">
+              {{ t('Cancel') }}
+            </button>
+            <button class="modal-btn delete" :disabled="isDeleting" @click="handleDeleteAccount">
+              <i v-if="isDeleting" class="pi pi-spin pi-spinner"></i>
+              <span v-else>{{ t('Yes, Delete Account') }}</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../composables/useI18n';
 import { useAuthStore } from '../stores/auth';
+import { useModalState } from '../composables/useModalState';
 
 const router = useRouter();
 
 const authStore = useAuthStore();
 
 const { t, isRtl } = useI18n();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const confirmed = ref(false);
@@ -181,8 +185,24 @@ const handleDeleteAccount = async () => {
 };
 
 // 5. Watches (watch, watchEffect)
+watch(
+  showConfirmDialog,
+  (open) => {
+    if (open) {
+      registerModalOpen();
+    } else {
+      registerModalClose();
+    }
+  },
+  { immediate: true }
+);
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (showConfirmDialog.value) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>

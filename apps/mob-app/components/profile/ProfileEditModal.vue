@@ -1,16 +1,17 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click="close">
-    <div class="modal-sheet" @click.stop>
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <div class="header-title">
-          <i class="pi pi-user-edit"></i>
-          <h4>{{ t('Edit Profile') }}</h4>
+  <Teleport to="body">
+    <div v-if="activeOpen" class="modal-backdrop" @click="close">
+      <div class="modal-sheet" @click.stop>
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="header-title">
+            <i class="pi pi-user-edit"></i>
+            <h4>{{ t('Edit Profile') }}</h4>
+          </div>
+          <button type="button" class="btn-close" :aria-label="t('Close')" @click="close">
+            <i class="pi pi-times"></i>
+          </button>
         </div>
-        <button class="btn-close" :aria-label="t('Close')" @click="close">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
 
       <!-- Modal Body -->
       <form class="modal-form" @submit.prevent="handleSubmit">
@@ -129,23 +130,33 @@
       </form>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useAppToast } from '../../composables/useAppToast';
 import { useAuthStore } from '../../stores/auth';
+import { useModalState } from '../../composables/useModalState';
 import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
-const props = defineProps<{
-  isOpen: boolean;
-  user?: any;
-}>();
+const props = withDefaults(
+  defineProps<{
+    modelValue?: boolean;
+    isOpen?: boolean;
+    user?: any;
+  }>(),
+  {
+    modelValue: false,
+    isOpen: false,
+  }
+);
 
 const emit = defineEmits<{
+  (e: 'update:modelValue', val: boolean): void;
   (e: 'close'): void;
   (e: 'updated', user: any): void;
 }>();
@@ -154,6 +165,7 @@ const { t } = useI18n();
 const toast = useAppToast();
 const authStore = useAuthStore();
 const api = useUnityApi();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -167,6 +179,8 @@ const form = ref({
 });
 
 // 3. Computed (computed properties)
+const activeOpen = computed(() => !!(props.modelValue || props.isOpen));
+
 const maxDate = computed(() => {
   return new Date().toISOString().split('T')[0];
 });
@@ -185,6 +199,7 @@ const resolvedPreviewUrl = computed(() => {
 
 // 4. Methods (functions, handlers)
 const close = () => {
+  emit('update:modelValue', false);
   emit('close');
 };
 
@@ -250,20 +265,23 @@ const onPhotoSelected = (e: Event) => {
 
 const initForm = () => {
   let dob = '';
-  const rawDob = props.user?.patient?.date_of_birth || props.user?.date_of_birth;
+  const rawDob = props.user?.patient?.date_of_birth || props.user?.date_of_birth || authStore.user?.patient?.date_of_birth || authStore.user?.date_of_birth;
   if (rawDob) {
     try {
-      dob = new Date(rawDob).toISOString().split('T')[0];
+      const d = new Date(rawDob);
+      if (!isNaN(d.getTime())) {
+        dob = d.toISOString().split('T')[0];
+      }
     } catch {
       dob = '';
     }
   }
 
   form.value = {
-    name: props.user?.name || '',
-    avatar: props.user?.avatar || '',
+    name: props.user?.name || authStore.user?.name || '',
+    avatar: props.user?.avatar || authStore.user?.avatar || '',
     date_of_birth: dob,
-    gender: props.user?.patient?.gender || props.user?.gender || 'male',
+    gender: props.user?.patient?.gender || props.user?.gender || authStore.user?.patient?.gender || authStore.user?.gender || 'male',
   };
 };
 
@@ -315,16 +333,24 @@ const handleSubmit = async () => {
 
 // 5. Watches (watch, watchEffect)
 watch(
-  () => props.isOpen,
+  activeOpen,
   (val) => {
     if (val) {
+      registerModalOpen();
       initForm();
+    } else {
+      registerModalClose();
     }
   },
   { immediate: true }
 );
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (activeOpen.value) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
@@ -335,7 +361,7 @@ watch(
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   align-items: flex-end;
   justify-content: center;

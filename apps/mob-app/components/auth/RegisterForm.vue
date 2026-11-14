@@ -91,6 +91,24 @@
         </div>
       </div>
 
+      <!-- Referral / Invitation Code (Optional) -->
+      <div class="input-field-group">
+        <label class="field-label">{{ t('Referral Code (Optional)') }}</label>
+        <div class="input-shell">
+          <i class="pi pi-gift field-icon"></i>
+          <input 
+            v-model="step1Form.referral_code" 
+            type="text" 
+            :placeholder="t('e.g. UNI1234 (Earn 50 bonus points)')" 
+            dir="ltr"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          />
+        </div>
+      </div>
+
       <!-- Step 1 Submit Button -->
       <button 
         type="submit" 
@@ -353,6 +371,7 @@ const step1Form = ref({
   name: '',
   phone: '',
   password: '',
+  referral_code: '',
 });
 
 const isPhoneValid = ref(false);
@@ -425,6 +444,7 @@ const handleStep1Submit = async () => {
         name: step1Form.value.name.trim(),
         phone: step1Form.value.phone.trim(),
         password: step1Form.value.password,
+        referral_code: step1Form.value.referral_code ? step1Form.value.referral_code.trim().toUpperCase() : undefined,
       },
       pinia: true,
     });

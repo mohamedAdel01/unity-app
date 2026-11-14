@@ -13,51 +13,54 @@
     </div>
 
     <!-- Broadcast Modal -->
-    <div v-if="isBroadcastModalOpen" class="modal-backdrop" @click="isBroadcastModalOpen = false">
-      <div class="modal-sheet" @click.stop>
-        <div class="modal-head">
-          <h4>{{ t('Broadcast Notification') }}</h4>
-          <button class="btn-close" @click="isBroadcastModalOpen = false">
-            <i class="pi pi-times"></i>
-          </button>
-        </div>
-        <div class="modal-body">
-          <label class="field-label">{{ t('Notification Title') }}</label>
-          <input 
-            v-model="broadcastTitle" 
-            type="text" 
-            class="input-field" 
-            :placeholder="t('e.g. Schedule Update or Public Announcement')"
-          />
-          <label class="field-label">{{ t('Notification Message') }}</label>
-          <textarea 
-            v-model="broadcastBody" 
-            rows="3" 
-            class="input-field textarea" 
-            :placeholder="t('Type message contents...')"
-          ></textarea>
-        </div>
-        <div class="modal-foot">
-          <button class="btn-cancel" @click="isBroadcastModalOpen = false">{{ t('Cancel') }}</button>
-          <button 
-            class="btn-send" 
-            :disabled="!broadcastTitle.trim() || !broadcastBody.trim() || isSending" 
-            @click="sendBroadcastNotification"
-          >
-            {{ isSending ? t('Sending...') : t('Send') }}
-          </button>
+    <Teleport to="body">
+      <div v-if="isBroadcastModalOpen" class="modal-backdrop" @click="isBroadcastModalOpen = false">
+        <div class="modal-sheet" @click.stop>
+          <div class="modal-head">
+            <h4>{{ t('Broadcast Notification') }}</h4>
+            <button class="btn-close" @click="isBroadcastModalOpen = false">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <label class="field-label">{{ t('Notification Title') }}</label>
+            <input 
+              v-model="broadcastTitle" 
+              type="text" 
+              class="input-field" 
+              :placeholder="t('e.g. Schedule Update or Public Announcement')"
+            />
+            <label class="field-label">{{ t('Notification Message') }}</label>
+            <textarea 
+              v-model="broadcastBody" 
+              rows="3" 
+              class="input-field textarea" 
+              :placeholder="t('Type message contents...')"
+            ></textarea>
+          </div>
+          <div class="modal-foot">
+            <button class="btn-cancel" @click="isBroadcastModalOpen = false">{{ t('Cancel') }}</button>
+            <button 
+              class="btn-send" 
+              :disabled="!broadcastTitle.trim() || !broadcastBody.trim() || isSending" 
+              @click="sendBroadcastNotification"
+            >
+              {{ isSending ? t('Sending...') : t('Send') }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
+import { useModalState } from '../../composables/useModalState';
 
 const emit = defineEmits<{
   (e: 'broadcast-sent'): void;
@@ -66,6 +69,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const isBroadcastModalOpen = ref(false);
@@ -100,8 +104,24 @@ const sendBroadcastNotification = async () => {
 };
 
 // 5. Watches (watch, watchEffect)
+watch(
+  isBroadcastModalOpen,
+  (open) => {
+    if (open) {
+      registerModalOpen();
+    } else {
+      registerModalClose();
+    }
+  },
+  { immediate: true }
+);
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (isBroadcastModalOpen.value) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>

@@ -10,21 +10,12 @@
 
     <div class="theme-options-grid">
       <button 
-        class="theme-opt-btn opt-emerald" 
-        :class="{ 'selected': theme.currentTheme.value === 'emerald' }"
-        @click="theme.applyTheme('emerald')"
+        class="theme-opt-btn opt-light" 
+        :class="{ 'selected': theme.currentTheme.value === 'light' }"
+        @click="theme.applyTheme('light')"
       >
-        <span class="color-circle bg-emerald"></span>
-        <span>{{ t('Medical Emerald (Default)') }}</span>
-      </button>
-
-      <button 
-        class="theme-opt-btn opt-teal" 
-        :class="{ 'selected': theme.currentTheme.value === 'teal' }"
-        @click="theme.applyTheme('teal')"
-      >
-        <span class="color-circle bg-teal"></span>
-        <span>{{ t('Clinical Teal') }}</span>
+        <span class="color-circle bg-light"></span>
+        <span>{{ t('Light Mode') }}</span>
       </button>
 
       <button 
@@ -45,7 +36,6 @@ import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 
 const theme = useTheme();
-
 const { t } = useI18n();
 
 // 2. Data (refs, reactive state)
@@ -125,8 +115,7 @@ const { t } = useI18n();
       height: 16px;
       border-radius: 50%;
 
-      &.bg-emerald { background: #047857; }
-      &.bg-teal { background: #0f766e; }
+      &.bg-light { background: #047857; }
       &.bg-dark { background: #111827; border: 1px solid #4b5563; }
     }
 

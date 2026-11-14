@@ -5,7 +5,7 @@
       <div 
         class="avatar-wrapper" 
         :title="t('Edit Profile')"
-        @click="emit('edit')"
+        @click="handleEditClick"
       >
         <img 
           v-if="hasUserPhoto"
@@ -32,7 +32,12 @@
     </div>
 
     <!-- Edit Profile Button (Positioned on the left in RTL) -->
-    <button class="edit-profile-btn" :aria-label="t('Edit Profile')" @click="emit('edit')">
+    <button 
+      type="button" 
+      class="edit-profile-btn" 
+      :aria-label="t('Edit Profile')" 
+      @click="handleEditClick"
+    >
       <i class="pi pi-pencil"></i>
     </button>
   </div>
@@ -62,6 +67,13 @@ const hasUserPhoto = computed(() => isUserUploadedPhoto(props.user?.avatar));
 const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
 
 // 4. Methods (functions, handlers)
+const handleEditClick = (e?: Event) => {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  emit('edit');
+};
 
 // 5. Watches (watch, watchEffect)
 
@@ -192,6 +204,13 @@ const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
     font-size: 0.85rem;
     flex-shrink: 0;
     transition: all 0.2s;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+
+    i {
+      pointer-events: none;
+    }
 
     &:hover {
       background: var(--unity-border);

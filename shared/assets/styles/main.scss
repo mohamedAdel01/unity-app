@@ -3,7 +3,7 @@
 // ==========================================
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap');
 
-:root, [data-theme='emerald'] {
+:root, [data-theme='light'], [data-theme='emerald'] {
   --unity-primary: #047857;           // Deep Emerald Green (from user mockups)
   --unity-primary-dark: #064e3b;      // Dark Forest Green
   --unity-primary-hover: #065f46;
@@ -204,11 +204,20 @@ textarea:disabled,
 // Global Bottom Nav Suppression when any modal or sheet is open
 body.has-open-modal .bottom-nav-bar,
 body.has-open-modal .admin-bottom-nav,
-body:has([class*="-backdrop"]) .bottom-nav-bar,
-body:has([class*="-backdrop"]) .admin-bottom-nav {
+html.has-open-modal .bottom-nav-bar,
+html.has-open-modal .admin-bottom-nav,
+body:has([class*="backdrop"]) .bottom-nav-bar,
+body:has([class*="backdrop"]) .admin-bottom-nav,
+body:has([class*="-sheet"]) .bottom-nav-bar,
+body:has([class*="-sheet"]) .admin-bottom-nav,
+body:has(.modal-backdrop) .bottom-nav-bar,
+body:has(.modal-backdrop) .admin-bottom-nav,
+body:has(.modal-sheet) .bottom-nav-bar,
+body:has(.modal-sheet) .admin-bottom-nav {
   display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
   visibility: hidden !important;
+  transform: translateY(200%) !important;
 }
 

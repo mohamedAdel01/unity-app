@@ -22,6 +22,12 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    server: {
+      hmr: {
+        protocol: 'ws',
+        host: 'localhost',
+      },
+    },
     define: {
       'process.env.BASE_URL': JSON.stringify(apiUrl),
       'process.env.API_URL': JSON.stringify(apiUrl),

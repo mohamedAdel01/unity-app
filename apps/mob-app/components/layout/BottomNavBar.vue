@@ -1,5 +1,5 @@
 <template>
-  <nav class="bottom-nav-bar">
+  <nav v-show="!isAnyModalOpen" class="bottom-nav-bar" :class="{ 'is-modal-hidden': isAnyModalOpen }">
     <!-- Tab 1: Home -->
     <NuxtLink to="/" class="nav-btn" :class="{ 'active': route.path === '/' }">
       <i class="pi pi-home"></i>
@@ -43,12 +43,15 @@
 import { useRoute } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { useModalState } from '../../composables/useModalState';
 
 const route = useRoute();
 
 const { t } = useI18n();
 
 const bookingModal = useBookingModal();
+
+const { isAnyModalOpen } = useModalState();
 
 // 2. Data (refs, reactive state)
 
@@ -83,6 +86,14 @@ const bookingModal = useBookingModal();
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: background-color 0.25s ease, border-color 0.25s ease;
 
+  &.is-modal-hidden {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    transform: translateY(200%) !important;
+  }
+
   .nav-btn {
     display: flex;
     flex-direction: column;
@@ -91,8 +102,8 @@ const bookingModal = useBookingModal();
     gap: 3px;
     color: var(--unity-text-muted);
     text-decoration: none;
-    font-size: 0.72rem;
-    font-weight: 700;
+    font-size: 0.63rem;
+    font-weight: 600;
     width: 58px;
     height: 48px;
     border-radius: 24px;
@@ -114,6 +125,7 @@ const bookingModal = useBookingModal();
     &.active {
       color: var(--unity-active-tab-text, var(--unity-primary-dark));
       background: var(--unity-primary-light);
+      font-weight: 700;
 
       i {
         transform: scale(1.12);
@@ -158,8 +170,8 @@ const bookingModal = useBookingModal();
     }
 
     .fab-label {
-      font-size: 0.68rem;
-      font-weight: 700;
+      font-size: 0.62rem;
+      font-weight: 600;
       color: var(--unity-text-muted);
       margin-top: 1px;
     }

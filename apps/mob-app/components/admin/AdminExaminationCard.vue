@@ -15,6 +15,10 @@
       <div class="entity-info">
         <h4>{{ primaryName }}</h4>
         <span v-if="secondaryName" class="secondary-lang-pill">{{ secondaryName }}</span>
+        <span v-if="categoryName" class="category-badge">
+          <i :class="(examination as any)?.category?.icon || 'pi pi-folder'"></i>
+          {{ categoryName }}
+        </span>
         <p v-if="displayDescription" class="srv-desc">{{ displayDescription }}</p>
       </div>
 
@@ -104,6 +108,13 @@ const displayDescription = computed(() => {
   return props.examination.description_en || props.examination.description || '';
 });
 
+const categoryName = computed(() => {
+  const cat = (props.examination as any)?.category;
+  if (!cat) return '';
+  if (isRtl.value) return cat.name_ar || cat.name;
+  return cat.name_en || cat.name;
+});
+
 // 4. Methods (functions, handlers)
 
 // 5. Watches (watch, watchEffect)
@@ -172,6 +183,20 @@ const displayDescription = computed(() => {
         color: var(--unity-primary);
         font-weight: 600;
         opacity: 0.85;
+      }
+
+      .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.70rem;
+        font-weight: 700;
+        color: var(--unity-primary);
+        background: var(--unity-primary-light);
+        padding: 2px 7px;
+        border-radius: 6px;
+        width: fit-content;
+        margin-top: 1px;
       }
 
       .srv-desc {

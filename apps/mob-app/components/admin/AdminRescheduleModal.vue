@@ -1,5 +1,6 @@
 <template>
-  <div v-if="isOpen && booking" class="modal-backdrop" @click="close">
+  <Teleport to="body">
+    <div v-if="isOpen && booking" class="modal-backdrop" @click="close">
     <div class="modal-sheet" @click.stop>
       <div class="modal-header">
         <div class="header-title">
@@ -45,12 +46,14 @@
       </form>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, watch } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import { useModalState } from '../../composables/useModalState';
 import AppTimePicker from '../common/AppTimePicker.vue';
 
 const props = defineProps<{
@@ -64,6 +67,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const form = ref({
@@ -97,7 +101,24 @@ watch(() => props.booking, (bk) => {
   }
 }, { immediate: true });
 
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      registerModalOpen();
+    } else {
+      registerModalClose();
+    }
+  },
+  { immediate: true }
+);
+
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>

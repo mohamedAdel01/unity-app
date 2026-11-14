@@ -1,5 +1,6 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click="emit('close')">
+  <Teleport to="body">
+    <div v-if="isOpen" class="modal-backdrop" @click="emit('close')">
     <div class="modal-sheet" @click.stop>
       <div class="modal-head">
         <h4>{{ isEdit ? t('Edit Examination') : t('Add New Examination') }}</h4>
@@ -10,6 +11,19 @@
 
       <form class="modal-body" @submit.prevent="saveExamination">
         <!-- Examination Basic Info -->
+        <div class="form-group">
+          <label class="field-label">{{ t('Examination Category') }}</label>
+          <div class="input-shell select-shell">
+            <i class="pi pi-folder"></i>
+            <select v-model="form.category_id" class="input-select">
+              <option value="">{{ t('General (No Category)') }}</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                {{ isRtl ? (cat.name_ar || cat.name) : (cat.name_en || cat.name) }}
+              </option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="field-label">{{ t('Examination Name (Arabic)') }} <span class="required">*</span></label>
           <input 
@@ -227,14 +241,16 @@
       </form>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
+import { useModalState } from '../../composables/useModalState';
 import AppTimePicker from '../common/AppTimePicker.vue';
 
 interface ScheduleItem {
@@ -272,6 +288,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 const ALL_DAYS: Array<{ key: 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'; label: string }> = [
   { key: 'saturday', label: 'Saturday' },
@@ -284,9 +301,12 @@ const ALL_DAYS: Array<{ key: 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'th
 ];
 
 // 2. Data (refs, reactive state)
+const categories = ref<any[]>([]);
+
 const form = ref<{
   name_ar: string;
   name_en: string;
+  category_id: string;
   price: number | string;
   duration: number | string;
   description_ar: string;
@@ -294,6 +314,7 @@ const form = ref<{
 }>({
   name_ar: '',
   name_en: '',
+  category_id: '',
   price: '',
   duration: 15,
   description_ar: '',
@@ -521,6 +542,7 @@ const saveExamination = async () => {
       name_ar: arName,
       name_en: enName,
       name: examName,
+      category_id: form.value.category_id || null,
       price: numPrice,
       duration: numDuration,
       description_ar: arDesc || null,
@@ -601,6 +623,18 @@ const saveExamination = async () => {
   }
 };
 
+const ADMIN_EXAMINATION_CATEGORIES = async () => {
+  try {
+    const res = await api.apiRequest({
+      service: 'ADMIN_EXAMINATION_CATEGORIES',
+      filter: { limit: 100 },
+    });
+    if (res?.data) {
+      categories.value = Array.isArray(res.data) ? res.data : (res.data.items || []);
+    }
+  } catch (_) {}
+};
+
 // 5. Watches (watch, watchEffect)
 watch(
   () => props.examination,
@@ -610,6 +644,7 @@ watch(
       form.value = {
         name_ar: loc.name_ar,
         name_en: loc.name_en,
+        category_id: (val as any).category_id || (val as any).category?.id || '',
         price: val.price !== undefined && val.price !== null ? Number(val.price) : '',
         duration: val.duration !== undefined && val.duration !== null ? Number(val.duration) : 15,
         description_ar: loc.desc_ar,
@@ -620,6 +655,7 @@ watch(
       form.value = {
         name_ar: '',
         name_en: '',
+        category_id: '',
         price: '',
         duration: 15,
         description_ar: '',
@@ -634,21 +670,49 @@ watch(
 watch(
   () => props.isOpen,
   (open) => {
-    if (open && !props.examination) {
-      form.value = {
-        name_ar: '',
-        name_en: '',
-        price: '',
-        duration: 15,
-        description_ar: '',
-        description_en: '',
-      };
-      initSchedules();
+    if (open) {
+      ADMIN_EXAMINATION_CATEGORIES();
+      if (!props.examination) {
+        form.value = {
+          name_ar: '',
+          name_en: '',
+          category_id: '',
+          price: '',
+          duration: 15,
+          description_ar: '',
+          description_en: '',
+        };
+        initSchedules();
+      }
     }
   }
 );
 
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      registerModalOpen();
+      ADMIN_EXAMINATION_CATEGORIES();
+    } else {
+      registerModalClose();
+    }
+  },
+  { immediate: true }
+);
+
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  if (props.isOpen) {
+    ADMIN_EXAMINATION_CATEGORIES();
+  }
+});
+
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
@@ -768,6 +832,40 @@ watch(
         height: auto;
         padding: 10px 14px;
         resize: none;
+      }
+    }
+
+    .select-shell {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--unity-bg);
+      border: 1.5px solid var(--unity-border);
+      border-radius: 12px;
+      padding: 0 12px;
+      height: 44px;
+      transition: border-color 0.2s;
+
+      &:focus-within {
+        border-color: var(--unity-primary);
+      }
+
+      i {
+        font-size: 1rem;
+        color: var(--unity-text-muted);
+        margin-left: 8px;
+      }
+
+      .input-select {
+        flex: 1;
+        height: 100%;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 0.85rem;
+        color: var(--unity-text-main);
+        font-family: inherit;
+        cursor: pointer;
       }
     }
   }

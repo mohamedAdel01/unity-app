@@ -79,20 +79,12 @@ const hasUserPhoto = computed(() => isUserUploadedPhoto(currentUser.value?.avata
 const resolvedPhotoUrl = computed(() => resolveAvatarUrl(currentUser.value?.avatar));
 
 const themeIcon = computed(() => {
-  if (theme.currentTheme.value === 'dark') return 'pi pi-sun';
-  if (theme.currentTheme.value === 'teal') return 'pi pi-palette';
-  return 'pi pi-moon';
+  return theme.currentTheme.value === 'dark' ? 'pi pi-sun' : 'pi pi-moon';
 });
 
 // 4. Methods (functions, handlers)
 const toggleTheme = () => {
-  if (theme.currentTheme.value === 'emerald') {
-    theme.applyTheme('teal');
-  } else if (theme.currentTheme.value === 'teal') {
-    theme.applyTheme('dark');
-  } else {
-    theme.applyTheme('emerald');
-  }
+  theme.toggleDark();
 };
 
 const toggleLanguage = () => {

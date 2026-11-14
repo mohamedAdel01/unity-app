@@ -1,5 +1,6 @@
 <template>
-  <div v-if="isOpen && doctor" class="doctor-cases-modal-backdrop" @click="close">
+  <Teleport to="body">
+    <div v-if="isOpen && doctor" class="doctor-cases-modal-backdrop" @click="close">
     <div class="doctor-cases-modal-sheet" @click.stop>
       <!-- 1. Header -->
       <div class="sheet-header">
@@ -219,13 +220,15 @@
       </div>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
+import { useModalState } from '../../composables/useModalState';
 import AppVirtualList from '../common/AppVirtualList.vue';
 
 const props = defineProps<{
@@ -239,6 +242,7 @@ const emit = defineEmits<{
 
 const { t, isRtl } = useI18n();
 const api = useUnityApi();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const appointments = ref<any[]>([]);
@@ -448,16 +452,27 @@ watch([selectedDate, selectedStatus], () => {
 watch(
   () => props.isOpen,
   (open) => {
-    if (open && props.doctor) {
-      datePreset.value = 'all';
-      selectedDate.value = '';
-      selectedStatus.value = 'all';
-      ADMIN_APPOINTMENTS(1);
+    if (open) {
+      registerModalOpen();
+      if (props.doctor) {
+        datePreset.value = 'all';
+        selectedDate.value = '';
+        selectedStatus.value = 'all';
+        ADMIN_APPOINTMENTS(1);
+      }
+    } else {
+      registerModalClose();
     }
-  }
+  },
+  { immediate: true }
 );
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>

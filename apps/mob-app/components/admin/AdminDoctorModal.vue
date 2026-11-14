@@ -1,6 +1,7 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click="close">
-    <div class="modal-sheet" @click.stop="isClinicDropdownOpen = false">
+  <Teleport to="body">
+    <div v-if="isOpen" class="modal-backdrop" @click="close">
+      <div class="modal-sheet" @click.stop="isClinicDropdownOpen = false">
       <!-- Modal Header -->
       <div class="modal-header">
         <div class="header-title">
@@ -203,14 +204,16 @@
       </form>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
+import { useModalState } from '../../composables/useModalState';
 import AppPhoneInput from '../common/AppPhoneInput.vue';
 
 interface Doctor {
@@ -243,6 +246,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const loading = ref(false);
@@ -518,9 +522,27 @@ watch(
   }
 );
 
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      registerModalOpen();
+    } else {
+      registerModalClose();
+    }
+  },
+  { immediate: true }
+);
+
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   ADMIN_CLINICS();
+});
+
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
+  }
 });
 
 // 7. Meta (useHead, useSeoMeta)

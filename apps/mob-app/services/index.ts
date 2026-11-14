@@ -383,6 +383,58 @@ export default {
   // ==========================================
   // 9. ADMIN MEDICAL EXAMINATIONS MANAGEMENT
   // ==========================================
+  async ADMIN_EXAMINATION_CATEGORIES({ API, filter }: { API: any; filter?: any }) {
+    return await API(`admin/examination-categories${toQuery(filter)}`, {
+      method: 'GET',
+    });
+  },
+
+  async ADMIN_CREATE_EXAMINATION_CATEGORY({ API, payload }: { API: any; payload: any }) {
+    return await API('admin/examination-categories', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async ADMIN_UPDATE_EXAMINATION_CATEGORY({ API, payload }: { API: any; payload: { id: string | number; [key: string]: any } }) {
+    const { id, ...data } = payload;
+    return await API(`admin/examination-categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async ADMIN_TOGGLE_EXAMINATION_CATEGORY({ API, payload }: { API: any; payload: { id: string | number; is_active?: boolean } }) {
+    return await API(`admin/examination-categories/${payload.id}/toggle`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async ADMIN_DELETE_EXAMINATION_CATEGORY({ API, payload }: { API: any; payload: { id: string | number } }) {
+    return await API(`admin/examination-categories/${payload.id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async EXAMINATION_CATEGORIES({ API }: { API: any }) {
+    return await API('client/examinations/categories', {
+      method: 'GET',
+    });
+  },
+
+  async MY_REFERRAL_INFO({ API }: { API: any }) {
+    return await API('client/referral/me', {
+      method: 'GET',
+    });
+  },
+
+  async POINTS_HISTORY({ API }: { API: any }) {
+    return await API('client/referral/points-history', {
+      method: 'GET',
+    });
+  },
+
   async ADMIN_EXAMINATIONS({ API, filter }: { API: any; filter?: any }) {
     return await API(`admin/examinations${toQuery(filter)}`, {
       method: 'GET',

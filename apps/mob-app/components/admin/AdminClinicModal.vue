@@ -1,62 +1,65 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click="emit('close')">
-    <div class="modal-sheet" @click.stop>
-      <div class="modal-head">
-        <h4>{{ isEdit ? t('Edit Clinic') : t('New Clinic') }}</h4>
-        <button class="btn-close" :aria-label="t('Close')" @click="emit('close')">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="field-label">{{ t('Clinic Name (Arabic)') }} <span class="required">*</span></label>
-          <input 
-            v-model="form.name_ar" 
-            type="text" 
-            class="input-field" 
-            :placeholder="t('e.g. Cardiology Clinic')"
-            dir="rtl"
-            autofocus
-            @keyup.enter="saveClinic"
-          />
+  <Teleport to="body">
+    <div v-if="isOpen" class="modal-backdrop" @click="emit('close')">
+      <div class="modal-sheet" @click.stop>
+        <div class="modal-head">
+          <h4>{{ isEdit ? t('Edit Clinic') : t('New Clinic') }}</h4>
+          <button class="btn-close" :aria-label="t('Close')" @click="emit('close')">
+            <i class="pi pi-times"></i>
+          </button>
         </div>
 
-        <div class="form-group">
-          <label class="field-label">{{ t('Clinic Name (English)') }} <span class="required">*</span></label>
-          <input 
-            v-model="form.name_en" 
-            type="text" 
-            class="input-field" 
-            placeholder="e.g. Cardiology Clinic"
-            dir="ltr"
-            @keyup.enter="saveClinic"
-          />
-        </div>
-      </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="field-label">{{ t('Clinic Name (Arabic)') }} <span class="required">*</span></label>
+            <input 
+              v-model="form.name_ar" 
+              type="text" 
+              class="input-field" 
+              :placeholder="t('e.g. Cardiology Clinic')"
+              dir="rtl"
+              autofocus
+              @keyup.enter="saveClinic"
+            />
+          </div>
 
-      <div class="modal-foot">
-        <button type="button" class="btn-cancel" @click="emit('close')">{{ t('Cancel') }}</button>
-        <button 
-          type="button" 
-          class="btn-confirm" 
-          :disabled="!isFormValid || submitting" 
-          @click="saveClinic"
-        >
-          <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
-          <span v-else>{{ isEdit ? t('Save Changes') : t('Add Clinic') }}</span>
-        </button>
+          <div class="form-group">
+            <label class="field-label">{{ t('Clinic Name (English)') }} <span class="required">*</span></label>
+            <input 
+              v-model="form.name_en" 
+              type="text" 
+              class="input-field" 
+              placeholder="e.g. Cardiology Clinic"
+              dir="ltr"
+              @keyup.enter="saveClinic"
+            />
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn-cancel" @click="emit('close')">{{ t('Cancel') }}</button>
+          <button 
+            type="button" 
+            class="btn-confirm" 
+            :disabled="!isFormValid || submitting" 
+            @click="saveClinic"
+          >
+            <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
+            <span v-else>{{ isEdit ? t('Save Changes') : t('Add Clinic') }}</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
+import { useModalState } from '../../composables/useModalState';
 
 interface Clinic {
   id?: string | number;
@@ -81,6 +84,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const form = ref({
@@ -175,13 +179,24 @@ watch(
 watch(
   () => props.isOpen,
   (open) => {
-    if (open && !props.clinic) {
-      form.value = { name_ar: '', name_en: '' };
+    if (open) {
+      registerModalOpen();
+      if (!props.clinic) {
+        form.value = { name_ar: '', name_en: '' };
+      }
+    } else {
+      registerModalClose();
     }
-  }
+  },
+  { immediate: true }
 );
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>

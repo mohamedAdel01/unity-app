@@ -22,11 +22,13 @@
     <AdminExaminationsList
       v-else-if="activeTab === 'services'"
       :examinations="services"
+      :categories="categories"
       :has-more="servicesHasMore"
       :loading="servicesLoading"
       @toggle-status="toggleServiceStatus"
       @edit="openEditExaminationModal"
       @load-more="loadMoreExaminations"
+      @new-category="isCategoryModalOpen = true"
     />
 
     <AdminClinicModal
@@ -41,8 +43,14 @@
       :is-open="isExaminationModalOpen"
       :examination="selectedExaminationToEdit"
       @close="isExaminationModalOpen = false"
-      @created="ADMIN_EXAMINATIONS()"
-      @updated="ADMIN_EXAMINATIONS()"
+      @created="onExaminationSaved"
+      @updated="onExaminationSaved"
+    />
+
+    <AdminExaminationCategoryModal
+      :is-open="isCategoryModalOpen"
+      @close="isCategoryModalOpen = false"
+      @saved="onCategorySaved"
     />
   </div>
 </template>
@@ -60,6 +68,7 @@ import AdminClinicsList from '../../components/admin/AdminClinicsList.vue';
 import AdminExaminationsList from '../../components/admin/AdminExaminationsList.vue';
 import AdminClinicModal from '../../components/admin/AdminClinicModal.vue';
 import AdminExaminationModal from '../../components/admin/AdminExaminationModal.vue';
+import AdminExaminationCategoryModal from '../../components/admin/AdminExaminationCategoryModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -88,6 +97,8 @@ const servicesLoading = ref(false);
 const servicesLoaded = ref(false);
 const isClinicModalOpen = ref(false);
 const isExaminationModalOpen = ref(false);
+const isCategoryModalOpen = ref(false);
+const categories = ref<any[]>([]);
 const selectedClinicToEdit = ref<any | null>(null);
 const selectedExaminationToEdit = ref<any | null>(null);
 
@@ -191,9 +202,15 @@ const ADMIN_EXAMINATIONS = async (page: any = 1) => {
     const items = raw.map((s: any) => ({
       id: s.id,
       name: s.name,
+      name_ar: s.name_ar,
+      name_en: s.name_en,
       price: s.price,
       duration: s.duration,
       description: s.description,
+      description_ar: s.description_ar,
+      description_en: s.description_en,
+      category_id: s.category_id,
+      category: s.category,
       is_active: s.is_active ?? true,
       schedules: s.schedules || [],
     }));
@@ -218,6 +235,28 @@ const loadMoreExaminations = () => {
   if (servicesHasMore.value && !servicesLoading.value) {
     ADMIN_EXAMINATIONS(servicesPage.value + 1);
   }
+};
+
+const ADMIN_EXAMINATION_CATEGORIES = async () => {
+  try {
+    const res = await api.apiRequest({
+      service: 'ADMIN_EXAMINATION_CATEGORIES',
+      filter: { limit: 100 },
+    });
+    if (res?.data) {
+      categories.value = Array.isArray(res.data) ? res.data : (res.data.items || []);
+    }
+  } catch (_) {}
+};
+
+const onCategorySaved = () => {
+  ADMIN_EXAMINATION_CATEGORIES();
+  ADMIN_EXAMINATIONS(1);
+};
+
+const onExaminationSaved = () => {
+  ADMIN_EXAMINATION_CATEGORIES();
+  ADMIN_EXAMINATIONS(1);
 };
 
 // Debounced Clinic Status Toggle (Instant 0ms UI response + 500ms background debounce)
@@ -304,6 +343,7 @@ onMounted(() => {
     router.replace('/admin/appointments');
     return;
   }
+  ADMIN_EXAMINATION_CATEGORIES();
   if (route.query.tab === 'services') {
     activeTab.value = 'services';
     ADMIN_EXAMINATIONS();

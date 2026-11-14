@@ -35,6 +35,31 @@
       />
     </div>
 
+    <!-- Categories Filter Chips for Services/Examinations -->
+    <div v-if="activeTab === 'services' && categories.length > 0" class="categories-chips-scroll">
+      <button 
+        type="button" 
+        class="cat-chip" 
+        :class="{ 'active': selectedCategoryId === 'all' }"
+        @click="selectedCategoryId = 'all'"
+      >
+        <i class="pi pi-th-large"></i>
+        <span>{{ t('All Examinations') }}</span>
+      </button>
+
+      <button 
+        v-for="cat in categories" 
+        :key="cat.id" 
+        type="button" 
+        class="cat-chip" 
+        :class="{ 'active': String(selectedCategoryId) === String(cat.id) }"
+        @click="selectedCategoryId = cat.id"
+      >
+        <i :class="cat.icon || 'pi pi-folder'"></i>
+        <span>{{ isRtl ? (cat.name_ar || cat.name) : (cat.name_en || cat.name) }}</span>
+      </button>
+    </div>
+
     <!-- Content: Services Tab -->
     <div v-if="activeTab === 'services'" class="tab-content-area">
       <AppVirtualList
@@ -55,6 +80,10 @@
                   <h5>{{ getLocalizedName(service) }}</h5>
                   <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
                 </div>
+                <span v-if="service.category" class="service-cat-pill">
+                  <i :class="service.category?.icon || 'pi pi-folder'"></i>
+                  {{ isRtl ? (service.category?.name_ar || service.category?.name) : (service.category?.name_en || service.category?.name) }}
+                </span>
                 <p v-if="getLocalizedDesc(service)">{{ getLocalizedDesc(service) }}</p>
                 <div class="card-meta">
                   <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
@@ -232,6 +261,9 @@ const servicesPage = ref(1);
 const servicesHasMore = ref(false);
 const servicesLoading = ref(false);
 
+const categories = ref<any[]>([]);
+const selectedCategoryId = ref<string>('all');
+
 const doctors = ref<any[]>([]);
 const doctorsPage = ref(1);
 const doctorsHasMore = ref(false);
@@ -277,12 +309,17 @@ const activeClinicName = computed(() => {
 });
 
 const filteredServices = computed(() => {
-  if (!searchQuery.value) return services.value;
-  const q = searchQuery.value.toLowerCase();
-  return services.value.filter(s => 
-    s.name.toLowerCase().includes(q) || 
-    s.description?.toLowerCase().includes(q)
-  );
+  let list = services.value;
+  if (selectedCategoryId.value && selectedCategoryId.value !== 'all') {
+    list = list.filter((s: any) => String(s.category_id || s.category?.id) === String(selectedCategoryId.value));
+  }
+  if (!searchQuery.value) return list;
+  const q = searchQuery.value.toLowerCase().trim();
+  return list.filter((s: any) => {
+    const name = (getLocalizedName(s) || s.name || '').toLowerCase();
+    const desc = (getLocalizedDesc(s) || s.description || '').toLowerCase();
+    return name.includes(q) || desc.includes(q);
+  });
 });
 
 const filteredDoctors = computed(() => {
@@ -408,6 +445,17 @@ const bookDoctor = (doctor: any) => {
   bookingModal.openBookingFlow({ doctor, type: 'consultation' });
 };
 
+const EXAMINATION_CATEGORIES = async () => {
+  try {
+    const res = await api.apiRequest({ service: 'EXAMINATION_CATEGORIES' });
+    if (res?.data && Array.isArray(res.data)) {
+      categories.value = res.data;
+    }
+  } catch (_) {
+    categories.value = [];
+  }
+};
+
 // 5. Watches (watch, watchEffect)
 watch(() => route.query.tab, (newTab) => {
   if (newTab === 'doctors' || newTab === 'services') {
@@ -420,6 +468,7 @@ onMounted(() => {
   CLINICS();
   SERVICES();
   DOCTORS();
+  EXAMINATION_CATEGORIES();
 });
 
 // 7. Meta (useHead, useSeoMeta)
@@ -494,6 +543,47 @@ onMounted(() => {
     &:focus {
       border-color: var(--unity-primary);
       box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+    }
+  }
+}
+
+// Categories Chips Bar
+.categories-chips-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  .cat-chip {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 12px;
+    border: 1.5px solid var(--unity-border);
+    background: var(--unity-surface);
+    color: var(--unity-text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    i {
+      font-size: 0.88rem;
+    }
+
+    &:hover {
+      border-color: var(--unity-primary);
+      color: var(--unity-primary);
+    }
+
+    &.active {
+      background: var(--unity-primary-light);
+      border-color: var(--unity-primary);
+      color: var(--unity-primary);
     }
   }
 }
@@ -892,6 +982,21 @@ onMounted(() => {
           font-weight: 800;
           color: var(--unity-primary);
         }
+      }
+
+      .service-cat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.70rem;
+        font-weight: 700;
+        color: var(--unity-primary);
+        background: var(--unity-primary-light);
+        padding: 2px 7px;
+        border-radius: 6px;
+        width: fit-content;
+        margin-top: 3px;
+        margin-bottom: 2px;
       }
 
       p {

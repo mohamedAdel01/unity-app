@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "320602563248",
+    "project_id": "unity-clinics",
+    "storage_bucket": "unity-clinics.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:320602563248:android:ead5e6bdef1d38099e1175",
+        "android_client_info": {
+          "package_name": "com.unityClinics.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAq49ta3qNfclHqZ-mZekc8mtuPauCMwE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

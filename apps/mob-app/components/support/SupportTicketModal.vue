@@ -1,5 +1,6 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click.self="emit('close')">
+  <Teleport to="body">
+    <div v-if="isOpen" class="modal-backdrop" @click.self="emit('close')">
     <div class="modal-sheet" role="dialog" aria-modal="true">
       <!-- Modal Header -->
       <div class="modal-header">
@@ -125,16 +126,18 @@
       </form>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, watch, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
 import { useAppToast } from '../../composables/useAppToast';
+import { useModalState } from '../../composables/useModalState';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean;
 }>();
 
@@ -145,6 +148,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const authStore = useAuthStore();
 const { show: showToast } = useAppToast();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const isSubmitting = ref(false);
@@ -192,12 +196,29 @@ const onSubmit = async () => {
 };
 
 // 5. Watches (watch, watchEffect)
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      registerModalOpen();
+    } else {
+      registerModalClose();
+    }
+  },
+  { immediate: true }
+);
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   if (authStore.user) {
     form.name = authStore.user.name || '';
     form.phone = authStore.user.phone || '';
+  }
+});
+
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
   }
 });
 

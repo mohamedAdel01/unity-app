@@ -1,65 +1,67 @@
 <template>
-  <div 
-    v-if="toasts.length > 0" 
-    class="toast-portal-root" 
-    :dir="isRtl ? 'rtl' : 'ltr'"
-  >
+  <Teleport to="body">
     <div 
-      class="toast-stack-wrapper" 
-      :class="{ 'is-fanned': isHovered && toasts.length > 1 }"
-      @mouseenter="isHovered = true"
-      @mouseleave="isHovered = false"
+      v-if="toasts.length > 0" 
+      class="toast-portal-root" 
+      :dir="isRtl ? 'rtl' : 'ltr'"
     >
-      <TransitionGroup name="toast-card">
-        <div 
-          v-for="item in visibleToasts" 
-          :key="item.id" 
-          class="toast-card" 
-          :class="[
-            `toast-${item.type}`,
-            `stack-pos-${item.stackIndex}`,
-            { 'is-front': item.stackIndex === 0 }
-          ]"
-          :style="getStackStyle(item.stackIndex)"
-          role="alert"
-          @click="onCardClick(item)"
-        >
-          <!-- Compact Icon Badge -->
-          <div class="toast-icon-wrapper">
-            <i v-if="item.type === 'error'" class="pi pi-times"></i>
-            <i v-else-if="item.type === 'success'" class="pi pi-check"></i>
-            <i v-else-if="item.type === 'warning'" class="pi pi-exclamation-triangle"></i>
-            <i v-else class="pi pi-info-circle"></i>
-          </div>
-
-          <!-- Compact Body: Title + Message inline / tight block -->
-          <div class="toast-body">
-            <div class="toast-text-line">
-              <strong v-if="item.title" class="toast-title">{{ item.title }}</strong>
-              <span class="toast-message">{{ item.message }}</span>
-            </div>
-          </div>
-
-          <!-- Compact Close Button -->
-          <button 
-            type="button" 
-            class="toast-close-btn" 
-            :aria-label="t('Close notification')"
-            @click.stop="remove(item.id)"
-          >
-            <i class="pi pi-times"></i>
-          </button>
-
-          <!-- Dynamic Timer Progress Bar (Thin, Front Card Only) -->
+      <div 
+        class="toast-stack-wrapper" 
+        :class="{ 'is-fanned': isHovered && toasts.length > 1 }"
+        @mouseenter="isHovered = true"
+        @mouseleave="isHovered = false"
+      >
+        <TransitionGroup name="toast-card">
           <div 
-            v-if="item.duration && item.duration > 0 && item.stackIndex === 0" 
-            class="toast-progress-bar"
-            :style="{ animationDuration: `${item.duration}ms` }"
-          ></div>
-        </div>
-      </TransitionGroup>
+            v-for="item in visibleToasts" 
+            :key="item.id" 
+            class="toast-card" 
+            :class="[
+              `toast-${item.type}`,
+              `stack-pos-${item.stackIndex}`,
+              { 'is-front': item.stackIndex === 0 }
+            ]"
+            :style="getStackStyle(item.stackIndex)"
+            role="alert"
+            @click="onCardClick(item)"
+          >
+            <!-- Compact Icon Badge -->
+            <div class="toast-icon-wrapper">
+              <i v-if="item.type === 'error'" class="pi pi-times"></i>
+              <i v-else-if="item.type === 'success'" class="pi pi-check"></i>
+              <i v-else-if="item.type === 'warning'" class="pi pi-exclamation-triangle"></i>
+              <i v-else class="pi pi-info-circle"></i>
+            </div>
+
+            <!-- Compact Body: Title + Message inline / tight block -->
+            <div class="toast-body">
+              <div class="toast-text-line">
+                <strong v-if="item.title" class="toast-title">{{ item.title }}</strong>
+                <span class="toast-message">{{ item.message }}</span>
+              </div>
+            </div>
+
+            <!-- Compact Close Button -->
+            <button 
+              type="button" 
+              class="toast-close-btn" 
+              :aria-label="t('Close notification')"
+              @click.stop="remove(item.id)"
+            >
+              <i class="pi pi-times"></i>
+            </button>
+
+            <!-- Dynamic Timer Progress Bar (Thin, Front Card Only) -->
+            <div 
+              v-if="item.duration && item.duration > 0 && item.stackIndex === 0" 
+              class="toast-progress-bar"
+              :style="{ animationDuration: `${item.duration}ms` }"
+            ></div>
+          </div>
+        </TransitionGroup>
+      </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -135,10 +137,12 @@ const getStackStyle = (stackIndex: number) => {
 
 <style scoped lang="scss">
 .toast-portal-root {
-  position: absolute;
-  top: max(8px, env(safe-area-inset-top, 8px));
+  position: fixed;
+  top: max(76px, calc(env(safe-area-inset-top, 0px) + 28px));
   left: 0;
   right: 0;
+  margin: 0 auto;
+  max-width: 430px;
   z-index: 999999;
   pointer-events: none;
   display: flex;
@@ -183,6 +187,7 @@ const getStackStyle = (stackIndex: number) => {
   overflow: hidden;
   cursor: pointer;
   white-space: nowrap;
+  pointer-events: auto;
 
   &.is-front {
     cursor: default;

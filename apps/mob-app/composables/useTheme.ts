@@ -1,16 +1,17 @@
 import { ref, onMounted } from 'vue';
 
-export type AppTheme = 'emerald' | 'teal' | 'dark';
+export type AppTheme = 'light' | 'dark' | 'emerald' | 'teal';
 
-const currentTheme = ref<AppTheme>('emerald');
+const currentTheme = ref<'light' | 'dark'>('light');
 
 export function useTheme() {
-  const applyTheme = (theme: AppTheme) => {
-    currentTheme.value = theme;
+  const applyTheme = (theme: AppTheme | string) => {
+    const normalized: 'light' | 'dark' = theme === 'dark' ? 'dark' : 'light';
+    currentTheme.value = normalized;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('unity_theme', theme);
-      document.documentElement.setAttribute('data-theme', theme);
-      if (theme === 'dark') {
+      localStorage.setItem('unity_theme', normalized);
+      document.documentElement.setAttribute('data-theme', normalized);
+      if (normalized === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
@@ -20,18 +21,18 @@ export function useTheme() {
 
   const initTheme = () => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('unity_theme') as AppTheme | null;
-      if (saved && ['emerald', 'teal', 'dark'].includes(saved)) {
-        applyTheme(saved);
+      const saved = localStorage.getItem('unity_theme');
+      if (saved === 'dark') {
+        applyTheme('dark');
       } else {
-        applyTheme('emerald');
+        applyTheme('light');
       }
     }
   };
 
   const toggleDark = () => {
     if (currentTheme.value === 'dark') {
-      applyTheme('emerald');
+      applyTheme('light');
     } else {
       applyTheme('dark');
     }

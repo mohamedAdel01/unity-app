@@ -1,5 +1,6 @@
 <template>
-  <div v-if="isOpen" class="modal-backdrop" @click="close">
+  <Teleport to="body">
+    <div v-if="isOpen" class="modal-backdrop" @click="close">
     <div class="modal-sheet" @click.stop>
       <!-- Modal Header -->
       <div class="modal-header">
@@ -245,14 +246,16 @@
       </form>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
+import { useModalState } from '../../composables/useModalState';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -267,6 +270,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const loading = ref(false);
@@ -455,7 +459,24 @@ watch(
   { immediate: true }
 );
 
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      registerModalOpen();
+    } else {
+      registerModalClose();
+    }
+  },
+  { immediate: true }
+);
+
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (props.isOpen) {
+    registerModalClose();
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
