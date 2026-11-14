@@ -4,18 +4,21 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m2
 
-    environment:
-      groups:
-        - app_store # Defined in Codemagic UI: APP_STORE_CONNECT_PRIVATE_KEY, APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID
+    # اسم المفتاح زي ما هو ظاهر في Teams > Integrations > Developer Portal
+    integrations:
+      app_store_connect: codemagic
 
+    environment:
       node: 22
       xcode: latest
+      cocoapods: default
 
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.unityClinics.app
 
       vars:
+        XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.unityClinics.app"
         API_URL: "https://api.unity-clinics.cyou"
@@ -32,9 +35,6 @@ workflows:
       - name: Export environment variables
         script: |
           echo "API_URL=$API_URL" > apps/mob-app/.env
-          echo "BASE_URL=$API_URL" >> apps/mob-app/.env
-          echo "NUXT_PUBLIC_API_URL=$API_URL" >> apps/mob-app/.env
-          echo "NUXT_PUBLIC_BASE_URL=$API_URL" >> apps/mob-app/.env
           echo "NODE_ENV=production" >> apps/mob-app/.env
           echo "NUXT_PUBLIC_ENV=$NUXT_PUBLIC_ENV" >> apps/mob-app/.env
 
@@ -53,14 +53,13 @@ workflows:
           fi
           pnpm exec cap sync ios
 
-      - name: Install CocoaPods (if Podfile exists)
+      - name: Install CocoaPods
         script: |
           cd ios/App
-          if [ -f "Podfile" ]; then
-            echo "Podfile found, running pod install..."
+          if [ -f Podfile ]; then
             pod install
           else
-            echo "No Podfile found - Capacitor 8 uses Swift Package Manager (SPM)."
+            echo "No Podfile found - skipping pod install"
           fi
 
       - name: Configure iOS entitlements and resources
@@ -79,11 +78,9 @@ workflows:
                 target.resources_build_phase.add_file_reference(file_ref)
               end
             end
-            if File.exist?(File.join("App", "App.entitlements"))
-              project.targets.each do |t|
-                t.build_configurations.each do |config|
-                  config.build_settings["CODE_SIGN_ENTITLEMENTS"] = "App/App.entitlements"
-                end
+            project.targets.each do |t|
+              t.build_configurations.each do |config|
+                config.build_settings["CODE_SIGN_ENTITLEMENTS"] = "App/App.entitlements"
               end
             end
             project.save
@@ -149,13 +146,8 @@ workflows:
 
       - name: Build archive
         script: |
-          BUILD_TARGET="-project $CM_BUILD_DIR/ios/App/App.xcodeproj"
-          if [ -d "$CM_BUILD_DIR/ios/App/App.xcworkspace" ]; then
-            BUILD_TARGET="-workspace $CM_BUILD_DIR/ios/App/App.xcworkspace"
-          fi
-
           xcodebuild \
-            $BUILD_TARGET \
+            -workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
             -configuration Release \
             -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
@@ -176,7 +168,5 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        auth: integration
         submit_to_testflight: true
