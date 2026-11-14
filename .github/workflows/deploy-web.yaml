@@ -1,0 +1,123 @@
+name: Deploy Unity Web Portal to Production
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/web/**'
+      - 'shared/**'
+      - '.github/workflows/deploy-web.yaml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch: # Enable manual on-demand trigger from GitHub Actions tab
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy Web Portal to VPS
+    environment: production
+    runs-on: ubuntu-latest
+
+    steps:
+      # 🧾 1. Checkout repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ⚡ 2. Setup pnpm package manager
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
+      # 🟢 3. Setup Node.js runtime with pnpm caching
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      # 📦 4. Install monorepo dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      # 🏗️ 5. Generate optimized static Nuxt Web application
+      - name: Generate static web build
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=4096"
+          pnpm --filter @unity/web generate
+
+      # 🧹 6. Prepare remote project directory on VPS via SSH
+      - name: Prepare remote project directory
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          script: |
+            TARGET_DIR="${{ secrets.WEB_PROJECT_PATH }}"
+            if [ -z "$TARGET_DIR" ]; then
+              TARGET_DIR="/home/${{ secrets.SERVER_USER }}/unity_web"
+            fi
+            mkdir -p "$TARGET_DIR"
+            sudo chown -R ${{ secrets.SERVER_USER }}:${{ secrets.SERVER_USER }} "$TARGET_DIR"
+
+      # 🚀 7. Upload compiled web distribution and Docker assets to VPS
+      - name: Upload web files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          source: "apps/web/.output/public,apps/web/nginx.conf,apps/web/Dockerfile.standalone,apps/web/compose.yaml,apps/web/docker-compose.yml"
+          target: ${{ secrets.WEB_PROJECT_PATH || format('/home/{0}/unity_web', secrets.SERVER_USER) }}
+          overwrite: true
+
+      # 🐳 8. Build, run, and verify Docker container via SSH
+      - name: Deploy with Docker Compose
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          script: |
+            TARGET_DIR="${{ secrets.WEB_PROJECT_PATH }}"
+            if [ -z "$TARGET_DIR" ]; then
+              TARGET_DIR="/home/${{ secrets.SERVER_USER }}/unity_web"
+            fi
+            cd "$TARGET_DIR"
+
+            # Flatten uploaded files if nested under apps/web
+            if [ -d "apps/web" ]; then
+              cp -r apps/web/.output . 2>/dev/null || true
+              cp apps/web/nginx.conf . 2>/dev/null || true
+              cp apps/web/Dockerfile.standalone Dockerfile 2>/dev/null || true
+              cp apps/web/compose.yaml compose.yaml 2>/dev/null || true
+              cp apps/web/docker-compose.yml docker-compose.yml 2>/dev/null || true
+            fi
+
+            # Ensure Dockerfile exists
+            if [ ! -f Dockerfile ] && [ -f Dockerfile.standalone ]; then
+              cp Dockerfile.standalone Dockerfile
+            fi
+
+            # 1. Stop previous container gracefully
+            docker compose down --remove-orphans 2>/dev/null || docker-compose down --remove-orphans 2>/dev/null || true
+
+            # 2. Prune dangling images to conserve VPS disk
+            docker image prune -f || true
+
+            # 3. Build & start new container
+            docker compose up -d --build || docker-compose up -d --build
+
+            # 4. Verification delay
+            sleep 4
+
+            # 5. Output running container status
+            docker compose ps || docker-compose ps
+            echo "✨ Unity Web Portal deployed and listening successfully!"

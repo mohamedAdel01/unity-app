@@ -1,0 +1,21 @@
+services:
+  # ----------------------------------------------------
+  # Unity Web Portal (Terms, Privacy & Account Deletion)
+  # ----------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.standalone
+    image: unity_web:latest
+    container_name: unity_web
+    restart: always
+    ports:
+      - "${WEB_PORT:-3100}:80"
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
