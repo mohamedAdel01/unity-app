@@ -46,6 +46,7 @@ export default {
   "Search": "Search",
   "View All": "View All",
   "Loading...": "Loading...",
+  "Press back again to exit": "Press back again to exit",
   "Appointment Confirmed & Ready": "Appointment Confirmed & Ready",
   "Offers & Promocodes": "Offers & Promocodes",
   "Manage deals, discounts & coupons": "Manage deals, discounts & coupons",

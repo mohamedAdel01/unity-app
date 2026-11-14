@@ -40,6 +40,7 @@ export default {
   "Search": "بحث",
   "View All": "عرض الكل",
   "Loading...": "جاري التحميل...",
+  "Press back again to exit": "اضغط رجوع مرة أخرى للخروج من التطبيق",
   "Booked": "محجوز",
   "Slot is already booked": "هذا الموعد محجوز بالفعل",
   "Appointment Confirmed & Ready": "الموعد مؤكد ومعتمد من العيادة",

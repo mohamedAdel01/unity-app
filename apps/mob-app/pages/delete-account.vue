@@ -209,12 +209,12 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .delete-account-page {
-  padding: 16px 18px 32px;
+  padding: 16px 18px calc(120px + max(24px, env(safe-area-inset-bottom, 24px)));
   display: flex;
   flex-direction: column;
   gap: 16px;
   background: var(--unity-bg);
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 .page-header {

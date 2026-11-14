@@ -138,7 +138,7 @@ const getStackStyle = (stackIndex: number) => {
 <style scoped lang="scss">
 .toast-portal-root {
   position: fixed;
-  top: max(76px, calc(env(safe-area-inset-top, 0px) + 28px));
+  top: max(104px, calc(env(safe-area-inset-top, 0px) + 54px));
   left: 0;
   right: 0;
   margin: 0 auto;

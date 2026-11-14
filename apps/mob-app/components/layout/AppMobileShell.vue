@@ -32,6 +32,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useModalState } from '../../composables/useModalState';
+import { useAppBackButton } from '../../composables/useAppBackButton';
 import BottomNavBar from './BottomNavBar.vue';
 import AdminBottomNavBar from './AdminBottomNavBar.vue';
 import AppGlobalModals from './AppGlobalModals.vue';
@@ -46,6 +47,8 @@ const authStore = useAuthStore();
 const bookingModal = useBookingModal();
 
 const { isAnyModalOpen, initModalObserver, destroyModalObserver } = useModalState();
+
+const { initBackButtonHandler, destroyBackButtonHandler } = useAppBackButton();
 
 const { initLocale } = useI18n();
 
@@ -85,10 +88,12 @@ onMounted(() => {
   initLocale();
   authStore.initAuth();
   initModalObserver();
+  initBackButtonHandler();
 });
 
 onUnmounted(() => {
   destroyModalObserver();
+  destroyBackButtonHandler();
 });
 
 // 7. Meta (useHead, useSeoMeta)
@@ -181,8 +186,8 @@ onUnmounted(() => {
 
 .mobile-bottom-nav-spacer {
   width: 100%;
-  height: calc(115px + max(16px, env(safe-area-inset-bottom, 16px)));
-  min-height: calc(115px + max(16px, env(safe-area-inset-bottom, 16px)));
+  height: calc(125px + max(20px, env(safe-area-inset-bottom, 20px)));
+  min-height: calc(125px + max(20px, env(safe-area-inset-bottom, 20px)));
   flex-shrink: 0;
   pointer-events: none;
 }

@@ -6,46 +6,75 @@
         <h6>{{ t('Broadcast Notification') }}</h6>
         <p>{{ t('Send urgent announcements to all registered patients & staff.') }}</p>
       </div>
-      <button class="btn-broadcast" @click="isBroadcastModalOpen = true">
+      <button type="button" class="btn-broadcast" @click.stop="openModal">
         <i class="pi pi-megaphone"></i>
         <span>{{ t('Send Broadcast') }}</span>
       </button>
     </div>
 
-    <!-- Broadcast Modal -->
+    <!-- Broadcast Modal Bottom Sheet -->
     <Teleport to="body">
-      <div v-if="isBroadcastModalOpen" class="modal-backdrop" @click="isBroadcastModalOpen = false">
+      <div v-if="isBroadcastModalOpen" class="modal-backdrop" @click="closeModal">
         <div class="modal-sheet" @click.stop>
+          <div class="pill"></div>
+
           <div class="modal-head">
-            <h4>{{ t('Broadcast Notification') }}</h4>
-            <button class="btn-close" @click="isBroadcastModalOpen = false">
+            <div class="head-info">
+              <div class="head-icon">
+                <i class="pi pi-megaphone"></i>
+              </div>
+              <div class="head-titles">
+                <h4>{{ t('Broadcast Notification') }}</h4>
+                <p>{{ t('Send urgent announcements to all registered patients & staff.') }}</p>
+              </div>
+            </div>
+            <button type="button" class="btn-close" :aria-label="t('Close')" @click="closeModal">
               <i class="pi pi-times"></i>
             </button>
           </div>
+
           <div class="modal-body">
-            <label class="field-label">{{ t('Notification Title') }}</label>
-            <input 
-              v-model="broadcastTitle" 
-              type="text" 
-              class="input-field" 
-              :placeholder="t('e.g. Schedule Update or Public Announcement')"
-            />
-            <label class="field-label">{{ t('Notification Message') }}</label>
-            <textarea 
-              v-model="broadcastBody" 
-              rows="3" 
-              class="input-field textarea" 
-              :placeholder="t('Type message contents...')"
-            ></textarea>
+            <div class="form-group">
+              <label class="field-label">{{ t('Notification Title') }} <span class="req">*</span></label>
+              <div class="input-wrapper">
+                <i class="pi pi-bookmark input-icon"></i>
+                <input 
+                  v-model="broadcastTitle" 
+                  type="text" 
+                  class="input-field" 
+                  :placeholder="t('e.g. Schedule Update or Public Announcement')"
+                  dir="rtl"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">{{ t('Notification Message') }} <span class="req">*</span></label>
+              <div class="input-wrapper textarea-wrapper">
+                <textarea 
+                  v-model="broadcastBody" 
+                  rows="3" 
+                  class="input-field textarea" 
+                  :placeholder="t('Type message contents...')"
+                  dir="rtl"
+                ></textarea>
+              </div>
+            </div>
           </div>
+
           <div class="modal-foot">
-            <button class="btn-cancel" @click="isBroadcastModalOpen = false">{{ t('Cancel') }}</button>
+            <button type="button" class="btn-cancel" @click="closeModal">
+              {{ t('Cancel') }}
+            </button>
             <button 
+              type="button" 
               class="btn-send" 
               :disabled="!broadcastTitle.trim() || !broadcastBody.trim() || isSending" 
               @click="sendBroadcastNotification"
             >
-              {{ isSending ? t('Sending...') : t('Send') }}
+              <i :class="isSending ? 'pi pi-spin pi-spinner' : 'pi pi-send'"></i>
+              <span>{{ isSending ? t('Sending...') : t('Send') }}</span>
             </button>
           </div>
         </div>
@@ -80,6 +109,14 @@ const isSending = ref(false);
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const openModal = () => {
+  isBroadcastModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isBroadcastModalOpen.value = false;
+};
+
 const sendBroadcastNotification = async () => {
   if (!broadcastTitle.value.trim() || !broadcastBody.value.trim()) return;
   isSending.value = true;
@@ -94,7 +131,7 @@ const sendBroadcastNotification = async () => {
     toast.success(t('Notification broadcasted successfully!'));
     broadcastTitle.value = '';
     broadcastBody.value = '';
-    isBroadcastModalOpen.value = false;
+    closeModal();
     emit('broadcast-sent');
   } catch (err: any) {
     toast.error(err.message || t('Failed to send broadcast'));
@@ -112,8 +149,7 @@ watch(
     } else {
       registerModalClose();
     }
-  },
-  { immediate: true }
+  }
 );
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
@@ -170,111 +206,247 @@ onUnmounted(() => {
     font-weight: 700;
     white-space: nowrap;
     cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
   }
 }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 20px;
+}
 
-  .modal-sheet {
-    width: 100%;
-    max-width: 420px;
-    background: var(--unity-surface);
-    border-radius: 20px;
-    padding: 22px;
+.modal-sheet {
+  width: 100%;
+  max-width: 440px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--unity-surface);
+  border-radius: 28px 28px 0 0;
+  padding: 14px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  border-top: 1.5px solid var(--unity-border);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  direction: rtl;
+
+  .pill {
+    width: 40px;
+    height: 4px;
+    border-radius: 10px;
+    background: var(--unity-border);
+    margin: 0 auto 4px;
+    flex-shrink: 0;
+  }
+
+  .modal-head {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--unity-border);
 
-    .modal-head {
+    .head-info {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 10px;
 
-      h4 {
-        margin: 0;
-        font-size: 1.05rem;
-        font-weight: 800;
-        color: var(--unity-text-main);
+      .head-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--unity-primary-light);
+        color: var(--unity-primary);
+        border: 1px solid var(--unity-primary-tint);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
       }
 
-      .btn-close {
-        border: none;
-        background: none;
-        cursor: pointer;
-        font-size: 1rem;
-        color: var(--unity-text-dim);
+      .head-titles {
+        h4 {
+          margin: 0 0 2px;
+          font-size: 1rem;
+          font-weight: 800;
+          color: var(--unity-text-main);
+        }
+        p {
+          margin: 0;
+          font-size: 0.72rem;
+          color: var(--unity-text-dim);
+          line-height: 1.3;
+        }
       }
     }
 
-    .modal-body {
+    .btn-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--unity-bg);
+      border: 1.5px solid var(--unity-border);
+      color: var(--unity-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+
+      &:hover {
+        background: var(--unity-border);
+        color: var(--unity-text-main);
+      }
+    }
+  }
+
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .form-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
 
       .field-label {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--unity-text-muted);
-      }
-
-      .input-field {
-        padding: 10px 14px;
-        border-radius: 12px;
-        border: 1px solid var(--unity-border);
-        background: var(--unity-bg);
-        color: var(--unity-text-main);
-        font-size: 0.88rem;
-        outline: none;
-
-        &:focus {
-          border-color: var(--unity-primary);
-        }
-
-        &.textarea {
-          resize: none;
-        }
-      }
-    }
-
-    .modal-foot {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-
-      button {
-        padding: 8px 18px;
-        border-radius: 10px;
         font-size: 0.82rem;
         font-weight: 700;
-        cursor: pointer;
+        color: var(--unity-text-main);
 
-        &.btn-cancel {
-          background: none;
-          border: 1px solid var(--unity-border);
-          color: var(--unity-text-muted);
+        .req {
+          color: #ef4444;
+        }
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .input-icon {
+          position: absolute;
+          inset-inline-start: 12px;
+          color: var(--unity-text-dim);
+          font-size: 0.9rem;
+          pointer-events: none;
         }
 
-        &.btn-send {
-          background: var(--unity-primary);
-          border: none;
-          color: #fff;
+        .input-field {
+          width: 100%;
+          height: 46px;
+          padding: 0 14px;
+          padding-inline-start: 36px;
+          border-radius: 12px;
+          border: 1.5px solid var(--unity-border);
+          background: var(--unity-bg);
+          color: var(--unity-text-main);
+          font-size: 0.88rem;
+          font-family: inherit;
+          outline: none;
+          transition: all 0.2s;
 
-          &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+          &::placeholder {
+            color: var(--unity-text-dim);
+            font-size: 0.82rem;
+          }
+
+          &:focus {
+            border-color: var(--unity-primary);
+            background: var(--unity-surface);
+            box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+          }
+
+          &.textarea {
+            height: auto;
+            min-height: 80px;
+            padding: 10px 14px;
+            padding-inline-start: 14px;
+            resize: none;
+            line-height: 1.5;
           }
         }
       }
     }
   }
+
+  .modal-foot {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+
+    button {
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+
+      &.btn-cancel {
+        background: var(--unity-bg);
+        border: 1.5px solid var(--unity-border);
+        color: var(--unity-text-muted);
+
+        &:hover {
+          background: var(--unity-border-light);
+          color: var(--unity-text-main);
+        }
+      }
+
+      &.btn-send {
+        background: var(--unity-primary-gradient, linear-gradient(135deg, #047857 0%, #064e3b 100%));
+        border: none;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+
+        &:hover:not(:disabled) {
+          opacity: 0.95;
+          transform: translateY(-1px);
+        }
+
+        &:disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 </style>
-
