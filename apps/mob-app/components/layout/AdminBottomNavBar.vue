@@ -118,6 +118,10 @@ const authStore = useAuthStore();
     border-radius: 24px;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
+    span {
+      white-space: nowrap;
+    }
+
     i, .nav-svg {
       font-size: 1.2rem;
       width: 20px;

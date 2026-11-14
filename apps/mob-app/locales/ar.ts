@@ -189,6 +189,7 @@ export default {
   "Browse Services": "تصفح الخدمات",
   "Upcoming Appointments": "حجوزاتي القادمة",
   "My Bookings": "حجوزاتي",
+  "Booking": "حجوزاتي",
   "Certified Top Doctors": "نخبة الأطباء المعتمدين",
   "My Past Bookings": "حجوزاتي السابقة",
   "Visit History": "سجل الزيارات",
