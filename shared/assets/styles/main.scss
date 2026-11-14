@@ -200,3 +200,15 @@ textarea:disabled,
   pointer-events: none !important;
   box-shadow: none !important;
 }
+
+// Global Bottom Nav Suppression when any modal or sheet is open
+body.has-open-modal .bottom-nav-bar,
+body.has-open-modal .admin-bottom-nav,
+body:has([class*="-backdrop"]) .bottom-nav-bar,
+body:has([class*="-backdrop"]) .admin-bottom-nav {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
