@@ -12,7 +12,7 @@
           <div v-if="!hideBottomNav" class="mobile-bottom-nav-spacer" aria-hidden="true" />
         </main>
 
-        <!-- Bottom Navigation Bar (Admin vs Patient) -->
+        <!-- Bottom Navigation Bar (Admin vs Patient) - Automatically hidden when any modal is open -->
         <AdminBottomNavBar v-if="!hideBottomNav && isAdminRoute" />
         <BottomNavBar v-else-if="!hideBottomNav" />
 
@@ -25,11 +25,13 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
+import { useBookingModal } from '../../composables/useBookingModal';
+import { useModalState } from '../../composables/useModalState';
 import BottomNavBar from './BottomNavBar.vue';
 import AdminBottomNavBar from './AdminBottomNavBar.vue';
 import AppGlobalModals from './AppGlobalModals.vue';
@@ -40,6 +42,10 @@ const route = useRoute();
 const theme = useTheme();
 
 const authStore = useAuthStore();
+
+const bookingModal = useBookingModal();
+
+const { isAnyModalOpen, initModalObserver, destroyModalObserver } = useModalState();
 
 const { initLocale } = useI18n();
 
@@ -59,7 +65,14 @@ const isOnboarding = computed(() => {
 });
 
 const hideBottomNav = computed(() => {
-  return isAuthRoute.value || isOnboarding.value;
+  return (
+    isAuthRoute.value ||
+    isOnboarding.value ||
+    isAnyModalOpen.value ||
+    bookingModal.isQuickBookOpen.value ||
+    bookingModal.isBookingFlowOpen.value ||
+    bookingModal.isNotificationOpen.value
+  );
 });
 
 // 4. Methods (functions, handlers)
@@ -71,6 +84,11 @@ onMounted(() => {
   theme.initTheme();
   initLocale();
   authStore.initAuth();
+  initModalObserver();
+});
+
+onUnmounted(() => {
+  destroyModalObserver();
 });
 
 // 7. Meta (useHead, useSeoMeta)
@@ -167,5 +185,18 @@ onMounted(() => {
   min-height: calc(115px + max(16px, env(safe-area-inset-bottom, 16px)));
   flex-shrink: 0;
   pointer-events: none;
+}
+
+// ─── Force-hide bottom navigation whenever any modal backdrop is present ───
+:global(body.has-open-modal) .admin-bottom-nav,
+:global(body.has-open-modal) .bottom-nav-bar,
+.mobile-device-shell:has([class*="backdrop"]) .admin-bottom-nav,
+.mobile-device-shell:has([class*="backdrop"]) .bottom-nav-bar,
+.mobile-device-shell:has(.modal-backdrop) .admin-bottom-nav,
+.mobile-device-shell:has(.modal-backdrop) .bottom-nav-bar {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 </style>

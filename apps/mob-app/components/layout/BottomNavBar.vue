@@ -9,7 +9,7 @@
     <!-- Tab 2: Bookings (حجوزاتي) -->
     <NuxtLink to="/appointments" class="nav-btn" :class="{ 'active': route.path === '/appointments' }">
       <i class="pi pi-calendar"></i>
-      <span>{{ t('My Bookings') }}</span>
+      <span>{{ t('Booking') }}</span>
     </NuxtLink>
 
     <!-- Tab 3: Center Floating Plus (+) Button -->
@@ -97,6 +97,10 @@ const bookingModal = useBookingModal();
     height: 48px;
     border-radius: 24px;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    span {
+      white-space: nowrap;
+    }
 
     i {
       font-size: 1.2rem;

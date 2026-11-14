@@ -532,7 +532,7 @@ onMounted(() => {
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -545,7 +545,7 @@ onMounted(() => {
   overflow-y: auto;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  padding: 24px 20px calc(24px + max(16px, env(safe-area-inset-bottom, 16px)));
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
@@ -930,6 +930,7 @@ onMounted(() => {
       display: flex;
       gap: 10px;
       margin-top: 8px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
 
       button {
         flex: 1;
