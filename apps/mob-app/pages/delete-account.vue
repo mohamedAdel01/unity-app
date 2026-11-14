@@ -99,6 +99,9 @@
       </button>
     </div>
 
+    <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
+    <div class="delete-bottom-spacer" aria-hidden="true"></div>
+
     <!-- Confirmation Modal -->
     <Teleport to="body">
       <div v-if="showConfirmDialog" class="modal-backdrop" @click.self="showConfirmDialog = false">
@@ -209,12 +212,19 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .delete-account-page {
-  padding: 16px 18px calc(120px + max(24px, env(safe-area-inset-bottom, 24px)));
+  padding: 16px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   background: var(--unity-bg);
-  min-height: 100%;
+}
+
+.delete-bottom-spacer {
+  width: 100%;
+  height: 160px;
+  min-height: 160px;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .page-header {

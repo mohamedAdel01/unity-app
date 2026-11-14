@@ -99,6 +99,9 @@
         </p>
       </section>
     </div>
+
+    <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
+    <div class="terms-bottom-spacer" aria-hidden="true"></div>
   </div>
 </template>
 
@@ -126,12 +129,19 @@ const { t, isRtl } = useI18n();
 
 <style scoped lang="scss">
 .terms-page {
-  padding: 16px 18px calc(120px + max(24px, env(safe-area-inset-bottom, 24px)));
+  padding: 16px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   background: var(--unity-bg);
-  min-height: 100%;
+}
+
+.terms-bottom-spacer {
+  width: 100%;
+  height: 160px;
+  min-height: 160px;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .terms-header {

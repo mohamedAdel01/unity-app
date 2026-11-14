@@ -221,3 +221,15 @@ body:has(.modal-sheet) .admin-bottom-nav {
   transform: translateY(200%) !important;
 }
 
+// Universal Bottom Spacing Sentinel (Guarantees content fully clears floating bottom navbar)
+.page-bottom-spacer,
+.terms-bottom-spacer,
+.delete-bottom-spacer {
+  display: block;
+  width: 100%;
+  height: calc(140px + max(20px, env(safe-area-inset-bottom, 20px)));
+  min-height: calc(140px + max(20px, env(safe-area-inset-bottom, 20px)));
+  flex-shrink: 0;
+  pointer-events: none;
+}
+

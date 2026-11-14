@@ -47,6 +47,9 @@
       @close="isBookAppointmentModalOpen = false"
       @booked="ADMIN_PATIENTS"
     />
+
+    <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
+    <div class="page-bottom-spacer" aria-hidden="true" />
   </div>
 </template>
 

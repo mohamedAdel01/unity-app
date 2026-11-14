@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --filter @unity/mob-app dev",
+    "dev:web": "pnpm --filter @unity/web dev",
+    "build:web": "pnpm --filter @unity/web build",
+    "generate:web": "pnpm --filter @unity/web generate",
     "build:mobile": "turbo run build --filter=@unity/mob-app && turbo run generate --filter=@unity/mob-app && pnpm cap copy && pnpm cap sync && pnpm cap run android",
     "build": "turbo run build",
     "lint": "turbo run lint",

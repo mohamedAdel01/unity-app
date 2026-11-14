@@ -2,6 +2,8 @@
   <div class="appointments-page">
     <AppointmentsHeader :loading="loading" @refresh="onRefresh" />
     <AppointmentsList ref="listRef" />
+    <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
+    <div class="page-bottom-spacer" aria-hidden="true" />
   </div>
 </template>
 

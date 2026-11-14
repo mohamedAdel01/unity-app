@@ -50,6 +50,9 @@
       :loading="deleting"
       @confirm="handleConfirmDelete"
     />
+
+    <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
+    <div class="page-bottom-spacer" aria-hidden="true" />
   </div>
 </template>
 

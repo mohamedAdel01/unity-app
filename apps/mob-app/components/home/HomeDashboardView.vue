@@ -20,6 +20,9 @@
       :search-query="searchQuery" 
       :category-filter="activeFilter" 
     />
+
+    <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
+    <div class="page-bottom-spacer" aria-hidden="true" />
   </div>
 </template>
 
@@ -71,8 +74,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .home-screen {
-  padding: 16px 20px 48px;
-  margin-bottom: 24px;
+  padding: 16px 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 22px;

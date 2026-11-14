@@ -169,7 +169,7 @@ onUnmounted(() => {
   }
 
   padding-top: max(32px, env(safe-area-inset-top, 32px));
-  padding-bottom: calc(105px + max(20px, env(safe-area-inset-bottom, 20px)));
+  padding-bottom: 0;
   background: var(--unity-bg);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
@@ -186,10 +186,19 @@ onUnmounted(() => {
 
 .mobile-bottom-nav-spacer {
   width: 100%;
-  height: calc(125px + max(20px, env(safe-area-inset-bottom, 20px)));
-  min-height: calc(125px + max(20px, env(safe-area-inset-bottom, 20px)));
+  height: calc(140px + max(20px, env(safe-area-inset-bottom, 20px)));
+  min-height: calc(140px + max(20px, env(safe-area-inset-bottom, 20px)));
   flex-shrink: 0;
   pointer-events: none;
+}
+
+// Automatically collapse outer shell spacer if a page already contains an explicit bottom spacer
+.mobile-content-viewport:has(.page-bottom-spacer) .mobile-bottom-nav-spacer,
+.mobile-content-viewport:has(.terms-bottom-spacer) .mobile-bottom-nav-spacer,
+.mobile-content-viewport:has(.delete-bottom-spacer) .mobile-bottom-nav-spacer {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
 }
 
 // ─── Force-hide bottom navigation whenever any modal backdrop is present ───

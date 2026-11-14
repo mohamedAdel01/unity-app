@@ -31,6 +31,7 @@ authStore.initAuth();
 <style scoped lang="scss">
 .home-page-container {
   width: 100%;
-  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>
