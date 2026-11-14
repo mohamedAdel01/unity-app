@@ -18,6 +18,7 @@ workflows:
         bundle_identifier: com.unityClinics.app
 
       vars:
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.unityClinics.app"
@@ -53,13 +54,16 @@ workflows:
           fi
           pnpm exec cap sync ios
 
-      - name: Install CocoaPods
+      - name: Install CocoaPods (only if Podfile exists)
         script: |
           cd ios/App
+          echo "=== ios/App contents ==="
+          ls -la
           if [ -f Podfile ]; then
+            echo "Podfile found - running pod install"
             pod install
           else
-            echo "No Podfile found - skipping pod install"
+            echo "No Podfile - project uses Swift Package Manager, skipping pod install"
           fi
 
       - name: Configure iOS entitlements and resources
@@ -105,7 +109,7 @@ workflows:
 
       - name: Set up code signing
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles --project "$CM_BUILD_DIR/$XCODE_PROJECT"
 
       - name: Create export options plist
         script: |
@@ -146,8 +150,16 @@ workflows:
 
       - name: Build archive
         script: |
-          xcodebuild \
-            -workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE" \
+          # لو فيه workspace (CocoaPods) استخدمه، غير كده استخدم الـ project (Swift Package Manager)
+          if [ -d "$CM_BUILD_DIR/$XCODE_WORKSPACE" ]; then
+            echo "Using workspace: $XCODE_WORKSPACE"
+            TARGET=(-workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE")
+          else
+            echo "Using project: $XCODE_PROJECT"
+            TARGET=(-project "$CM_BUILD_DIR/$XCODE_PROJECT")
+          fi
+
+          xcodebuild "${TARGET[@]}" \
             -scheme "$XCODE_SCHEME" \
             -configuration Release \
             -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
