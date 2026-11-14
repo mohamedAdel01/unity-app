@@ -202,8 +202,6 @@ onUnmounted(() => {
 }
 
 // ─── Force-hide bottom navigation whenever any modal backdrop is present ───
-:global(body.has-open-modal) .admin-bottom-nav,
-:global(body.has-open-modal) .bottom-nav-bar,
 .mobile-device-shell:has([class*="backdrop"]) .admin-bottom-nav,
 .mobile-device-shell:has([class*="backdrop"]) .bottom-nav-bar,
 .mobile-device-shell:has(.modal-backdrop) .admin-bottom-nav,
