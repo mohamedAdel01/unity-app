@@ -1,11 +1,19 @@
 import { defineNuxtConfig } from 'nuxt/config';
+import { fileURLToPath } from 'node:url';
+
+const apiUrl = process.env.NUXT_PUBLIC_BASE_URL || process.env.BASE_URL || process.env.NUXT_PUBLIC_API_URL || process.env.API_URL || 'https://api.unity-clinics.cyou';
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-01',
   ssr: false,
+  alias: {
+    '@shared': fileURLToPath(new URL('../../shared', import.meta.url)),
+  },
   runtimeConfig: {
     public: {
-      API_URL: process.env.NUXT_PUBLIC_API_URL || 'https://api.unity-clinics.cyou',
+      BASE_URL: apiUrl,
+      API_URL: apiUrl,
+      apiUrl: apiUrl,
     },
   },
 
@@ -14,6 +22,12 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    define: {
+      'process.env.BASE_URL': JSON.stringify(apiUrl),
+      'process.env.API_URL': JSON.stringify(apiUrl),
+      'process.env.NUXT_PUBLIC_API_URL': JSON.stringify(apiUrl),
+      'window.__UNITY_API_URL__': JSON.stringify(apiUrl),
+    },
     build: {
       reportCompressedSize: false,
     },
