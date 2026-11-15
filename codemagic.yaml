@@ -22,6 +22,7 @@ workflows:
         XCODE_WORKSPACE: "ios/App/App.xcworkspace"
         XCODE_SCHEME: "App"
         BUNDLE_ID: "com.unityClinics.app"
+        DEVELOPMENT_TEAM: "XW9HMN8J9W"
         API_URL: "https://api.unity-clinics.cyou"
         NUXT_PUBLIC_ENV: "production"
 
@@ -83,14 +84,19 @@ workflows:
               end
             end
             entitlements_file = File.join("App", "App.entitlements")
+            team_id = ENV["DEVELOPMENT_TEAM"] || "XW9HMN8J9W"
             project.targets.each do |t|
               t.build_configurations.each do |config|
+                config.build_settings["DEVELOPMENT_TEAM"] = team_id
                 if File.exist?(entitlements_file)
                   config.build_settings["CODE_SIGN_ENTITLEMENTS"] = "App/App.entitlements"
                 else
                   config.build_settings.delete("CODE_SIGN_ENTITLEMENTS")
                 end
               end
+            end
+            project.build_configurations.each do |config|
+              config.build_settings["DEVELOPMENT_TEAM"] = team_id
             end
             puts File.exist?(entitlements_file) ? "Entitlements: using App/App.entitlements" : "Entitlements: App.entitlements not found, skipping"
             project.save
@@ -165,11 +171,14 @@ workflows:
             TARGET=(-project "$CM_BUILD_DIR/$XCODE_PROJECT")
           fi
 
+          TEAM_ID="${DEVELOPMENT_TEAM:-XW9HMN8J9W}"
+
           xcodebuild "${TARGET[@]}" \
             -scheme "$XCODE_SCHEME" \
             -configuration Release \
             -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
             archive \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
             CODE_SIGN_IDENTITY="Apple Distribution"
 
       - name: Export IPA
