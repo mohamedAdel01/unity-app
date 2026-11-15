@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { storage } from '@shared/utils/storage';
 
 export interface AuthUser {
   id: string;
@@ -64,13 +65,24 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    logout() {
+    async logout() {
       this.user = null;
       this.token = null;
       if (typeof window !== 'undefined') {
         localStorage.removeItem('unity_token');
         localStorage.removeItem('unity_user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        try {
+          sessionStorage.clear();
+        } catch (_) {}
       }
+      try {
+        await storage.remove('unity_token');
+        await storage.remove('unity_user');
+        await storage.remove('token');
+        await storage.remove('user');
+      } catch (_) {}
     },
 
     // Bya3 Pinia Store Synchronization Action
@@ -93,7 +105,7 @@ export const useAuthStore = defineStore('auth', {
           }
           break;
         case 'LOGOUT':
-          this.logout();
+          await this.logout();
           break;
       }
     },

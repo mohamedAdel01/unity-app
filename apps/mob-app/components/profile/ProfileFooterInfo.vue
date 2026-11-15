@@ -1,9 +1,15 @@
 <template>
   <div class="profile-footer-section">
     <!-- Logout Button -->
-    <button class="logout-action-btn" @click="handleLogout">
-      <i class="pi pi-sign-out" :class="{ 'rtl-flip': isRtl }"></i>
-      <span>{{ t('Log Out of Account') }}</span>
+    <button 
+      type="button" 
+      class="logout-action-btn" 
+      :disabled="isLoggingOut" 
+      @click="handleLogout"
+    >
+      <i v-if="isLoggingOut" class="pi pi-spin pi-spinner"></i>
+      <i v-else class="pi pi-sign-out" :class="{ 'rtl-flip': isRtl }"></i>
+      <span>{{ isLoggingOut ? t('Logging out...') : t('Log Out of Account') }}</span>
     </button>
 
     <!-- App Compliance Badge & Build Number -->
@@ -25,24 +31,36 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { useAuthStore } from '../../stores/auth';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 
-const router = useRouter();
-
+const authStore = useAuthStore();
 const api = useUnityApi();
-
 const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
+const isLoggingOut = ref(false);
 
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
 const handleLogout = async () => {
-  await api.apiRequest({ module: 'auth', service: 'LOGOUT', pinia: true });
-  router.push('/auth/login');
+  if (isLoggingOut.value) return;
+  isLoggingOut.value = true;
+
+  try {
+    // Attempt backend logout to revoke token
+    await api.apiRequest({ module: 'auth', service: 'LOGOUT', pinia: false });
+  } catch (err) {
+    console.warn('Backend logout warning:', err);
+  } finally {
+    // Always clear client-side auth state completely
+    await authStore.logout();
+    isLoggingOut.value = false;
+    await navigateTo('/auth/login', { replace: true });
+  }
 };
 
 // 5. Watches (watch, watchEffect)
@@ -84,8 +102,14 @@ const handleLogout = async () => {
       }
     }
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: #fee2e2;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
     }
   }
 

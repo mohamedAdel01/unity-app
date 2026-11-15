@@ -334,6 +334,7 @@ export default {
   "Medical History & Notes": "السجل الطبي والملاحظات",
   "Diagnoses, prescriptions, and reports": "التشخيصات والوصفات وتقارير الفحص",
   "Log Out of Account": "تسجيل الخروج من الحساب",
+  "Logging out...": "جاري تسجيل الخروج...",
   "Sign In to View Your Medical Record": "سجل دخولك لتتمكن من استعراض سجلك الطبي",
   "Sign in or register a patient profile to retain your bookings and health records": "قم بتسجيل الدخول أو إنشاء حساب مريض لربط مواعيدك وتقاريرك الطبية",
   "Sign In / Register": "تسجيل الدخول / إنشاء حساب",
