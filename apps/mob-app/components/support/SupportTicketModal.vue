@@ -40,9 +40,10 @@
 
       <!-- Form Body -->
       <form v-else class="modal-form" @submit.prevent="onSubmit">
-        <!-- Patient Name -->
+        <div class="form-body">
+          <!-- Patient Name -->
         <div class="form-group">
-          <label class="form-label">{{ t('Full Name') }}</label>
+          <label class="form-label">{{ t('Full Name') }} <span class="req">*</span></label>
           <div class="input-shell">
             <i class="pi pi-user input-icon"></i>
             <input 
@@ -57,7 +58,7 @@
 
         <!-- Phone Number -->
         <div class="form-group">
-          <label class="form-label">{{ t('Phone Number') }}</label>
+          <label class="form-label">{{ t('Phone Number') }} <span class="req">*</span></label>
           <div class="input-shell">
             <i class="pi pi-phone input-icon"></i>
             <input 
@@ -72,7 +73,7 @@
 
         <!-- Issue Category -->
         <div class="form-group">
-          <label class="form-label">{{ t('Inquiry or Issue Type') }}</label>
+          <label class="form-label">{{ t('Inquiry or Issue Type') }} <span class="req">*</span></label>
           <div class="select-shell">
             <select v-model="form.category" required>
               <option value="general">{{ t('General Inquiry') }}</option>
@@ -87,7 +88,7 @@
 
         <!-- Subject -->
         <div class="form-group">
-          <label class="form-label">{{ t('Subject') }}</label>
+          <label class="form-label">{{ t('Subject') }} <span class="req">*</span></label>
           <div class="input-shell">
             <i class="pi pi-tag input-icon"></i>
             <input 
@@ -102,7 +103,7 @@
 
         <!-- Details -->
         <div class="form-group">
-          <label class="form-label">{{ t('Details & Description') }}</label>
+          <label class="form-label">{{ t('Details & Description') }} <span class="req">*</span></label>
           <textarea 
             v-model="form.details"
             rows="3" 
@@ -110,6 +111,8 @@
             :placeholder="t('Please provide as much detail as possible to help us assist you quickly...')"
             class="textarea-shell"
           ></textarea>
+        </div>
+
         </div>
 
         <!-- Actions -->
@@ -246,25 +249,27 @@ onUnmounted(() => {
   background: var(--unity-surface, #ffffff);
   width: 100%;
   max-width: 480px;
-  max-height: 90vh;
+  max-height: 88vh;
   border-radius: 24px 24px 0 0;
-  padding: 20px 20px 28px;
-  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.15);
 
   @media (min-width: 640px) {
     border-radius: 24px;
-    padding: 24px;
+    padding: 0;
   }
-}
 
-.modal-header {
+  .modal-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  padding: 16px 20px 14px;
   border-bottom: 1px solid var(--unity-border, #e2e8f0);
+  background: var(--unity-surface, #ffffff);
 
   .header-title-box {
     display: flex;
@@ -321,7 +326,19 @@ onUnmounted(() => {
 .modal-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+
+  .form-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
 
   .form-group {
     display: flex;
@@ -332,6 +349,11 @@ onUnmounted(() => {
       font-size: 0.78rem;
       font-weight: 700;
       color: var(--unity-text-main, #334155);
+
+      .req {
+        color: #ef4444;
+        margin-inline-start: 2px;
+      }
     }
 
     .input-shell {
@@ -419,42 +441,62 @@ onUnmounted(() => {
       }
     }
   }
+}
 
   .form-actions {
+    flex-shrink: 0;
+    padding: 14px 20px 20px;
+    border-top: 1px solid var(--unity-border, #e2e8f0);
+    background: var(--unity-surface, #ffffff);
     display: flex;
-    gap: 10px;
-    margin-top: 8px;
+    align-items: center;
+    gap: 12px;
+    margin-top: 0;
 
     .cancel-btn {
       flex: 1;
-      height: 44px;
+      height: 48px;
       border-radius: 12px;
       background: var(--unity-surface-muted, #f8fafc);
-      border: 1px solid var(--unity-border, #e2e8f0);
+      border: 1.5px solid var(--unity-border, #e2e8f0);
       color: var(--unity-text-secondary, #64748b);
-      font-size: 0.85rem;
+      font-size: 0.90rem;
       font-weight: 700;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--unity-border, #e2e8f0);
+        color: var(--unity-text-main, #0f172a);
+      }
     }
 
     .submit-btn {
       flex: 2;
-      height: 44px;
+      height: 48px;
       border-radius: 12px;
       background: var(--unity-primary, #059669);
       border: none;
       color: #ffffff;
-      font-size: 0.85rem;
+      font-size: 0.90rem;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: var(--unity-primary-dark, #047857);
+      }
 
       &:disabled {
-        opacity: 0.7;
+        opacity: 0.55;
         cursor: not-allowed;
       }
     }
@@ -528,6 +570,7 @@ onUnmounted(() => {
     font-weight: 700;
     cursor: pointer;
   }
+}
 }
 </style>
 

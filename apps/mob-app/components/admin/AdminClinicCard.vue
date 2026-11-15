@@ -12,7 +12,6 @@
 
       <div class="entity-info">
         <h4>{{ primaryName }}</h4>
-        <span v-if="secondaryName" class="secondary-lang-pill">{{ secondaryName }}</span>
       </div>
 
       <button 
@@ -76,23 +75,16 @@ const emit = defineEmits<{
   (e: 'edit', clinic: Clinic): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
 const primaryName = computed(() => {
   if (isRtl.value) {
-    return props.clinic.name_ar || props.clinic.name;
+    return resolveI18n(props.clinic.name_ar || props.clinic.name);
   }
-  return props.clinic.name_en || props.clinic.name;
-});
-
-const secondaryName = computed(() => {
-  if (isRtl.value) {
-    return props.clinic.name_en && props.clinic.name_en !== primaryName.value ? props.clinic.name_en : '';
-  }
-  return props.clinic.name_ar && props.clinic.name_ar !== primaryName.value ? props.clinic.name_ar : '';
+  return resolveI18n(props.clinic.name_en || props.clinic.name);
 });
 
 // 4. Methods (functions, handlers)
@@ -160,14 +152,6 @@ const secondaryName = computed(() => {
       span {
         font-size: 0.72rem;
         color: var(--unity-text-muted);
-      }
-
-      .secondary-lang-pill {
-        display: inline-block;
-        font-size: 0.72rem;
-        color: var(--unity-primary);
-        font-weight: 600;
-        opacity: 0.85;
       }
     }
 

@@ -8,7 +8,7 @@
         </span>
       </div>
       <NuxtLink to="/appointments" class="see-all-link">
-        {{ t('View All') }} 
+        <span>{{ t('View All') }}</span>
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>
     </div>
@@ -27,7 +27,8 @@
             <img 
               v-if="apt.doctor?.avatar || apt.doctor?.user?.avatar"
               :src="apt.doctor?.avatar || apt.doctor?.user?.avatar" 
-              alt="Doctor" 
+              alt=""
+              @error="(e: any) => e.target.style.display = 'none'" 
             />
             <div v-else class="initial-box">
               <span>{{ (apt.doctor?.name || apt.doctor?.user?.name || apt.examination?.name || 'D').charAt(0).toUpperCase() }}</span>
@@ -37,7 +38,7 @@
           <!-- Doctor & Time Info -->
           <div class="info-wrap">
             <div class="top-row">
-              <h5 class="doc-title">{{ apt.doctor?.name || apt.doctor?.user?.name || apt.examination?.name || apt.offer?.title || t('Medical Appointment') }}</h5>
+              <h5 class="doc-title">{{ getCardTitle(apt) }}</h5>
               <span class="status-chip" :class="apt.status">
                 {{ apt.status === 'confirmed' ? t('Confirmed') : t('Pending Confirmation') }}
               </span>
@@ -99,7 +100,7 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 const bookingModal = useBookingModal();
 
 // 2. Data (refs, reactive state)
@@ -116,6 +117,26 @@ const appointmentsList = computed<any[]>(() => {
 });
 
 // 4. Methods (functions, handlers)
+const getCardTitle = (apt: any) => {
+  const exam = apt.examination;
+  if (exam) {
+    const n = !isRtl.value && exam.name_en ? exam.name_en : (exam.name_ar || exam.name);
+    if (n) return resolveI18n(n);
+  }
+  const offer = apt.offer;
+  if (offer) {
+    const title = !isRtl.value && offer.title_en ? offer.title_en : (offer.title_ar || offer.title);
+    if (title) return resolveI18n(title);
+  }
+  const serv = apt.service;
+  if (serv) {
+    const n = !isRtl.value && serv.name_en ? serv.name_en : (serv.name_ar || serv.name);
+    if (n) return resolveI18n(n);
+  }
+  if (apt.doctor?.name) return resolveI18n(apt.doctor.name);
+  if (apt.doctor?.user?.name) return resolveI18n(apt.doctor.user.name);
+  return t('Medical Appointment');
+};
 const formatSlotTime = (timeStr?: string) => {
   if (!timeStr) return '';
   const trimmed = String(timeStr).trim();
@@ -183,34 +204,43 @@ const openDetails = (apt: any) => {
       gap: 6px;
 
       h4 {
-        font-size: 0.98rem;
-        font-weight: 800;
+        font-size: 0.88rem;
+        font-weight: 700;
         color: var(--unity-text-main);
         margin: 0;
+        line-height: 1.3;
       }
 
       .count-pill {
         background: var(--unity-primary);
         color: #fff;
-        font-size: 0.68rem;
+        font-size: 0.65rem;
         font-weight: 800;
-        padding: 1px 7px;
+        padding: 1px 6px;
         border-radius: 10px;
       }
     }
 
     .see-all-link {
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.68rem;
+      font-weight: 600;
       color: var(--unity-primary);
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 2px;
-      transition: gap 0.2s;
+      opacity: 0.88;
+      padding: 2px 4px;
+      border-radius: 6px;
+      transition: all 0.2s;
+
+      i {
+        font-size: 0.58rem;
+      }
 
       &:hover {
-        gap: 5px;
+        opacity: 1;
+        background: var(--unity-primary-light);
       }
     }
   }

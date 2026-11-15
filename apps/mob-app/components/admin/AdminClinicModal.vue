@@ -216,19 +216,25 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 430px;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 20px 20px 32px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  overflow: hidden;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
 
   .modal-head {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
 
     h4 {
       font-size: 1.1rem;
@@ -258,10 +264,15 @@ onUnmounted(() => {
   }
 
   .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 12px;
     text-align: right;
+    -webkit-overflow-scrolling: touch;
 
     .form-group {
       display: flex;
@@ -299,9 +310,12 @@ onUnmounted(() => {
   }
 
   .modal-foot {
+    flex-shrink: 0;
+    padding: 14px 20px 24px;
+    border-top: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
     display: flex;
     gap: 10px;
-    margin-top: 8px;
 
     button {
       flex: 1;

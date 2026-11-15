@@ -15,9 +15,10 @@
 
       <!-- Modal Body (Name & Phone Only) -->
       <form class="modal-form" @submit.prevent="handleSubmit">
-        <!-- Patient Full Name -->
+        <div class="form-body">
+          <!-- Patient Full Name -->
         <div class="form-group">
-          <label>{{ t('Full Name') }}</label>
+          <label>{{ t('Full Name') }} <span class="required">*</span></label>
           <div class="input-shell">
             <i class="pi pi-user"></i>
             <input 
@@ -32,12 +33,14 @@
 
         <!-- Phone Number -->
         <div class="form-group">
-          <label>{{ t('Phone Number') }}</label>
+          <label>{{ t('Phone Number') }} <span class="required">*</span></label>
           <AppPhoneInput 
             v-model="form.phone"
             :required="true"
             @valid="val => isPhoneValid = val"
           />
+        </div>
+
         </div>
 
         <!-- Submit Button -->
@@ -231,20 +234,26 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 430px;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 24px 20px 32px;
+  padding: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
 
   .modal-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
+    margin-bottom: 0;
 
     .header-title {
       display: flex;
@@ -291,52 +300,74 @@ onUnmounted(() => {
   .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
 
-    .form-group {
+    .form-body {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      text-align: right;
+      gap: 16px;
+      -webkit-overflow-scrolling: touch;
 
-      label {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--unity-text-main);
-      }
-
-      .input-shell {
+      .form-group {
         display: flex;
-        align-items: center;
-        gap: 10px;
-        background: var(--unity-bg);
-        border: 1.5px solid var(--unity-border);
-        border-radius: 14px;
-        padding: 0 14px;
-        height: 48px;
-        transition: border-color 0.2s;
+        flex-direction: column;
+        gap: 6px;
+        text-align: right;
 
-        i {
-          color: var(--unity-text-dim);
-          font-size: 1rem;
+        label {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: var(--unity-text-main);
+
+          .required {
+            color: #ef4444;
+            margin-inline-start: 2px;
+          }
         }
 
-        input {
-          flex: 1;
-          background: transparent;
-          border: none;
-          outline: none;
-          font-size: 0.88rem;
-          color: var(--unity-text-main);
-          font-family: inherit;
+        .input-shell {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: var(--unity-bg);
+          border: 1.5px solid var(--unity-border);
+          border-radius: 14px;
+          padding: 0 14px;
+          height: 48px;
+          transition: border-color 0.2s;
+
+          i {
+            color: var(--unity-text-dim);
+            font-size: 1rem;
+          }
+
+          input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 0.88rem;
+            color: var(--unity-text-main);
+            font-family: inherit;
+          }
         }
       }
     }
 
     .modal-actions {
+      flex-shrink: 0;
+      padding: 14px 20px 24px;
+      border-top: 1px solid var(--unity-border-light);
+      background: var(--unity-surface);
       display: flex;
       gap: 10px;
-      margin-top: 8px;
+      margin-top: 0;
 
       button {
         flex: 1;

@@ -25,19 +25,20 @@
         <div class="doc-card-header">
           <div class="doc-avatar-group">
             <img 
-              v-if="doctor.avatar"
+              v-if="doctor.avatar && !failedAvatars.has(doctor.id)"
               :src="doctor.avatar" 
-              :alt="doctor.name" 
+              alt=""
+              @error="failedAvatars.add(doctor.id)" 
             />
             <div v-else class="doc-initial-avatar">
               <span>{{ (doctor.name || 'D').charAt(0).toUpperCase() }}</span>
             </div>
             <div class="doc-texts">
               <h5>{{ doctor.name }}</h5>
-              <p v-if="doctor.specialty && doctor.specialty !== doctor.clinic?.name">{{ doctor.specialty }}</p>
-              <div v-if="doctor.clinic?.name" class="doc-clinic-name">
+              <p v-if="doctor.specialty && doctor.specialty !== doctor.clinic?.name">{{ resolveI18n(doctor.specialty) }}</p>
+              <div v-if="doctor.clinic?.name || doctor.clinic?.name_ar || doctor.clinic?.name_en" class="doc-clinic-name">
                 <i class="pi pi-building"></i>
-                <span>{{ doctor.clinic.name }}</span>
+                <span>{{ getClinicName(doctor.clinic) }}</span>
               </div>
             </div>
           </div>
@@ -78,7 +79,7 @@ const props = defineProps<{
 
 const api = useUnityApi();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 
 const bookingModal = useBookingModal();
 
@@ -86,6 +87,7 @@ const globalStore = useGlobalStore();
 
 // 2. Data (refs, reactive state)
 const doctors = ref<any[]>([]);
+const failedAvatars = ref(new Set<string | number>());
 
 // 3. Computed (computed properties)
 const filteredDoctors = computed(() => {
@@ -99,6 +101,13 @@ const filteredDoctors = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
+const getClinicName = (c: any) => {
+  if (!c) return '';
+  if (!isRtl.value && c.name_en) return resolveI18n(c.name_en);
+  if (isRtl.value && c.name_ar) return resolveI18n(c.name_ar);
+  return resolveI18n(c.name || c.name_ar || c.name_en || '');
+};
+
 const DOCTORS = async () => {
   try {
     const res = await api.apiRequest({ service: 'DOCTORS' });
@@ -147,30 +156,45 @@ onMounted(() => {
     justify-content: space-between;
 
     h4 {
-      font-size: 1.05rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: var(--unity-text-main);
+      margin: 0;
+      line-height: 1.3;
     }
 
     .header-with-badge {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
 
       .verified-icon {
         color: #10b981;
-        font-size: 1.15rem;
+        font-size: 0.90rem;
       }
     }
 
     .see-all-link {
-      font-size: 0.78rem;
-      font-weight: 700;
+      font-size: 0.68rem;
+      font-weight: 600;
       color: var(--unity-primary);
       text-decoration: none;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 2px;
+      opacity: 0.88;
+      padding: 2px 4px;
+      border-radius: 6px;
+      transition: all 0.2s;
+
+      i {
+        font-size: 0.58rem;
+      }
+
+      &:hover {
+        opacity: 1;
+        background: var(--unity-primary-light);
+      }
     }
   }
 }

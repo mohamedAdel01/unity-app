@@ -20,24 +20,6 @@
     </div>
 
     <div class="header-action-buttons">
-      <!-- Language Switcher (AR / EN) -->
-      <button 
-        class="icon-action-btn lang-toggle-btn" 
-        :aria-label="t('Switch to English')"
-        @click="toggleLanguage"
-      >
-        <span class="lang-text">{{ t('EN') }}</span>
-      </button>
-
-      <!-- Theme Switcher -->
-      <button 
-        class="icon-action-btn theme-toggle-btn" 
-        aria-label="Theme Toggle"
-        @click="toggleTheme"
-      >
-        <i :class="themeIcon"></i>
-      </button>
-
       <!-- Notification Bell -->
       <button 
         class="icon-action-btn notif-bell-btn" 
@@ -55,17 +37,12 @@
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
-import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
 const api = useUnityApi();
-
-const theme = useTheme();
-
-const { t, locale, setLocale } = useI18n();
-
+const { t } = useI18n();
 const bookingModal = useBookingModal();
 
 // 2. Data (refs, reactive state)
@@ -78,18 +55,7 @@ const hasUserPhoto = computed(() => isUserUploadedPhoto(currentUser.value?.avata
 
 const resolvedPhotoUrl = computed(() => resolveAvatarUrl(currentUser.value?.avatar));
 
-const themeIcon = computed(() => {
-  return theme.currentTheme.value === 'dark' ? 'pi pi-sun' : 'pi pi-moon';
-});
-
 // 4. Methods (functions, handlers)
-const toggleTheme = () => {
-  theme.toggleDark();
-};
-
-const toggleLanguage = () => {
-  setLocale(locale.value === 'ar' ? 'en' : 'ar');
-};
 
 // 5. Watches (watch, watchEffect)
 
@@ -107,12 +73,12 @@ const toggleLanguage = () => {
   .user-greeting-box {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 
     .user-avatar-wrap {
       position: relative;
-      width: 46px;
-      height: 46px;
+      width: 42px;
+      height: 42px;
 
       img {
         width: 100%;
@@ -131,18 +97,18 @@ const toggleLanguage = () => {
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 1.15rem;
+        font-size: 1.05rem;
       }
 
       .online-indicator {
         position: absolute;
-        bottom: 2px;
-        inset-inline-start: 2px;
-        width: 11px;
-        height: 11px;
+        bottom: 1px;
+        inset-inline-start: 1px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         background: #10b981;
-        border: 2px solid #fff;
+        border: 2px solid var(--unity-surface, #ffffff);
       }
     }
 
@@ -152,9 +118,11 @@ const toggleLanguage = () => {
       justify-content: center;
 
       .greeting-name {
-        font-size: 1.05rem;
+        font-size: 0.94rem;
         font-weight: 700;
         color: var(--unity-text-main);
+        margin: 0;
+        line-height: 1.3;
       }
     }
   }
@@ -166,8 +134,8 @@ const toggleLanguage = () => {
 
     .icon-action-btn {
       position: relative;
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
@@ -175,16 +143,10 @@ const toggleLanguage = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       cursor: pointer;
       box-shadow: var(--unity-shadow-subtle);
       transition: all 0.2s;
-
-      .lang-text {
-        font-size: 0.85rem;
-        font-weight: 800;
-        color: var(--unity-primary);
-      }
 
       &:hover {
         background: var(--unity-primary-light);

@@ -18,7 +18,8 @@
 
       <!-- Form Body -->
       <form class="modal-form-body" @submit.prevent="handleSubmit">
-        <!-- 1. Code String -->
+        <div class="form-body">
+          <!-- 1. Code String -->
         <div class="form-group">
           <label class="form-label">
             <span>{{ t('Promocode Code') }}</span>
@@ -75,7 +76,6 @@
             <label class="form-label">
               <span>{{ t('Min Spend') }}</span>
               <span class="currency-tag">({{ t('EGP') }})</span>
-              <span class="optional-tag">{{ t('(Optional)') }}</span>
             </label>
             <input 
               v-model.number="form.min_spend" 
@@ -90,7 +90,6 @@
             <label class="form-label">
               <span>{{ t('Max Discount') }}</span>
               <span class="currency-tag">({{ t('EGP') }})</span>
-              <span class="optional-tag">{{ t('(Optional)') }}</span>
             </label>
             <input 
               v-model.number="form.max_discount" 
@@ -104,7 +103,6 @@
           <div class="form-group" v-else>
             <label class="form-label">
               <span>{{ t('Usage Limit') }}</span>
-              <span class="optional-tag">{{ t('(Optional)') }}</span>
             </label>
             <input 
               v-model.number="form.usage_limit" 
@@ -119,7 +117,6 @@
         <div class="form-group" v-if="form.discount_type === 'percentage'">
           <label class="form-label">
             <span>{{ t('Usage Limit') }}</span>
-            <span class="optional-tag">{{ t('(Optional)') }}</span>
           </label>
           <input 
             v-model.number="form.usage_limit" 
@@ -135,6 +132,8 @@
           <input v-model="form.is_active" type="checkbox" class="toggle-checkbox" />
           <span class="toggle-text">{{ t('Activate this promocode immediately') }}</span>
         </label>
+
+        </div>
 
         <!-- Submit Button -->
         <div class="modal-footer">
@@ -310,16 +309,16 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 440px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: 88vh;
+  overflow: hidden;
   background: var(--unity-surface);
-  border-radius: 24px 24px 0 0;
-  padding: 16px 16px 22px;
+  border-radius: 28px 28px 0 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.18);
   animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  direction: rtl;
 
   @keyframes slideUp {
     from { transform: translateY(100%); }
@@ -327,11 +326,13 @@ onUnmounted(() => {
   }
 
   .modal-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--unity-border);
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light, var(--unity-border));
+    background: var(--unity-surface);
 
     .header-icon {
       width: 38px;
@@ -386,9 +387,22 @@ onUnmounted(() => {
   }
 
   .modal-form-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+
+    .form-body {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
 
     .form-group {
       display: flex;
@@ -414,11 +428,7 @@ onUnmounted(() => {
           font-weight: 600;
         }
 
-        .optional-tag {
-          font-size: 0.66rem;
-          color: var(--unity-text-dim);
-          font-weight: 500;
-        }
+
       }
 
       .form-input {
@@ -524,9 +534,12 @@ onUnmounted(() => {
     }
 
     .modal-footer {
+      flex-shrink: 0;
       display: flex;
       gap: 10px;
-      margin-top: 4px;
+      padding: 14px 20px 24px;
+      border-top: 1px solid var(--unity-border-light, var(--unity-border));
+      background: var(--unity-surface);
 
       button {
         flex: 1;

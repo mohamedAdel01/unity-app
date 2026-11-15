@@ -447,13 +447,12 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 440px;
-  max-height: 85vh;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 20px 18px 28px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
@@ -475,6 +474,9 @@ onUnmounted(() => {
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
 
     .header-title {
       display: flex;
@@ -599,15 +601,17 @@ onUnmounted(() => {
     flex-direction: column;
     overflow: hidden;
     flex: 1;
+    min-height: 0;
 
     .day-schedule-body {
       display: flex;
       flex-direction: column;
       gap: 12px;
       overflow-y: auto;
-      padding-inline-end: 2px;
-      max-height: 48vh;
-      margin-bottom: 12px;
+      min-height: 0;
+      flex: 1;
+      padding: 14px 18px;
+      -webkit-overflow-scrolling: touch;
 
       .day-headline-row {
         display: flex;
@@ -870,8 +874,9 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--unity-border-subtle);
+      padding: 14px 20px 24px;
+      border-top: 1px solid var(--unity-border-light);
+      background: var(--unity-surface);
       flex-shrink: 0;
 
       button {

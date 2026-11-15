@@ -91,9 +91,9 @@
         </div>
       </div>
 
-      <!-- Referral / Invitation Code (Optional) -->
+      <!-- Referral / Invitation Code -->
       <div class="input-field-group">
-        <label class="field-label">{{ t('Referral Code (Optional)') }}</label>
+        <label class="field-label">{{ t('Referral Code') }}</label>
         <div class="input-shell">
           <i class="pi pi-gift field-icon"></i>
           <input 

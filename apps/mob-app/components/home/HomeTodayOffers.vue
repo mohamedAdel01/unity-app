@@ -56,7 +56,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useUnityApi } from '../../composables/useUnityApi';
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 const bookingModal = useBookingModal();
 const api = useUnityApi();
 
@@ -85,8 +85,8 @@ const OFFERS = async () => {
     if (raw.length > 0) {
       offers.value = raw.map((o: any) => ({
         id: o.id,
-        title: isRtl.value ? (o.title_ar || o.title) : (o.title_en || o.title),
-        description: isRtl.value ? (o.description_ar || o.description) : (o.description_en || o.description),
+        title: resolveI18n(isRtl.value ? (o.title_ar || o.title) : (o.title_en || o.title)),
+        description: resolveI18n(isRtl.value ? (o.description_ar || o.description) : (o.description_en || o.description)),
         image: o.image,
         price: Number(o.price),
         originalPrice: o.original_price ? Number(o.original_price) : null,
@@ -139,30 +139,39 @@ onMounted(() => {
     .header-texts {
       h4 {
         margin: 0;
-        font-size: 1rem;
-        font-weight: 800;
+        font-size: 0.88rem;
+        font-weight: 700;
         color: var(--unity-text-main);
+        line-height: 1.3;
       }
 
       p {
-        margin: 2px 0 0;
-        font-size: 0.72rem;
+        margin: 1px 0 0;
+        font-size: 0.67rem;
         color: var(--unity-text-muted);
       }
     }
 
     .see-all-link {
-      font-size: 0.76rem;
-      font-weight: 700;
+      font-size: 0.68rem;
+      font-weight: 600;
       color: var(--unity-primary);
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
-      transition: gap 0.2s;
+      gap: 2px;
+      opacity: 0.88;
+      padding: 2px 4px;
+      border-radius: 6px;
+      transition: all 0.2s;
+
+      i {
+        font-size: 0.58rem;
+      }
 
       &:hover {
-        gap: 6px;
+        opacity: 1;
+        background: var(--unity-primary-light);
       }
     }
   }

@@ -14,7 +14,6 @@
 
       <div class="entity-info">
         <h4>{{ primaryName }}</h4>
-        <span v-if="secondaryName" class="secondary-lang-pill">{{ secondaryName }}</span>
         <span v-if="categoryName" class="category-badge">
           <i :class="(examination as any)?.category?.icon || 'pi pi-folder'"></i>
           {{ categoryName }}
@@ -82,37 +81,30 @@ const emit = defineEmits<{
   (e: 'edit', examination: Examination): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
 const primaryName = computed(() => {
   if (isRtl.value) {
-    return props.examination.name_ar || props.examination.name;
+    return resolveI18n(props.examination.name_ar || props.examination.name);
   }
-  return props.examination.name_en || props.examination.name;
-});
-
-const secondaryName = computed(() => {
-  if (isRtl.value) {
-    return props.examination.name_en && props.examination.name_en !== primaryName.value ? props.examination.name_en : '';
-  }
-  return props.examination.name_ar && props.examination.name_ar !== primaryName.value ? props.examination.name_ar : '';
+  return resolveI18n(props.examination.name_en || props.examination.name);
 });
 
 const displayDescription = computed(() => {
   if (isRtl.value) {
-    return props.examination.description_ar || props.examination.description || '';
+    return resolveI18n(props.examination.description_ar || props.examination.description || '');
   }
-  return props.examination.description_en || props.examination.description || '';
+  return resolveI18n(props.examination.description_en || props.examination.description || '');
 });
 
 const categoryName = computed(() => {
   const cat = (props.examination as any)?.category;
   if (!cat) return '';
-  if (isRtl.value) return cat.name_ar || cat.name;
-  return cat.name_en || cat.name;
+  if (isRtl.value) return resolveI18n(cat.name_ar || cat.name);
+  return resolveI18n(cat.name_en || cat.name);
 });
 
 // 4. Methods (functions, handlers)
@@ -175,14 +167,6 @@ const categoryName = computed(() => {
         font-weight: 800;
         color: var(--unity-text-main);
         margin: 0;
-      }
-
-      .secondary-lang-pill {
-        display: inline-block;
-        font-size: 0.72rem;
-        color: var(--unity-primary);
-        font-weight: 600;
-        opacity: 0.85;
       }
 
       .category-badge {

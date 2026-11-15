@@ -1,12 +1,15 @@
 <template>
   <div class="profile-referral-card">
+    <!-- Top row: Icon + Titles & Points badge -->
     <div class="card-header">
-      <div class="header-icon-wrap">
-        <i class="pi pi-gift"></i>
-      </div>
-      <div class="header-titles">
-        <h4>{{ t('Refer Friends & Earn Points') }}</h4>
-        <p>{{ t('Share your invite code with friends to earn reward points') }}</p>
+      <div class="card-info">
+        <div class="gift-icon">
+          <i class="pi pi-gift"></i>
+        </div>
+        <div class="titles">
+          <h4>{{ t('Refer Friends & Earn Points') }}</h4>
+          <p>{{ t('Share your invite code with friends to earn reward points') }}</p>
+        </div>
       </div>
       <div class="points-pill">
         <i class="pi pi-star-fill"></i>
@@ -15,26 +18,31 @@
       </div>
     </div>
 
-    <!-- Referral Code Shell -->
-    <div class="referral-box">
-      <div class="code-info">
-        <span class="label">{{ t('Your Invitation Code') }}</span>
-        <strong class="code-value">{{ referralCode }}</strong>
-      </div>
-      <button type="button" class="btn-copy-code" :title="t('Copy Code')" @click="copyCode">
-        <i :class="copied ? 'pi pi-check' : 'pi pi-copy'"></i>
-        <span>{{ copied ? t('Copied!') : t('Copy') }}</span>
+    <!-- Actions row: Sleek click-to-copy code chip + Share button -->
+    <div class="card-actions">
+      <button 
+        type="button" 
+        class="code-chip" 
+        :class="{ copied }" 
+        :title="t('Copy Code')" 
+        @click="copyCode"
+      >
+        <div class="chip-main">
+          <span class="chip-label">{{ t('Invite Code') }}:</span>
+          <strong class="code-val">{{ referralCode }}</strong>
+        </div>
+        <div class="chip-action">
+          <i :class="copied ? 'pi pi-check text-success' : 'pi pi-copy'"></i>
+          <span class="action-text">{{ copied ? t('Copied!') : t('Copy') }}</span>
+        </div>
       </button>
-    </div>
 
-    <!-- Referral Action & Stats -->
-    <div class="card-footer">
-      <div class="friends-stat">
-        <i class="pi pi-users"></i>
-        <span>{{ t('Friends Joined:') }} <strong>{{ totalInvited }}</strong></span>
-      </div>
-
-      <button type="button" class="btn-share-invite" @click="shareInvite">
+      <button 
+        type="button" 
+        class="btn-share" 
+        :title="t('Share Invite')" 
+        @click="shareInvite"
+      >
         <i class="pi pi-share-alt"></i>
         <span>{{ t('Share Invite') }}</span>
       </button>
@@ -76,10 +84,6 @@ const referralCode = computed(() => {
 
 const pointsBalance = computed(() => {
   return referralData.value?.points_balance ?? props.user?.points_balance ?? 0;
-});
-
-const totalInvited = computed(() => {
-  return referralData.value?.total_invited ?? 0;
 });
 
 // 4. Methods (functions, handlers)
@@ -141,170 +145,189 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .profile-referral-card {
-  background: linear-gradient(135deg, var(--unity-surface) 0%, rgba(4, 120, 87, 0.06) 100%);
-  border: 1.5px solid rgba(4, 120, 87, 0.2);
-  border-radius: 20px;
-  padding: 16px 18px;
+  background: var(--unity-surface);
+  border: 1px solid var(--unity-border);
+  border-radius: 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  box-shadow: var(--unity-shadow-subtle);
-  direction: rtl;
-  text-align: right;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 
   .card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 10px;
 
-    .header-icon-wrap {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: var(--unity-primary-light);
-      color: var(--unity-primary);
+    .card-info {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      flex-shrink: 0;
-    }
-
-    .header-titles {
-      flex: 1;
+      gap: 10px;
       min-width: 0;
+      flex: 1;
 
-      h4 {
-        margin: 0 0 2px;
-        font-size: 0.96rem;
-        font-weight: 800;
-        color: var(--unity-text-main);
+      .gift-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(4, 120, 87, 0.08);
+        color: var(--unity-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
       }
 
-      p {
-        margin: 0;
-        font-size: 0.74rem;
-        color: var(--unity-text-muted);
-        line-height: 1.3;
+      .titles {
+        min-width: 0;
+        flex: 1;
+
+        h4 {
+          margin: 0;
+          font-size: 0.88rem;
+          font-weight: 700;
+          color: var(--unity-text-main);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        p {
+          margin: 2px 0 0;
+          font-size: 0.72rem;
+          color: var(--unity-text-muted);
+          line-height: 1.25;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
 
     .points-pill {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 5px;
-      background: var(--unity-surface);
-      border: 1.5px solid #f59e0b;
-      color: #d97706;
-      padding: 4px 10px;
+      gap: 4px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #b45309;
+      padding: 3px 9px;
       border-radius: 20px;
-      font-weight: 800;
-      font-size: 0.85rem;
+      font-weight: 700;
+      font-size: 0.78rem;
       flex-shrink: 0;
 
       i {
-        font-size: 0.85rem;
+        font-size: 0.78rem;
       }
 
       small {
-        font-size: 0.68rem;
-        font-weight: 700;
+        font-size: 0.70rem;
       }
     }
   }
 
-  .referral-box {
+  .card-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: var(--unity-bg);
-    border: 1.5px dashed var(--unity-border);
-    border-radius: 14px;
-    padding: 8px 14px;
+    gap: 8px;
 
-    .code-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    .code-chip {
+      flex: 1;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      background: var(--unity-bg);
+      border: 1px solid var(--unity-border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 0;
 
-      .label {
-        font-size: 0.70rem;
-        color: var(--unity-text-muted);
-        font-weight: 600;
+      &:hover {
+        border-color: var(--unity-primary);
       }
 
-      .code-value {
-        font-size: 1.15rem;
-        font-weight: 900;
-        color: var(--unity-primary);
-        letter-spacing: 1px;
-        font-family: monospace;
+      &.copied {
+        border-color: var(--unity-primary);
+        background: rgba(4, 120, 87, 0.06);
+
+        .chip-action {
+          color: var(--unity-primary);
+        }
+      }
+
+      .chip-main {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+
+        .chip-label {
+          font-size: 0.72rem;
+          color: var(--unity-text-muted);
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .code-val {
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: var(--unity-primary);
+          letter-spacing: 0.5px;
+          font-family: monospace;
+        }
+      }
+
+      .chip-action {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--unity-text-muted);
+        transition: color 0.2s ease;
+
+        i {
+          font-size: 0.78rem;
+        }
+
+        .text-success {
+          color: var(--unity-primary);
+        }
       }
     }
 
-    .btn-copy-code {
+    .btn-share {
+      height: 38px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      height: 36px;
       padding: 0 14px;
-      border-radius: 10px;
       background: var(--unity-primary);
       color: #ffffff;
       border: none;
-      font-size: 0.82rem;
+      border-radius: 10px;
+      font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
+      flex-shrink: 0;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
         background: var(--unity-primary-dark);
       }
-    }
-  }
 
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 4px;
-
-    .friends-stat {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-      color: var(--unity-text-muted);
+      &:active {
+        transform: scale(0.97);
+      }
 
       i {
-        color: var(--unity-primary);
-        font-size: 0.85rem;
-      }
-
-      strong {
-        color: var(--unity-text-main);
-        font-weight: 800;
-      }
-    }
-
-    .btn-share-invite {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: transparent;
-      border: 1px solid var(--unity-border);
-      color: var(--unity-text-main);
-      height: 32px;
-      padding: 0 12px;
-      border-radius: 10px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &:hover {
-        border-color: var(--unity-primary);
-        color: var(--unity-primary);
+        font-size: 0.78rem;
       }
     }
   }

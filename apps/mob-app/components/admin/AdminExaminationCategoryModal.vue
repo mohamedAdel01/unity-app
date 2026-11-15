@@ -13,7 +13,8 @@
       </div>
 
       <form class="modal-body" @submit.prevent="saveCategory">
-        <!-- Category Name (Arabic) -->
+        <div class="form-body">
+          <!-- Category Name (Arabic) -->
         <div class="form-group">
           <label class="field-label">{{ t('Category Name (Arabic)') }} <span class="required">*</span></label>
           <input 
@@ -40,48 +41,18 @@
           />
         </div>
 
-        <div class="two-col-grid">
-          <!-- Icon Picker -->
-          <div class="form-group">
-            <label class="field-label">{{ t('Icon') }}</label>
-            <div class="icon-selector-shell">
-              <i :class="form.icon"></i>
-              <select v-model="form.icon" class="input-select">
-                <option value="pi pi-folder">{{ t('Folder') }}</option>
-                <option value="pi pi-heart">{{ t('Cardiology') }}</option>
-                <option value="pi pi-eye">{{ t('Ophthalmology') }}</option>
-                <option value="pi pi-filter">{{ t('Laboratory') }}</option>
-                <option value="pi pi-shield">{{ t('Radiology') }}</option>
-                <option value="pi pi-check-circle">{{ t('General Checkup') }}</option>
-                <option value="pi pi-compass">{{ t('Specialized') }}</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Sort Order -->
-          <div class="form-group">
-            <label class="field-label">{{ t('Display Order') }}</label>
-            <input 
-              v-model="form.sort_order" 
-              type="number" 
-              min="0" 
-              step="1" 
-              class="input-field" 
-              placeholder="0"
-            />
-          </div>
-        </div>
-
-        <!-- Description (Optional) -->
+        <!-- Description -->
         <div class="form-group">
           <label class="field-label">{{ t('Description (Arabic)') }}</label>
           <textarea 
             v-model="form.description_ar" 
             rows="2" 
             class="input-field textarea" 
-            :placeholder="t('Optional category description...')"
+            :placeholder="t('Category description...')"
             dir="rtl"
           ></textarea>
+        </div>
+
         </div>
 
         <div class="modal-actions">
@@ -277,24 +248,29 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 440px;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 22px 20px 28px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
   overflow: hidden;
 
   @media (min-width: 640px) {
     border-radius: 28px;
+    padding: 0;
   }
 
   .modal-head {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
 
     .title-with-icon {
       display: flex;
@@ -340,10 +316,22 @@ onUnmounted(() => {
   .modal-body {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
     text-align: right;
 
-    .form-group {
+    .form-body {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+
+      .form-group {
       display: flex;
       flex-direction: column;
       gap: 5px;
@@ -418,16 +406,19 @@ onUnmounted(() => {
       }
     }
 
+    }
+
     .modal-actions {
+      flex-shrink: 0;
       display: flex;
-      gap: 10px;
-      margin-top: 14px;
-      padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+      gap: 12px;
+      padding: 14px 20px 20px;
+      border-top: 1px solid var(--unity-border);
+      background: var(--unity-surface);
 
       button {
-        flex: 1;
-        height: 46px;
-        border-radius: 14px;
+        height: 48px;
+        border-radius: 12px;
         font-weight: 700;
         font-size: 0.90rem;
         cursor: pointer;
@@ -439,6 +430,7 @@ onUnmounted(() => {
       }
 
       .btn-cancel {
+        flex: 1;
         background: var(--unity-bg);
         border: 1.5px solid var(--unity-border);
         color: var(--unity-text-muted);
@@ -450,16 +442,18 @@ onUnmounted(() => {
       }
 
       .btn-submit {
+        flex: 2;
         background: var(--unity-primary);
         border: none;
         color: #ffffff;
+        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
 
         &:hover:not(:disabled) {
           background: var(--unity-primary-dark);
         }
 
         &:disabled {
-          opacity: 0.5;
+          opacity: 0.55;
           cursor: not-allowed;
         }
       }

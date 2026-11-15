@@ -74,9 +74,9 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .home-screen {
-  padding: 16px 20px 24px;
+  padding: 14px 18px 24px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 18px;
 }
 </style>

@@ -10,7 +10,8 @@
       </div>
 
       <form class="modal-body" @submit.prevent="saveExamination">
-        <!-- Examination Basic Info -->
+        <div class="form-body">
+          <!-- Examination Basic Info -->
         <div class="form-group">
           <label class="field-label">{{ t('Examination Category') }}</label>
           <div class="input-shell select-shell">
@@ -51,7 +52,7 @@
 
         <div class="two-col-grid">
           <div class="form-group">
-            <label class="field-label">{{ t('Price') }} ({{ t('EGP') }})</label>
+            <label class="field-label">{{ t('Price') }} ({{ t('EGP') }}) <span class="required">*</span></label>
             <input 
               v-model="form.price" 
               type="number" 
@@ -226,6 +227,8 @@
               </div>
             </div>
           </div>
+        </div>
+
         </div>
 
         <!-- Footer Actions -->
@@ -737,25 +740,29 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 480px;
-  max-height: 90vh;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 20px 20px 28px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
   overflow: hidden;
 
   @media (min-width: 640px) {
     border-radius: 28px;
+    padding: 0;
   }
 
   .modal-head {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
 
     h4 {
       font-size: 1.1rem;
@@ -787,13 +794,22 @@ onUnmounted(() => {
   .modal-body {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    text-align: right;
-    overflow-y: auto;
-    padding-right: 2px;
     flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    text-align: right;
 
-    .form-group {
+    .form-body {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      -webkit-overflow-scrolling: touch;
+
+      .form-group {
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -1228,15 +1244,18 @@ onUnmounted(() => {
   }
 
   .modal-foot {
+    flex-shrink: 0;
+    padding: 14px 20px 20px;
+    border-top: 1px solid var(--unity-border);
+    background: var(--unity-surface);
     display: flex;
-    gap: 10px;
-    margin-top: 6px;
+    align-items: center;
+    gap: 12px;
 
     button {
-      flex: 1;
-      height: 46px;
-      border-radius: 14px;
-      font-size: 0.85rem;
+      height: 48px;
+      border-radius: 12px;
+      font-size: 0.90rem;
       font-weight: 700;
       cursor: pointer;
       border: none;
@@ -1248,8 +1267,9 @@ onUnmounted(() => {
     }
 
     .btn-cancel {
+      flex: 1;
       background: var(--unity-bg);
-      border: 1px solid var(--unity-border);
+      border: 1.5px solid var(--unity-border);
       color: var(--unity-text-muted);
 
       &:hover {
@@ -1259,6 +1279,7 @@ onUnmounted(() => {
     }
 
     .btn-confirm {
+      flex: 2;
       background: var(--unity-primary);
       color: #fff;
       box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
@@ -1273,6 +1294,7 @@ onUnmounted(() => {
       }
     }
   }
+}
 }
 
 @keyframes slideUp {

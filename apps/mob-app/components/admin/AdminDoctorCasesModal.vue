@@ -9,8 +9,9 @@
             <img 
               v-if="doctor.avatar"
               :src="resolveAvatar(doctor.avatar)" 
-              :alt="doctor.name" 
-              class="avatar-photo" 
+              alt=""
+              class="avatar-photo"
+              @error="(e: any) => e.target.style.display = 'none'" 
             />
             <div v-else class="avatar-placeholder">
               <i class="pi pi-user"></i>
@@ -23,10 +24,10 @@
               <span class="cases-total-pill">{{ totalCases }} {{ t('Doctor Bookings') }}</span>
             </div>
             <p class="specialty-clinic">
-              <span>{{ doctor.specialty || doctor.clinic?.name || t('Specialist') }}</span>
+              <span>{{ resolveI18n(doctor.specialty) || resolveI18n(doctor.clinic?.name) || t('Specialist') }}</span>
               <template v-if="doctor.clinic?.name && doctor.specialty">
                 <span class="dot">•</span>
-                <span>{{ doctor.clinic.name }}</span>
+                <span>{{ resolveI18n(doctor.clinic.name) }}</span>
               </template>
             </p>
           </div>
@@ -198,7 +199,7 @@
                 </div>
                 <div v-if="item.examination?.name || item.service?.name" class="detail-item examination">
                   <i class="pi pi-file-edit"></i>
-                  <span>{{ item.examination?.name || item.service?.name }}</span>
+                  <span>{{ resolveI18n(item.examination?.name || item.service?.name) }}</span>
                 </div>
                 <div v-if="item.invoice?.total || item.price" class="detail-item price">
                   <i class="pi pi-wallet"></i>
@@ -240,7 +241,7 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 const api = useUnityApi();
 const { registerModalOpen, registerModalClose } = useModalState();
 
@@ -516,6 +517,7 @@ onUnmounted(() => {
 
   // 1. Sheet Header
   .sheet-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -632,6 +634,7 @@ onUnmounted(() => {
 
   // 2. Filters
   .filters-container {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -760,9 +763,11 @@ onUnmounted(() => {
   .cases-scroll-area {
     flex: 1;
     overflow-y: auto;
+    min-height: 0;
     padding: 16px 20px 24px;
     display: flex;
     flex-direction: column;
+    -webkit-overflow-scrolling: touch;
 
     .case-card {
       background: var(--unity-surface, #ffffff);

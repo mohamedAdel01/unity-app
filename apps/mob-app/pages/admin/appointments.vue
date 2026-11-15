@@ -51,7 +51,7 @@ definePageMeta({
   layout: 'admin',
 });
 
-const { t } = useI18n();
+const { t, resolveI18n } = useI18n();
 
 const api = useUnityApi();
 
@@ -111,9 +111,9 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
       patient_name: a.patient?.name || a.patient?.user?.name || `مريض #${a.id ? a.id.slice(-4) : idx + 1}`,
       avatar: a.patient?.avatar,
       time_badge: a.start_time || '',
-      clinic_name: a.examination?.name || a.doctor?.doctor?.clinic?.name || a.service?.name || a.doctor?.specialty || (a.examination_id ? 'فحص' : 'عيادة عامة'),
-      doctor_name: a.doctor?.name || '',
-      examination_name: a.examination?.name || '',
+      clinic_name: resolveI18n(a.examination?.name || a.doctor?.doctor?.clinic?.name || a.service?.name || a.doctor?.specialty) || (a.examination_id ? 'فحص' : 'عيادة عامة'),
+      doctor_name: resolveI18n(a.doctor?.name || ''),
+      examination_name: resolveI18n(a.examination?.name || ''),
       is_examination: Boolean(a.examination_id || a.examination),
       time: a.start_time || '',
       status: a.status || 'pending',

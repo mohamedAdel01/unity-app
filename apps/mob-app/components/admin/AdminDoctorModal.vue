@@ -15,7 +15,8 @@
 
       <!-- Modal Body -->
       <form class="doctor-form" @submit.prevent="handleSubmit">
-        <!-- Doctor Avatar Upload -->
+        <div class="form-body">
+          <!-- Doctor Avatar Upload -->
         <div class="avatar-upload-section">
           <div class="avatar-preview-wrapper">
             <img 
@@ -54,7 +55,7 @@
 
           <div class="avatar-info-hint">
             <span class="avatar-label">{{ t('Doctor Photo') }}</span>
-            <span class="avatar-subtext">{{ form.avatar ? t('Click camera to change') : t('Optional (JPG, PNG or WebP)') }}</span>
+            <span class="avatar-subtext">{{ form.avatar ? t('Click camera to change') : t('JPG, PNG or WebP') }}</span>
           </div>
 
           <input 
@@ -68,7 +69,7 @@
 
         <!-- Doctor Full Name -->
         <div class="form-group">
-          <label>{{ t('Doctor Name') }}</label>
+          <label>{{ t('Doctor Name') }} <span class="required">*</span></label>
           <div class="input-shell">
             <i class="pi pi-user"></i>
             <input 
@@ -83,7 +84,7 @@
 
         <!-- Phone Number -->
         <div class="form-group">
-          <label>{{ t('Phone Number') }}</label>
+          <label>{{ t('Phone Number') }} <span class="required">*</span></label>
           <AppPhoneInput 
             v-model="form.phone"
             :required="true"
@@ -93,7 +94,7 @@
 
         <!-- Clinic Custom Dropdown (100% inside modal, never overflows screen) -->
         <div class="form-group">
-          <label>{{ t('Clinic') }}</label>
+          <label>{{ t('Clinic') }} <span class="required">*</span></label>
           <div class="custom-select-shell" :class="{ 'is-open': isClinicDropdownOpen }" @click.stop>
             <button 
               type="button" 
@@ -137,7 +138,7 @@
         <!-- Fees (Two-Col Grid: Consultation Fee & Follow-up Fee) -->
         <div class="two-col-grid">
           <div class="form-group">
-            <label>{{ t('Consultation Fee') }} ({{ t('EGP') }})</label>
+            <label>{{ t('Consultation Fee') }} ({{ t('EGP') }}) <span class="required">*</span></label>
             <div class="input-shell">
               <i class="pi pi-wallet"></i>
               <input 
@@ -182,13 +183,15 @@
 
         <!-- Doctor Professional Bio -->
         <div class="form-group">
-          <label>{{ t('Professional Bio (Optional)') }}</label>
+          <label>{{ t('Professional Bio') }}</label>
           <textarea 
             v-model="form.bio" 
             rows="2"
             class="textarea-shell"
             :placeholder="t('e.g. Senior consultant with extensive clinical experience')"
           ></textarea>
+        </div>
+
         </div>
 
         <!-- Modal Actions -->
@@ -562,21 +565,27 @@ onUnmounted(() => {
 
 .modal-sheet {
   width: 100%;
-  max-width: 430px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: 480px;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 24px 20px calc(24px + max(16px, env(safe-area-inset-bottom, 16px)));
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.12);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
 
   .modal-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
+    margin-bottom: 0;
 
     .header-title {
       display: flex;
@@ -623,7 +632,19 @@ onUnmounted(() => {
   .doctor-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+
+    .form-body {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      -webkit-overflow-scrolling: touch;
 
     .avatar-upload-section {
       display: flex;
@@ -754,6 +775,11 @@ onUnmounted(() => {
         font-size: 0.8rem;
         font-weight: 700;
         color: var(--unity-text-main);
+
+        .required {
+          color: #ef4444;
+          margin-inline-start: 2px;
+        }
       }
 
       .input-shell {
@@ -947,55 +973,60 @@ onUnmounted(() => {
         }
       }
     }
+  }
 
-    .modal-actions {
+  .modal-actions {
+    flex-shrink: 0;
+    padding: 14px 20px 20px;
+    border-top: 1px solid var(--unity-border);
+    background: var(--unity-surface);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    button {
+      height: 48px;
+      border-radius: 12px;
+      font-size: 0.90rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
       display: flex;
-      gap: 10px;
-      margin-top: 8px;
-      padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-      button {
-        flex: 1;
-        height: 46px;
-        border-radius: 14px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        cursor: pointer;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        transition: all 0.2s;
+    .btn-cancel {
+      flex: 1;
+      background: var(--unity-bg);
+      border: 1.5px solid var(--unity-border);
+      color: var(--unity-text-muted);
+
+      &:hover {
+        background: var(--unity-border);
+        color: var(--unity-text-main);
+      }
+    }
+
+    .btn-submit {
+      flex: 2;
+      background: var(--unity-primary);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+
+      &:hover:not(:disabled) {
+        background: var(--unity-primary-dark);
       }
 
-      .btn-cancel {
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
-        color: var(--unity-text-muted);
-
-        &:hover {
-          background: var(--unity-border);
-          color: var(--unity-text-main);
-        }
-      }
-
-      .btn-submit {
-        background: var(--unity-primary);
-        color: #fff;
-        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
-
-        &:hover:not(:disabled) {
-          background: var(--unity-primary-dark);
-        }
-
-        &:disabled {
-          opacity: 0.55;
-          cursor: not-allowed;
-        }
+      &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
     }
   }
+}
 }
 
 .dropdown-fade-enter-active,

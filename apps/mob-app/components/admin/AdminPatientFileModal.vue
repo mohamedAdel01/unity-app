@@ -30,7 +30,8 @@
         </button>
       </div>
 
-      <!-- Quick Action Pills -->
+      <div class="sheet-scroll-body">
+        <!-- Quick Action Pills -->
       <div v-if="patient.phone || patient.clinic" class="quick-patient-contacts">
         <a v-if="patient.phone" :href="`tel:${patient.phone}`" class="contact-pill phone">
           <i class="pi pi-phone"></i>
@@ -76,7 +77,7 @@
                 <span class="timeline-type-pill" :class="apt.examination ? 'pill-exam' : 'pill-consult'">
                   {{ apt.examination ? t('Medical Exam') : t('Consultation') }}
                 </span>
-                <strong>{{ apt.examination?.name || apt.doctor?.name || apt.service?.name || (apt.type === 'examination' ? t('Medical Exam') : t('Consultation')) }}</strong>
+                <strong>{{ resolveI18n(apt.examination?.name || apt.doctor?.name || apt.service?.name) || (apt.type === 'examination' ? t('Medical Exam') : t('Consultation')) }}</strong>
               </div>
               <small>{{ formatAptMeta(apt) }}</small>
             </div>
@@ -89,6 +90,8 @@
           <i class="pi pi-calendar-times"></i>
           <p>{{ t('No previous medical visits recorded') }}</p>
         </div>
+      </div>
+
       </div>
 
       <!-- Footer Buttons -->
@@ -120,7 +123,7 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 const api = useUnityApi();
 const bookingModal = useBookingModal();
 const { registerModalOpen, registerModalClose } = useModalState();
@@ -291,14 +294,13 @@ onUnmounted(() => {
 .file-modal-sheet {
   width: 100%;
   max-width: 430px;
-  max-height: 92vh;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 20px 20px 32px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  overflow-y: auto;
+  overflow: hidden;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
@@ -314,9 +316,13 @@ onUnmounted(() => {
   }
 
   .sheet-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light, var(--unity-border));
+    background: var(--unity-surface);
 
     .header-user-info {
       display: flex;
@@ -395,7 +401,17 @@ onUnmounted(() => {
     }
   }
 
-  .quick-patient-contacts {
+  .sheet-scroll-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    -webkit-overflow-scrolling: touch;
+
+    .quick-patient-contacts {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -587,7 +603,10 @@ onUnmounted(() => {
   }
 
   .sheet-footer-actions {
-    margin-top: 4px;
+    flex-shrink: 0;
+    padding: 14px 20px 24px;
+    border-top: 1px solid var(--unity-border-light, var(--unity-border));
+    background: var(--unity-surface);
 
     .btn-book-more {
       width: 100%;
@@ -611,6 +630,7 @@ onUnmounted(() => {
       }
     }
   }
+}
 }
 
 @keyframes slideUp {

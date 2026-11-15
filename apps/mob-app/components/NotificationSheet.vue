@@ -71,10 +71,10 @@
                 </div>
                 <div class="item-content">
                   <div class="item-top">
-                    <h5>{{ item.title }}</h5>
+                    <h5>{{ getLocalizedTitle(item) }}</h5>
                     <span class="item-time">{{ formatTime(item.created_at) }}</span>
                   </div>
-                  <p>{{ item.body }}</p>
+                  <p>{{ getLocalizedBody(item) }}</p>
                 </div>
                 <div v-if="!item.is_read" class="unread-bullet"></div>
               </div>
@@ -105,7 +105,7 @@ const emit = defineEmits<{
 
 const api = useUnityApi();
 
-const { t } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 
 const globalStore = useGlobalStore();
 
@@ -200,13 +200,58 @@ const formatTime = (isoString: string) => {
     const now = new Date();
     const diffMin = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     if (diffMin < 1) return t('Now');
-    if (diffMin < 60) return t('${diffMin}m ago');
+    if (diffMin < 60) return isRtl.value ? `منذ ${diffMin} دقيقة` : `${diffMin}m ago`;
     const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return t('${diffHours}h ago');
-    return date.toLocaleDateString(t('en-US'), { month: 'short', day: 'numeric' });
+    if (diffHours < 24) return isRtl.value ? `منذ ${diffHours} ساعة` : `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return t('Yesterday');
+    if (diffDays < 7) return isRtl.value ? `منذ ${diffDays} أيام` : `${diffDays}d ago`;
+    return date.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
   } catch (e) {
     return '';
   }
+};
+
+const getLocalizedTitle = (item: any) => {
+  if (!item?.title) return '';
+  return resolveI18n(t(item.title));
+};
+
+const getLocalizedBody = (item: any) => {
+  if (!item?.body) return '';
+  let body = String(item.body);
+
+  // 1. Universal multilingual / embedded JSON resolution
+  body = resolveI18n(body);
+
+  // 2. Localize standard system notification messages into Arabic when user is in Arabic mode
+  if (isRtl.value) {
+    // Pattern: Your appointment [(on)] (XYZ) [on] DATE at TIME has been registered. Pending confirmation or payment.
+    const bookRegex = /Your appointment (?:on )?\((.*?)\) (?:on )?(\S+) at (\S+) has been registered\. Pending confirmation or payment\./i;
+    const match = body.match(bookRegex);
+    if (match) {
+      const serviceName = match[1];
+      const date = match[2];
+      const time = match[3];
+      return `تم تسجيل موعدك (${serviceName}) بتاريخ ${date} الساعة ${time} بنجاح. قيد المراجعة أو الدفع.`;
+    }
+
+    const confirmRegex = /Your appointment (?:on )?(\S+) at (\S+) has been confirmed\./i;
+    const confirmMatch = body.match(confirmRegex);
+    if (confirmMatch) {
+      return `تم تأكيد موعدك بتاريخ ${confirmMatch[1]} الساعة ${confirmMatch[2]} بنجاح.`;
+    }
+
+    if (body.includes('Your appointment has been cancelled successfully') || body.includes('Your appointment has been cancelled')) {
+      return 'تم إلغاء موعدك بنجاح.';
+    }
+
+    if (body.includes('Your consultation has been marked as completed')) {
+      return 'تم اكتمال الكشف الطبي بنجاح.';
+    }
+  }
+
+  return body;
 };
 
 // 5. Watches (watch, watchEffect)

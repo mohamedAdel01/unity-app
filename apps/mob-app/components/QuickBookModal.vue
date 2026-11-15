@@ -94,9 +94,13 @@ const chooseService = () => {
 .modal-sheet {
   width: 100%;
   max-width: 440px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: var(--unity-surface);
   border-radius: 24px 24px 0 0;
-  padding: 12px 20px 32px;
+  padding: 12px 20px 28px;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -110,14 +114,16 @@ const chooseService = () => {
   height: 4px;
   border-radius: 10px;
   background: var(--unity-border);
-  margin: 0 auto 16px;
+  margin: 0 auto 12px;
+  flex-shrink: 0;
 }
 
 .sheet-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 
   h3 {
     font-size: 1.05rem;
@@ -145,6 +151,9 @@ const chooseService = () => {
 }
 
 .options {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;

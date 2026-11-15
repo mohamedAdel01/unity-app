@@ -59,9 +59,10 @@
         <!-- Doctor & Clinic / Examination Info -->
         <div class="doctor-row">
           <img 
-            v-if="apt.doctor?.avatar || apt.doctor?.user?.avatar"
-            :src="apt.doctor?.avatar || apt.doctor?.user?.avatar" 
-            alt="Doctor" 
+            v-if="getDoctorAvatar(apt) && !failedDoctorAvatars.has(apt.id)"
+            :src="getDoctorAvatar(apt)" 
+            alt=""
+            @error="failedDoctorAvatars.add(apt.id)" 
           />
           <div v-else class="doc-avatar-initial" :class="{ 'is-exam': isExaminationAppointment(apt) }">
             <AppExamIcon v-if="isExaminationAppointment(apt)" :size="20" />
@@ -74,7 +75,7 @@
               <span>{{ getAppointmentClinic(apt) }}</span>
             </div>
             <p v-else-if="apt.examination?.description" class="exam-sub">
-              {{ apt.examination.description }}
+              {{ resolveI18n(apt.examination.description) }}
             </p>
           </div>
         </div>
@@ -165,10 +166,11 @@
       <div v-if="selectedAptToCancel" class="cancel-summary-box">
         <div class="summary-doctor-row">
           <img 
-            v-if="selectedAptToCancel.doctor?.avatar || selectedAptToCancel.doctor?.user?.avatar"
-            :src="selectedAptToCancel.doctor?.avatar || selectedAptToCancel.doctor?.user?.avatar" 
-            alt="Doctor" 
+            v-if="getDoctorAvatar(selectedAptToCancel) && !failedDoctorAvatars.has('c-' + selectedAptToCancel.id)"
+            :src="getDoctorAvatar(selectedAptToCancel)" 
+            alt="" 
             class="summary-doc-img"
+            @error="failedDoctorAvatars.add('c-' + selectedAptToCancel.id)"
           />
           <div v-else class="doc-avatar-initial is-summary" :class="{ 'is-exam': isExaminationAppointment(selectedAptToCancel) }">
             <AppExamIcon v-if="isExaminationAppointment(selectedAptToCancel)" :size="20" />
@@ -213,7 +215,7 @@ import AppExamIcon from '../common/AppExamIcon.vue';
 
 const api = useUnityApi();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 
 const bookingModal = useBookingModal();
 
@@ -223,6 +225,17 @@ const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const activeTab = ref<'upcoming' | 'completed' | 'cancelled'>('upcoming');
+const failedDoctorAvatars = ref(new Set<string | number>());
+
+const getDoctorAvatar = (apt: any) => {
+  const av = apt?.doctor?.avatar || apt?.doctor?.user?.avatar;
+  if (!av || typeof av !== 'string') return '';
+  const trimmed = av.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/uploads/') || trimmed.startsWith('data:image/')) {
+    return trimmed;
+  }
+  return '';
+};
 
 const appointments = ref<any[]>([]);
 const appointmentsPage = ref(1);
@@ -308,14 +321,26 @@ const isExaminationAppointment = (apt: any) => {
 };
 
 const getAppointmentTitle = (apt: any) => {
-  if (apt.examination?.name) return apt.examination.name;
-  if (apt.offer?.title) return apt.offer.title;
-  if (apt.service?.name) return apt.service.name;
-  if (apt.doctor?.name) return apt.doctor.name;
-  if (apt.doctor?.user?.name) return apt.doctor.user.name;
+  const exam = apt.examination;
+  if (exam) {
+    const n = !isRtl.value && exam.name_en ? exam.name_en : (exam.name_ar || exam.name);
+    if (n) return resolveI18n(n);
+  }
+  const offer = apt.offer;
+  if (offer) {
+    const title = !isRtl.value && offer.title_en ? offer.title_en : (offer.title_ar || offer.title);
+    if (title) return resolveI18n(title);
+  }
+  const serv = apt.service;
+  if (serv) {
+    const n = !isRtl.value && serv.name_en ? serv.name_en : (serv.name_ar || serv.name);
+    if (n) return resolveI18n(n);
+  }
+  if (apt.doctor?.name) return resolveI18n(apt.doctor.name);
+  if (apt.doctor?.user?.name) return resolveI18n(apt.doctor.user.name);
   if (apt.notes && apt.notes.includes(':')) {
     const after = apt.notes.split(':')[1]?.trim();
-    if (after) return after;
+    if (after) return resolveI18n(after);
   }
   return isExaminationAppointment(apt) ? t('Hospital Examination') : t('Doctor Consultation');
 };
@@ -323,16 +348,17 @@ const getAppointmentTitle = (apt: any) => {
 const getAppointmentSubtitle = (apt: any) => {
   if (apt.examination) return t('Hospital Medical Examination');
   if (apt.offer) return t('Medical Offer');
-  return apt.doctor?.specialty || t('Consultation');
+  return resolveI18n(apt.doctor?.specialty) || t('Consultation');
 };
 
 const getAppointmentClinic = (apt: any) => {
-  return (
-    apt.clinic?.name ||
-    apt.doctor?.clinic?.name ||
-    apt.doctor?.doctor?.clinic?.name ||
-    (isExaminationAppointment(apt) ? t('Medical Examinations & Labs') : '')
-  );
+  const clinic = apt.clinic || apt.doctor?.clinic || apt.doctor?.doctor?.clinic;
+  if (clinic) {
+    const n = !isRtl.value && clinic.name_en ? clinic.name_en : (clinic.name_ar || clinic.name);
+    if (n) return resolveI18n(n);
+    if (typeof clinic === 'string') return resolveI18n(clinic);
+  }
+  return isExaminationAppointment(apt) ? t('Medical Examinations & Labs') : '';
 };
 
 const getAppointmentInitial = (apt: any) => {
@@ -388,7 +414,7 @@ const handleConfirmCancel = async () => {
     showCancelModal.value = false;
     selectedAptToCancel.value = null;
   } catch (err: any) {
-    toast.error(err.message || (t('Failed to cancel appointment')));
+    toast.error(t(err?.data?.message || err?.message || 'Failed to cancel appointment'));
   } finally {
     cancellingId.value = null;
   }
@@ -440,7 +466,7 @@ const getPaymentIcon = (apt: any) => {
 };
 
 const viewReport = (apt: any) => {
-  toast.info(t('Medical Report: Health vitals optimal. Follow-up in 2 weeks.'), 'الملف الطبي');
+  toast.info(t('Medical Report: Health vitals optimal. Follow-up in 2 weeks.'), t('Medical File'));
 };
 
 defineExpose({

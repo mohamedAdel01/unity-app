@@ -51,27 +51,34 @@
                   <span><AppExamIcon :size="12" /> {{ t('Hospital Examination') }}</span>
                 </div>
                 <div class="doc-header">
-                  <div class="doc-avatar" :class="{ 'exam-avatar': isExamination }">
-                    <template v-if="!isExamination">
-                      <img v-if="doctor?.avatar" :src="doctor.avatar" :alt="doctor?.name" />
-                      <div v-else class="doc-initial-avatar">
-                        <span>{{ (doctor?.name || 'D').charAt(0).toUpperCase() }}</span>
-                      </div>
-                      <span class="verified-tick"><i class="pi pi-check"></i></span>
-                    </template>
-                    <template v-else>
-                      <div class="exam-icon-circle">
-                        <AppExamIcon :size="26" />
-                      </div>
-                    </template>
+                  <div class="doc-avatar-wrap">
+                    <div class="doc-avatar" :class="{ 'exam-avatar': isExamination }">
+                      <template v-if="!isExamination">
+                        <img 
+                          v-if="cleanDoctorAvatar && !avatarLoadError" 
+                          :src="cleanDoctorAvatar" 
+                          alt="" 
+                          @error="avatarLoadError = true" 
+                        />
+                        <div v-else class="doc-initial-avatar">
+                          <span>{{ doctorInitial }}</span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="exam-icon-circle">
+                          <AppExamIcon :size="26" />
+                        </div>
+                      </template>
+                    </div>
+                    <span v-if="!isExamination" class="verified-tick"><i class="pi pi-check"></i></span>
                   </div>
                   <div class="doc-info">
-                    <h4>{{ isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name || '') }}</h4>
+                    <h4>{{ resolveI18n(isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name || '')) }}</h4>
                     <p v-if="isExamination && (service?.description || examination?.description)" class="doc-spec">
-                      {{ service?.description || examination?.description }}
+                      {{ resolveI18n(service?.description || examination?.description) }}
                     </p>
                     <p v-else-if="doctor?.specialty || doctor?.clinic?.name" class="doc-spec">
-                      {{ doctor?.specialty || doctor?.clinic?.name }}
+                      {{ resolveI18n(doctor?.specialty || doctor?.clinic?.name) }}
                     </p>
                   </div>
                 </div>
@@ -215,9 +222,14 @@
                 <div class="review-head">
                   <div class="rev-doc-avatar" :class="{ 'exam-avatar': isExamination }">
                     <template v-if="!isExamination">
-                      <img v-if="doctor?.avatar" :src="doctor.avatar" :alt="doctor?.name" />
+                      <img 
+                        v-if="cleanDoctorAvatar && !avatarLoadError" 
+                        :src="cleanDoctorAvatar" 
+                        alt="" 
+                        @error="avatarLoadError = true" 
+                      />
                       <div v-else class="doc-initial-avatar">
-                        <span>{{ (doctor?.name || 'D').charAt(0).toUpperCase() }}</span>
+                        <span>{{ doctorInitial }}</span>
                       </div>
                     </template>
                     <template v-else>
@@ -565,12 +577,13 @@ const api = useUnityApi();
 const route = useRoute();
 const router = useRouter();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const currentStep = ref<1 | 2 | 3>(1);
+const avatarLoadError = ref(false);
 
 const selectedBookingDate = ref<string>(props.selectedDate || new Date().toISOString().split('T')[0]);
 
@@ -616,6 +629,24 @@ const completingPaymob = ref(false);
 const detailedDoctor = ref<any>(null);
 
 // 3. Computed (computed properties)
+const cleanDoctorAvatar = computed(() => {
+  const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
+  const av = doc?.avatar || doc?.user?.avatar;
+  if (!av || typeof av !== 'string') return '';
+  const trimmed = av.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/uploads/') || trimmed.startsWith('data:image/')) {
+    return trimmed;
+  }
+  return '';
+});
+
+const doctorInitial = computed(() => {
+  const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
+  const name = doc?.name || doc?.user?.name || '';
+  if (!name) return 'D';
+  return name.trim().charAt(0).toUpperCase();
+});
+
 const isAdmin = computed(() => {
   return route.path.startsWith('/admin') || api.currentUser.value?.role === 'admin' || api.user.value?.role === 'admin';
 });
@@ -691,7 +722,7 @@ const doctorClinicType = computed(() => {
     apt?.doctor?.specialty;
 
   if (clinicName) {
-    return String(clinicName);
+    return resolveI18n(clinicName);
   }
 
   return t('General Clinic');
@@ -715,14 +746,16 @@ const applyPromo = async () => {
       appliedPromoCode.value = res.data.code;
       promoDiscount.value = Number(res.data.discount) || 0;
       promoApplied.value = true;
-      promoMessage.value = res.data.message || t('Promo code applied successfully');
+      promoMessage.value = t(res.data.message || 'Promo code applied successfully');
       toast.success(promoMessage.value);
     } else {
-      promoError.value = res?.message || t('Invalid or expired promo code');
+      const msg = res?.message || 'Invalid or expired promo code';
+      promoError.value = t(msg);
       toast.error(promoError.value);
     }
   } catch (err: any) {
-    promoError.value = err?.message || t('Invalid or expired promo code');
+    const msg = err?.data?.message || err?.message || 'Invalid or expired promo code';
+    promoError.value = t(msg);
     toast.error(promoError.value);
   } finally {
     checkingPromo.value = false;
@@ -1187,7 +1220,8 @@ const submitBooking = async () => {
     toast.success(t('Appointment booked successfully!'));
     emit('booking-completed', confirmedAppointment.value);
   } catch (err: any) {
-    toast.error(err.message || 'تعذر إتمام عملية الحجز');
+    const rawMsg = err?.data?.message || err?.message || 'Failed to complete booking';
+    toast.error(t(rawMsg));
   } finally {
     submitting.value = false;
   }
@@ -1240,6 +1274,7 @@ watch(
   () => [props.modelValue, props.doctor, props.service, props.examination, props.appointment],
   async ([isOpen]) => {
     if (isOpen) {
+      avatarLoadError.value = false;
       currentStep.value = 1;
       confirmedAppointment.value = null;
       selectedType.value = props.initialType || props.appointment?.type || 'consultation';
@@ -1529,59 +1564,67 @@ onUnmounted(() => {
     gap: 12px;
     margin-bottom: 14px;
 
-    .doc-avatar {
+    .doc-avatar-wrap {
       position: relative;
       width: 52px;
       height: 52px;
-      border-radius: 50%;
+      flex-shrink: 0;
 
-      img {
+      .doc-avatar {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        object-fit: cover;
-      }
+        overflow: hidden;
 
-      .doc-initial-avatar {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
-        color: #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 1.3rem;
-      }
+        img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
 
-      .exam-icon-circle {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: linear-gradient(135deg, rgba(4, 120, 87, 0.12) 0%, rgba(16, 185, 129, 0.22) 100%);
-        color: var(--unity-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.35rem;
-        border: 2px solid var(--unity-primary-tint);
+        .doc-initial-avatar {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 1.3rem;
+        }
+
+        .exam-icon-circle {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: linear-gradient(135deg, rgba(4, 120, 87, 0.12) 0%, rgba(16, 185, 129, 0.22) 100%);
+          color: var(--unity-primary);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.35rem;
+          border: 2px solid var(--unity-primary-tint);
+        }
       }
 
       .verified-tick {
         position: absolute;
-        bottom: 0;
-        inset-inline-end: 0;
-        width: 16px;
-        height: 16px;
+        bottom: -2px;
+        inset-inline-end: -2px;
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         background: #10b981;
         color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.55rem;
-        border: 2px solid #fff;
+        font-size: 0.60rem;
+        border: 2px solid var(--unity-surface);
+        z-index: 2;
       }
     }
 

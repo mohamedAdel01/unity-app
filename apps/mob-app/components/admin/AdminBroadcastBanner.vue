@@ -233,14 +233,13 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 440px;
-  max-height: 85vh;
-  overflow-y: auto;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 14px 20px 32px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  overflow: hidden;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   border-top: 1.5px solid var(--unity-border);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -251,17 +250,19 @@ onUnmounted(() => {
     height: 4px;
     border-radius: 10px;
     background: var(--unity-border);
-    margin: 0 auto 4px;
+    margin: 8px auto 0;
     flex-shrink: 0;
   }
 
   .modal-head {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding-bottom: 12px;
+    padding: 10px 20px 14px;
     border-bottom: 1px solid var(--unity-border);
+    background: var(--unity-surface);
 
     .head-info {
       display: flex;
@@ -321,9 +322,14 @@ onUnmounted(() => {
   }
 
   .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    -webkit-overflow-scrolling: touch;
 
     .form-group {
       display: flex;
@@ -392,11 +398,14 @@ onUnmounted(() => {
   }
 
   .modal-foot {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
-    padding-top: 4px;
+    padding: 12px 20px 24px;
+    border-top: 1px solid var(--unity-border);
+    background: var(--unity-surface);
 
     button {
       padding: 10px 20px;

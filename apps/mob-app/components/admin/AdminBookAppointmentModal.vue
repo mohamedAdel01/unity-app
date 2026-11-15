@@ -227,7 +227,7 @@
               :class="{ active: selectedClinicId === clinic.id }"
               @click="setClinicFilter(clinic.id)"
             >
-              {{ clinic.name }}
+              {{ getClinicName(clinic) }}
             </button>
           </div>
 
@@ -261,7 +261,7 @@
                   <div class="item-name-row">
                     <h6>{{ doc.user?.name || doc.name }}</h6>
                   </div>
-                  <span class="item-sub">{{ doc.clinic?.name || t('Specialist') }}</span>
+                  <span class="item-sub">{{ getClinicName(doc.clinic) || t('Specialist') }}</span>
                   <div class="item-pricing">
                     <span class="price-value">{{ getDoctorFee(doc) }} {{ t('EGP') }}</span>
                     <span class="duration-tag">
@@ -325,8 +325,8 @@
                 </div>
 
                 <div class="item-details">
-                  <h6>{{ exam.name }}</h6>
-                  <p v-if="exam.description" class="exam-desc">{{ exam.description }}</p>
+                  <h6>{{ getExamName(exam) }}</h6>
+                  <p v-if="exam.description || exam.description_ar || exam.description_en" class="exam-desc">{{ getExamDescription(exam) }}</p>
                   <div class="item-pricing">
                     <span class="price-value">{{ exam.price }} {{ t('EGP') }}</span>
                     <span class="duration-tag">
@@ -446,9 +446,9 @@
           </div>
         </div>
 
-        <!-- Booking Notes (Optional) -->
+        <!-- Booking Notes -->
         <div class="form-group notes-group">
-          <label>{{ t('Booking Notes (Optional)') }}</label>
+          <label>{{ t('Booking Notes') }}</label>
           <div class="input-shell textarea-shell">
             <textarea 
               v-model="bookingNotes" 
@@ -488,12 +488,12 @@
 
           <div v-if="bookingType === 'doctor'" class="summary-row">
             <span class="summary-label">{{ t('Doctor') }}:</span>
-            <span class="summary-value font-bold">{{ selectedDoctor?.user?.name || selectedDoctor?.name }} ({{ selectedDoctor?.clinic?.name }})</span>
+            <span class="summary-value font-bold">{{ selectedDoctor?.user?.name || selectedDoctor?.name }} ({{ getClinicName(selectedDoctor?.clinic) }})</span>
           </div>
 
           <div v-else-if="bookingType === 'examination'" class="summary-row">
             <span class="summary-label">{{ t('Medical Examination') }}:</span>
-            <span class="summary-value font-bold">{{ selectedExam?.name }}</span>
+            <span class="summary-value font-bold">{{ getExamName(selectedExam) }}</span>
           </div>
 
           <div class="summary-row">
@@ -573,7 +573,7 @@ const emit = defineEmits<{
   (e: 'booked', result: any): void;
 }>();
 
-const { t, isRtl } = useI18n();
+const { t, isRtl, resolveI18n } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
 const { registerModalOpen, registerModalClose } = useModalState();
@@ -629,7 +629,7 @@ const filteredDoctors = computed(() => {
     const q = doctorSearch.value.trim().toLowerCase();
     list = list.filter((d: any) => {
       const name = (d.user?.name || d.name || '').toLowerCase();
-      const clinicName = (d.clinic?.name || '').toLowerCase();
+      const clinicName = (d.clinic?.name || d.clinic?.name_ar || d.clinic?.name_en || '').toLowerCase();
       return name.includes(q) || clinicName.includes(q);
     });
   }
@@ -641,8 +641,8 @@ const filteredExaminations = computed(() => {
   if (examSearch.value.trim()) {
     const q = examSearch.value.trim().toLowerCase();
     list = list.filter((e: any) => {
-      const name = (e.name || '').toLowerCase();
-      const desc = (e.description || '').toLowerCase();
+      const name = (e.name || e.name_ar || e.name_en || '').toLowerCase();
+      const desc = (e.description || e.description_ar || e.description_en || '').toLowerCase();
       return name.includes(q) || desc.includes(q);
     });
   }
@@ -660,6 +660,26 @@ const totalFee = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
+const getClinicName = (c: any) => {
+  if (!c) return '';
+  if (!isRtl.value && c.name_en) return resolveI18n(c.name_en);
+  if (isRtl.value && c.name_ar) return resolveI18n(c.name_ar);
+  return resolveI18n(c.name || c.name_ar || c.name_en || '');
+};
+
+const getExamName = (e: any) => {
+  if (!e) return '';
+  if (!isRtl.value && e.name_en) return resolveI18n(e.name_en);
+  if (isRtl.value && e.name_ar) return resolveI18n(e.name_ar);
+  return resolveI18n(e.name || e.name_ar || e.name_en || '');
+};
+
+const getExamDescription = (e: any) => {
+  if (!e) return '';
+  if (!isRtl.value && e.description_en) return resolveI18n(e.description_en);
+  if (isRtl.value && e.description_ar) return resolveI18n(e.description_ar);
+  return resolveI18n(e.description || e.description_ar || e.description_en || '');
+};
 const getInitial = (name?: string) => {
   if (!name) return 'م';
   return name.trim().charAt(0);
@@ -997,7 +1017,7 @@ const submitBooking = async () => {
     close();
   } catch (err: any) {
     toast.show({
-      title: err?.message || t('Failed to register patient'),
+      title: t(err?.data?.message || err?.message || 'Failed to book appointment'),
       type: 'error',
     });
   } finally {
@@ -1080,11 +1100,13 @@ onUnmounted(() => {
 }
 
 .modal-header {
+  flex-shrink: 0;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--unity-border);
+  background: var(--unity-surface);
 
   .header-left-actions {
     display: flex;
@@ -1441,10 +1463,12 @@ onUnmounted(() => {
 .step-container {
   padding: 14px 20px 24px;
   overflow-y: auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
   flex: 1;
+  -webkit-overflow-scrolling: touch;
 
   .step-title {
     margin: 0;
@@ -1963,28 +1987,31 @@ onUnmounted(() => {
 
 /* Common Step Footer Buttons */
 .step-footer-actions {
+  flex-shrink: 0;
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-top: auto;
-  padding-top: 8px;
+  padding: 14px 0 6px;
+  border-top: 1px solid var(--unity-border);
+  background: var(--unity-surface);
 
   button {
-    height: 46px;
-    border-radius: 14px;
-    font-size: 0.85rem;
+    height: 48px;
+    border-radius: 12px;
+    font-size: 0.90rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    transition: all 0.2s;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .btn-step-outline {
     flex: 1;
     background: var(--unity-bg);
-    border: 1px solid var(--unity-border);
+    border: 1.5px solid var(--unity-border);
     color: var(--unity-text-muted);
 
     &:hover {

@@ -55,7 +55,7 @@
 
       <!-- Reason Selection -->
       <div class="reason-section">
-        <label class="section-label">{{ t('Reason for deletion (optional)') }}</label>
+        <label class="section-label">{{ t('Reason for deletion') }}</label>
         <div class="reasons-chips">
           <button
             v-for="(item, index) in reasons"

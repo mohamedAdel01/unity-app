@@ -1,4 +1,37 @@
 import services from '@/services';
+import { resolveI18nText } from '@/composables/useI18n';
+
+function sanitizeLocalizedData(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeLocalizedData(item));
+  }
+  if (typeof obj === 'object') {
+    for (const key of Object.keys(obj)) {
+      const val = obj[key];
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (
+          trimmed.startsWith('{') &&
+          trimmed.endsWith('}') &&
+          (trimmed.includes('"ar"') || trimmed.includes('"en"'))
+        ) {
+          try {
+            const parsed = JSON.parse(trimmed);
+            if (parsed && typeof parsed === 'object' && (parsed.ar !== undefined || parsed.en !== undefined)) {
+              if (parsed.ar && !obj[`${key}_ar`]) obj[`${key}_ar`] = parsed.ar;
+              if (parsed.en && !obj[`${key}_en`]) obj[`${key}_en`] = parsed.en;
+              obj[key] = resolveI18nText(parsed);
+            }
+          } catch (_) {}
+        }
+      } else if (typeof val === 'object') {
+        obj[key] = sanitizeLocalizedData(val);
+      }
+    }
+  }
+  return obj;
+}
 
 const storeMap: Record<string, () => Promise<any>> = {
   global: () => import('@/stores/global').then((m) => m.useGlobalStore),
@@ -37,6 +70,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       // Call Request
       let response = await services[service]({ API, payload, filter });
+      response = sanitizeLocalizedData(response);
 
       // Handle Store
       if (pinia && storeMap[module]) {
@@ -55,7 +89,10 @@ export default defineNuxtPlugin((nuxtApp) => {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.data?.message) {
+        error.message = error.data.message;
+      }
       throw error;
     } finally {
       globalStore.setLoading([service, false]);

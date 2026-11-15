@@ -15,7 +15,8 @@
 
       <!-- Modal Body -->
       <form class="modal-form" @submit.prevent="handleSubmit">
-        <!-- 1. Avatar Picker / Preview -->
+        <div class="form-body">
+          <!-- 1. Avatar Picker / Preview -->
         <div class="avatar-picker-section">
           <div 
             class="avatar-preview-wrapper"
@@ -67,7 +68,7 @@
 
         <!-- 2. Full Name -->
         <div class="form-group">
-          <label>{{ t('Full Name') }}</label>
+          <label>{{ t('Full Name') }} <span class="required">*</span></label>
           <div class="input-shell">
             <i class="pi pi-user"></i>
             <input 
@@ -115,6 +116,8 @@
               <span>{{ t('Female') }}</span>
             </button>
           </div>
+        </div>
+
         </div>
 
         <!-- Action Buttons -->
@@ -370,22 +373,26 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 440px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
-  padding: 24px 20px 32px;
+  padding: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
 
   .modal-header {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--unity-border-light);
+    background: var(--unity-surface);
+    margin-bottom: 0;
 
     .header-title {
       display: flex;
@@ -432,7 +439,19 @@ onUnmounted(() => {
   .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+
+    .form-body {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      -webkit-overflow-scrolling: touch;
 
     .avatar-picker-section {
       display: flex;
@@ -543,6 +562,12 @@ onUnmounted(() => {
         font-size: 0.85rem;
         font-weight: 600;
         color: var(--unity-text-muted);
+
+        .required {
+          color: #ef4444;
+          margin-inline-start: 2px;
+          font-weight: 700;
+        }
       }
 
       .input-shell {
@@ -616,12 +641,17 @@ onUnmounted(() => {
         }
       }
     }
+  }
 
-    .modal-actions {
+  .modal-actions {
+      flex-shrink: 0;
+      padding: 14px 20px 24px;
+      border-top: 1px solid var(--unity-border-light);
+      background: var(--unity-surface);
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 10px;
+      margin-top: 0;
 
       button {
         flex: 1;
