@@ -1,51 +1,47 @@
 <template>
   <div class="profile-referral-card">
-    <!-- Top row: Icon + Titles & Points badge -->
+    <!-- 1. Header: Clean Title with Star / Gift Icon -->
     <div class="card-header">
-      <div class="card-info">
-        <div class="gift-icon">
-          <i class="pi pi-gift"></i>
-        </div>
-        <div class="titles">
-          <h4>{{ t('Refer Friends & Earn Points') }}</h4>
-          <p>{{ t('Share your invite code with friends to earn reward points') }}</p>
-        </div>
-      </div>
-      <div class="points-pill">
-        <i class="pi pi-star-fill"></i>
-        <span>{{ pointsBalance }}</span>
-        <small>{{ t('Points') }}</small>
+      <div class="title-with-icon">
+        <i class="pi pi-star-fill header-icon"></i>
+        <h4 class="card-title">{{ t('Referral Points') }}</h4>
       </div>
     </div>
 
-    <!-- Actions row: Sleek click-to-copy code chip + Share button -->
-    <div class="card-actions">
-      <button 
-        type="button" 
-        class="code-chip" 
-        :class="{ copied }" 
-        :title="t('Copy Code')" 
-        @click="copyCode"
-      >
-        <div class="chip-main">
-          <span class="chip-label">{{ t('Invite Code') }}:</span>
+    <!-- 2. Full-Width Description (No truncation) -->
+    <p class="card-description">
+      {{ t('Share your invite code with friends to earn reward points that can be redeemed on upcoming bookings') }}
+    </p>
+
+    <!-- 3. Points & Referral Code Section (Simpler, No Share Button) -->
+    <div class="points-code-section">
+      <!-- Simple Points Balance Strip -->
+      <div class="points-balance-strip">
+        <span class="points-label">{{ t('Current Balance') }}</span>
+        <div class="points-value">
+          <i class="pi pi-star-fill"></i>
+          <span class="points-count">{{ pointsBalance }}</span>
+          <span class="points-unit">{{ t('Points') }}</span>
+        </div>
+      </div>
+
+      <!-- Referral Code Copy Chip (Full Width, No Share Button) -->
+      <div class="code-copy-shell" @click="copyCode">
+        <div class="code-info">
+          <span class="code-label">{{ t('Invite Code') }}:</span>
           <strong class="code-val">{{ referralCode }}</strong>
         </div>
-        <div class="chip-action">
+        <button 
+          type="button" 
+          class="btn-copy" 
+          :class="{ copied }" 
+          :title="t('Copy Code')"
+          @click.stop="copyCode"
+        >
           <i :class="copied ? 'pi pi-check text-success' : 'pi pi-copy'"></i>
-          <span class="action-text">{{ copied ? t('Copied!') : t('Copy') }}</span>
-        </div>
-      </button>
-
-      <button 
-        type="button" 
-        class="btn-share" 
-        :title="t('Share Invite')" 
-        @click="shareInvite"
-      >
-        <i class="pi pi-share-alt"></i>
-        <span>{{ t('Share Invite') }}</span>
-      </button>
+          <span>{{ copied ? t('Copied!') : t('Copy') }}</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -110,29 +106,6 @@ const copyCode = async () => {
   }
 };
 
-const shareInvite = async () => {
-  const shareMsg = referralData.value?.share_message || 
-    `${t('Use my invite code to get 50 bonus points on Unity Clinics!')} ${referralCode.value}`;
-  const shareUrl = referralData.value?.share_url || 'https://unity-clinics.cyou';
-
-  if (typeof navigator !== 'undefined' && (navigator as any).share) {
-    try {
-      await (navigator as any).share({
-        title: t('Unity Clinics Invitation'),
-        text: shareMsg,
-        url: shareUrl,
-      });
-      return;
-    } catch (_) {}
-  }
-
-  // Fallback: copy to clipboard
-  try {
-    await navigator.clipboard.writeText(`${shareMsg}\n${shareUrl}`);
-    toast.show({ title: t('Invitation link copied to clipboard!'), type: 'success' });
-  } catch (_) {}
-};
-
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
@@ -147,8 +120,8 @@ onMounted(() => {
 .profile-referral-card {
   background: var(--unity-surface);
   border: 1px solid var(--unity-border);
-  border-radius: 16px;
-  padding: 14px 16px;
+  border-radius: 18px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -158,139 +131,146 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
 
-    .card-info {
+    .title-with-icon {
       display: flex;
       align-items: center;
       gap: 10px;
-      min-width: 0;
-      flex: 1;
 
-      .gift-icon {
-        width: 36px;
-        height: 36px;
+      .header-icon {
+        font-size: 1rem;
+        color: #d97706;
+        background: #fef3c7;
+        padding: 8px;
         border-radius: 10px;
-        background: rgba(4, 120, 87, 0.08);
-        color: var(--unity-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
+        border: 1px solid #fde68a;
       }
 
-      .titles {
-        min-width: 0;
-        flex: 1;
-
-        h4 {
-          margin: 0;
-          font-size: 0.88rem;
-          font-weight: 700;
-          color: var(--unity-text-main);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        p {
-          margin: 2px 0 0;
-          font-size: 0.72rem;
-          color: var(--unity-text-muted);
-          line-height: 1.25;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
-    }
-
-    .points-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      color: #b45309;
-      padding: 3px 9px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 0.78rem;
-      flex-shrink: 0;
-
-      i {
-        font-size: 0.78rem;
-      }
-
-      small {
-        font-size: 0.70rem;
+      .card-title {
+        margin: 0;
+        font-size: 0.96rem;
+        font-weight: 800;
+        color: var(--unity-text-main);
       }
     }
   }
 
-  .card-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .card-description {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--unity-text-muted);
+    line-height: 1.55;
+    width: 100%;
+    text-align: inherit;
+  }
 
-    .code-chip {
-      flex: 1;
-      height: 38px;
-      display: inline-flex;
+  .points-code-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 2px;
+
+    .points-balance-strip {
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 10px;
-      background: var(--unity-bg);
-      border: 1px solid var(--unity-border);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      min-width: 0;
+      padding: 10px 14px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
 
-      &:hover {
-        border-color: var(--unity-primary);
+      .points-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #92400e;
       }
 
-      &.copied {
-        border-color: var(--unity-primary);
-        background: rgba(4, 120, 87, 0.06);
-
-        .chip-action {
-          color: var(--unity-primary);
-        }
-      }
-
-      .chip-main {
+      .points-value {
         display: flex;
         align-items: center;
         gap: 6px;
-        min-width: 0;
+        color: #b45309;
 
-        .chip-label {
-          font-size: 0.72rem;
-          color: var(--unity-text-muted);
+        i {
+          font-size: 0.90rem;
+          color: #d97706;
+        }
+
+        .points-count {
+          font-size: 1.05rem;
+          font-weight: 800;
+        }
+
+        .points-unit {
+          font-size: 0.78rem;
+          font-weight: 700;
+        }
+      }
+    }
+
+    .code-copy-shell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 8px 6px 14px;
+      background: var(--unity-bg);
+      border: 1.5px dashed var(--unity-border);
+      border-radius: 12px;
+      min-height: 46px;
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:active {
+        border-color: var(--unity-primary);
+        background: rgba(4, 120, 87, 0.03);
+      }
+
+      .code-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .code-label {
+          font-size: 0.78rem;
           font-weight: 600;
-          white-space: nowrap;
+          color: var(--unity-text-muted);
         }
 
         .code-val {
-          font-size: 0.88rem;
+          font-size: 0.96rem;
           font-weight: 800;
           color: var(--unity-primary);
-          letter-spacing: 0.5px;
+          letter-spacing: 0.8px;
           font-family: monospace;
         }
       }
 
-      .chip-action {
+      .btn-copy {
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 8px;
+        background: var(--unity-surface);
+        border: 1px solid var(--unity-border);
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: var(--unity-text-main);
+        cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 4px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: var(--unity-text-muted);
-        transition: color 0.2s ease;
+        gap: 5px;
+        transition: all 0.2s ease;
+
+        &:active {
+          border-color: var(--unity-primary);
+          color: var(--unity-primary);
+        }
+
+        &.copied {
+          background: rgba(4, 120, 87, 0.1);
+          border-color: var(--unity-primary);
+          color: var(--unity-primary);
+        }
 
         i {
           font-size: 0.78rem;
@@ -299,35 +279,6 @@ onMounted(() => {
         .text-success {
           color: var(--unity-primary);
         }
-      }
-    }
-
-    .btn-share {
-      height: 38px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 0 14px;
-      background: var(--unity-primary);
-      color: #ffffff;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-      &:hover {
-        background: var(--unity-primary-dark);
-      }
-
-      &:active {
-        transform: scale(0.97);
-      }
-
-      i {
-        font-size: 0.78rem;
       }
     }
   }

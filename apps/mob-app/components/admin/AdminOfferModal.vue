@@ -478,10 +478,11 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 480px;
-  max-height: 90vh;
+  height: 88vh;
+  max-height: 88vh;
   overflow: hidden;
   background: var(--unity-surface);
-  border-radius: 24px 24px 0 0;
+  border-radius: 28px 28px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -869,22 +870,26 @@ onUnmounted(() => {
     }
 
     .modal-footer {
-      flex-shrink: 0;
+      flex: 0 0 auto;
+      width: 100%;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 18px;
+      gap: 12px;
+      padding: 14px 20px max(20px, env(safe-area-inset-bottom, 20px));
       border-top: 1px solid var(--unity-border);
       background: var(--unity-surface);
+      margin-top: auto;
+      z-index: 10;
 
       .btn-cancel {
         flex: 1;
-        height: 44px;
+        height: 48px;
         background: var(--unity-bg);
         border: 1.5px solid var(--unity-border);
         border-radius: 12px;
         color: var(--unity-text-muted);
-        font-size: 0.86rem;
+        font-size: 0.90rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -897,12 +902,12 @@ onUnmounted(() => {
 
       .btn-submit {
         flex: 2;
-        height: 44px;
+        height: 48px;
         background: var(--unity-primary);
         border: none;
         border-radius: 12px;
         color: #ffffff;
-        font-size: 0.86rem;
+        font-size: 0.90rem;
         font-weight: 700;
         cursor: pointer;
         display: flex;

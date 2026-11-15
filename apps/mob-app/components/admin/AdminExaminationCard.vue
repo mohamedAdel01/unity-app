@@ -15,7 +15,6 @@
       <div class="entity-info">
         <h4>{{ primaryName }}</h4>
         <span v-if="categoryName" class="category-badge">
-          <i :class="(examination as any)?.category?.icon || 'pi pi-folder'"></i>
           {{ categoryName }}
         </span>
         <p v-if="displayDescription" class="srv-desc">{{ displayDescription }}</p>
@@ -281,7 +280,7 @@ const categoryName = computed(() => {
         color: var(--unity-primary);
       }
 
-      &:hover {
+      &:active {
         background: var(--unity-primary-light);
         border-color: var(--unity-primary);
         color: var(--unity-primary);

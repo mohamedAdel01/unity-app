@@ -22,7 +22,6 @@
           :class="{ 'active': String(selectedCategoryId) === String(cat.id) }"
           @click="onSelectCategory(cat.id)"
         >
-          <i :class="cat.icon || 'pi pi-folder'"></i>
           <span>{{ isRtl ? (cat.name_ar || cat.name) : (cat.name_en || cat.name) }}</span>
           <span v-if="cat.examinations_count !== undefined" class="chip-count">{{ cat.examinations_count }}</span>
         </button>

@@ -46,10 +46,6 @@ const { t } = useI18n();
       font-weight: 600;
       text-decoration: none;
       margin-inline-start: 4px;
-
-      &:hover {
-        text-decoration: underline;
-      }
     }
   }
 }

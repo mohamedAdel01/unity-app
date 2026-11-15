@@ -309,6 +309,7 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 440px;
+  height: 88vh;
   max-height: 88vh;
   overflow: hidden;
   background: var(--unity-surface);
@@ -534,18 +535,22 @@ onUnmounted(() => {
     }
 
     .modal-footer {
-      flex-shrink: 0;
+      flex: 0 0 auto;
+      width: 100%;
+      box-sizing: border-box;
       display: flex;
       gap: 10px;
-      padding: 14px 20px 24px;
+      padding: 14px 20px max(20px, env(safe-area-inset-bottom, 20px));
       border-top: 1px solid var(--unity-border-light, var(--unity-border));
       background: var(--unity-surface);
+      margin-top: auto;
+      z-index: 10;
 
       button {
         flex: 1;
-        height: 44px;
+        height: 48px;
         border-radius: 12px;
-        font-size: 0.84rem;
+        font-size: 0.90rem;
         font-weight: 700;
         cursor: pointer;
         display: inline-flex;

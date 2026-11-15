@@ -3,7 +3,6 @@
     <div class="auth-content-wrapper">
       <AuthHeader :title="t('Sign In')" />
       <LoginForm />
-      <QuickLoginButtons />
       <AuthFooterLink :is-register="false" />
     </div>
   </div>
@@ -14,7 +13,6 @@
 import { useI18n } from '../../composables/useI18n';
 import AuthHeader from '../../components/auth/AuthHeader.vue';
 import LoginForm from '../../components/auth/LoginForm.vue';
-import QuickLoginButtons from '../../components/auth/QuickLoginButtons.vue';
 import AuthFooterLink from '../../components/auth/AuthFooterLink.vue';
 
 definePageMeta({

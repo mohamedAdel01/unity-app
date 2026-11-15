@@ -409,12 +409,16 @@ onUnmounted(() => {
     }
 
     .modal-actions {
-      flex-shrink: 0;
+      flex: 0 0 auto;
+      width: 100%;
+      box-sizing: border-box;
       display: flex;
       gap: 12px;
-      padding: 14px 20px 20px;
+      padding: 14px 20px max(20px, env(safe-area-inset-bottom, 20px));
       border-top: 1px solid var(--unity-border);
       background: var(--unity-surface);
+      margin-top: auto;
+      z-index: 10;
 
       button {
         height: 48px;

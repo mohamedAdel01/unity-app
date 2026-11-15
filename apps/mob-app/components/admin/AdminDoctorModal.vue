@@ -566,6 +566,7 @@ onUnmounted(() => {
 .modal-sheet {
   width: 100%;
   max-width: 480px;
+  height: 88vh;
   max-height: 88vh;
   background: var(--unity-surface);
   border-radius: 28px 28px 0 0;
@@ -633,11 +634,13 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     flex: 1;
+    height: 100%;
     min-height: 0;
     overflow: hidden;
+    width: 100%;
 
     .form-body {
-      flex: 1;
+      flex: 1 1 auto;
       overflow-y: auto;
       min-height: 0;
       padding: 16px 20px;
@@ -976,13 +979,17 @@ onUnmounted(() => {
   }
 
   .modal-actions {
-    flex-shrink: 0;
-    padding: 14px 20px 20px;
+    flex: 0 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 20px max(20px, env(safe-area-inset-bottom, 20px));
     border-top: 1px solid var(--unity-border);
     background: var(--unity-surface);
     display: flex;
     align-items: center;
     gap: 12px;
+    z-index: 10;
+    margin-top: auto;
 
     button {
       height: 48px;

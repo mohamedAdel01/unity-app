@@ -236,6 +236,15 @@ const getLocalizedBody = (item: any) => {
       return `تم تسجيل موعدك (${serviceName}) بتاريخ ${date} الساعة ${time} بنجاح. قيد المراجعة أو الدفع.`;
     }
 
+    const scheduleRegex = /An appointment (?:on )?\((.*?)\) (?:on )?(\S+) at (\S+) has been scheduled for you\./i;
+    const schedMatch = body.match(scheduleRegex);
+    if (schedMatch) {
+      const serviceName = schedMatch[1];
+      const date = schedMatch[2];
+      const time = schedMatch[3];
+      return `تم حجز موعد لك (${serviceName}) بتاريخ ${date} الساعة ${time} بنجاح.`;
+    }
+
     const confirmRegex = /Your appointment (?:on )?(\S+) at (\S+) has been confirmed\./i;
     const confirmMatch = body.match(confirmRegex);
     if (confirmMatch) {
