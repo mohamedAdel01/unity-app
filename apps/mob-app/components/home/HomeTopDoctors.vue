@@ -102,10 +102,7 @@ const filteredDoctors = computed(() => {
 
 // 4. Methods (functions, handlers)
 const getClinicName = (c: any) => {
-  if (!c) return '';
-  if (!isRtl.value && c.name_en) return resolveI18n(c.name_en);
-  if (isRtl.value && c.name_ar) return resolveI18n(c.name_ar);
-  return resolveI18n(c.name || c.name_ar || c.name_en || '');
+  return isRtl.value ? c?.name_ar : c?.name_en;
 };
 
 const DOCTORS = async () => {
@@ -114,13 +111,13 @@ const DOCTORS = async () => {
     if (res && res.status && Array.isArray(res.data)) {
       doctors.value = res.data.map((d: any) => ({
         id: d.id,
-        name: d.user?.name || d.name,
-        specialty: d.specialty || '',
+        name: isRtl.value ? d.name_ar : d.name_en,
+        specialty: isRtl.value ? d.clinic?.name_ar : d.clinic?.name_en,
         clinic: d.clinic,
         rating: d.rating || null,
         availabilityText: t('Available Today'),
-        avatar: d.user?.avatar || d.avatar || '',
-        consultation_fee: d.consultation_fee || 250,
+        avatar: d.avatar,
+        consultation_fee: d.consultation_fee,
       }));
     } else {
       doctors.value = [];

@@ -81,10 +81,7 @@ const { t, isRtl, resolveI18n } = useI18n();
 
 // 3. Computed (computed properties)
 const primaryName = computed(() => {
-  if (isRtl.value) {
-    return resolveI18n(props.clinic.name_ar || props.clinic.name_en || props.clinic.name || '');
-  }
-  return resolveI18n(props.clinic.name_en || props.clinic.name_ar || props.clinic.name || '');
+  return isRtl.value ? props.clinic?.name_ar : props.clinic?.name_en;
 });
 
 // 4. Methods (functions, handlers)

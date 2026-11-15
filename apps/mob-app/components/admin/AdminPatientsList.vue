@@ -21,7 +21,7 @@
         <div class="empty-patients-state">
           <i class="pi pi-search"></i>
           <h5>{{ t('No matching patients found') }}</h5>
-          <p>{{ t('Try searching with a different name, MRN, or National ID.') }}</p>
+          <p>{{ t('Try searching with a different name or phone number.') }}</p>
           <button type="button" class="btn-reset-search" @click="emit('reset')">
             {{ t('Reset Search') }}
           </button>

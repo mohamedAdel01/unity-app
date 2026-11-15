@@ -6,7 +6,7 @@
         <div class="tile-icon"><i class="pi pi-id-card"></i></div>
         <div class="tile-info">
           <strong>{{ t('Patients Records') }}</strong>
-          <small>{{ t('Manage MRN & medical histories') }}</small>
+          <small>{{ t('Manage patient medical histories') }}</small>
         </div>
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
       </NuxtLink>
@@ -22,17 +22,26 @@
           </svg>
         </div>
         <div class="tile-info">
-          <strong>{{ t('Doctors & Rosters') }}</strong>
-          <small>{{ t('Schedules, shifts & availability') }}</small>
+          <strong>{{ t('Clinics & Doctors') }}</strong>
+          <small>{{ t('Manage clinics, doctors & schedules') }}</small>
         </div>
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
       </NuxtLink>
 
-      <NuxtLink to="/admin/clinics" class="nav-tile">
-        <div class="tile-icon"><i class="pi pi-building"></i></div>
+      <NuxtLink to="/admin/services" class="nav-tile">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 18h8"/>
+            <path d="M3 22h18"/>
+            <path d="M14 22a7 7 0 1 0 0-14h-1"/>
+            <path d="M9 14h2"/>
+            <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/>
+            <path d="M12 6V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/>
+          </svg>
+        </div>
         <div class="tile-info">
-          <strong>{{ t('Clinics & Departments') }}</strong>
-          <small>{{ t('Units, rooms & capacities') }}</small>
+          <strong>{{ t('Services & Examinations') }}</strong>
+          <small>{{ t('Medical tests, packages & categories') }}</small>
         </div>
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
       </NuxtLink>

@@ -73,7 +73,6 @@ interface Patient {
   id?: string | number;
   name: string;
   phone: string;
-  mrn?: string;
   gender?: string | null;
   status?: string;
 }
@@ -136,7 +135,6 @@ const handleSubmit = async () => {
     const resultPatient = res?.data || {
       ...(props.patient?.id ? props.patient : {
         id: `pt-${Date.now()}`,
-        mrn: String(Math.floor(1000000 + Math.random() * 9000000)),
         status: 'active',
         created_at: new Date().toISOString(),
       }),

@@ -28,7 +28,7 @@
       <input 
         v-model="searchQuery" 
         type="text" 
-        :placeholder="t('Search by name, MRN or National ID...')"
+        :placeholder="t('Search by name or phone...')"
         @input="onSearchInput"
       />
       <button v-if="searchQuery" class="clear-search-btn" @click="clearSearch">

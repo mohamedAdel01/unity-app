@@ -17,10 +17,8 @@
             <div class="name-badge-row">
               <h3>{{ patient.name }}</h3>
             </div>
-            <p v-if="patient.mrn || patient.national_id" class="mrn-meta">
-              <span v-if="patient.mrn">MRN - {{ patient.mrn }}</span>
-              <span v-if="patient.mrn && patient.national_id">•</span>
-              <span v-if="patient.national_id">{{ t('National ID') }}: {{ maskNationalId(patient.national_id) }}</span>
+            <p v-if="patient.national_id" class="mrn-meta">
+              <span>{{ t('National ID') }}: {{ maskNationalId(patient.national_id) }}</span>
             </p>
           </div>
         </div>

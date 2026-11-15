@@ -36,8 +36,8 @@
           />
         </div>
 
-        <!-- 2. Discount Type & Value -->
-        <div class="form-row-grid">
+        <!-- 2. Discount Type, Value & Max Discount (3 Inputs side-by-side) -->
+        <div :class="form.discount_type === 'percentage' ? 'form-row-grid-3' : 'form-row-grid'">
           <div class="form-group">
             <label class="form-label">
               <span>{{ t('Discount Type') }}</span>
@@ -68,9 +68,23 @@
               required 
             />
           </div>
+
+          <div v-if="form.discount_type === 'percentage'" class="form-group">
+            <label class="form-label">
+              <span>{{ t('Max Discount') }}</span>
+              <span class="currency-tag">({{ t('EGP') }})</span>
+            </label>
+            <input 
+              v-model.number="form.max_discount" 
+              type="number" 
+              min="0" 
+              class="form-input" 
+              placeholder="100" 
+            />
+          </div>
         </div>
 
-        <!-- 3. Constraints (Min Spend & Max Discount) -->
+        <!-- 3. Constraints (Min Spend & Usage Limit) -->
         <div class="form-row-grid">
           <div class="form-group">
             <label class="form-label">
@@ -86,45 +100,18 @@
             />
           </div>
 
-          <div class="form-group" v-if="form.discount_type === 'percentage'">
+          <div class="form-group">
             <label class="form-label">
-              <span>{{ t('Max Discount') }}</span>
-              <span class="currency-tag">({{ t('EGP') }})</span>
-            </label>
-            <input 
-              v-model.number="form.max_discount" 
-              type="number" 
-              min="0" 
-              class="form-input" 
-              placeholder="100" 
-            />
-          </div>
-
-          <div class="form-group" v-else>
-            <label class="form-label">
-              <span>{{ t('Usage Limit') }}</span>
+              <span>{{ t('Usage Limit Per User') }}</span>
             </label>
             <input 
               v-model.number="form.usage_limit" 
               type="number" 
               min="1" 
               class="form-input" 
-              placeholder="100" 
+              :placeholder="t('Unlimited')" 
             />
           </div>
-        </div>
-
-        <div class="form-group" v-if="form.discount_type === 'percentage'">
-          <label class="form-label">
-            <span>{{ t('Usage Limit') }}</span>
-          </label>
-          <input 
-            v-model.number="form.usage_limit" 
-            type="number" 
-            min="1" 
-            class="form-input" 
-            placeholder="100" 
-          />
         </div>
 
         <!-- 4. Active Toggle -->
@@ -498,6 +485,33 @@ onUnmounted(() => {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+    }
+
+    .form-row-grid-3 {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr 1fr;
+      gap: 6px;
+
+      .form-label {
+        font-size: 0.72rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .form-select {
+        padding: 0 24px 0 8px;
+        font-size: 0.80rem;
+      }
+
+      .form-input {
+        padding: 0 8px;
+        font-size: 0.82rem;
+      }
+
+      .select-arrow {
+        inset-inline-end: 8px;
+      }
     }
 
     .toggle-checkbox-row {

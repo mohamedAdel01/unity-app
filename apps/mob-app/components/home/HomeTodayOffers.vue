@@ -85,8 +85,8 @@ const OFFERS = async () => {
     if (raw.length > 0) {
       offers.value = raw.map((o: any) => ({
         id: o.id,
-        title: resolveI18n(isRtl.value ? (o.title_ar || o.title) : (o.title_en || o.title)),
-        description: resolveI18n(isRtl.value ? (o.description_ar || o.description) : (o.description_en || o.description)),
+        title: isRtl.value ? o.title_ar : o.title_en,
+        description: isRtl.value ? o.description_ar : o.description_en,
         image: o.image,
         price: Number(o.price),
         originalPrice: o.original_price ? Number(o.original_price) : null,

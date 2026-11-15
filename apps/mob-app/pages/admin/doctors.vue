@@ -1,16 +1,21 @@
 <template>
   <div class="admin-doctors-page">
-    <!-- 1. Header with search, clinic filters & stats -->
+    <!-- 1. Header with Mode Tabs, search, clinic filters & stats -->
     <AdminDoctorsHeader 
-      :total-count="totalDoctorsCount"
+      :active-tab="activeTab"
+      :doctors-count="totalDoctorsCount || doctors.length"
+      :clinics-count="clinicsTotal || clinics.length"
       :clinics="clinics"
+      @tab-change="onTabChange"
       @search="onSearch"
       @filter="onFilter"
       @new-doctor="openNewDoctorModal"
+      @new-clinic="openNewClinicModal"
     />
 
-    <!-- 2. Modular Doctors Virtual List (10 by 10) -->
+    <!-- 2. When activeTab === 'doctors': Modular Doctors Virtual List (10 by 10) -->
     <AdminDoctorsList
+      v-if="activeTab === 'doctors'"
       :doctors="filteredDoctors"
       :has-more="doctorsHasMore"
       :loading="doctorsLoading"
@@ -20,6 +25,17 @@
       @toggle-status="onToggleDoctorStatus"
       @load-more="loadMoreDoctors"
       @reset="resetFilters"
+    />
+
+    <!-- 3. When activeTab === 'clinics': Modular Clinics Virtual List (10 by 10) -->
+    <AdminClinicsList
+      v-else-if="activeTab === 'clinics'"
+      :clinics="clinics"
+      :has-more="clinicsHasMore"
+      :loading="clinicsLoading"
+      @toggle-status="toggleClinicStatus"
+      @edit="openEditClinicModal"
+      @load-more="loadMoreClinics"
     />
 
     <!-- Modal: Edit Schedule -->
@@ -46,6 +62,15 @@
       @close="isDoctorCasesModalOpen = false"
     />
 
+    <!-- Modal: Add / Edit Clinic -->
+    <AdminClinicModal
+      :is-open="isClinicModalOpen"
+      :clinic="selectedClinicToEdit"
+      @close="isClinicModalOpen = false"
+      @created="ADMIN_CLINICS()"
+      @updated="ADMIN_CLINICS()"
+    />
+
     <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
     <div class="page-bottom-spacer" aria-hidden="true" />
   </div>
@@ -53,47 +78,68 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAuthStore } from '../../stores/auth';
 import { useAppToast } from '../../composables/useAppToast';
 import AdminDoctorsHeader from '../../components/admin/AdminDoctorsHeader.vue';
 import AdminDoctorsList from '../../components/admin/AdminDoctorsList.vue';
+import AdminClinicsList from '../../components/admin/AdminClinicsList.vue';
 import AdminEditScheduleModal from '../../components/admin/AdminEditScheduleModal.vue';
 import AdminDoctorModal from '../../components/admin/AdminDoctorModal.vue';
 import AdminDoctorCasesModal from '../../components/admin/AdminDoctorCasesModal.vue';
+import AdminClinicModal from '../../components/admin/AdminClinicModal.vue';
 
 definePageMeta({
   layout: 'admin',
 });
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
+const activeTab = ref<'doctors' | 'clinics'>('doctors');
 const searchQuery = ref('');
 const activeFilter = ref('all');
 
+// Modals state
 const isEditScheduleModalOpen = ref(false);
 const isDoctorModalOpen = ref(false);
 const isDoctorCasesModalOpen = ref(false);
+const isClinicModalOpen = ref(false);
 
 const selectedDoctorForSchedule = ref<any>(null);
 const selectedDoctorToEdit = ref<any>(null);
 const selectedDoctorForCases = ref<any>(null);
+const selectedClinicToEdit = ref<any>(null);
 
+// Doctors state
 const doctors = ref<any[]>([]);
 const totalDoctorsCount = ref(0);
 const doctorsPage = ref(1);
 const doctorsHasMore = ref(false);
 const doctorsLoading = ref(false);
 
+// Clinics state
 const clinics = ref<any[]>([]);
+const clinicsTotal = ref(0);
+const clinicsPage = ref(1);
+const clinicsHasMore = ref(false);
+const clinicsLoading = ref(false);
+const clinicsLoaded = ref(false);
+
+// Debounce state tracking
+const doctorTimers: Record<string | number, any> = {};
+const doctorOriginalStates: Record<string | number, boolean> = {};
+
+const clinicTimers: Record<string | number, any> = {};
+const clinicOriginalStates: Record<string | number, boolean> = {};
 
 // 3. Computed (computed properties)
 const filteredDoctors = computed(() => {
@@ -120,7 +166,15 @@ const filteredDoctors = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
-// Load backend doctors (10 by 10)
+const onTabChange = (tab: 'doctors' | 'clinics') => {
+  activeTab.value = tab;
+  router.replace({ query: { ...route.query, tab } });
+  if (tab === 'clinics' && !clinicsLoaded.value) {
+    ADMIN_CLINICS();
+  }
+};
+
+// Doctors CRUD & Handlers
 const ADMIN_DOCTORS = async (page: any = 1) => {
   const targetPage = typeof page === 'number' ? page : 1;
   try {
@@ -140,64 +194,55 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
 
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     const items = raw.map((d: any) => {
-      const arName = d.name_ar || '';
-      const enName = d.name_en || '';
-      const cName = isRtl.value ? d.clinic?.name_ar || d.clinic?.name_en : d.clinic?.name_en || d.clinic?.name_ar;
+      const arName = d.name_ar;
+      const enName = d.name_en;
+      const cName = isRtl.value ? d.clinic?.name_ar : d.clinic?.name_en;
       return {
         id: d.id,
         name_ar: arName,
         name_en: enName,
-        name: isRtl.value ? arName || enName || d.name : enName || arName || d.name,
-        phone: d.phone || '',
-        avatar: d.avatar,
+        name: isRtl.value ? arName : enName,
+        specialty: isRtl.value ? d.specialty_ar : d.specialty_en,
+        specialty_ar: d.specialty_ar,
+        specialty_en: d.specialty_en,
+        title: isRtl.value ? d.title_ar : d.title_en,
+        title_ar: d.title_ar,
+        title_en: d.title_en,
+        clinic: cName,
+        clinic_ar: d.clinic?.name_ar,
+        clinic_en: d.clinic?.name_en,
         clinic_id: d.clinic_id || d.clinic?.id,
-        clinic: d.clinic,
-        specialty: cName || d.specialty || '',
-        room: d.room || '',
-        status_badge: (d.status === 'active') ? t('Open Clinic') : t('Unavailable'),
-        schedule_time: '',
-        cases_count: d._count?.appointments ?? d.cases_count ?? 0,
-        is_active: d.status === 'active',
-        is_evening: false,
-        primary_action: false,
+        room: d.room_number ? `${t('Room')} ${d.room_number}` : '',
+        room_number: d.room_number,
+        rating: Number(d.rating) || 4.9,
+        reviews_count: d.reviews_count || 120,
+        experience_years: d.experience_years,
+        bio: isRtl.value ? d.bio_ar : d.bio_en,
+        bio_ar: d.bio_ar,
+        bio_en: d.bio_en,
+        price: d.consultation_fee,
+        consultation_fee: d.consultation_fee,
+        is_active: d.is_active ?? true,
+        avatar_url: d.avatar_url,
+        phone: d.phone,
+        email: d.email,
         schedules: d.schedules || [],
-        consultation_fee: d.consultation_fee ?? 0,
-        follow_up_fee: d.follow_up_fee ?? 0,
-        slot_duration: d.slot_duration ?? 15,
-        bio: d.bio ?? '',
       };
     });
 
     if (targetPage === 1) {
       doctors.value = items;
-      totalDoctorsCount.value = res?.pagination?.total ?? items.length;
     } else {
       doctors.value.push(...items);
     }
     doctorsPage.value = targetPage;
+    totalDoctorsCount.value = res?.pagination?.total ?? res?.total ?? items.length;
     doctorsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
-  } catch (err) {
+  } catch (_) {
     if (targetPage === 1) doctors.value = [];
   } finally {
     doctorsLoading.value = false;
   }
-};
-
-// Load clinics from backend for filter pills
-const ADMIN_CLINICS = async () => {
-  try {
-    const res = await api.apiRequest({
-      service: 'ADMIN_CLINICS',
-      filter: { limit: 100 },
-    });
-    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
-    clinics.value = raw.map((c: any) => ({
-      id: c.id,
-      name_ar: c.name_ar,
-      name_en: c.name_en,
-      name: isRtl.value ? c.name_ar || c.name_en : c.name_en || c.name_ar,
-    }));
-  } catch (err) {}
 };
 
 const loadMoreDoctors = () => {
@@ -211,8 +256,8 @@ const onSearch = (q: string) => {
   ADMIN_DOCTORS(1);
 };
 
-const onFilter = (clinicId: string) => {
-  activeFilter.value = clinicId;
+const onFilter = (clinicKey: string) => {
+  activeFilter.value = clinicKey;
   ADMIN_DOCTORS(1);
 };
 
@@ -222,15 +267,24 @@ const resetFilters = () => {
   ADMIN_DOCTORS(1);
 };
 
-const onDoctorCreated = (newDoc?: any) => {
-  searchQuery.value = '';
-  if (activeFilter.value !== 'all' && newDoc?.clinic_id && String(activeFilter.value) !== String(newDoc.clinic_id)) {
-    activeFilter.value = 'all';
-  }
-  ADMIN_DOCTORS(1);
+const openNewDoctorModal = () => {
+  selectedDoctorToEdit.value = null;
+  isDoctorModalOpen.value = true;
+};
 
-  if (newDoc) {
-    openEditSchedule(newDoc);
+const openEditDoctor = async (doc: any) => {
+  selectedDoctorToEdit.value = doc;
+  isDoctorModalOpen.value = true;
+  if (doc?.id) {
+    try {
+      const res = await api.apiRequest({
+        service: 'ADMIN_DOCTOR_BY_ID',
+        filter: { id: doc.id },
+      });
+      if (res?.data) {
+        selectedDoctorToEdit.value = res.data;
+      }
+    } catch (_) {}
   }
 };
 
@@ -239,46 +293,124 @@ const openEditSchedule = (doc: any) => {
   isEditScheduleModalOpen.value = true;
 };
 
-const onScheduleUpdated = async (_payload: any) => {
-  ADMIN_DOCTORS(1);
-};
-
-const openNewDoctorModal = () => {
-  selectedDoctorToEdit.value = null;
-  isDoctorModalOpen.value = true;
-};
-
-const openEditDoctor = (doc: any) => {
-  selectedDoctorToEdit.value = doc;
-  isDoctorModalOpen.value = true;
-};
-
 const onViewCases = (doc: any) => {
   selectedDoctorForCases.value = doc;
   isDoctorCasesModalOpen.value = true;
 };
 
-// Debounce state tracking
-const doctorTimers: Record<string | number, any> = {};
-const doctorOriginalStates: Record<string | number, boolean> = {};
+const onDoctorCreated = () => {
+  ADMIN_DOCTORS(1);
+  ADMIN_CLINICS(1);
+};
 
-const onToggleDoctorStatus = (doc: any) => {
-  const id = doc.id;
+const onScheduleUpdated = () => {
+  ADMIN_DOCTORS(1);
+};
 
-  if (doctorOriginalStates[id] === undefined) {
-    doctorOriginalStates[id] = doc.is_active;
+// Clinics CRUD & Handlers
+const ADMIN_CLINICS = async (page: any = 1) => {
+  const targetPage = typeof page === 'number' ? page : 1;
+  try {
+    clinicsLoading.value = true;
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_CLINICS',
+      filter: { page: targetPage, limit: 10 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    const items = raw.map((c: any) => ({
+      id: c.id,
+      name_ar: c.name_ar,
+      name_en: c.name_en,
+      doctors_count: c._count?.doctors || c.doctors_count || 0,
+      is_active: c.is_active ?? true,
+    }));
+
+    if (targetPage === 1) {
+      clinics.value = items;
+    } else {
+      clinics.value.push(...items);
+    }
+    clinicsPage.value = targetPage;
+    clinicsTotal.value = res?.pagination?.total ?? res?.total ?? items.length;
+    clinicsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+    clinicsLoaded.value = true;
+  } catch (_) {
+    if (targetPage === 1) clinics.value = [];
+  } finally {
+    clinicsLoading.value = false;
+  }
+};
+
+const loadMoreClinics = () => {
+  if (clinicsHasMore.value && !clinicsLoading.value) {
+    ADMIN_CLINICS(clinicsPage.value + 1);
+  }
+};
+
+const openNewClinicModal = () => {
+  selectedClinicToEdit.value = null;
+  isClinicModalOpen.value = true;
+};
+
+const openEditClinicModal = (clinic: any) => {
+  selectedClinicToEdit.value = clinic;
+  isClinicModalOpen.value = true;
+};
+
+// Debounced Clinic Status Toggle
+const toggleClinicStatus = (clinic: any) => {
+  const id = clinic.id;
+
+  if (clinicOriginalStates[id] === undefined) {
+    clinicOriginalStates[id] = clinic.is_active;
   }
 
-  // Instant optimistic UI update
-  doc.is_active = !doc.is_active;
-  doc.status_badge = doc.is_active ? t('Open Clinic') : t('Unavailable');
+  clinic.is_active = !clinic.is_active;
+
+  if (clinicTimers[id]) {
+    clearTimeout(clinicTimers[id]);
+  }
+
+  clinicTimers[id] = setTimeout(async () => {
+    const targetState = clinic.is_active;
+    const originalState = clinicOriginalStates[id];
+    delete clinicTimers[id];
+    delete clinicOriginalStates[id];
+
+    if (targetState === originalState) return;
+
+    try {
+      await api.apiRequest({
+        service: 'ADMIN_TOGGLE_CLINIC',
+        payload: { id, is_active: targetState },
+      });
+      toast.success(targetState ? t('Clinic activated successfully') : t('Clinic deactivated successfully'));
+    } catch (err: any) {
+      clinic.is_active = originalState;
+      toast.show({
+        title: err?.message || t('Failed to update clinic status'),
+        type: 'error',
+      });
+    }
+  }, 500);
+};
+
+// Debounced Doctor Status Toggle
+const onToggleDoctorStatus = (doctor: any) => {
+  const id = doctor.id;
+
+  if (doctorOriginalStates[id] === undefined) {
+    doctorOriginalStates[id] = doctor.is_active;
+  }
+
+  doctor.is_active = !doctor.is_active;
 
   if (doctorTimers[id]) {
     clearTimeout(doctorTimers[id]);
   }
 
   doctorTimers[id] = setTimeout(async () => {
-    const targetState = doc.is_active;
+    const targetState = doctor.is_active;
     const originalState = doctorOriginalStates[id];
     delete doctorTimers[id];
     delete doctorOriginalStates[id];
@@ -287,112 +419,58 @@ const onToggleDoctorStatus = (doc: any) => {
 
     try {
       await api.apiRequest({
-        service: 'ADMIN_UPDATE_DOCTOR',
+        service: 'ADMIN_TOGGLE_DOCTOR',
         payload: { id, is_active: targetState },
       });
-      toast.success(targetState ? t('Doctor marked active') : t('Doctor marked inactive'));
+      toast.success(targetState ? t('Doctor activated successfully') : t('Doctor deactivated successfully'));
     } catch (err: any) {
-      doc.is_active = originalState;
-      doc.status_badge = originalState ? t('Open Clinic') : t('Unavailable');
-      toast.error(err.message || t('Failed to update doctor'));
+      doctor.is_active = originalState;
+      toast.show({
+        title: err?.message || t('Failed to update doctor status'),
+        type: 'error',
+      });
     }
   }, 500);
 };
 
 // 5. Watches (watch, watchEffect)
+watch(() => route.query.tab, (newTab) => {
+  if (newTab === 'clinics' || newTab === 'doctors') {
+    activeTab.value = newTab;
+    if (newTab === 'clinics' && !clinicsLoaded.value) {
+      ADMIN_CLINICS();
+    }
+  }
+});
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  if (authStore.isReceptionist) {
-    router.replace('/admin/appointments');
-    return;
+  if (route.query.tab === 'clinics') {
+    activeTab.value = 'clinics';
   }
-  ADMIN_DOCTORS();
-  ADMIN_CLINICS();
+  ADMIN_DOCTORS(1);
+  ADMIN_CLINICS(1);
 });
 
 onBeforeUnmount(() => {
-  Object.values(doctorTimers).forEach(clearTimeout);
+  Object.values(doctorTimers).forEach((timer) => clearTimeout(timer));
+  Object.values(clinicTimers).forEach((timer) => clearTimeout(timer));
 });
 
 // 7. Meta (useHead, useSeoMeta)
-useHead({
-  title: computed(() => t('Doctors Management — Admin Portal')),
-});
 </script>
 
 <style scoped lang="scss">
 .admin-doctors-page {
-  padding: 14px 18px 24px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  width: 100%;
+  padding-bottom: 24px;
+}
 
-  .doctors-cards-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .empty-doctors-state {
-    background: var(--unity-surface);
-    border: 1.5px dashed var(--unity-border);
-    border-radius: 20px;
-    padding: 36px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-    margin-top: 10px;
-
-    i {
-      font-size: 2.2rem;
-      color: var(--unity-text-dim);
-    }
-
-    h5 {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: var(--unity-text-main);
-    }
-
-    p {
-      font-size: 0.8rem;
-      color: var(--unity-text-muted);
-      max-width: 280px;
-      line-height: 1.5;
-    }
-
-    .btn-reset {
-      margin-top: 6px;
-      padding: 8px 18px;
-      background: var(--unity-primary-light);
-      color: var(--unity-primary-dark);
-      border: 1px solid var(--unity-primary-tint);
-      border-radius: 14px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-  }
-
-  .bottom-sync-notice {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px;
-    background: var(--unity-surface);
-    border-radius: 16px;
-    border: 1px solid var(--unity-border-subtle);
-    font-size: 0.78rem;
-    color: var(--unity-text-muted);
-    font-weight: 600;
-
-    i {
-      color: var(--unity-primary);
-    }
-  }
+.page-bottom-spacer {
+  height: 90px;
+  flex-shrink: 0;
 }
 </style>

@@ -29,9 +29,17 @@
               <div class="info-cell">
                 <div class="title-row">
                   <h4 class="title-ar">{{ offer.title_ar || offer.title }}</h4>
-                  <span class="status-indicator" :class="offer.is_active ? 'active' : 'inactive'">
-                    {{ offer.is_active ? t('Active') : t('Inactive') }}
-                  </span>
+                  <button 
+                    type="button"
+                    class="unity-switch-toggle" 
+                    :class="{ 'active': offer.is_active }"
+                    :aria-checked="offer.is_active"
+                    role="switch"
+                    :title="offer.is_active ? t('Active') : t('Inactive')"
+                    @click.stop="emit('toggle-offer', offer)"
+                  >
+                    <span class="switch-slider"></span>
+                  </button>
                 </div>
 
                 <div v-if="offer.title_en && offer.title_en !== offer.title_ar" class="title-en-tag" dir="ltr">
@@ -47,11 +55,10 @@
                     <strong class="current-price">{{ offer.price }} {{ t('EGP') }}</strong>
                     <span v-if="offer.original_price" class="old-price">{{ offer.original_price }} {{ t('EGP') }}</span>
                   </div>
-                  <span v-if="offer.duration" class="tag-pill">
-                    <i class="pi pi-clock"></i> {{ offer.duration }} {{ t('mins') }}
-                  </span>
-                  <span class="tag-pill bookings-count">
-                    <i class="pi pi-calendar"></i> {{ offer.bookings_count || 0 }} {{ t('Bookings') }}
+                  <span v-if="offer.duration" class="duration-simple">
+                    <span class="dot-sep">•</span>
+                    <i class="pi pi-clock"></i>
+                    <span>{{ offer.duration }} {{ t('mins') }}</span>
                   </span>
                 </div>
               </div>
@@ -59,16 +66,6 @@
 
             <!-- Card Actions Bar -->
             <div class="card-actions-bar">
-              <button 
-                type="button" 
-                class="action-pill toggle-btn"
-                :class="offer.is_active ? 'btn-deactivate' : 'btn-activate'"
-                @click="emit('toggle-offer', offer)"
-              >
-                <i :class="offer.is_active ? 'pi pi-ban' : 'pi pi-check'"></i>
-                <span>{{ offer.is_active ? t('Deactivate') : t('Activate') }}</span>
-              </button>
-
               <button 
                 type="button" 
                 class="action-pill edit-btn" 
@@ -81,6 +78,7 @@
               <button 
                 type="button" 
                 class="action-pill delete-btn" 
+                :title="t('Delete')"
                 @click="emit('delete-offer', offer)"
               >
                 <i class="pi pi-trash"></i>
@@ -130,20 +128,33 @@
                       {{ promo.discount_type === 'percentage' ? t('Percentage Discount') : t('Fixed Discount') }}
                     </span>
                   </div>
-                  <span class="status-indicator" :class="promo.is_active ? 'active' : 'inactive'">
-                    {{ promo.is_active ? t('Active') : t('Inactive') }}
-                  </span>
+                  <button 
+                    type="button"
+                    class="unity-switch-toggle" 
+                    :class="{ 'active': promo.is_active }"
+                    :aria-checked="promo.is_active"
+                    role="switch"
+                    :title="promo.is_active ? t('Active') : t('Inactive')"
+                    @click.stop="emit('toggle-promocode', promo)"
+                  >
+                    <span class="switch-slider"></span>
+                  </button>
                 </div>
 
                 <div class="meta-tags-row">
                   <span class="tag-pill">
-                    <i class="pi pi-users"></i> {{ t('Used') }}: {{ promo.used_count || 0 }}{{ promo.usage_limit ? ` / ${promo.usage_limit}` : '' }}
+                    <i class="pi pi-user"></i>
+                    <span>{{ promo.usage_limit ? `${promo.usage_limit} ${t('Per User')}` : t('Unlimited usage') }}</span>
+                  </span>
+                  <span v-if="promo.used_count" class="tag-pill">
+                    <i class="pi pi-check-circle"></i>
+                    <span>{{ t('Total Uses') }}: {{ promo.used_count }}</span>
                   </span>
                   <span v-if="promo.min_spend" class="tag-pill">
-                    {{ t('Min Spend') }}: {{ promo.min_spend }} {{ t('EGP') }}
+                    <span>{{ t('Min Spend') }}: {{ promo.min_spend }} {{ t('EGP') }}</span>
                   </span>
                   <span v-if="promo.max_discount && promo.discount_type === 'percentage'" class="tag-pill">
-                    {{ t('Max') }}: {{ promo.max_discount }} {{ t('EGP') }}
+                    <span>{{ t('Max') }}: {{ promo.max_discount }} {{ t('EGP') }}</span>
                   </span>
                 </div>
               </div>
@@ -151,16 +162,6 @@
 
             <!-- Card Actions Bar -->
             <div class="card-actions-bar">
-              <button 
-                type="button" 
-                class="action-pill toggle-btn"
-                :class="promo.is_active ? 'btn-deactivate' : 'btn-activate'"
-                @click="emit('toggle-promocode', promo)"
-              >
-                <i :class="promo.is_active ? 'pi pi-ban' : 'pi pi-check'"></i>
-                <span>{{ promo.is_active ? t('Deactivate') : t('Activate') }}</span>
-              </button>
-
               <button 
                 type="button" 
                 class="action-pill edit-btn" 
@@ -173,6 +174,7 @@
               <button 
                 type="button" 
                 class="action-pill delete-btn" 
+                :title="t('Delete')"
                 @click="emit('delete-promocode', promo)"
               >
                 <i class="pi pi-trash"></i>
@@ -377,23 +379,42 @@ const resolveImageUrl = (url?: string) => {
             }
           }
 
-          .status-indicator {
-            font-size: 0.68rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 8px;
+          .unity-switch-toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            border-radius: 9999px;
+            background: var(--unity-border, #cbd5e1);
+            border: none;
+            padding: 2px;
+            cursor: pointer;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.25s ease;
             flex-shrink: 0;
+            direction: ltr;
 
-            &.active {
-              background: #ecfdf5;
-              color: #047857;
-              border: 1px solid #a7f3d0;
+            .switch-slider {
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              background: #ffffff;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+              transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+              display: block;
             }
 
-            &.inactive {
-              background: #f1f5f9;
-              color: #64748b;
-              border: 1px solid #cbd5e1;
+            &.active {
+              background: var(--unity-primary, #047857);
+
+              .switch-slider {
+                transform: translateX(20px);
+              }
+            }
+
+            &:active .switch-slider {
+              width: 22px;
             }
           }
         }
@@ -433,7 +454,7 @@ const resolveImageUrl = (url?: string) => {
             gap: 6px;
 
             .current-price {
-              font-size: 0.92rem;
+              font-size: 0.95rem;
               font-weight: 800;
               color: var(--unity-primary);
             }
@@ -442,6 +463,25 @@ const resolveImageUrl = (url?: string) => {
               font-size: 0.72rem;
               color: #94a3b8;
               text-decoration: line-through;
+            }
+          }
+
+          .duration-simple {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.76rem;
+            color: var(--unity-text-muted, #64748b);
+            font-weight: 600;
+
+            .dot-sep {
+              color: var(--unity-border, #cbd5e1);
+              margin-inline-end: 2px;
+            }
+
+            i {
+              font-size: 0.72rem;
+              color: var(--unity-text-dim, #94a3b8);
             }
           }
 
@@ -461,12 +501,6 @@ const resolveImageUrl = (url?: string) => {
               font-size: 0.68rem;
               color: #64748b;
             }
-
-            &.bookings-count {
-              color: #047857;
-              background: #ecfdf5;
-              border-color: #a7f3d0;
-            }
           }
         }
       }
@@ -480,53 +514,40 @@ const resolveImageUrl = (url?: string) => {
       border-top: 1px dashed var(--unity-border);
 
       .action-pill {
-        height: 34px;
-        border-radius: 10px;
-        font-size: 0.74rem;
+        height: 36px;
+        border-radius: 12px;
+        font-size: 0.78rem;
         font-weight: 700;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 5px;
+        gap: 6px;
         cursor: pointer;
-        padding: 0 12px;
-        transition: all 0.2s ease;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
         &.edit-btn {
-          background: #f1f5f9;
-          color: #1e293b;
-          border: 1px solid #cbd5e1;
+          background: var(--unity-bg, #f8fafc);
+          color: var(--unity-text-main, #1e293b);
+          border: 1px solid var(--unity-border, #cbd5e1);
           flex: 1;
 
           &:hover {
-            background: #e2e8f0;
-          }
-        }
-
-        &.toggle-btn {
-          flex: 1;
-
-          &.btn-deactivate {
-            background: #fff7ed;
-            color: #c2410c;
-            border: 1px solid #fed7aa;
-          }
-
-          &.btn-activate {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1px solid #a7f3d0;
+            background: var(--unity-primary-light, #ecfdf5);
+            border-color: var(--unity-primary, #047857);
+            color: var(--unity-primary-dark, #065f46);
           }
         }
 
         &.delete-btn {
+          width: 38px;
           background: #fef2f2;
           color: #ef4444;
           border: 1px solid #fee2e2;
-          padding: 0 10px;
+          padding: 0;
 
           &:hover {
             background: #fee2e2;
+            border-color: #fca5a5;
           }
         }
       }

@@ -114,30 +114,15 @@ const { t, isRtl } = useI18n();
 
 // 3. Computed (computed properties)
 const doctorDisplayName = computed(() => {
-  if (isRtl.value) {
-    return props.doctor?.name_ar || props.doctor?.name_en || props.doctor?.name || '';
-  }
-  return props.doctor?.name_en || props.doctor?.name_ar || props.doctor?.name || '';
+  return isR
+  tl.value ? props.doctor?.name_ar : props.doctor?.name_en;
 });
 
 const doctorDisplaySpecialty = computed(() => {
-  const clinic = props.doctor?.clinic;
-  if (clinic) {
-    const cName = isRtl.value ? clinic.name_ar || clinic.name_en : clinic.name_en || clinic.name_ar;
-    if (cName) return cName;
-  }
-  return props.doctor?.specialty || '';
+  return isRtl.value ? props.doctor?.clinic?.name_ar : props.doctor?.clinic?.name_en;
 });
 
 // 4. Methods (functions, handlers)
-const getStatusBadgeClass = (status?: string) => {
-  if (!status) return 'badge-open';
-  if (status.includes('مفتوح') || status.includes('Open')) return 'badge-open';
-  if (status.includes('اليوم') || status.includes('Today')) return 'badge-today';
-  if (status.includes('يبدأ') || status.includes('Starts')) return 'badge-later';
-  return 'badge-open';
-};
-
 const resolveAvatar = (url?: string) => {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {

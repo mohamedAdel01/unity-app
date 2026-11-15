@@ -87,9 +87,9 @@ const { t, isRtl, resolveI18n } = useI18n();
 // 3. Computed (computed properties)
 const primaryName = computed(() => {
   if (isRtl.value) {
-    return resolveI18n(props.examination.name_ar || props.examination.name);
+    return resolveI18n(props.examination.name_ar || props.examination.name || props.examination.name_en || '');
   }
-  return resolveI18n(props.examination.name_en || props.examination.name);
+  return resolveI18n(props.examination.name_en || props.examination.name || props.examination.name_ar || '');
 });
 
 const displayDescription = computed(() => {
@@ -102,8 +102,15 @@ const displayDescription = computed(() => {
 const categoryName = computed(() => {
   const cat = (props.examination as any)?.category;
   if (!cat) return '';
-  if (isRtl.value) return resolveI18n(cat.name_ar || cat.name);
-  return resolveI18n(cat.name_en || cat.name);
+  if (isRtl.value) {
+    if (cat.name_ar && cat.name_ar.trim()) return cat.name_ar.trim();
+    const raw = (cat.name || cat.name_en || '').trim();
+    if (raw && t(raw) !== raw) return t(raw);
+    const lower = raw.toLowerCase();
+    if (lower === 'skin' || lower === 'dermatology') return 'جلدية';
+    return resolveI18n(cat.name_ar || cat.name || cat.name_en);
+  }
+  return resolveI18n(cat.name_en || cat.name || cat.name_ar);
 });
 
 // 4. Methods (functions, handlers)

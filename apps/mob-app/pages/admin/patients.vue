@@ -149,16 +149,15 @@ const ADMIN_PATIENTS = async (page: any = 1) => {
         name: p.name,
         avatar: p.avatar,
         phone: p.phone,
-        mrn: p.patient?.mrn || p.mrn || '',
-        clinic: latestAppt?.doctor?.doctor?.clinic?.name || p.clinic || '',
-        insurance: p.insurance || '',
-        badge: p.badge || '',
-        national_id: p.national_id || '',
-        last_visit: p.last_visit || '',
+        clinic: isRtl.value ? latestAppt?.doctor?.clinic?.name_ar : latestAppt?.doctor?.clinic?.name_en,
+        insurance: p.insurance,
+        badge: p.badge,
+        national_id: p.national_id,
+        last_visit: p.last_visit,
         next_appointment: latestAppt
           ? `${new Date(latestAppt.date).toISOString().split('T')[0]} ${latestAppt.start_time || ''}`
-          : (p.next_appointment || ''),
-        diagnosis: p.diagnosis || '',
+          : p.next_appointment,
+        diagnosis: p.diagnosis,
         is_today: isToday,
         status: p.status || 'active',
       };

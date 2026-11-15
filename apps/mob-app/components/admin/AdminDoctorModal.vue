@@ -307,7 +307,7 @@ const selectedClinicName = computed(() => {
   if (!form.value.clinic_id) return '';
   const match = clinics.value.find((c) => String(c.id) === String(form.value.clinic_id));
   if (!match) return '';
-  return isRtl.value ? match.name_ar || match.name_en || match.name || '' : match.name_en || match.name_ar || match.name || '';
+  return isRtl.value ? match.name_ar : match.name_en;
 });
 
 const isFormValid = computed(() => {
@@ -432,12 +432,12 @@ const handleSubmit = async () => {
         ...resultData,
         name_ar: arName,
         name_en: enName,
-        name: isRtl.value ? arName || enName : enName || arName,
+        name: isRtl.value ? arName : enName,
         phone: form.value.phone.trim(),
         avatar: resultData.avatar || form.value.avatar || null,
         clinic: matchedClinic || resultData.clinic,
         clinic_id: form.value.clinic_id,
-        specialty: (isRtl.value ? matchedClinic?.name_ar || matchedClinic?.name_en : matchedClinic?.name_en || matchedClinic?.name_ar) || resultData.specialty || props.doctor?.specialty || '',
+        specialty: isRtl.value ? matchedClinic?.name_ar : matchedClinic?.name_en,
         consultation_fee: numConsultation,
         follow_up_fee: numFollowUp,
         slot_duration: numSlotDuration,

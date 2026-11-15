@@ -118,24 +118,17 @@ const appointmentsList = computed<any[]>(() => {
 
 // 4. Methods (functions, handlers)
 const getCardTitle = (apt: any) => {
-  const exam = apt.examination;
-  if (exam) {
-    const n = !isRtl.value && exam.name_en ? exam.name_en : (exam.name_ar || exam.name);
-    if (n) return resolveI18n(n);
+  if (!apt) return '';
+  if (apt.examination) {
+    return isRtl.value ? apt.examination.name_ar : apt.examination.name_en;
   }
-  const offer = apt.offer;
-  if (offer) {
-    const title = !isRtl.value && offer.title_en ? offer.title_en : (offer.title_ar || offer.title);
-    if (title) return resolveI18n(title);
+  if (apt.offer) {
+    return isRtl.value ? apt.offer.title_ar : apt.offer.title_en;
   }
-  const serv = apt.service;
-  if (serv) {
-    const n = !isRtl.value && serv.name_en ? serv.name_en : (serv.name_ar || serv.name);
-    if (n) return resolveI18n(n);
+  if (apt.doctor) {
+    return isRtl.value ? apt.doctor.name_ar : apt.doctor.name_en;
   }
-  if (apt.doctor?.name) return resolveI18n(apt.doctor.name);
-  if (apt.doctor?.user?.name) return resolveI18n(apt.doctor.user.name);
-  return t('Medical Appointment');
+  return '';
 };
 const formatSlotTime = (timeStr?: string) => {
   if (!timeStr) return '';

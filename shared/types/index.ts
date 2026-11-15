@@ -113,7 +113,6 @@ export interface Appointment {
   notes?: string;
   patient?: {
     id: string;
-    mrn: string;
     user: User;
   };
   doctor?: Doctor;

@@ -404,10 +404,10 @@ watch(
   (val) => {
     if (val) {
       form.value = {
-        title_ar: val.title_ar || val.title || '',
-        title_en: val.title_en || val.title || '',
-        description_ar: val.description_ar || val.description || '',
-        description_en: val.description_en || val.description || '',
+        title_ar: val.title_ar || '',
+        title_en: val.title_en || '',
+        description_ar: val.description_ar || '',
+        description_en: val.description_en || '',
         price: Number(val.price || 0),
         original_price: val.original_price ? Number(val.original_price) : null,
         duration: Number(val.duration || 30),

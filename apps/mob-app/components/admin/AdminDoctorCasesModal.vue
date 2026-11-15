@@ -19,14 +19,7 @@
                 <span class="cases-total-pill">{{ totalCases }} {{ t('Doctor Bookings') }}</span>
               </div>
               <p class="specialty-clinic">
-                <span>{{ resolveI18n(doctor.specialty) || resolveI18n(doctor.clinic?.name_ar || doctor.clinic?.name_en
-                  || doctor.clinic?.name) || t('Specialist') }}</span>
-                <template
-                  v-if="(doctor.clinic?.name_ar || doctor.clinic?.name_en || doctor.clinic?.name) && doctor.specialty">
-                  <span class="dot">•</span>
-                  <span>{{ resolveI18n(doctor.clinic?.name_ar || doctor.clinic?.name_en || doctor.clinic?.name)
-                    }}</span>
-                </template>
+                <span>{{ isRtl ? doctor.clinic?.name_ar : doctor.clinic?.name_en }}</span>
               </p>
             </div>
           </div>
@@ -126,10 +119,8 @@
                     </div>
                     <div class="patient-text">
                       <h5 class="patient-name">{{ item.patient?.name || t('Anonymous Patient') }}</h5>
-                      <p class="patient-meta">
-                        <span v-if="item.patient?.mrn">MRN: {{ item.patient.mrn }}</span>
-                        <span v-if="item.patient?.mrn && item.patient?.phone">•</span>
-                        <span v-if="item.patient?.phone" dir="ltr">{{ item.patient.phone }}</span>
+                      <p v-if="item.patient?.phone" class="patient-meta">
+                        <span dir="ltr">{{ item.patient.phone }}</span>
                       </p>
                     </div>
                   </div>

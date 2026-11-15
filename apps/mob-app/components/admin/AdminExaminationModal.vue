@@ -18,8 +18,8 @@
             <i class="pi pi-folder"></i>
             <select v-model="form.category_id" class="input-select">
               <option value="">{{ t('General (No Category)') }}</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                {{ isRtl ? (cat.name_ar || cat.name) : (cat.name_en || cat.name) }}
+              <option v-for="cat in uniqueCategories" :key="cat.id" :value="cat.id">
+                {{ getCategoryDisplayName(cat) }}
               </option>
             </select>
           </div>
@@ -289,7 +289,7 @@ const emit = defineEmits<{
   (e: 'updated', examination: any): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
 const globalStore = useGlobalStore();
@@ -346,6 +346,16 @@ const schedulesByDay = ref<Record<string, ScheduleSlot[]>>({
 });
 
 // 3. Computed (computed properties)
+const uniqueCategories = computed(() => {
+  const seen = new Set();
+  return categories.value.filter((cat: any) => {
+    if (!cat || !cat.id) return false;
+    if (seen.has(cat.id)) return false;
+    seen.add(cat.id);
+    return true;
+  });
+});
+
 const submitting = computed(() => {
   return globalStore.loading.includes('ADMIN_CREATE_EXAMINATION') || globalStore.loading.includes('ADMIN_UPDATE_EXAMINATION');
 });
@@ -377,6 +387,24 @@ const isFormValid = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
+const getCategoryDisplayName = (cat: any) => {
+  if (!cat) return '';
+  const isAr = Boolean(isRtl?.value);
+  if (isAr) {
+    if (cat.name_ar && cat.name_ar.trim()) return cat.name_ar.trim();
+    const raw = (cat.name || cat.name_en || '').trim();
+    if (raw && t(raw) !== raw) return t(raw);
+    const lower = raw.toLowerCase();
+    if (lower === 'skin' || lower === 'dermatology') return 'جلدية';
+    return raw;
+  }
+  if (cat.name_en && cat.name_en.trim()) return cat.name_en.trim();
+  const raw = (cat.name || cat.name_ar || '').trim();
+  const lower = raw.toLowerCase();
+  if (lower === 'جلدية') return 'Dermatology';
+  return raw;
+};
+
 const timeToMinutes = (timeStr?: string): number => {
   if (!timeStr) return 0;
   const parts = String(timeStr).trim().split(':');
@@ -475,37 +503,12 @@ const initSchedules = (existingSchedules?: ScheduleItem[]) => {
 
 const parseExaminationLoc = (exam: any) => {
   if (!exam) return { name_ar: '', name_en: '', desc_ar: '', desc_en: '' };
-  let name_ar = exam.name_ar || '';
-  let name_en = exam.name_en || '';
-  if (!name_ar && !name_en) {
-    try {
-      const p = JSON.parse(exam.name);
-      if (p && typeof p === 'object') {
-        name_ar = p.ar || '';
-        name_en = p.en || '';
-      }
-    } catch (_) {
-      name_ar = exam.name || '';
-      name_en = exam.name || '';
-    }
-  }
-
-  let desc_ar = exam.description_ar || '';
-  let desc_en = exam.description_en || '';
-  if (!desc_ar && !desc_en && exam.description) {
-    try {
-      const p = JSON.parse(exam.description);
-      if (p && typeof p === 'object') {
-        desc_ar = p.ar || '';
-        desc_en = p.en || '';
-      }
-    } catch (_) {
-      desc_ar = exam.description || '';
-      desc_en = exam.description || '';
-    }
-  }
-
-  return { name_ar, name_en, desc_ar, desc_en };
+  return {
+    name_ar: exam.name_ar || '',
+    name_en: exam.name_en || '',
+    desc_ar: exam.description_ar || '',
+    desc_en: exam.description_en || '',
+  };
 };
 
 const saveExamination = async () => {

@@ -10,7 +10,6 @@ export interface AuthUser {
   status: 'active' | 'inactive';
   patient?: any;
   doctor?: any;
-  mrn?: string;
 }
 
 export const useAuthStore = defineStore('auth', {

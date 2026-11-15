@@ -42,7 +42,7 @@
           <input 
             v-model="patientSearchQuery"
             type="text"
-            :placeholder="t('Search patient by name, phone or MRN...')"
+            :placeholder="t('Search patient by name or phone...')"
             @input="onSearchPatientInput"
           />
           <i v-if="searchingPatients" class="pi pi-spin pi-spinner search-spinner"></i>
@@ -63,8 +63,6 @@
             <div class="p-info">
               <h5>{{ p.name }}</h5>
               <small>
-                <span v-if="p.mrn">MRN: {{ p.mrn }}</span>
-                <span v-if="p.mrn && p.phone"> • </span>
                 <span v-if="p.phone" class="ltr-text">{{ p.phone }}</span>
               </small>
             </div>
@@ -97,8 +95,6 @@
           <div class="patient-meta">
             <span class="patient-name">{{ effectivePatient.name }}</span>
             <span class="patient-sub">
-              <span v-if="effectivePatient.mrn">MRN - {{ effectivePatient.mrn }}</span>
-              <span v-if="effectivePatient.mrn && effectivePatient.phone" class="sep">•</span>
               <span v-if="effectivePatient.phone" class="ltr-text">{{ effectivePatient.phone }}</span>
             </span>
           </div>
@@ -666,24 +662,15 @@ const totalFee = computed(() => {
 
 // 4. Methods (functions, handlers)
 const getClinicName = (c: any) => {
-  if (!c) return '';
-  if (!isRtl.value && c.name_en) return resolveI18n(c.name_en);
-  if (isRtl.value && c.name_ar) return resolveI18n(c.name_ar);
-  return resolveI18n(c.name || c.name_ar || c.name_en || '');
+  return isRtl.value ? c?.name_ar : c?.name_en;
 };
 
 const getExamName = (e: any) => {
-  if (!e) return '';
-  if (!isRtl.value && e.name_en) return resolveI18n(e.name_en);
-  if (isRtl.value && e.name_ar) return resolveI18n(e.name_ar);
-  return resolveI18n(e.name || e.name_ar || e.name_en || '');
+  return isRtl.value ? e?.name_ar : e?.name_en;
 };
 
 const getExamDescription = (e: any) => {
-  if (!e) return '';
-  if (!isRtl.value && e.description_en) return resolveI18n(e.description_en);
-  if (isRtl.value && e.description_ar) return resolveI18n(e.description_ar);
-  return resolveI18n(e.description || e.description_ar || e.description_en || '');
+  return isRtl.value ? e?.description_ar : e?.description_en;
 };
 const getInitial = (name?: string) => {
   if (!name) return 'م';

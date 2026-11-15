@@ -43,10 +43,21 @@
         </div>
 
         <div class="modal-actions">
+          <button 
+            v-if="props.category?.id" 
+            type="button" 
+            class="btn-delete"
+            :title="t('Delete Category')"
+            :disabled="submitting || deleting"
+            @click="deleteCategory"
+          >
+            <i v-if="deleting" class="pi pi-spin pi-spinner"></i>
+            <i v-else class="pi pi-trash"></i>
+          </button>
           <button type="button" class="btn-cancel" @click="emit('close')">
             {{ t('Cancel') }}
           </button>
-          <button type="submit" class="btn-submit" :disabled="!isFormValid || submitting">
+          <button type="submit" class="btn-submit" :disabled="!isFormValid || submitting || deleting">
             <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ props.category?.id ? t('Save Changes') : t('Create Category') }}</span>
           </button>
@@ -82,6 +93,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void;
   (e: 'saved', category: any): void;
+  (e: 'deleted', id: string | number): void;
 }>();
 
 const { t } = useI18n();
@@ -91,6 +103,7 @@ const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
+const deleting = ref(false);
 const form = ref<{
   name_ar: string;
   name_en: string;
@@ -145,14 +158,38 @@ const saveCategory = async () => {
   }
 };
 
+const deleteCategory = async () => {
+  if (!props.category?.id || deleting.value) return;
+  try {
+    deleting.value = true;
+    await api.apiRequest({
+      service: 'ADMIN_DELETE_EXAMINATION_CATEGORY',
+      payload: { id: props.category.id },
+    });
+    emit('deleted', props.category.id);
+    emit('close');
+    toast.show({
+      title: t('Category deleted successfully!'),
+      type: 'success',
+    });
+  } catch (err: any) {
+    toast.show({
+      title: err?.message || t('Failed to delete category'),
+      type: 'error',
+    });
+  } finally {
+    deleting.value = false;
+  }
+};
+
 // 5. Watches (watch, watchEffect)
 watch(
   () => props.category,
   (val) => {
     if (val) {
       form.value = {
-        name_ar: val.name_ar || (val as any).name || '',
-        name_en: val.name_en || (val as any).name || '',
+        name_ar: val.name_ar || '',
+        name_en: val.name_en || '',
         sort_order: val.sort_order || 0,
       };
     } else {
@@ -391,6 +428,24 @@ onUnmounted(() => {
         justify-content: center;
         gap: 8px;
         transition: all 0.2s;
+      }
+
+      .btn-delete {
+        width: 48px;
+        flex: 0 0 48px;
+        background: #fee2e2;
+        border: 1.5px solid #fecaca;
+        color: #ef4444;
+        border-radius: 12px;
+
+        &:hover:not(:disabled) {
+          background: #fecaca;
+        }
+
+        &:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+        }
       }
 
       .btn-cancel {

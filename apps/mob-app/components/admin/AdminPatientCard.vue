@@ -27,10 +27,8 @@
             <h4 class="patient-name">{{ patient.name }}</h4>
           </div>
 
-          <p v-if="patient.mrn || patient.clinic" class="mrn-clinic-line">
-            <span v-if="patient.mrn">MRN - {{ patient.mrn }}</span>
-            <span v-if="patient.mrn && patient.clinic" class="dot-separator">•</span>
-            <span v-if="patient.clinic">{{ patient.clinic }}</span>
+          <p v-if="patient.clinic" class="mrn-clinic-line">
+            <span>{{ patient.clinic }}</span>
           </p>
         </div>
       </div>

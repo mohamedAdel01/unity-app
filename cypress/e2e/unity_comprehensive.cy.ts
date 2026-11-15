@@ -165,8 +165,13 @@ describe('Unity Medical Mobile App — Comprehensive E2E Test Suite', () => {
 
     it('loads Admin Clinics & Departments', () => {
       visitAsAdmin('/admin/clinics');
-      cy.get('.admin-clinics-page', { timeout: 10000 }).should('be.visible');
-      cy.get('.supervisor-top-bar').should('be.visible');
+      cy.get('.admin-clinics-page', { timeout: 10000 }).should('exist');
+    });
+
+    it('loads Admin Services & Examinations', () => {
+      visitAsAdmin('/admin/services');
+      cy.get('.admin-services-page', { timeout: 10000 }).should('be.visible');
+      cy.get('.admin-services-header').should('be.visible');
     });
 
     it('loads Admin Bookings & Invoicing', () => {

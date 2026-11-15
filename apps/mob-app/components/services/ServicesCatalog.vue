@@ -56,7 +56,7 @@
         @click="selectedCategoryId = cat.id"
       >
         <i :class="cat.icon || 'pi pi-folder'"></i>
-        <span>{{ isRtl ? (cat.name_ar || cat.name) : (cat.name_en || cat.name) }}</span>
+        <span>{{ isRtl ? (cat.name_ar || cat.name || cat.name_en) : (cat.name_en || cat.name || cat.name_ar) }}</span>
       </button>
     </div>
 
@@ -82,7 +82,7 @@
                 </div>
                 <span v-if="service.category" class="service-cat-pill">
                   <i :class="service.category?.icon || 'pi pi-folder'"></i>
-                  {{ isRtl ? (service.category?.name_ar || service.category?.name) : (service.category?.name_en || service.category?.name) }}
+                  {{ isRtl ? (service.category?.name_ar || service.category?.name || service.category?.name_en) : (service.category?.name_en || service.category?.name || service.category?.name_ar) }}
                 </span>
                 <p v-if="getLocalizedDesc(service)">{{ getLocalizedDesc(service) }}</p>
                 <div class="card-meta">
@@ -271,35 +271,11 @@ const doctorsLoading = ref(false);
 
 // 3. Computed (computed properties)
 const getLocalizedName = (item: any): string => {
-  if (!item) return '';
-  if (isRtl.value && item.name_ar) return item.name_ar;
-  if (!isRtl.value && item.name_en) return item.name_en;
-  if (typeof item.name === 'string') {
-    try {
-      const p = JSON.parse(item.name);
-      if (p && typeof p === 'object') {
-        return isRtl.value ? (p.ar || p.en || '') : (p.en || p.ar || '');
-      }
-    } catch (_) {}
-    return item.name;
-  }
-  return '';
+  return isRtl.value ? item?.name_ar : item?.name_en;
 };
 
 const getLocalizedDesc = (item: any): string => {
-  if (!item) return '';
-  if (isRtl.value && item.description_ar) return item.description_ar;
-  if (!isRtl.value && item.description_en) return item.description_en;
-  if (typeof item.description === 'string') {
-    try {
-      const p = JSON.parse(item.description);
-      if (p && typeof p === 'object') {
-        return isRtl.value ? (p.ar || p.en || '') : (p.en || p.ar || '');
-      }
-    } catch (_) {}
-    return item.description;
-  }
-  return '';
+  return isRtl.value ? item?.description_ar : item?.description_en;
 };
 
 const activeClinicName = computed(() => {

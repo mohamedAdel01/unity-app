@@ -27,22 +27,23 @@
         <span>{{ t('Overview') }}</span>
       </NuxtLink>
 
-      <!-- Tab 2: Doctors / الأطباء -->
-      <NuxtLink to="/admin/doctors" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/doctors') }">
-        <svg viewBox="0 0 24 24" class="nav-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
-          <path d="M3 3h3"/>
-          <path d="M16 3h3"/>
-          <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
-          <circle cx="17" cy="16" r="2"/>
-        </svg>
-        <span>{{ t('Doctors') }}</span>
-      </NuxtLink>
-
-      <!-- Tab 3: Clinics / العيادات -->
-      <NuxtLink to="/admin/clinics" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/clinics') }">
+      <!-- Tab 2: Clinics / عيادات -->
+      <NuxtLink to="/admin/doctors" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/doctors') || route.path.startsWith('/admin/clinics') }">
         <i class="pi pi-building"></i>
         <span>{{ t('Clinics') }}</span>
+      </NuxtLink>
+
+      <!-- Tab 3: Services / الخدمات -->
+      <NuxtLink to="/admin/services" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/services') }">
+        <svg viewBox="0 0 24 24" class="nav-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 18h8"/>
+          <path d="M3 22h18"/>
+          <path d="M14 22a7 7 0 1 0 0-14h-1"/>
+          <path d="M9 14h2"/>
+          <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/>
+          <path d="M12 6V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/>
+        </svg>
+        <span>{{ t('Services') }}</span>
       </NuxtLink>
 
       <!-- Tab 4: Patients / المرضى -->
@@ -121,15 +122,21 @@ const { isAnyModalOpen } = useModalState();
     gap: 3px;
     color: var(--unity-text-muted);
     text-decoration: none;
-    font-size: 0.63rem;
-    font-weight: 600;
-    width: 62px;
+    font-size: 0.61rem;
+    font-weight: 700;
+    min-width: 58px;
+    max-width: 70px;
     height: 48px;
     border-radius: 24px;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
     span {
       white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 100%;
+      text-align: center;
+      padding: 0 2px;
     }
 
     i, .nav-svg {

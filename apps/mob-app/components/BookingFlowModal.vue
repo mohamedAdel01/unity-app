@@ -707,29 +707,8 @@ const doctorClinicType = computed(() => {
   if (isExamination.value) {
     return t('Medical Examinations & Labs');
   }
-
   const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
-  const apt = props.appointment;
-
-  // 1. Direct or nested clinic name
-  const clinicName = 
-    (typeof doc?.clinic === 'string' ? doc.clinic : doc?.clinic?.name) || 
-    (typeof doc?.doctor?.clinic === 'string' ? doc.doctor.clinic : doc?.doctor?.clinic?.name) || 
-    (typeof apt?.doctor?.doctor?.clinic === 'string' ? apt.doctor.doctor.clinic : apt?.doctor?.doctor?.clinic?.name) || 
-    (typeof apt?.doctor?.clinic === 'string' ? apt.doctor.clinic : apt?.doctor?.clinic?.name) || 
-    (typeof apt?.clinic === 'string' ? apt.clinic : apt?.clinic?.name) ||
-    doc?.clinic_name ||
-    apt?.clinic_name ||
-    doc?.specialty ||
-    doc?.doctor?.specialty ||
-    apt?.doctor?.doctor?.specialty ||
-    apt?.doctor?.specialty;
-
-  if (clinicName) {
-    return resolveI18n(clinicName);
-  }
-
-  return t('General Clinic');
+  return isRtl.value ? doc?.clinic?.name_ar : doc?.clinic?.name_en;
 });
 
 // 4. Methods (functions, handlers)
