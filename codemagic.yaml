@@ -123,47 +123,18 @@ workflows:
         script: |
           xcode-project use-profiles --project "$CM_BUILD_DIR/$XCODE_PROJECT"
 
-      - name: Create export options plist
-        script: |
-          PROFILE_NAME=$(security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | plutil -extract Name raw - 2>/dev/null || echo "")
-          echo "=== Profile Name: $PROFILE_NAME ==="
-
-          cat > $HOME/export_options.plist <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store-connect</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>signingCertificate</key>
-              <string>Apple Distribution</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>com.unityClinics.app</key>
-                  <string>${PROFILE_NAME}</string>
-              </dict>
-              <key>manageAppVersionAndBuildNumber</key>
-              <true/>
-          </dict>
-          </plist>
-          EOF
-
-          echo "=== Export options ==="
-          cat $HOME/export_options.plist
-
       - name: Build IPA
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           BUILD_NUMBER=$(($(date +%s)))
           echo "Setting build number to: $BUILD_NUMBER"
           agvtool new-version -all $BUILD_NUMBER
+          cd "$CM_BUILD_DIR"
 
-          # استخدم أداة كودماجيك الرسمية xcode-project build-ipa لتفادي تعارض شهادات حزم SPM
+          # أداة كودماجيك الرسمية لبناء وتصدير الـ IPA تلقائياً مع معالجة حزم SPM وشهادات التوقيع
           echo "Building IPA with Codemagic xcode-project CLI..."
           xcode-project build-ipa \
-            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
 
     artifacts:
