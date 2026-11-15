@@ -68,6 +68,7 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       this.user = null;
       this.token = null;
+      this.initialized = true;
       if (typeof window !== 'undefined') {
         localStorage.removeItem('unity_token');
         localStorage.removeItem('unity_user');
@@ -75,6 +76,12 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('user');
         try {
           sessionStorage.clear();
+        } catch (_) {}
+      }
+      if (typeof document !== 'undefined') {
+        try {
+          document.cookie = 'unity_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
         } catch (_) {}
       }
       try {

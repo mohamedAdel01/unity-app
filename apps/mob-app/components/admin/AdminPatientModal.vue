@@ -5,8 +5,8 @@
       <!-- Modal Header -->
       <div class="modal-header">
         <div class="header-title">
-          <i :class="isEdit ? 'pi pi-user-edit' : 'pi pi-user-plus'"></i>
-          <h4>{{ isEdit ? t('Edit Patient') : t('Add New Patient') }}</h4>
+          <i :class="props.patient?.id ? 'pi pi-user-edit' : 'pi pi-user-plus'"></i>
+          <h4>{{ props.patient?.id ? t('Edit Patient') : t('Add New Patient') }}</h4>
         </div>
         <button class="btn-close" :aria-label="t('Close')" @click="close">
           <i class="pi pi-times"></i>
@@ -50,7 +50,7 @@
           </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ isEdit ? t('Save Changes') : t('Save Patient') }}</span>
+            <span v-else>{{ props.patient?.id ? t('Save Changes') : t('Save Patient') }}</span>
           </button>
         </div>
       </form>
@@ -66,6 +66,7 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 import AppPhoneInput from '../common/AppPhoneInput.vue';
 
 interface Patient {
@@ -91,10 +92,10 @@ const emit = defineEmits<{
 const api = useUnityApi();
 const { t } = useI18n();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
-const loading = ref(false);
 const isPhoneValid = ref(false);
 
 const form = ref({
@@ -103,7 +104,9 @@ const form = ref({
 });
 
 // 3. Computed (computed properties)
-const isEdit = computed(() => !!props.patient?.id);
+const loading = computed(() => {
+  return globalStore.loading.includes('ADMIN_CREATE_PATIENT') || globalStore.loading.includes('ADMIN_UPDATE_PATIENT');
+});
 
 const isFormValid = computed(() => {
   return form.value.name.trim().length >= 3 && isPhoneValid.value;
@@ -119,53 +122,32 @@ const close = () => {
 const handleSubmit = async () => {
   if (!isFormValid.value || loading.value) return;
 
-  loading.value = true;
   try {
-    if (isEdit.value && props.patient?.id) {
-      await api.apiRequest({
-        service: 'ADMIN_UPDATE_PATIENT',
-        payload: {
-          id: props.patient.id,
-          name: form.value.name.trim(),
-          phone: form.value.phone.trim(),
-        },
-      });
+    const payload = {
+      name: form.value.name.trim(),
+      phone: form.value.phone.trim(),
+    };
 
-      const updatedPatient = {
-        ...props.patient,
-        name: form.value.name.trim(),
-        phone: form.value.phone.trim(),
-      };
+    const res = await api.apiRequest({
+      service: props.patient?.id ? 'ADMIN_UPDATE_PATIENT' : 'ADMIN_CREATE_PATIENT',
+      payload: props.patient?.id ? { id: props.patient.id, ...payload } : payload,
+    });
 
-      emit('updated', updatedPatient);
-      toast.success(t('Patient updated successfully!'));
-      close();
-    } else {
-      const res = await api.apiRequest({
-        service: 'ADMIN_CREATE_PATIENT',
-        payload: {
-          name: form.value.name.trim(),
-          phone: form.value.phone.trim(),
-        },
-      });
-
-      const createdPatient = res?.data || {
+    const resultPatient = res?.data || {
+      ...(props.patient?.id ? props.patient : {
         id: `pt-${Date.now()}`,
-        name: form.value.name.trim(),
-        phone: form.value.phone.trim(),
         mrn: String(Math.floor(1000000 + Math.random() * 9000000)),
         status: 'active',
         created_at: new Date().toISOString(),
-      };
+      }),
+      ...payload,
+    };
 
-      emit('created', createdPatient);
-      toast.success(t('Patient registered successfully!'));
-      close();
-    }
+    emit(props.patient?.id ? 'updated' : 'created', resultPatient);
+    toast.success(props.patient?.id ? t('Patient updated successfully!') : t('Patient registered successfully!'));
+    close();
   } catch (err: any) {
-    toast.error(err?.message || (isEdit.value ? t('Failed to update patient') : t('Failed to register patient')));
-  } finally {
-    loading.value = false;
+    toast.error(err?.message || (props.patient?.id ? t('Failed to update patient') : t('Failed to register patient')));
   }
 };
 

@@ -32,10 +32,12 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 
+const router = useRouter();
 const authStore = useAuthStore();
 const api = useUnityApi();
 const { t, isRtl } = useI18n();
@@ -51,15 +53,26 @@ const handleLogout = async () => {
   isLoggingOut.value = true;
 
   try {
-    // Attempt backend logout to revoke token
-    await api.apiRequest({ module: 'auth', service: 'LOGOUT', pinia: false });
+    // Attempt backend logout to revoke token with safety timeout
+    await Promise.race([
+      api.apiRequest({ module: 'auth', service: 'LOGOUT', pinia: false }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Logout network timeout')), 2500))
+    ]);
   } catch (err) {
-    console.warn('Backend logout warning:', err);
+    console.warn('Backend logout warning (handled cleanly):', err);
   } finally {
-    // Always clear client-side auth state completely
+    // 1. Always clear client-side auth state completely
     await authStore.logout();
     isLoggingOut.value = false;
-    await navigateTo('/auth/login', { replace: true });
+
+    // 2. Perform definitive client navigation to sign-in page
+    try {
+      await router.replace('/auth/login');
+    } catch {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
+    }
   }
 };
 

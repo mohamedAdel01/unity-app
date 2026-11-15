@@ -554,6 +554,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
 import { useAppToast } from '../composables/useAppToast';
+import { useGlobalStore } from '../stores/global';
 import AppBookingCalendar from './common/AppBookingCalendar.vue';
 import AppExamIcon from './common/AppExamIcon.vue';
 
@@ -576,6 +577,7 @@ const emit = defineEmits<{
 const api = useUnityApi();
 const route = useRoute();
 const router = useRouter();
+const globalStore = useGlobalStore();
 
 const { t, isRtl, resolveI18n } = useI18n();
 
@@ -596,8 +598,6 @@ const canBookFollowUp = ref(false);
 const checkingEligibility = ref(false);
 
 const selectedMethod = ref<'paymob' | 'cash'>('paymob');
-
-const submitting = ref(false);
 
 const confirmedAppointment = ref<any>(null);
 
@@ -629,6 +629,10 @@ const completingPaymob = ref(false);
 const detailedDoctor = ref<any>(null);
 
 // 3. Computed (computed properties)
+const submitting = computed(() => {
+  return globalStore.loading.includes('BOOK_APPOINTMENT') || globalStore.loading.includes('RESCHEDULE_APPOINTMENT');
+});
+
 const cleanDoctorAvatar = computed(() => {
   const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
   const av = doc?.avatar || doc?.user?.avatar;
@@ -1115,7 +1119,6 @@ const DOCTOR_SLOTS = async () => {
 
 const submitBooking = async () => {
   try {
-    submitting.value = true;
     const dateStr = selectedBookingDate.value || props.selectedDate || new Date().toISOString().split('T')[0];
     const slot = currentSlot.value || { start_time: '10:00:00', end_time: '10:30:00' };
 
@@ -1222,8 +1225,6 @@ const submitBooking = async () => {
   } catch (err: any) {
     const rawMsg = err?.data?.message || err?.message || 'Failed to complete booking';
     toast.error(t(rawMsg));
-  } finally {
-    submitting.value = false;
   }
 };
 

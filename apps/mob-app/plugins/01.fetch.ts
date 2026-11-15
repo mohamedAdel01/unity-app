@@ -3,21 +3,7 @@ import { storage } from '@shared/utils/storage';
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig();
-
-  const getBaseUrl = () => {
-    // When running in browser on localhost or 127.0.0.1, always target local API server
-    if (import.meta.client && typeof window !== 'undefined' && !Capacitor.isNativePlatform()) {
-      const hostname = window.location.hostname;
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        const rawApi = config.public.API_URL || config.public.BASE_URL;
-        if (rawApi && !rawApi.includes(':3000')) {
-          return rawApi;
-        }
-        return 'http://localhost:4000';
-      }
-    }
-    return config.public.BASE_URL || config.public.API_URL || 'https://api.unity-clinics.cyou';
-  };
+  const API_URL = config.public.API_URL
 
   const fetchInstance = async (endpoint: string, options: any = {}) => {
     let raw = (await storage.get('unity_token')) || (await storage.get('token'));
@@ -42,7 +28,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
 
-    const response = await fetch(`${getBaseUrl()}/v1/${cleanEndpoint}`, {
+    const response = await fetch(`${API_URL}/v1/${cleanEndpoint}`, {
       headers: finalHeaders,
       body,
       ...restOptions,

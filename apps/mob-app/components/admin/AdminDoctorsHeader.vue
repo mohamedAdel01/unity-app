@@ -1,11 +1,7 @@
 <template>
   <div class="admin-doctors-header">
     <!-- 1. Top Supervisor Identity Bar (Unified) -->
-    <AdminTopHeader 
-      :title="t('Doctors Management')"
-      :subtitle="t('Unity Clinics • Admin Portal')"
-      icon="pi pi-user"
-    />
+    <AdminTopHeader :title="t('Doctors Management')" :subtitle="t('Unity Clinics • Admin Portal')" icon="pi pi-user" />
 
     <!-- 2. Page Title Card with Add Doctor Action -->
     <div class="title-action-card">
@@ -23,12 +19,8 @@
     <!-- 3. Search Bar -->
     <div class="search-input-box">
       <i class="pi pi-search search-icon"></i>
-      <input 
-        v-model="searchQuery" 
-        type="text" 
-        :placeholder="t('Search doctor, specialty, or clinic room...')"
-        @input="onSearchInput"
-      />
+      <input v-model="searchQuery" type="text" :placeholder="t('Search doctor, specialty, or clinic room...')"
+        @input="onSearchInput" />
       <button v-if="searchQuery" class="clear-search-btn" @click="clearSearch">
         <i class="pi pi-times"></i>
       </button>
@@ -37,14 +29,8 @@
     <!-- 4. Filter Pills Bar (Clinics from Backend) -->
     <div class="filter-pills-row">
       <div class="pills-scroll-container">
-        <button 
-          v-for="pill in clinicFilters" 
-          :key="pill.key"
-          type="button"
-          class="filter-pill"
-          :class="{ 'active': activeClinic === pill.key }"
-          @click="selectClinic(pill.key)"
-        >
+        <button v-for="pill in clinicFilters" :key="pill.key" type="button" class="filter-pill"
+          :class="{ 'active': activeClinic === pill.key }" @click="selectClinic(pill.key)">
           <span>{{ pill.label }}</span>
         </button>
       </div>
@@ -80,7 +66,7 @@ const emit = defineEmits<{
   (e: 'new-doctor'): void;
 }>();
 
-const { t } = useI18n();
+const { t ,isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
@@ -97,7 +83,7 @@ const clinicFilters = computed(() => {
     props.clinics.forEach((c) => {
       list.push({
         key: String(c.id),
-        label: c.name,
+        label: isRtl.value ? c.name_ar : c.name_en,
       });
     });
   }

@@ -8,7 +8,7 @@
             <i class="pi pi-gift"></i>
           </div>
           <div class="header-titles">
-            <h4>{{ isEdit ? t('Edit Offer') : t('Add New Offer') }}</h4>
+            <h4>{{ props.offer?.id ? t('Edit Offer') : t('Add New Offer') }}</h4>
             <p>{{ t('Offers can be written in both Arabic and English') }}</p>
           </div>
           <button type="button" class="close-btn" :aria-label="t('Close')" @click="close">
@@ -223,7 +223,7 @@
             </button>
             <button type="submit" class="btn-submit" :disabled="loading || uploadingImage">
               <i v-if="loading" class="pi pi-spin pi-spinner"></i>
-              <span v-else>{{ isEdit ? t('Save Changes') : t('Create Offer') }}</span>
+              <span v-else>{{ props.offer?.id ? t('Save Changes') : t('Create Offer') }}</span>
             </button>
           </div>
         </form>
@@ -239,6 +239,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -253,10 +254,10 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
-const loading = ref(false);
 const uploadingImage = ref(false);
 const isDragOver = ref(false);
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -274,7 +275,9 @@ const form = ref({
 });
 
 // 3. Computed (computed properties)
-const isEdit = computed(() => Boolean(props.offer?.id));
+const loading = computed(() => {
+  return globalStore.loading.includes('ADMIN_CREATE_OFFER') || globalStore.loading.includes('ADMIN_UPDATE_OFFER');
+});
 
 const discountComputed = computed(() => {
   const orig = Number(form.value.original_price);
@@ -370,7 +373,6 @@ const handleSubmit = async () => {
   }
 
   try {
-    loading.value = true;
     const payload = {
       title_ar: form.value.title_ar.trim(),
       title_en: form.value.title_en.trim() || form.value.title_ar.trim(),
@@ -383,29 +385,16 @@ const handleSubmit = async () => {
       is_active: form.value.is_active,
     };
 
-    if (isEdit.value && props.offer?.id) {
-      await api.apiRequest({
-        service: 'ADMIN_UPDATE_OFFER',
-        payload: {
-          id: props.offer.id,
-          ...payload,
-        },
-      });
-      toast.success(t('Offer updated successfully!'));
-    } else {
-      await api.apiRequest({
-        service: 'ADMIN_CREATE_OFFER',
-        payload,
-      });
-      toast.success(t('Offer created successfully!'));
-    }
+    await api.apiRequest({
+      service: props.offer?.id ? 'ADMIN_UPDATE_OFFER' : 'ADMIN_CREATE_OFFER',
+      payload: props.offer?.id ? { id: props.offer.id, ...payload } : payload,
+    });
 
+    toast.success(props.offer?.id ? t('Offer updated successfully!') : t('Offer created successfully!'));
     emit('saved');
     close();
   } catch (err: any) {
-    toast.error(err?.message || t('Failed to save offer'));
-  } finally {
-    loading.value = false;
+    toast.error(err?.message || (props.offer?.id ? t('Failed to update offer') : t('Failed to save offer')));
   }
 };
 

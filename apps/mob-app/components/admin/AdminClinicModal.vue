@@ -3,7 +3,7 @@
     <div v-if="isOpen" class="modal-backdrop" @click="emit('close')">
       <div class="modal-sheet" @click.stop>
         <div class="modal-head">
-          <h4>{{ isEdit ? t('Edit Clinic') : t('New Clinic') }}</h4>
+          <h4>{{ props.clinic?.id ? t('Edit Clinic') : t('New Clinic') }}</h4>
           <button class="btn-close" :aria-label="t('Close')" @click="emit('close')">
             <i class="pi pi-times"></i>
           </button>
@@ -12,40 +12,22 @@
         <div class="modal-body">
           <div class="form-group">
             <label class="field-label">{{ t('Clinic Name (Arabic)') }} <span class="required">*</span></label>
-            <input 
-              v-model="form.name_ar" 
-              type="text" 
-              class="input-field" 
-              :placeholder="t('e.g. Cardiology Clinic')"
-              dir="rtl"
-              autofocus
-              @keyup.enter="saveClinic"
-            />
+            <input v-model="form.name_ar" type="text" class="input-field" :placeholder="t('e.g. Cardiology Clinic')"
+              dir="rtl" autofocus @keyup.enter="saveClinic" />
           </div>
 
           <div class="form-group">
             <label class="field-label">{{ t('Clinic Name (English)') }} <span class="required">*</span></label>
-            <input 
-              v-model="form.name_en" 
-              type="text" 
-              class="input-field" 
-              placeholder="e.g. Cardiology Clinic"
-              dir="ltr"
-              @keyup.enter="saveClinic"
-            />
+            <input v-model="form.name_en" type="text" class="input-field" placeholder="e.g. Cardiology Clinic" dir="ltr"
+              @keyup.enter="saveClinic" />
           </div>
         </div>
 
         <div class="modal-foot">
           <button type="button" class="btn-cancel" @click="emit('close')">{{ t('Cancel') }}</button>
-          <button 
-            type="button" 
-            class="btn-confirm" 
-            :disabled="!isFormValid || submitting" 
-            @click="saveClinic"
-          >
+          <button type="button" class="btn-confirm" :disabled="!isFormValid || submitting" @click="saveClinic">
             <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ isEdit ? t('Save Changes') : t('Add Clinic') }}</span>
+            <span v-else>{{ props.clinic?.id ? t('Save Changes') : t('Add Clinic') }}</span>
           </button>
         </div>
       </div>
@@ -60,10 +42,10 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 
 interface Clinic {
   id?: string | number;
-  name: string;
   name_ar?: string;
   name_en?: string;
   doctors_count?: number;
@@ -85,118 +67,96 @@ const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
 const { registerModalOpen, registerModalClose } = useModalState();
+const globalStore = useGlobalStore();
 
 // 2. Data (refs, reactive state)
 const form = ref({
   name_ar: '',
   name_en: '',
 });
-const submitting = ref(false);
 
 // 3. Computed (computed properties)
-const isEdit = computed(() => !!props.clinic?.id);
-
 const isFormValid = computed(() => {
   return form.value.name_ar.trim().length > 0 || form.value.name_en.trim().length > 0;
 });
 
-// 4. Methods (functions, handlers)
-const parseClinicName = (c: any) => {
-  if (!c) return { ar: '', en: '' };
-  if (c.name_ar || c.name_en) return { ar: c.name_ar || '', en: c.name_en || '' };
-  try {
-    const p = JSON.parse(c.name);
-    if (p && typeof p === 'object') return { ar: p.ar || '', en: p.en || '' };
-  } catch (_) {}
-  return { ar: c.name || '', en: c.name || '' };
-};
+const submitting = computed(() =>
+  globalStore.loading.includes('ADMIN_CREATE_CLINIC') || globalStore.loading.includes('ADMIN_UPDATE_CLINIC')
+);
 
+// 4. Methods (functions, handlers)
 const saveClinic = async () => {
   if (!isFormValid.value || submitting.value) return;
-  submitting.value = true;
   try {
+    let service = props.clinic?.id ? 'ADMIN_UPDATE_CLINIC' : 'ADMIN_CREATE_CLINIC';
+    let filter = props.clinic?.id ?? null;
+
     const payload = {
       name_ar: form.value.name_ar.trim(),
-      name_en: form.value.name_en.trim(),
-      name: form.value.name_ar.trim() || form.value.name_en.trim(),
+      name_en: form.value.name_en.trim() || null,
     };
 
-    if (isEdit.value && props.clinic?.id) {
-      const res = await api.apiRequest({
-        service: 'ADMIN_UPDATE_CLINIC',
-        payload: { id: props.clinic.id, ...payload },
-      });
-      const updated = {
-        ...props.clinic,
-        ...payload,
-        name: res?.data?.name || payload.name,
-        name_ar: res?.data?.name_ar || payload.name_ar,
-        name_en: res?.data?.name_en || payload.name_en,
+    const res = await api.apiRequest({
+      service,
+      payload,
+      filter
+    });
+
+    if (res?.status || res?.data) {
+      const resultData = res?.data || {};
+      const item = {
+        ...(props.clinic?.id ? props.clinic : { doctors_count: 0, is_active: true }),
+        ...resultData,
+        name_ar: resultData.name_ar || payload.name_ar,
+        name_en: resultData.name_en || payload.name_en,
       };
-      emit('updated', updated);
+
+      emit(props.clinic?.id ? 'updated' : 'created', item);
       emit('close');
-      toast.success(t('Clinic updated successfully!'));
-    } else {
-      const res = await api.apiRequest({
-        service: 'ADMIN_CREATE_CLINIC',
-        payload,
-      });
-      if (res?.status && res?.data) {
-        const created = {
-          id: res.data.id,
-          name: res.data.name,
-          name_ar: res.data.name_ar,
-          name_en: res.data.name_en,
-          doctors_count: 0,
-          is_active: true,
-        };
+      toast.success(props.clinic?.id ? t('Clinic updated successfully!') : t('New clinic added successfully!'));
+
+      if (!props.clinic?.id) {
         form.value = { name_ar: '', name_en: '' };
-        emit('created', created);
-        emit('close');
-        toast.success(t('New clinic added successfully!'));
       }
     }
   } catch (err: any) {
-    toast.error(err.message || (isEdit.value ? t('Failed to update clinic') : t('Failed to create clinic')));
-  } finally {
-    submitting.value = false;
+    toast.error(err.message || (props.clinic?.id ? t('Failed to update clinic') : t('Failed to create clinic')));
   }
 };
 
-// 5. Watches (watch, watchEffect)
-watch(
-  () => props.clinic,
-  (val) => {
-    const loc = parseClinicName(val);
-    form.value = {
-      name_ar: loc.ar,
-      name_en: loc.en,
-    };
-  },
-  { immediate: true }
-);
+  // 5. Watches (watch, watchEffect)
+  watch(
+    () => props.clinic,
+    (val) => {
+      form.value = {
+        name_ar: val?.name_ar || '',
+        name_en: val?.name_en || '',
+      };
+    },
+    { immediate: true }
+  );
 
-watch(
-  () => props.isOpen,
-  (open) => {
-    if (open) {
-      registerModalOpen();
-      if (!props.clinic) {
-        form.value = { name_ar: '', name_en: '' };
+  watch(
+    () => props.isOpen,
+    (open) => {
+      if (open) {
+        registerModalOpen();
+        if (!props.clinic?.id) {
+          form.value = { name_ar: '', name_en: '' };
+        }
+      } else {
+        registerModalClose();
       }
-    } else {
+    },
+    { immediate: true }
+  );
+
+  // 6. Hooks (onMounted, onUnmounted, etc.)
+  onUnmounted(() => {
+    if (props.isOpen) {
       registerModalClose();
     }
-  },
-  { immediate: true }
-);
-
-// 6. Hooks (onMounted, onUnmounted, etc.)
-onUnmounted(() => {
-  if (props.isOpen) {
-    registerModalClose();
-  }
-});
+  });
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
@@ -364,6 +324,7 @@ onUnmounted(() => {
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0);
   }

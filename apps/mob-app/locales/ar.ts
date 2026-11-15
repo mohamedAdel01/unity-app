@@ -709,6 +709,8 @@ export default {
   "Try selecting another time range or clear filters.": "جرب اختيار فترة زمنية أخرى أو إزالة الفلاتر.",
   "Add New Doctor": "إضافة طبيب جديد للطاقم",
   "Doctor Name": "اسم الطبيب",
+  "Doctor Name (Arabic)": "اسم الطبيب (بالعربية)",
+  "Doctor Name (English)": "اسم الطبيب (بالإنجليزية)",
   "Specialty": "التخصص الطبي",
   "Room": "رقم العيادة",
   "Category": "التصنيف",

@@ -5,7 +5,7 @@
       <div class="modal-head">
         <div class="title-with-icon">
           <i class="pi pi-folder-open head-icon"></i>
-          <h4>{{ isEdit ? t('Edit Examination Category') : t('New Examination Category') }}</h4>
+          <h4>{{ props.category?.id ? t('Edit Examination Category') : t('New Examination Category') }}</h4>
         </div>
         <button class="btn-close" :aria-label="t('Close')" @click="emit('close')">
           <i class="pi pi-times"></i>
@@ -15,44 +15,31 @@
       <form class="modal-body" @submit.prevent="saveCategory">
         <div class="form-body">
           <!-- Category Name (Arabic) -->
-        <div class="form-group">
-          <label class="field-label">{{ t('Category Name (Arabic)') }} <span class="required">*</span></label>
-          <input 
-            v-model="form.name_ar" 
-            type="text" 
-            class="input-field" 
-            :placeholder="t('e.g. Blood Tests & Labs')"
-            dir="rtl"
-            required 
-            autofocus
-          />
-        </div>
+          <div class="form-group">
+            <label class="field-label">{{ t('Category Name (Arabic)') }} <span class="required">*</span></label>
+            <input 
+              v-model="form.name_ar" 
+              type="text" 
+              class="input-field" 
+              :placeholder="t('e.g. Blood Tests & Labs')"
+              dir="rtl"
+              required 
+              autofocus
+            />
+          </div>
 
-        <!-- Category Name (English) -->
-        <div class="form-group">
-          <label class="field-label">{{ t('Category Name (English)') }} <span class="required">*</span></label>
-          <input 
-            v-model="form.name_en" 
-            type="text" 
-            class="input-field" 
-            placeholder="e.g. Blood Tests & Labs"
-            dir="ltr"
-            required
-          />
-        </div>
-
-        <!-- Description -->
-        <div class="form-group">
-          <label class="field-label">{{ t('Description (Arabic)') }}</label>
-          <textarea 
-            v-model="form.description_ar" 
-            rows="2" 
-            class="input-field textarea" 
-            :placeholder="t('Category description...')"
-            dir="rtl"
-          ></textarea>
-        </div>
-
+          <!-- Category Name (English) -->
+          <div class="form-group">
+            <label class="field-label">{{ t('Category Name (English)') }} <span class="required">*</span></label>
+            <input 
+              v-model="form.name_en" 
+              type="text" 
+              class="input-field" 
+              placeholder="e.g. Blood Tests & Labs"
+              dir="ltr"
+              required
+            />
+          </div>
         </div>
 
         <div class="modal-actions">
@@ -61,7 +48,7 @@
           </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || submitting">
             <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ isEdit ? t('Save Changes') : t('Create Category') }}</span>
+            <span v-else>{{ props.category?.id ? t('Save Changes') : t('Create Category') }}</span>
           </button>
         </div>
       </form>
@@ -77,16 +64,13 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 
 interface Category {
   id?: string | number;
-  name?: string;
   name_ar?: string;
   name_en?: string;
-  icon?: string;
   sort_order?: number;
-  description_ar?: string;
-  description_en?: string;
   is_active?: boolean;
 }
 
@@ -103,29 +87,27 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
-const submitting = ref(false);
-
 const form = ref<{
   name_ar: string;
   name_en: string;
-  icon: string;
   sort_order: number | string;
-  description_ar: string;
-  description_en: string;
 }>({
   name_ar: '',
   name_en: '',
-  icon: 'pi pi-folder',
   sort_order: 0,
-  description_ar: '',
-  description_en: '',
 });
 
 // 3. Computed (computed properties)
-const isEdit = computed(() => !!props.category?.id);
+const submitting = computed(() => {
+  return (
+    globalStore.loading.includes('ADMIN_CREATE_EXAMINATION_CATEGORY') ||
+    globalStore.loading.includes('ADMIN_UPDATE_EXAMINATION_CATEGORY')
+  );
+});
 
 const isFormValid = computed(() => {
   return (
@@ -137,45 +119,29 @@ const isFormValid = computed(() => {
 // 4. Methods (functions, handlers)
 const saveCategory = async () => {
   if (!isFormValid.value || submitting.value) return;
-  submitting.value = true;
   try {
     const payload = {
       name_ar: form.value.name_ar.trim(),
-      name_en: form.value.name_en.trim(),
-      name: form.value.name_ar.trim() || form.value.name_en.trim(),
-      icon: form.value.icon || 'pi pi-folder',
+      name_en: form.value.name_en.trim() || null,
       sort_order: Number(form.value.sort_order) || 0,
-      description_ar: form.value.description_ar.trim() || null,
-      description_en: form.value.description_en.trim() || null,
     };
 
-    if (isEdit.value && props.category?.id) {
-      const res = await api.apiRequest({
-        service: 'ADMIN_UPDATE_EXAMINATION_CATEGORY',
-        payload: {
-          id: props.category.id,
-          ...payload,
-        },
-      });
-      emit('saved', res?.data || payload);
-      emit('close');
-      toast.show({ title: t('Category updated successfully!'), type: 'success' });
-    } else {
-      const res = await api.apiRequest({
-        service: 'ADMIN_CREATE_EXAMINATION_CATEGORY',
-        payload,
-      });
-      emit('saved', res?.data || payload);
-      emit('close');
-      toast.show({ title: t('Category created successfully!'), type: 'success' });
-    }
+    const res = await api.apiRequest({
+      service: props.category?.id ? 'ADMIN_UPDATE_EXAMINATION_CATEGORY' : 'ADMIN_CREATE_EXAMINATION_CATEGORY',
+      payload: props.category?.id ? { id: props.category.id, ...payload } : payload,
+    });
+
+    emit('saved', res?.data || { ...(props.category?.id ? props.category : {}), ...payload });
+    emit('close');
+    toast.show({
+      title: props.category?.id ? t('Category updated successfully!') : t('Category created successfully!'),
+      type: 'success',
+    });
   } catch (err: any) {
     toast.show({
-      title: err.message || t('Failed to save category'),
+      title: err?.message || (props.category?.id ? t('Failed to update category') : t('Failed to save category')),
       type: 'error',
     });
-  } finally {
-    submitting.value = false;
   }
 };
 
@@ -185,21 +151,15 @@ watch(
   (val) => {
     if (val) {
       form.value = {
-        name_ar: val.name_ar || val.name || '',
-        name_en: val.name_en || val.name || '',
-        icon: val.icon || 'pi pi-folder',
+        name_ar: val.name_ar || (val as any).name || '',
+        name_en: val.name_en || (val as any).name || '',
         sort_order: val.sort_order || 0,
-        description_ar: val.description_ar || '',
-        description_en: val.description_en || '',
       };
     } else {
       form.value = {
         name_ar: '',
         name_en: '',
-        icon: 'pi pi-folder',
         sort_order: 0,
-        description_ar: '',
-        description_en: '',
       };
     }
   },

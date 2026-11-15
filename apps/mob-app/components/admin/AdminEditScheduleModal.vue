@@ -157,6 +157,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 import AppTimePicker from '../common/AppTimePicker.vue';
 
 interface ScheduleSlot {
@@ -179,10 +180,10 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
-const loading = ref(false);
 const selectedDay = ref('saturday');
 
 const weekDays = [
@@ -206,6 +207,10 @@ const schedulesByDay = ref<Record<string, ScheduleSlot[]>>({
 });
 
 // 3. Computed (computed properties)
+const loading = computed(() => {
+  return globalStore.loading.includes('ADMIN_UPDATE_DOCTOR_SCHEDULES');
+});
+
 const currentDayLabel = computed(() => {
   const match = weekDays.find(d => d.key === selectedDay.value);
   return match ? match.label : '';
@@ -337,7 +342,6 @@ const saveSchedule = async () => {
     return;
   }
 
-  loading.value = true;
   try {
     const allSchedules: Array<{
       day_of_week: string;
@@ -376,8 +380,6 @@ const saveSchedule = async () => {
     close();
   } catch (err: any) {
     toast.error(err?.data?.message || err?.message || t('Failed to update schedule'));
-  } finally {
-    loading.value = false;
   }
 };
 

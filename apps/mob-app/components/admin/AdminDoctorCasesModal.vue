@@ -1,226 +1,178 @@
 <template>
   <Teleport to="body">
     <div v-if="isOpen && doctor" class="doctor-cases-modal-backdrop" @click="close">
-    <div class="doctor-cases-modal-sheet" @click.stop>
-      <!-- 1. Header -->
-      <div class="sheet-header">
-        <div class="doctor-info-head">
-          <div class="avatar-holder">
-            <img 
-              v-if="doctor.avatar"
-              :src="resolveAvatar(doctor.avatar)" 
-              alt=""
-              class="avatar-photo"
-              @error="(e: any) => e.target.style.display = 'none'" 
-            />
-            <div v-else class="avatar-placeholder">
-              <i class="pi pi-user"></i>
+      <div class="doctor-cases-modal-sheet" @click.stop>
+        <!-- 1. Header -->
+        <div class="sheet-header">
+          <div class="doctor-info-head">
+            <div class="avatar-holder">
+              <img v-if="doctor.avatar" :src="resolveAvatar(doctor.avatar)" alt="" class="avatar-photo"
+                @error="(e: any) => e.target.style.display = 'none'" />
+              <div v-else class="avatar-placeholder">
+                <i class="pi pi-user"></i>
+              </div>
+              <span class="status-dot" :class="doctor.is_active ? 'online' : 'offline'"></span>
             </div>
-            <span class="status-dot" :class="doctor.is_active ? 'online' : 'offline'"></span>
-          </div>
-          <div class="doctor-titles">
-            <div class="name-badge-row">
-              <h3>{{ doctor.name }}</h3>
-              <span class="cases-total-pill">{{ totalCases }} {{ t('Doctor Bookings') }}</span>
+            <div class="doctor-titles">
+              <div class="name-badge-row">
+                <h3>{{ doctor.name }}</h3>
+                <span class="cases-total-pill">{{ totalCases }} {{ t('Doctor Bookings') }}</span>
+              </div>
+              <p class="specialty-clinic">
+                <span>{{ resolveI18n(doctor.specialty) || resolveI18n(doctor.clinic?.name_ar || doctor.clinic?.name_en
+                  || doctor.clinic?.name) || t('Specialist') }}</span>
+                <template
+                  v-if="(doctor.clinic?.name_ar || doctor.clinic?.name_en || doctor.clinic?.name) && doctor.specialty">
+                  <span class="dot">•</span>
+                  <span>{{ resolveI18n(doctor.clinic?.name_ar || doctor.clinic?.name_en || doctor.clinic?.name)
+                    }}</span>
+                </template>
+              </p>
             </div>
-            <p class="specialty-clinic">
-              <span>{{ resolveI18n(doctor.specialty) || resolveI18n(doctor.clinic?.name) || t('Specialist') }}</span>
-              <template v-if="doctor.clinic?.name && doctor.specialty">
-                <span class="dot">•</span>
-                <span>{{ resolveI18n(doctor.clinic.name) }}</span>
-              </template>
-            </p>
           </div>
-        </div>
 
-        <button type="button" class="btn-sheet-close" :aria-label="t('Close')" @click="close">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-
-      <!-- 2. Date & Filter Bar -->
-      <div class="filters-container">
-        <!-- Active Filter Indicator Banner if Date is selected -->
-        <div v-if="selectedDate" class="active-date-banner">
-          <div class="date-banner-content">
-            <i class="pi pi-calendar-clock"></i>
-            <span>{{ t('Filtered by date:') }} <strong>{{ formatHumanDate(selectedDate) }}</strong></span>
-          </div>
-          <button type="button" class="btn-clear-date" :title="t('Clear date filter')" @click="setDatePreset('all')">
+          <button type="button" class="btn-sheet-close" :aria-label="t('Close')" @click="close">
             <i class="pi pi-times"></i>
           </button>
         </div>
 
-        <!-- Date Presets Row -->
-        <div class="preset-scroll-row">
-          <button 
-            type="button" 
-            class="filter-pill" 
-            :class="{ active: datePreset === 'all' }"
-            @click="setDatePreset('all')"
-          >
-            <span>{{ t('All Dates') }}</span>
-          </button>
+        <!-- 2. Date & Filter Bar -->
+        <div class="filters-container">
+          <!-- Active Filter Indicator Banner if Date is selected -->
+          <div v-if="selectedDate" class="active-date-banner">
+            <div class="date-banner-content">
+              <i class="pi pi-calendar-clock"></i>
+              <span>{{ t('Filtered by date:') }} <strong>{{ formatHumanDate(selectedDate) }}</strong></span>
+            </div>
+            <button type="button" class="btn-clear-date" :title="t('Clear date filter')" @click="setDatePreset('all')">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
 
-          <button 
-            type="button" 
-            class="filter-pill" 
-            :class="{ active: datePreset === 'today' }"
-            @click="setDatePreset('today')"
-          >
-            <i class="pi pi-calendar"></i>
-            <span>{{ t('Today') }}</span>
-          </button>
+          <!-- Date Presets Row -->
+          <div class="preset-scroll-row">
+            <button type="button" class="filter-pill" :class="{ active: datePreset === 'all' }"
+              @click="setDatePreset('all')">
+              <span>{{ t('All Dates') }}</span>
+            </button>
 
-          <button 
-            type="button" 
-            class="filter-pill" 
-            :class="{ active: datePreset === 'tomorrow' }"
-            @click="setDatePreset('tomorrow')"
-          >
-            <span>{{ t('Tomorrow') }}</span>
-          </button>
+            <button type="button" class="filter-pill" :class="{ active: datePreset === 'today' }"
+              @click="setDatePreset('today')">
+              <i class="pi pi-calendar"></i>
+              <span>{{ t('Today') }}</span>
+            </button>
 
-          <button 
-            type="button" 
-            class="filter-pill custom-date-pill" 
-            :class="{ active: datePreset === 'custom' }"
-            @click="openDatePicker"
-          >
-            <i class="pi pi-calendar-plus"></i>
-            <span>{{ selectedDate ? formatShortDate(selectedDate) : t('Pick Date') }}</span>
-          </button>
-          <input 
-            ref="dateInputRef"
-            type="date" 
-            class="hidden-native-date-input" 
-            :value="selectedDate"
-            @change="onCustomDatePick(($event.target as HTMLInputElement).value)"
-            @input="onCustomDatePick(($event.target as HTMLInputElement).value)"
-          />
+            <button type="button" class="filter-pill" :class="{ active: datePreset === 'tomorrow' }"
+              @click="setDatePreset('tomorrow')">
+              <span>{{ t('Tomorrow') }}</span>
+            </button>
+
+            <button type="button" class="filter-pill custom-date-pill" :class="{ active: datePreset === 'custom' }"
+              @click="openDatePicker">
+              <i class="pi pi-calendar-plus"></i>
+              <span>{{ selectedDate ? formatShortDate(selectedDate) : t('Pick Date') }}</span>
+            </button>
+            <input ref="dateInputRef" type="date" class="hidden-native-date-input" :value="selectedDate"
+              @change="onCustomDatePick(($event.target as HTMLInputElement).value)"
+              @input="onCustomDatePick(($event.target as HTMLInputElement).value)" />
+          </div>
+
+          <!-- Status Filter Pills -->
+          <div class="status-scroll-row">
+            <button type="button" class="status-pill" :class="{ active: selectedStatus === 'all' }"
+              @click="selectedStatus = 'all'">
+              <span>{{ t('All Statuses') }}</span>
+            </button>
+
+            <button type="button" class="status-pill confirmed" :class="{ active: selectedStatus === 'confirmed' }"
+              @click="selectedStatus = 'confirmed'">
+              <i class="pi pi-check-circle"></i>
+              <span>{{ t('Confirmed Status') }}</span>
+            </button>
+
+            <button type="button" class="status-pill completed" :class="{ active: selectedStatus === 'completed' }"
+              @click="selectedStatus = 'completed'">
+              <i class="pi pi-verified"></i>
+              <span>{{ t('Completed Status') }}</span>
+            </button>
+
+            <button type="button" class="status-pill pending" :class="{ active: selectedStatus === 'pending' }"
+              @click="selectedStatus = 'pending'">
+              <i class="pi pi-clock"></i>
+              <span>{{ t('Pending Status') }}</span>
+            </button>
+
+            <button type="button" class="status-pill cancelled" :class="{ active: selectedStatus === 'cancelled' }"
+              @click="selectedStatus = 'cancelled'">
+              <i class="pi pi-times-circle"></i>
+              <span>{{ t('Cancelled Status') }}</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Status Filter Pills -->
-        <div class="status-scroll-row">
-          <button 
-            type="button" 
-            class="status-pill" 
-            :class="{ active: selectedStatus === 'all' }"
-            @click="selectedStatus = 'all'"
-          >
-            <span>{{ t('All Statuses') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="status-pill confirmed" 
-            :class="{ active: selectedStatus === 'confirmed' }"
-            @click="selectedStatus = 'confirmed'"
-          >
-            <i class="pi pi-check-circle"></i>
-            <span>{{ t('Confirmed Status') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="status-pill completed" 
-            :class="{ active: selectedStatus === 'completed' }"
-            @click="selectedStatus = 'completed'"
-          >
-            <i class="pi pi-verified"></i>
-            <span>{{ t('Completed Status') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="status-pill pending" 
-            :class="{ active: selectedStatus === 'pending' }"
-            @click="selectedStatus = 'pending'"
-          >
-            <i class="pi pi-clock"></i>
-            <span>{{ t('Pending Status') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="status-pill cancelled" 
-            :class="{ active: selectedStatus === 'cancelled' }"
-            @click="selectedStatus = 'cancelled'"
-          >
-            <i class="pi pi-times-circle"></i>
-            <span>{{ t('Cancelled Status') }}</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 3. Virtual Cases List -->
-      <div class="cases-scroll-area">
-        <AppVirtualList
-          :items="appointments"
-          :has-more="hasMore"
-          :loading="loading"
-          :page-size="10"
-          :empty-title="t('No bookings scheduled')"
-          :empty-subtitle="t('No bookings found for this doctor matching the selected filter.')"
-          @load-more="loadMore"
-        >
-          <template #item="{ item }">
-            <div class="case-card" :class="item.status">
-              <!-- Top Row: Patient Info + Status Chip -->
-              <div class="case-header-row">
-                <div class="patient-cell">
-                  <div class="patient-avatar-badge">
-                    <i class="pi pi-user"></i>
+        <!-- 3. Virtual Cases List -->
+        <div class="cases-scroll-area">
+          <AppVirtualList :items="appointments" :has-more="hasMore" :loading="loading" :page-size="10"
+            :empty-title="t('No bookings scheduled')"
+            :empty-subtitle="t('No bookings found for this doctor matching the selected filter.')"
+            @load-more="loadMore">
+            <template #item="{ item }">
+              <div class="case-card" :class="item.status">
+                <!-- Top Row: Patient Info + Status Chip -->
+                <div class="case-header-row">
+                  <div class="patient-cell">
+                    <div class="patient-avatar-badge">
+                      <i class="pi pi-user"></i>
+                    </div>
+                    <div class="patient-text">
+                      <h5 class="patient-name">{{ item.patient?.name || t('Anonymous Patient') }}</h5>
+                      <p class="patient-meta">
+                        <span v-if="item.patient?.mrn">MRN: {{ item.patient.mrn }}</span>
+                        <span v-if="item.patient?.mrn && item.patient?.phone">•</span>
+                        <span v-if="item.patient?.phone" dir="ltr">{{ item.patient.phone }}</span>
+                      </p>
+                    </div>
                   </div>
-                  <div class="patient-text">
-                    <h5 class="patient-name">{{ item.patient?.name || t('Anonymous Patient') }}</h5>
-                    <p class="patient-meta">
-                      <span v-if="item.patient?.mrn">MRN: {{ item.patient.mrn }}</span>
-                      <span v-if="item.patient?.mrn && item.patient?.phone">•</span>
-                      <span v-if="item.patient?.phone" dir="ltr">{{ item.patient.phone }}</span>
-                    </p>
-                  </div>
-                </div>
 
-                <span class="case-status-badge" :class="item.status">
-                  {{ formatStatus(item.status) }}
-                </span>
-              </div>
-
-              <!-- Mid Row: Service & Time Details -->
-              <div class="case-details-grid">
-                <div class="detail-item date-pill">
-                  <i class="pi pi-calendar"></i>
-                  <span>{{ formatHumanDate(item.date) }}</span>
-                </div>
-                <div class="detail-item time-pill">
-                  <i class="pi pi-clock"></i>
-                  <span>{{ formatSlotRange(item.start_time, item.end_time) }}</span>
-                </div>
-                <div v-if="item.examination?.name || item.service?.name" class="detail-item examination">
-                  <i class="pi pi-file-edit"></i>
-                  <span>{{ resolveI18n(item.examination?.name || item.service?.name) }}</span>
-                </div>
-                <div v-if="item.invoice?.total || item.price" class="detail-item price">
-                  <i class="pi pi-wallet"></i>
-                  <span>{{ item.invoice?.total || item.price }} {{ t('EGP') }}</span>
-                  <span class="invoice-status" :class="isItemPaid(item) ? 'paid' : 'pending'">
-                    {{ isItemPaid(item) ? t('Paid Status') : t('Unpaid Status') }}
+                  <span class="case-status-badge" :class="item.status">
+                    {{ formatStatus(item.status) }}
                   </span>
                 </div>
-              </div>
 
-              <!-- Notes / Diagnosis snippet if available -->
-              <div v-if="item.notes || item.diagnosis" class="case-notes-snippet">
-                <i class="pi pi-info-circle"></i>
-                <p>{{ item.diagnosis || item.notes }}</p>
+                <!-- Mid Row: Service & Time Details -->
+                <div class="case-details-grid">
+                  <div class="detail-item date-pill">
+                    <i class="pi pi-calendar"></i>
+                    <span>{{ formatHumanDate(item.date) }}</span>
+                  </div>
+                  <div class="detail-item time-pill">
+                    <i class="pi pi-clock"></i>
+                    <span>{{ formatSlotRange(item.start_time, item.end_time) }}</span>
+                  </div>
+                  <div v-if="item.examination?.name || item.service?.name" class="detail-item examination">
+                    <i class="pi pi-file-edit"></i>
+                    <span>{{ resolveI18n(item.examination?.name || item.service?.name) }}</span>
+                  </div>
+                  <div v-if="item.invoice?.total || item.price" class="detail-item price">
+                    <i class="pi pi-wallet"></i>
+                    <span>{{ item.invoice?.total || item.price }} {{ t('EGP') }}</span>
+                    <span class="invoice-status" :class="isItemPaid(item) ? 'paid' : 'pending'">
+                      {{ isItemPaid(item) ? t('Paid Status') : t('Unpaid Status') }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Notes / Diagnosis snippet if available -->
+                <div v-if="item.notes || item.diagnosis" class="case-notes-snippet">
+                  <i class="pi pi-info-circle"></i>
+                  <p>{{ item.diagnosis || item.notes }}</p>
+                </div>
               </div>
-            </div>
-          </template>
-        </AppVirtualList>
+            </template>
+          </AppVirtualList>
+        </div>
       </div>
     </div>
-  </div>
   </Teleport>
 </template>
 
@@ -230,6 +182,7 @@ import { ref, computed, watch, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 import AppVirtualList from '../common/AppVirtualList.vue';
 
 const props = defineProps<{
@@ -243,6 +196,7 @@ const emit = defineEmits<{
 
 const { t, isRtl, resolveI18n } = useI18n();
 const api = useUnityApi();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
@@ -250,7 +204,6 @@ const appointments = ref<any[]>([]);
 const totalCases = ref(0);
 const currentPage = ref(1);
 const hasMore = ref(false);
-const loading = ref(false);
 const dateInputRef = ref<HTMLInputElement | null>(null);
 
 const datePreset = ref<'all' | 'today' | 'tomorrow' | 'custom'>('all');
@@ -258,6 +211,9 @@ const selectedDate = ref('');
 const selectedStatus = ref('all');
 
 // 3. Computed (computed properties)
+const loading = computed(() => {
+  return globalStore.loading.includes('ADMIN_APPOINTMENTS');
+});
 
 // 4. Methods (functions, handlers)
 const openDatePicker = () => {
@@ -396,7 +352,6 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
   if (!props.doctor) return;
   const targetPage = typeof page === 'number' ? page : 1;
   try {
-    loading.value = true;
     const doctorId = props.doctor.id || props.doctor.user_id;
     const filter: Record<string, any> = {
       doctor_id: doctorId,
@@ -434,8 +389,6 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
     totalCases.value = res?.pagination?.total ?? appointments.value.length;
   } catch (err) {
     if (targetPage === 1) appointments.value = [];
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -565,8 +518,13 @@ onUnmounted(() => {
           border-radius: 50%;
           border: 2px solid #ffffff;
 
-          &.online { background: #10b981; }
-          &.offline { background: #94a3b8; }
+          &.online {
+            background: #10b981;
+          }
+
+          &.offline {
+            background: #94a3b8;
+          }
         }
       }
 
@@ -719,7 +677,9 @@ onUnmounted(() => {
       cursor: pointer;
       transition: all 0.15s ease;
 
-      i { font-size: 0.70rem; }
+      i {
+        font-size: 0.70rem;
+      }
 
       &.active {
         background: var(--unity-primary, #047857);
@@ -752,10 +712,29 @@ onUnmounted(() => {
       padding: 0 8px;
       font-size: 0.68rem;
 
-      &.confirmed.active { background: #059669; border-color: #059669; color: #fff; }
-      &.completed.active { background: #2563eb; border-color: #2563eb; color: #fff; }
-      &.pending.active { background: #d97706; border-color: #d97706; color: #fff; }
-      &.cancelled.active { background: #dc2626; border-color: #dc2626; color: #fff; }
+      &.confirmed.active {
+        background: #059669;
+        border-color: #059669;
+        color: #fff;
+      }
+
+      &.completed.active {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+      }
+
+      &.pending.active {
+        background: #d97706;
+        border-color: #d97706;
+        color: #fff;
+      }
+
+      &.cancelled.active {
+        background: #dc2626;
+        border-color: #dc2626;
+        color: #fff;
+      }
     }
   }
 
@@ -833,10 +812,25 @@ onUnmounted(() => {
           border-radius: 10px;
           text-transform: capitalize;
 
-          &.confirmed { background: #dcfce7; color: #166534; }
-          &.completed { background: #dbeafe; color: #1e40af; }
-          &.pending { background: #fef3c7; color: #92400e; }
-          &.cancelled { background: #fee2e2; color: #991b1b; }
+          &.confirmed {
+            background: #dcfce7;
+            color: #166534;
+          }
+
+          &.completed {
+            background: #dbeafe;
+            color: #1e40af;
+          }
+
+          &.pending {
+            background: #fef3c7;
+            color: #92400e;
+          }
+
+          &.cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+          }
         }
       }
 
@@ -872,9 +866,20 @@ onUnmounted(() => {
               border-radius: 6px;
               margin-inline-start: 4px;
 
-              &.paid { background: #dcfce7; color: #166534; }
-              &.pending { background: #fef3c7; color: #92400e; }
-              &.cancelled { background: #fee2e2; color: #991b1b; }
+              &.paid {
+                background: #dcfce7;
+                color: #166534;
+              }
+
+              &.pending {
+                background: #fef3c7;
+                color: #92400e;
+              }
+
+              &.cancelled {
+                background: #fee2e2;
+                color: #991b1b;
+              }
             }
           }
         }
@@ -910,7 +915,10 @@ onUnmounted(() => {
 
     .sheet-header {
       border-color: #1e293b;
-      .doctor-info-head .doctor-titles .name-badge-row h3 { color: #f8fafc; }
+
+      .doctor-info-head .doctor-titles .name-badge-row h3 {
+        color: #f8fafc;
+      }
     }
 
     .filters-container {
@@ -942,13 +950,22 @@ onUnmounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 </style>
-

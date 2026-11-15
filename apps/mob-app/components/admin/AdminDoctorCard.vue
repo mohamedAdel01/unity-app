@@ -9,7 +9,7 @@
           <img 
             v-if="doctor.avatar"
             :src="resolveAvatar(doctor.avatar)" 
-            :alt="doctor.name" 
+            :alt="doctorDisplayName" 
             class="avatar-photo" 
           />
           <div v-else class="avatar-placeholder">
@@ -21,11 +21,11 @@
         <!-- Details -->
         <div class="doctor-details">
           <div class="name-status-line">
-            <h4 class="doctor-name">{{ doctor.name }}</h4>
+            <h4 class="doctor-name">{{ doctorDisplayName }}</h4>
             <span class="inline-status-dot" :class="doctor.is_active ? 'online' : 'offline'"></span>
           </div>
           <p class="specialty-clinic-line">
-            <span>{{ doctor.specialty }}</span>
+            <span>{{ doctorDisplaySpecialty }}</span>
             <template v-if="doctor.room">
               <span class="dot-separator">•</span>
               <span>{{ t('Clinic Room') }} {{ doctor.room }}</span>
@@ -94,6 +94,7 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps<{
@@ -107,11 +108,26 @@ const emit = defineEmits<{
   (e: 'toggle-status', doctor: any): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
+const doctorDisplayName = computed(() => {
+  if (isRtl.value) {
+    return props.doctor?.name_ar || props.doctor?.name_en || props.doctor?.name || '';
+  }
+  return props.doctor?.name_en || props.doctor?.name_ar || props.doctor?.name || '';
+});
+
+const doctorDisplaySpecialty = computed(() => {
+  const clinic = props.doctor?.clinic;
+  if (clinic) {
+    const cName = isRtl.value ? clinic.name_ar || clinic.name_en : clinic.name_en || clinic.name_ar;
+    if (cName) return cName;
+  }
+  return props.doctor?.specialty || '';
+});
 
 // 4. Methods (functions, handlers)
 const getStatusBadgeClass = (status?: string) => {

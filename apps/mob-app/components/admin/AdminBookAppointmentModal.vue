@@ -562,6 +562,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -576,6 +577,7 @@ const emit = defineEmits<{
 const { t, isRtl, resolveI18n } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
@@ -604,7 +606,6 @@ const selectedExam = ref<any>(null);
 // Loading states
 const loadingItems = ref(false);
 const slotsLoading = ref(false);
-const submitting = ref(false);
 
 // Date & Time State
 const datePreset = ref<'today' | 'tomorrow' | 'custom'>('today');
@@ -615,6 +616,10 @@ const selectedSlot = ref<any>(null);
 const bookingNotes = ref('');
 
 // 3. Computed (computed properties)
+const submitting = computed(() => {
+  return globalStore.loading.includes('ADMIN_BOOK_APPOINTMENT');
+});
+
 const effectivePatient = computed(() => props.patient || selectedPatient.value);
 const todayDateString = computed(() => {
   return new Date().toISOString().split('T')[0];
@@ -1002,7 +1007,6 @@ const submitBooking = async () => {
   };
 
   try {
-    submitting.value = true;
     const res = await api.apiRequest({
       service: 'ADMIN_BOOK_APPOINTMENT',
       payload,
@@ -1020,8 +1024,6 @@ const submitBooking = async () => {
       title: t(err?.data?.message || err?.message || 'Failed to book appointment'),
       type: 'error',
     });
-  } finally {
-    submitting.value = false;
   }
 };
 

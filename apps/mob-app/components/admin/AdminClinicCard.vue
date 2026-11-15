@@ -59,9 +59,9 @@ import { useI18n } from '../../composables/useI18n';
 
 interface Clinic {
   id: string | number;
-  name: string;
   name_ar?: string;
   name_en?: string;
+  name?: string;
   doctors_count: number;
   is_active: boolean;
 }
@@ -82,9 +82,9 @@ const { t, isRtl, resolveI18n } = useI18n();
 // 3. Computed (computed properties)
 const primaryName = computed(() => {
   if (isRtl.value) {
-    return resolveI18n(props.clinic.name_ar || props.clinic.name);
+    return resolveI18n(props.clinic.name_ar || props.clinic.name_en || props.clinic.name || '');
   }
-  return resolveI18n(props.clinic.name_en || props.clinic.name);
+  return resolveI18n(props.clinic.name_en || props.clinic.name_ar || props.clinic.name || '');
 });
 
 // 4. Methods (functions, handlers)

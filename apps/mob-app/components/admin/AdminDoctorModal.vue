@@ -5,8 +5,8 @@
       <!-- Modal Header -->
       <div class="modal-header">
         <div class="header-title">
-          <i :class="isEdit ? 'pi pi-user-edit' : 'pi pi-user-plus'"></i>
-          <h4>{{ isEdit ? t('Edit Doctor') : t('Add New Doctor') }}</h4>
+          <i :class="props.doctor?.id ? 'pi pi-user-edit' : 'pi pi-user-plus'"></i>
+          <h4>{{ props.doctor?.id ? t('Edit Doctor') : t('Add New Doctor') }}</h4>
         </div>
         <button class="btn-close" :aria-label="t('Close')" @click="close">
           <i class="pi pi-times"></i>
@@ -67,17 +67,32 @@
           />
         </div>
 
-        <!-- Doctor Full Name -->
+        <!-- Doctor Name (Arabic) -->
         <div class="form-group">
-          <label>{{ t('Doctor Name') }} <span class="required">*</span></label>
+          <label>{{ t('Doctor Name (Arabic)') }} <span class="required">*</span></label>
           <div class="input-shell">
             <i class="pi pi-user"></i>
             <input 
-              v-model="form.name" 
+              v-model="form.name_ar" 
               type="text" 
               :placeholder="t('e.g. Dr. Ahmed Al-Mansoury')" 
+              dir="rtl"
               required 
               autofocus
+            />
+          </div>
+        </div>
+
+        <!-- Doctor Name (English) -->
+        <div class="form-group">
+          <label>{{ t('Doctor Name (English)') }}</label>
+          <div class="input-shell">
+            <i class="pi pi-user"></i>
+            <input 
+              v-model="form.name_en" 
+              type="text" 
+              placeholder="e.g. Dr. Ahmed Al-Mansoury" 
+              dir="ltr"
             />
           </div>
         </div>
@@ -201,7 +216,7 @@
           </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ isEdit ? t('Save Changes') : t('Register Doctor') }}</span>
+            <span v-else>{{ props.doctor?.id ? t('Save Changes') : t('Register Doctor') }}</span>
           </button>
         </div>
       </form>
@@ -217,11 +232,14 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 import AppPhoneInput from '../common/AppPhoneInput.vue';
 
 interface Doctor {
   id?: string | number;
-  name: string;
+  name?: string;
+  name_ar?: string;
+  name_en?: string;
   phone?: string;
   user?: any;
   clinic?: any;
@@ -246,20 +264,21 @@ const emit = defineEmits<{
   (e: 'updated', doc: any): void;
 }>();
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
-const loading = ref(false);
 const isPhoneValid = ref(false);
 const isClinicDropdownOpen = ref(false);
 const clinics = ref<any[]>([]);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const form = ref<{
-  name: string;
+  name_ar: string;
+  name_en: string;
   phone: string;
   avatar: string;
   clinic_id: string | number;
@@ -268,7 +287,8 @@ const form = ref<{
   slot_duration: number | string;
   bio: string;
 }>({
-  name: '',
+  name_ar: '',
+  name_en: '',
   phone: '',
   avatar: '',
   clinic_id: '',
@@ -279,16 +299,23 @@ const form = ref<{
 });
 
 // 3. Computed (computed properties)
-const isEdit = computed(() => !!props.doctor?.id);
+const loading = computed(() => {
+  return globalStore.loading.includes('ADMIN_CREATE_DOCTOR') || globalStore.loading.includes('ADMIN_UPDATE_DOCTOR');
+});
 
 const selectedClinicName = computed(() => {
   if (!form.value.clinic_id) return '';
   const match = clinics.value.find((c) => String(c.id) === String(form.value.clinic_id));
-  return match?.name || '';
+  if (!match) return '';
+  return isRtl.value ? match.name_ar || match.name_en || match.name || '' : match.name_en || match.name_ar || match.name || '';
 });
 
 const isFormValid = computed(() => {
-  return form.value.name.trim().length >= 3 && isPhoneValid.value && !!form.value.clinic_id;
+  return (
+    (form.value.name_ar.trim().length >= 2 || form.value.name_en.trim().length >= 2) &&
+    isPhoneValid.value &&
+    !!form.value.clinic_id
+  );
 });
 
 // 4. Methods (functions, handlers)
@@ -338,7 +365,8 @@ const selectClinic = (id: any) => {
 const close = () => {
   isClinicDropdownOpen.value = false;
   form.value = {
-    name: '',
+    name_ar: '',
+    name_en: '',
     phone: '',
     avatar: '',
     clinic_id: '',
@@ -370,7 +398,6 @@ const ADMIN_CLINICS = async () => {
 const handleSubmit = async () => {
   if (!isFormValid.value || loading.value) return;
 
-  loading.value = true;
   try {
     const matchedClinic = clinics.value.find((c) => String(c.id) === String(form.value.clinic_id)) || null;
 
@@ -378,80 +405,51 @@ const handleSubmit = async () => {
     const numFollowUp = form.value.follow_up_fee !== '' && form.value.follow_up_fee !== null ? Number(form.value.follow_up_fee) : 0;
     const numSlotDuration = form.value.slot_duration !== '' && form.value.slot_duration !== null ? Number(form.value.slot_duration) : 15;
     const cleanBio = form.value.bio?.trim() || null;
+    const arName = form.value.name_ar.trim();
+    const enName = form.value.name_en.trim();
 
-    if (isEdit.value && props.doctor?.id) {
-      const res = await api.apiRequest({
-        service: 'ADMIN_UPDATE_DOCTOR',
-        payload: {
-          id: props.doctor.id,
-          name: form.value.name.trim(),
-          phone: form.value.phone.trim(),
-          avatar: form.value.avatar || null,
-          clinic_id: form.value.clinic_id,
-          consultation_fee: numConsultation,
-          follow_up_fee: numFollowUp,
-          slot_duration: numSlotDuration,
-          bio: cleanBio,
-        },
-      });
+    const payload = {
+      name_ar: arName,
+      name_en: enName || null,
+      phone: form.value.phone.trim() || null,
+      avatar: form.value.avatar || null,
+      clinic_id: form.value.clinic_id,
+      consultation_fee: numConsultation,
+      follow_up_fee: numFollowUp,
+      slot_duration: numSlotDuration,
+      bio: cleanBio,
+    };
 
-      const updatedDoctor = {
-        ...props.doctor,
-        name: form.value.name.trim(),
+    const res = await api.apiRequest({
+      service: props.doctor?.id ? 'ADMIN_UPDATE_DOCTOR' : 'ADMIN_CREATE_DOCTOR',
+      payload: props.doctor?.id ? { id: props.doctor.id, ...payload } : payload,
+    });
+
+    if (res?.status || res?.data) {
+      const resultData = res?.data || {};
+      const doctorItem = {
+        ...(props.doctor?.id ? props.doctor : { status: 'active', is_active: true, schedules: [] }),
+        ...resultData,
+        name_ar: arName,
+        name_en: enName,
+        name: isRtl.value ? arName || enName : enName || arName,
         phone: form.value.phone.trim(),
-        avatar: res?.data?.user?.avatar || res?.data?.avatar || form.value.avatar || null,
-        clinic: matchedClinic,
+        avatar: resultData.avatar || form.value.avatar || null,
+        clinic: matchedClinic || resultData.clinic,
         clinic_id: form.value.clinic_id,
-        specialty: matchedClinic?.name || props.doctor.specialty,
+        specialty: (isRtl.value ? matchedClinic?.name_ar || matchedClinic?.name_en : matchedClinic?.name_en || matchedClinic?.name_ar) || resultData.specialty || props.doctor?.specialty || '',
         consultation_fee: numConsultation,
         follow_up_fee: numFollowUp,
         slot_duration: numSlotDuration,
         bio: cleanBio,
       };
 
-      emit('updated', updatedDoctor);
-      toast.success(t('Doctor updated successfully!'));
-      close();
-    } else {
-      const res = await api.apiRequest({
-        service: 'ADMIN_CREATE_DOCTOR',
-        payload: {
-          name: form.value.name.trim(),
-          phone: form.value.phone.trim(),
-          avatar: form.value.avatar || null,
-          clinic_id: form.value.clinic_id,
-          consultation_fee: numConsultation,
-          follow_up_fee: numFollowUp,
-          slot_duration: numSlotDuration,
-          bio: cleanBio,
-        },
-      });
-
-      const createdDoctor = {
-        id: res?.data?.id || `doc-${Date.now()}`,
-        name: form.value.name.trim(),
-        phone: form.value.phone.trim(),
-        avatar: res?.data?.avatar || form.value.avatar || null,
-        clinic: matchedClinic || res?.data?.clinic,
-        clinic_id: form.value.clinic_id,
-        specialty: matchedClinic?.name || res?.data?.specialty || '',
-        status: 'active',
-        is_active: true,
-        consultation_fee: numConsultation,
-        follow_up_fee: numFollowUp,
-        slot_duration: numSlotDuration,
-        bio: cleanBio,
-        schedules: [],
-      };
-
-      emit('created', createdDoctor);
-      toast.success(t('Doctor registered successfully!'));
+      emit(props.doctor?.id ? 'updated' : 'created', doctorItem);
+      toast.success(props.doctor?.id ? t('Doctor updated successfully!') : t('Doctor registered successfully!'));
       close();
     }
   } catch (err: any) {
-    toast.error(err?.message || (isEdit.value ? t('Failed to update doctor') : t('Failed to register doctor')));
-  } finally {
-    loading.value = false;
+    toast.error(err?.message || (props.doctor?.id ? t('Failed to update doctor') : t('Failed to register doctor')));
   }
 };
 
@@ -461,9 +459,10 @@ watch(
   (val) => {
     if (val) {
       form.value = {
-        name: val.name || val.user?.name || '',
-        phone: val.phone || val.user?.phone || '',
-        avatar: val.avatar || val.user?.avatar || '',
+        name_ar: val.name_ar || val.name || '',
+        name_en: val.name_en || '',
+        phone: val.phone || '',
+        avatar: val.avatar || '',
         clinic_id: val.clinic?.id || val.clinic_id || '',
         consultation_fee: val.consultation_fee !== undefined && val.consultation_fee !== null ? Number(val.consultation_fee) : '',
         follow_up_fee: val.follow_up_fee !== undefined && val.follow_up_fee !== null ? Number(val.follow_up_fee) : '',
@@ -473,7 +472,8 @@ watch(
       isPhoneValid.value = true;
     } else {
       form.value = {
-        name: '',
+        name_ar: '',
+        name_en: '',
         phone: '',
         avatar: '',
         clinic_id: clinics.value[0]?.id || '',
@@ -498,9 +498,10 @@ watch(
       }
       if (props.doctor) {
         form.value = {
-          name: props.doctor.name || props.doctor.user?.name || '',
-          phone: props.doctor.phone || props.doctor.user?.phone || '',
-          avatar: props.doctor.avatar || props.doctor.user?.avatar || '',
+          name_ar: props.doctor.name_ar || props.doctor.name || '',
+          name_en: props.doctor.name_en || '',
+          phone: props.doctor.phone || '',
+          avatar: props.doctor.avatar || '',
           clinic_id: props.doctor.clinic?.id || props.doctor.clinic_id || '',
           consultation_fee: props.doctor.consultation_fee !== undefined && props.doctor.consultation_fee !== null ? Number(props.doctor.consultation_fee) : '',
           follow_up_fee: props.doctor.follow_up_fee !== undefined && props.doctor.follow_up_fee !== null ? Number(props.doctor.follow_up_fee) : '',
@@ -510,7 +511,8 @@ watch(
         isPhoneValid.value = true;
       } else {
         form.value = {
-          name: '',
+          name_ar: '',
+          name_en: '',
           phone: '',
           avatar: '',
           clinic_id: clinics.value[0]?.id || '',

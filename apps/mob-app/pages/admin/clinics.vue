@@ -166,8 +166,9 @@ const ADMIN_CLINICS = async (page: any = 1) => {
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     const items = raw.map((c: any) => ({
       id: c.id,
-      name: c.name,
-      doctors_count: c._count?.doctors || 0,
+      name_ar: c.name_ar,
+      name_en: c.name_en,
+      doctors_count: c._count?.doctors || c.doctors_count || 0,
       is_active: c.is_active ?? true,
     }));
 
@@ -204,14 +205,14 @@ const ADMIN_EXAMINATIONS = async (page: any = 1) => {
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     const items = raw.map((s: any) => ({
       id: s.id,
-      name: s.name,
       name_ar: s.name_ar,
       name_en: s.name_en,
+      name: isRtl.value ? s.name_ar || s.name_en : s.name_en || s.name_ar,
       price: s.price,
       duration: s.duration,
-      description: s.description,
       description_ar: s.description_ar,
       description_en: s.description_en,
+      description: isRtl.value ? s.description_ar || s.description_en : s.description_en || s.description_ar,
       category_id: s.category_id,
       category: s.category,
       is_active: s.is_active ?? true,

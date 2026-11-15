@@ -143,6 +143,7 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useAppToast } from '../../composables/useAppToast';
 import { useAuthStore } from '../../stores/auth';
+import { useGlobalStore } from '../../stores/global';
 import { useModalState } from '../../composables/useModalState';
 import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
@@ -167,12 +168,12 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const toast = useAppToast();
 const authStore = useAuthStore();
+const globalStore = useGlobalStore();
 const api = useUnityApi();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
 const fileInputRef = ref<HTMLInputElement | null>(null);
-const loading = ref(false);
 
 const form = ref({
   name: '',
@@ -182,6 +183,10 @@ const form = ref({
 });
 
 // 3. Computed (computed properties)
+const loading = computed(() => {
+  return globalStore.loading.includes('UPDATE_PROFILE');
+});
+
 const activeOpen = computed(() => !!(props.modelValue || props.isOpen));
 
 const maxDate = computed(() => {
@@ -292,8 +297,6 @@ const handleSubmit = async () => {
   if (!isFormValid.value || loading.value) return;
 
   try {
-    loading.value = true;
-
     const payload: {
       name: string;
       avatar: string;
@@ -329,8 +332,6 @@ const handleSubmit = async () => {
     close();
   } catch (err: any) {
     toast.error(err?.data?.message || err?.message || t('Failed to update profile'));
-  } finally {
-    loading.value = false;
   }
 };
 

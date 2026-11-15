@@ -139,28 +139,34 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
     });
 
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
-    const items = raw.map((d: any) => ({
-      id: d.id,
-      user_id: d.user_id || d.user?.id,
-      name: d.user?.name || d.name,
-      phone: d.phone || d.user?.phone || '',
-      avatar: d.user?.avatar || d.avatar,
-      clinic_id: d.clinic_id || d.clinic?.id,
-      clinic: d.clinic,
-      specialty: d.clinic?.name || d.specialty || '',
-      room: d.room || '',
-      status_badge: (d.user?.status === 'active' || d.status === 'active') ? t('Open Clinic') : t('Unavailable'),
-      schedule_time: '',
-      cases_count: d._count?.appointments ?? d.cases_count ?? 0,
-      is_active: d.user?.status === 'active' || d.status === 'active',
-      is_evening: false,
-      primary_action: false,
-      schedules: d.user?.doctor_schedules || d.schedules || [],
-      consultation_fee: d.consultation_fee ?? 0,
-      follow_up_fee: d.follow_up_fee ?? 0,
-      slot_duration: d.slot_duration ?? 15,
-      bio: d.bio ?? '',
-    }));
+    const items = raw.map((d: any) => {
+      const arName = d.name_ar || '';
+      const enName = d.name_en || '';
+      const cName = isRtl.value ? d.clinic?.name_ar || d.clinic?.name_en : d.clinic?.name_en || d.clinic?.name_ar;
+      return {
+        id: d.id,
+        name_ar: arName,
+        name_en: enName,
+        name: isRtl.value ? arName || enName || d.name : enName || arName || d.name,
+        phone: d.phone || '',
+        avatar: d.avatar,
+        clinic_id: d.clinic_id || d.clinic?.id,
+        clinic: d.clinic,
+        specialty: cName || d.specialty || '',
+        room: d.room || '',
+        status_badge: (d.status === 'active') ? t('Open Clinic') : t('Unavailable'),
+        schedule_time: '',
+        cases_count: d._count?.appointments ?? d.cases_count ?? 0,
+        is_active: d.status === 'active',
+        is_evening: false,
+        primary_action: false,
+        schedules: d.schedules || [],
+        consultation_fee: d.consultation_fee ?? 0,
+        follow_up_fee: d.follow_up_fee ?? 0,
+        slot_duration: d.slot_duration ?? 15,
+        bio: d.bio ?? '',
+      };
+    });
 
     if (targetPage === 1) {
       doctors.value = items;
@@ -187,7 +193,9 @@ const ADMIN_CLINICS = async () => {
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     clinics.value = raw.map((c: any) => ({
       id: c.id,
-      name: c.name,
+      name_ar: c.name_ar,
+      name_en: c.name_en,
+      name: isRtl.value ? c.name_ar || c.name_en : c.name_en || c.name_ar,
     }));
   } catch (err) {}
 };

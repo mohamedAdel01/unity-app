@@ -3,7 +3,7 @@
     <div v-if="isOpen" class="modal-backdrop" @click="emit('close')">
     <div class="modal-sheet" @click.stop>
       <div class="modal-head">
-        <h4>{{ isEdit ? t('Edit Examination') : t('Add New Examination') }}</h4>
+        <h4>{{ props.examination?.id ? t('Edit Examination') : t('Add New Examination') }}</h4>
         <button class="btn-close" :aria-label="t('Close')" @click="emit('close')">
           <i class="pi pi-times"></i>
         </button>
@@ -238,7 +238,7 @@
           </button>
           <button type="submit" class="btn-confirm" :disabled="!isFormValid || submitting">
             <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ isEdit ? t('Save Changes') : t('Add Examination') }}</span>
+            <span v-else>{{ props.examination?.id ? t('Save Changes') : t('Add Examination') }}</span>
           </button>
         </div>
       </form>
@@ -254,6 +254,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 import AppTimePicker from '../common/AppTimePicker.vue';
 
 interface ScheduleItem {
@@ -291,6 +292,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 const ALL_DAYS: Array<{ key: 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'; label: string }> = [
@@ -343,10 +345,10 @@ const schedulesByDay = ref<Record<string, ScheduleSlot[]>>({
   friday: [],
 });
 
-const submitting = ref(false);
-
 // 3. Computed (computed properties)
-const isEdit = computed(() => !!props.examination?.id);
+const submitting = computed(() => {
+  return globalStore.loading.includes('ADMIN_CREATE_EXAMINATION') || globalStore.loading.includes('ADMIN_UPDATE_EXAMINATION');
+});
 
 const currentDayLabel = computed(() => {
   const match = ALL_DAYS.find((d) => d.key === selectedDay.value);
@@ -508,7 +510,6 @@ const parseExaminationLoc = (exam: any) => {
 
 const saveExamination = async () => {
   if (!isFormValid.value || submitting.value) return;
-  submitting.value = true;
   try {
     const numPrice = Number(form.value.price || 0);
     const numDuration = form.value.duration !== '' && form.value.duration !== null ? Number(form.value.duration) : 15;
@@ -536,93 +537,66 @@ const saveExamination = async () => {
 
     const arName = form.value.name_ar.trim();
     const enName = form.value.name_en.trim();
-    const examName = arName || enName;
     const arDesc = form.value.description_ar.trim();
     const enDesc = form.value.description_en.trim();
-    const examDesc = arDesc || enDesc || null;
 
     const payload = {
       name_ar: arName,
-      name_en: enName,
-      name: examName,
+      name_en: enName || null,
       category_id: form.value.category_id || null,
       price: numPrice,
       duration: numDuration,
       description_ar: arDesc || null,
       description_en: enDesc || null,
-      description: examDesc,
       schedules: payloadSchedules,
     };
 
-    if (isEdit.value && props.examination?.id) {
-      const res = await api.apiRequest({
-        service: 'ADMIN_UPDATE_EXAMINATION',
-        payload: {
-          id: props.examination.id,
-          ...payload,
-        },
-      });
+    const res = await api.apiRequest({
+      service: props.examination?.id ? 'ADMIN_UPDATE_EXAMINATION' : 'ADMIN_CREATE_EXAMINATION',
+      payload: props.examination?.id ? { id: props.examination.id, ...payload } : payload,
+    });
 
-      const updated = {
-        ...props.examination,
+    if (res?.status || res?.data) {
+      const resultData = res?.data || {};
+      const examinationItem = {
+        ...(props.examination?.id ? props.examination : { is_active: true }),
         ...payload,
-        name: res?.data?.name || examName,
-        name_ar: res?.data?.name_ar || arName,
-        name_en: res?.data?.name_en || enName,
-        description: res?.data?.description || examDesc,
-        description_ar: res?.data?.description_ar || arDesc,
-        description_en: res?.data?.description_en || enDesc,
+        ...resultData,
+        id: props.examination?.id || resultData.id,
+        name_ar: resultData.name_ar || arName,
+        name_en: resultData.name_en || enName,
+        description_ar: resultData.description_ar || arDesc,
+        description_en: resultData.description_en || enDesc,
         price: numPrice,
         duration: numDuration,
-        schedules: res?.data?.schedules || payloadSchedules,
+        schedules: resultData.schedules || payloadSchedules,
       };
 
-      emit('updated', updated);
-      emit('close');
-      toast.show({ title: t('Examination updated successfully!'), type: 'success' });
-    } else {
-      const res = await api.apiRequest({
-        service: 'ADMIN_CREATE_EXAMINATION',
-        payload,
-      });
-
-      if (res?.status && res?.data) {
-        const created = {
-          id: res.data.id,
-          name: res.data.name,
-          name_ar: res.data.name_ar || arName,
-          name_en: res.data.name_en || enName,
-          price: res.data.price,
-          duration: res.data.duration,
-          description: res.data.description,
-          description_ar: res.data.description_ar || arDesc,
-          description_en: res.data.description_en || enDesc,
-          schedules: res.data.schedules || payloadSchedules,
-          is_active: true,
-        };
-
+      if (!props.examination?.id) {
         form.value = {
           name_ar: '',
           name_en: '',
+          category_id: '',
           price: '',
           duration: 15,
           description_ar: '',
           description_en: '',
         };
         initSchedules();
-
-        emit('created', created);
-        emit('close');
-        toast.show({ title: t('New examination added successfully!'), type: 'success' });
       }
+
+      emit(props.examination?.id ? 'updated' : 'created', examinationItem);
+      emit('close');
+      toast.show({
+        title: props.examination?.id ? t('Examination updated successfully!') : t('New examination added successfully!'),
+        type: 'success',
+      });
     }
   } catch (err: any) {
     toast.show({
-      title: err.message || (isEdit.value ? t('Failed to update examination') : t('Failed to create examination')),
+      title: err?.message || (props.examination?.id ? t('Failed to update examination') : t('Failed to create examination')),
       type: 'error',
     });
-  } finally {
-    submitting.value = false;
   }
 };
 

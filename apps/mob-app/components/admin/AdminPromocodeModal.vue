@@ -8,7 +8,7 @@
           <i class="pi pi-percentage"></i>
         </div>
         <div class="header-titles">
-          <h4>{{ isEdit ? t('Edit Promocode') : t('Add New Promocode') }}</h4>
+          <h4>{{ props.promocode?.id ? t('Edit Promocode') : t('Add New Promocode') }}</h4>
           <p>{{ t('Define discount coupons for patient bookings') }}</p>
         </div>
         <button type="button" class="close-btn" :aria-label="t('Close')" @click="close">
@@ -142,7 +142,7 @@
           </button>
           <button type="submit" class="btn-submit" :disabled="loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
-            <span v-else>{{ isEdit ? t('Save Changes') : t('Create Promocode') }}</span>
+            <span v-else>{{ props.promocode?.id ? t('Save Changes') : t('Create Promocode') }}</span>
           </button>
         </div>
       </form>
@@ -158,6 +158,7 @@ import { useI18n } from '../../composables/useI18n';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
+import { useGlobalStore } from '../../stores/global';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -172,11 +173,10 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const api = useUnityApi();
 const toast = useAppToast();
+const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
-const loading = ref(false);
-
 const form = ref({
   code: '',
   discount_type: 'percentage' as 'percentage' | 'fixed',
@@ -188,7 +188,9 @@ const form = ref({
 });
 
 // 3. Computed (computed properties)
-const isEdit = computed(() => Boolean(props.promocode?.id));
+const loading = computed(() => {
+  return globalStore.loading.includes('ADMIN_CREATE_PROMOCODE') || globalStore.loading.includes('ADMIN_UPDATE_PROMOCODE');
+});
 
 // 4. Methods (functions, handlers)
 const close = () => {
@@ -206,7 +208,6 @@ const handleSubmit = async () => {
   }
 
   try {
-    loading.value = true;
     const payload = {
       code: form.value.code.trim().toUpperCase(),
       discount_type: form.value.discount_type,
@@ -217,29 +218,16 @@ const handleSubmit = async () => {
       is_active: form.value.is_active,
     };
 
-    if (isEdit.value && props.promocode?.id) {
-      await api.apiRequest({
-        service: 'ADMIN_UPDATE_PROMOCODE',
-        payload: {
-          id: props.promocode.id,
-          ...payload,
-        },
-      });
-      toast.success(t('Promocode updated successfully!'));
-    } else {
-      await api.apiRequest({
-        service: 'ADMIN_CREATE_PROMOCODE',
-        payload,
-      });
-      toast.success(t('Promocode created successfully!'));
-    }
+    await api.apiRequest({
+      service: props.promocode?.id ? 'ADMIN_UPDATE_PROMOCODE' : 'ADMIN_CREATE_PROMOCODE',
+      payload: props.promocode?.id ? { id: props.promocode.id, ...payload } : payload,
+    });
 
+    toast.success(props.promocode?.id ? t('Promocode updated successfully!') : t('Promocode created successfully!'));
     emit('saved');
     close();
   } catch (err: any) {
-    toast.error(err?.message || t('Failed to save promocode'));
-  } finally {
-    loading.value = false;
+    toast.error(err?.message || (props.promocode?.id ? t('Failed to update promocode') : t('Failed to save promocode')));
   }
 };
 

@@ -65,6 +65,7 @@ export default {
   async LOGOUT({ API }: { API: any }) {
     return await API('auth/logout', {
       method: 'POST',
+      body: JSON.stringify({}),
     });
   },
 
@@ -365,11 +366,10 @@ export default {
     });
   },
 
-  async ADMIN_UPDATE_CLINIC({ API, payload }: { API: any; payload: { id: string | number; [key: string]: any } }) {
-    const { id, ...data } = payload;
-    return await API(`admin/clinics/${id}`, {
+  async ADMIN_UPDATE_CLINIC({ API, payload, filter }: { API: any; payload: { [key: string]: any }, filter: string }) {
+    return await API(`admin/clinics/${filter}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   },
 
