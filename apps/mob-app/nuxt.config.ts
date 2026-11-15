@@ -21,6 +21,12 @@ export default defineNuxtConfig({
     appManifest: false,
   },
 
+  routeRules: {
+    '/v1/**': {
+      proxy: 'http://localhost:4000/v1/**',
+    },
+  },
+
   vite: {
     server: {
       hmr: {

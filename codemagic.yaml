@@ -153,40 +153,18 @@ workflows:
           echo "=== Export options ==="
           cat $HOME/export_options.plist
 
-      - name: Set build number
+      - name: Build IPA
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           BUILD_NUMBER=$(($(date +%s)))
           echo "Setting build number to: $BUILD_NUMBER"
           agvtool new-version -all $BUILD_NUMBER
 
-      - name: Build archive
-        script: |
-          # لو فيه workspace (CocoaPods) استخدمه، غير كده استخدم الـ project (Swift Package Manager)
-          if [ -d "$CM_BUILD_DIR/$XCODE_WORKSPACE" ]; then
-            echo "Using workspace: $XCODE_WORKSPACE"
-            TARGET=(-workspace "$CM_BUILD_DIR/$XCODE_WORKSPACE")
-          else
-            echo "Using project: $XCODE_PROJECT"
-            TARGET=(-project "$CM_BUILD_DIR/$XCODE_PROJECT")
-          fi
-
-          TEAM_ID="${DEVELOPMENT_TEAM:-XW9HMN8J9W}"
-
-          xcodebuild "${TARGET[@]}" \
-            -scheme "$XCODE_SCHEME" \
-            -configuration Release \
-            -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
-            archive \
-            DEVELOPMENT_TEAM="$TEAM_ID" \
-            CODE_SIGN_IDENTITY="Apple Distribution"
-
-      - name: Export IPA
-        script: |
-          xcodebuild -exportArchive \
-            -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
-            -exportOptionsPlist "$HOME/export_options.plist" \
-            -exportPath "$CM_BUILD_DIR/build/ios/ipa"
+          # استخدم أداة كودماجيك الرسمية xcode-project build-ipa لتفادي تعارض شهادات حزم SPM
+          echo "Building IPA with Codemagic xcode-project CLI..."
+          xcode-project build-ipa \
+            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
 
     artifacts:
       - build/ios/ipa/*.ipa

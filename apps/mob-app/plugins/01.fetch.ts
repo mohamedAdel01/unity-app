@@ -9,7 +9,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (import.meta.client && typeof window !== 'undefined' && !Capacitor.isNativePlatform()) {
       const hostname = window.location.hostname;
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return config.public.BASE_URL || config.public.API_URL || 'http://localhost:4000';
+        const rawApi = config.public.API_URL || config.public.BASE_URL;
+        if (rawApi && !rawApi.includes(':3000')) {
+          return rawApi;
+        }
+        return 'http://localhost:4000';
       }
     }
     return config.public.BASE_URL || config.public.API_URL || 'https://api.unity-clinics.cyou';
