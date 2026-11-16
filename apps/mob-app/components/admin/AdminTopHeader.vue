@@ -8,9 +8,11 @@
       <div class="admin-meta">
         <div class="name-badge-row">
           <h4 class="role-title">{{ title }}</h4>
-          <span class="supervisor-badge">{{ t('Admin') }}</span>
+          <span class="supervisor-badge" :class="{ 'reception-badge': authStore.isReceptionist }">
+            {{ roleBadgeText }}
+          </span>
         </div>
-        <small class="facility-subline">{{ subtitle || t('Unity Clinics • Admin Portal') }}</small>
+        <small class="facility-subline">{{ subtitle || defaultSubtitle }}</small>
       </div>
     </div>
 
@@ -28,8 +30,10 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
+import { useAuthStore } from '../../stores/auth';
 
 withDefaults(
   defineProps<{
@@ -45,10 +49,20 @@ withDefaults(
 
 const router = useRouter();
 const { t, isRtl } = useI18n();
+const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
+const roleBadgeText = computed(() => {
+  if (authStore.isReceptionist) return t('Receptionist');
+  return t('Admin');
+});
+
+const defaultSubtitle = computed(() => {
+  if (authStore.isReceptionist) return t('Unity Clinics • Reception Desk');
+  return t('Unity Clinics • Admin Portal');
+});
 
 // 4. Methods (functions, handlers)
 
@@ -122,6 +136,11 @@ const { t, isRtl } = useI18n();
           padding: 2px 8px;
           border-radius: 20px;
           line-height: 1.3;
+
+          &.reception-badge {
+            background: #e0f2fe;
+            color: #0369a1;
+          }
         }
       }
 

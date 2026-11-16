@@ -7,8 +7,19 @@
       :icon="activeTab === 'categories' ? 'pi pi-folder' : 'pi pi-file-edit'"
     />
 
-    <!-- 2. Dual Mode Selector Tabs (Services vs Categories) -->
+    <!-- 2. Dual Mode Selector Tabs (Categories vs Services) -->
     <div class="services-categories-tabs">
+      <button
+        type="button"
+        class="tab-btn"
+        :class="{ 'active': activeTab === 'categories' }"
+        @click="emit('tab-change', 'categories')"
+      >
+        <i class="pi pi-folder tab-icon"></i>
+        <span>{{ t('Categories') }}</span>
+        <span class="count-pill">{{ categoriesCount }}</span>
+      </button>
+
       <button
         type="button"
         class="tab-btn"
@@ -25,17 +36,6 @@
         </svg>
         <span>{{ t('Services') }}</span>
         <span class="count-pill">{{ totalCount }}</span>
-      </button>
-
-      <button
-        type="button"
-        class="tab-btn"
-        :class="{ 'active': activeTab === 'categories' }"
-        @click="emit('tab-change', 'categories')"
-      >
-        <i class="pi pi-th-large tab-icon"></i>
-        <span>{{ t('Categories') }}</span>
-        <span class="count-pill">{{ categoriesCount }}</span>
       </button>
     </div>
 

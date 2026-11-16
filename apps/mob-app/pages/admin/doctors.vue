@@ -6,6 +6,7 @@
       :doctors-count="totalDoctorsCount || doctors.length"
       :clinics-count="clinicsTotal || clinics.length"
       :clinics="clinics"
+      :active-filter="activeFilter"
       @tab-change="onTabChange"
       @search="onSearch"
       @filter="onFilter"
@@ -148,9 +149,9 @@ const filteredDoctors = computed(() => {
   if (searchQuery.value) {
     const q = searchQuery.value.toLowerCase();
     list = list.filter((d) => {
-      const matchName = d.name?.toLowerCase().includes(q);
-      const matchSpec = d.specialty?.toLowerCase().includes(q);
-      const matchRoom = d.room?.toLowerCase().includes(q);
+      const matchName = (d.name || d.name_ar || d.name_en || '').toLowerCase().includes(q);
+      const matchSpec = (d.specialty || d.specialty_ar || d.specialty_en || '').toLowerCase().includes(q);
+      const matchRoom = (d.room || d.room_number || '').toLowerCase().includes(q);
       return matchName || matchSpec || matchRoom;
     });
   }
@@ -201,14 +202,14 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
         id: d.id,
         name_ar: arName,
         name_en: enName,
-        name: isRtl.value ? arName : enName,
-        specialty: isRtl.value ? d.specialty_ar : d.specialty_en,
-        specialty_ar: d.specialty_ar,
-        specialty_en: d.specialty_en,
+        name: isRtl.value ? (arName || d.name) : (enName || d.name),
+        specialty: d.specialty || (isRtl.value ? (d.specialty_ar || d.clinic?.name_ar) : (d.specialty_en || d.clinic?.name_en)) || cName || '',
+        specialty_ar: d.specialty_ar || d.specialty || d.clinic?.name_ar,
+        specialty_en: d.specialty_en || d.specialty || d.clinic?.name_en,
         title: isRtl.value ? d.title_ar : d.title_en,
         title_ar: d.title_ar,
         title_en: d.title_en,
-        clinic: cName,
+        clinic: cName || d.clinic,
         clinic_ar: d.clinic?.name_ar,
         clinic_en: d.clinic?.name_en,
         clinic_id: d.clinic_id || d.clinic?.id,
@@ -222,10 +223,9 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
         bio_en: d.bio_en,
         price: d.consultation_fee,
         consultation_fee: d.consultation_fee,
-        is_active: d.is_active ?? true,
-        avatar_url: d.avatar_url,
-        phone: d.phone,
-        email: d.email,
+        is_active: d.is_active ?? (d.status === 'active'),
+        avatar: d.avatar || d.avatar_url || '',
+        avatar_url: d.avatar_url || d.avatar || '',
         schedules: d.schedules || [],
       };
     });
@@ -462,15 +462,15 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .admin-doctors-page {
+  padding: 14px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  padding-bottom: 24px;
 }
 
 .page-bottom-spacer {
-  height: 90px;
+  height: 120px;
   flex-shrink: 0;
 }
 </style>

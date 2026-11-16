@@ -15,15 +15,14 @@
       v-if="activeTab === 'services'"
       :examinations="services"
       :categories="categories"
+      :active-category-id="selectedCategoryId"
       :search-query="searchQuery"
       :has-more="servicesHasMore"
       :loading="servicesLoading"
       @toggle-status="toggleServiceStatus"
       @edit="openEditExaminationModal"
       @load-more="loadMoreExaminations"
-      @new-category="openNewCategoryModal"
-      @edit-category="openEditCategoryModal"
-      @category-deleted="onCategoryDeleted"
+      @category-change="selectedCategoryId = $event"
     />
 
     <!-- 2. When activeTab === 'categories': Modular Categories List -->
@@ -34,6 +33,7 @@
       @edit="openEditCategoryModal"
       @deleted="onCategoryDeleted"
       @new-category="openNewCategoryModal"
+      @select-category="onSelectCategoryAndFilterServices"
     />
 
     <AdminExaminationModal
@@ -82,6 +82,7 @@ const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const activeTab = ref<'services' | 'categories'>('services');
+const selectedCategoryId = ref<string | number>('');
 const searchQuery = ref('');
 const services = ref<any[]>([]);
 const servicesTotal = ref(0);
@@ -105,6 +106,12 @@ const serviceOriginalStates: Record<string | number, boolean> = {};
 const onTabChange = (tab: 'services' | 'categories') => {
   activeTab.value = tab;
   router.replace({ query: { ...route.query, tab } });
+};
+
+const onSelectCategoryAndFilterServices = (cat: any) => {
+  selectedCategoryId.value = cat.id;
+  activeTab.value = 'services';
+  router.replace({ query: { ...route.query, tab: 'services', category: cat.id } });
 };
 
 const onSearch = (q: string) => {
@@ -260,6 +267,11 @@ watch(() => route.query.tab, (newTab) => {
     activeTab.value = newTab;
   }
 });
+watch(() => route.query.category, (newCat) => {
+  if (newCat) {
+    selectedCategoryId.value = String(newCat);
+  }
+});
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
@@ -267,6 +279,9 @@ onMounted(() => {
     activeTab.value = 'categories';
   } else if (route.query.tab === 'services') {
     activeTab.value = 'services';
+  }
+  if (route.query.category) {
+    selectedCategoryId.value = String(route.query.category);
   }
   ADMIN_EXAMINATION_CATEGORIES();
   ADMIN_EXAMINATIONS(1);
@@ -277,15 +292,15 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .admin-services-page {
+  padding: 14px 18px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  padding-bottom: 24px;
 }
 
 .page-bottom-spacer {
-  height: 90px;
+  height: 120px;
   flex-shrink: 0;
 }
 </style>

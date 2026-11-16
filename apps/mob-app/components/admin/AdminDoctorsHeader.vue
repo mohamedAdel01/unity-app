@@ -126,12 +126,14 @@ const props = withDefaults(
     doctorsCount?: number;
     clinicsCount?: number;
     clinics?: ClinicOption[];
+    activeFilter?: string;
   }>(),
   {
     activeTab: 'doctors',
     doctorsCount: 0,
     clinicsCount: 0,
     clinics: () => [],
+    activeFilter: 'all',
   }
 );
 
@@ -187,6 +189,9 @@ const selectClinic = (key: string) => {
 };
 
 // 5. Watches (watch, watchEffect)
+watch(() => props.activeFilter, (newVal) => {
+  activeClinic.value = newVal || 'all';
+});
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 

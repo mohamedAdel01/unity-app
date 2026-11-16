@@ -22,6 +22,10 @@
         </div>
 
         <div class="card-actions">
+          <button type="button" class="action-btn view-btn" @click="emit('select-category', cat)">
+            <i class="pi pi-list"></i>
+            <span>{{ t('Services') }}</span>
+          </button>
           <button type="button" class="action-btn edit-btn" @click="emit('edit', cat)">
             <i class="pi pi-pencil"></i>
             <span>{{ t('Edit') }}</span>
@@ -97,6 +101,7 @@ const emit = defineEmits<{
   (e: 'edit', cat: Category): void;
   (e: 'deleted'): void;
   (e: 'new-category'): void;
+  (e: 'select-category', cat: Category): void;
 }>();
 
 const { t } = useI18n();
@@ -263,6 +268,18 @@ const executeDeleteCategory = async () => {
         gap: 6px;
         cursor: pointer;
         transition: all 0.2s ease;
+
+        &.view-btn {
+          flex: 1.1;
+          background: rgba(4, 120, 87, 0.08);
+          border: 1px solid rgba(4, 120, 87, 0.2);
+          color: var(--unity-primary, #047857);
+
+          &:hover {
+            background: var(--unity-primary);
+            color: #ffffff;
+          }
+        }
 
         &.edit-btn {
           flex: 1;

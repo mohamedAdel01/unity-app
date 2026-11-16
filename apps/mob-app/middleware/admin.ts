@@ -2,10 +2,10 @@ import { defineNuxtRouteMiddleware, navigateTo, abortNavigation } from '#app';
 import { useAuthStore } from '../stores/auth';
 
 /**
- * Admin Role Middleware:
- * Strictly restricts route access to users with role 'admin'.
+ * Admin / Receptionist Role Middleware:
+ * Restricts route access to users with role 'admin' or 'receptionist'.
  * 1. If unauthenticated -> redirects to '/auth/login'.
- * 2. If authenticated as non-admin -> redirects to home or aborts with 403 Forbidden.
+ * 2. If authenticated as non-admin / non-receptionist -> aborts with 403 Forbidden.
  */
 export default defineNuxtRouteMiddleware((to) => {
   const authStore = useAuthStore();
@@ -19,11 +19,11 @@ export default defineNuxtRouteMiddleware((to) => {
     });
   }
 
-  // 2. Must be an admin
-  if (!authStore.isAdmin) {
+  // 2. Must be an admin or receptionist
+  if (!authStore.isAdmin && !authStore.isReceptionist) {
     return abortNavigation({
       statusCode: 403,
-      statusMessage: 'Access Denied: Admin privileges required.',
+      statusMessage: 'Access Denied: Admin or Receptionist privileges required.',
     });
   }
 });

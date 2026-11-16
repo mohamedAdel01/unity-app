@@ -97,16 +97,6 @@
           </div>
         </div>
 
-        <!-- Phone Number -->
-        <div class="form-group">
-          <label>{{ t('Phone Number') }} <span class="required">*</span></label>
-          <AppPhoneInput 
-            v-model="form.phone"
-            :required="true"
-            @valid="val => isPhoneValid = val"
-          />
-        </div>
-
         <!-- Clinic Custom Dropdown (100% inside modal, never overflows screen) -->
         <div class="form-group">
           <label>{{ t('Clinic') }} <span class="required">*</span></label>
@@ -233,14 +223,12 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
 import { useGlobalStore } from '../../stores/global';
-import AppPhoneInput from '../common/AppPhoneInput.vue';
 
 interface Doctor {
   id?: string | number;
   name?: string;
   name_ar?: string;
   name_en?: string;
-  phone?: string;
   user?: any;
   clinic?: any;
   clinic_id?: string | number;
@@ -271,7 +259,6 @@ const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
-const isPhoneValid = ref(false);
 const isClinicDropdownOpen = ref(false);
 const clinics = ref<any[]>([]);
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -279,7 +266,6 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 const form = ref<{
   name_ar: string;
   name_en: string;
-  phone: string;
   avatar: string;
   clinic_id: string | number;
   consultation_fee: number | string;
@@ -289,7 +275,6 @@ const form = ref<{
 }>({
   name_ar: '',
   name_en: '',
-  phone: '',
   avatar: '',
   clinic_id: '',
   consultation_fee: '',
@@ -313,7 +298,6 @@ const selectedClinicName = computed(() => {
 const isFormValid = computed(() => {
   return (
     (form.value.name_ar.trim().length >= 2 || form.value.name_en.trim().length >= 2) &&
-    isPhoneValid.value &&
     !!form.value.clinic_id
   );
 });
@@ -367,7 +351,6 @@ const close = () => {
   form.value = {
     name_ar: '',
     name_en: '',
-    phone: '',
     avatar: '',
     clinic_id: '',
     consultation_fee: '',
@@ -411,7 +394,6 @@ const handleSubmit = async () => {
     const payload = {
       name_ar: arName,
       name_en: enName || null,
-      phone: form.value.phone.trim() || null,
       avatar: form.value.avatar || null,
       clinic_id: form.value.clinic_id,
       consultation_fee: numConsultation,
@@ -433,7 +415,6 @@ const handleSubmit = async () => {
         name_ar: arName,
         name_en: enName,
         name: isRtl.value ? arName : enName,
-        phone: form.value.phone.trim(),
         avatar: resultData.avatar || form.value.avatar || null,
         clinic: matchedClinic || resultData.clinic,
         clinic_id: form.value.clinic_id,
@@ -461,7 +442,6 @@ watch(
       form.value = {
         name_ar: val.name_ar || val.name || '',
         name_en: val.name_en || '',
-        phone: val.phone || '',
         avatar: val.avatar || '',
         clinic_id: val.clinic?.id || val.clinic_id || '',
         consultation_fee: val.consultation_fee !== undefined && val.consultation_fee !== null ? Number(val.consultation_fee) : '',
@@ -469,12 +449,10 @@ watch(
         slot_duration: val.slot_duration !== undefined && val.slot_duration !== null ? Number(val.slot_duration) : '',
         bio: val.bio || '',
       };
-      isPhoneValid.value = true;
     } else {
       form.value = {
         name_ar: '',
         name_en: '',
-        phone: '',
         avatar: '',
         clinic_id: clinics.value[0]?.id || '',
         consultation_fee: '',
@@ -482,7 +460,6 @@ watch(
         slot_duration: '',
         bio: '',
       };
-      isPhoneValid.value = false;
     }
   },
   { immediate: true }
@@ -500,7 +477,6 @@ watch(
         form.value = {
           name_ar: props.doctor.name_ar || props.doctor.name || '',
           name_en: props.doctor.name_en || '',
-          phone: props.doctor.phone || '',
           avatar: props.doctor.avatar || '',
           clinic_id: props.doctor.clinic?.id || props.doctor.clinic_id || '',
           consultation_fee: props.doctor.consultation_fee !== undefined && props.doctor.consultation_fee !== null ? Number(props.doctor.consultation_fee) : '',
@@ -508,12 +484,10 @@ watch(
           slot_duration: props.doctor.slot_duration !== undefined && props.doctor.slot_duration !== null ? Number(props.doctor.slot_duration) : '',
           bio: props.doctor.bio || '',
         };
-        isPhoneValid.value = true;
       } else {
         form.value = {
           name_ar: '',
           name_en: '',
-          phone: '',
           avatar: '',
           clinic_id: clinics.value[0]?.id || '',
           consultation_fee: '',
@@ -521,7 +495,6 @@ watch(
           slot_duration: '',
           bio: '',
         };
-        isPhoneValid.value = false;
       }
     }
   }

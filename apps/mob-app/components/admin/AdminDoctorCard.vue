@@ -7,28 +7,28 @@
         <!-- Avatar Holder -->
         <div class="avatar-holder">
           <img 
-            v-if="doctor.avatar"
-            :src="resolveAvatar(doctor.avatar)" 
+            v-if="doctorAvatarUrl"
+            :src="doctorAvatarUrl" 
             :alt="doctorDisplayName" 
             class="avatar-photo" 
           />
           <div v-else class="avatar-placeholder">
             <i class="pi pi-user"></i>
           </div>
-          <span class="status-dot" :class="doctor.is_active ? 'online' : 'offline'"></span>
+          <span class="status-dot" :class="isDoctorActive ? 'online' : 'offline'"></span>
         </div>
 
         <!-- Details -->
         <div class="doctor-details">
           <div class="name-status-line">
             <h4 class="doctor-name">{{ doctorDisplayName }}</h4>
-            <span class="inline-status-dot" :class="doctor.is_active ? 'online' : 'offline'"></span>
+            <span class="inline-status-dot" :class="isDoctorActive ? 'online' : 'offline'"></span>
           </div>
           <p class="specialty-clinic-line">
             <span>{{ doctorDisplaySpecialty }}</span>
-            <template v-if="doctor.room">
+            <template v-if="doctorRoom">
               <span class="dot-separator">•</span>
-              <span>{{ t('Clinic Room') }} {{ doctor.room }}</span>
+              <span>{{ t('Clinic Room') }} {{ doctorRoom }}</span>
             </template>
           </p>
         </div>
@@ -41,7 +41,7 @@
           class="btn-icon-edit" 
           :title="t('Edit Doctor')" 
           :aria-label="t('Edit Doctor')"
-          @click.stop="emit('edit', doctor)"
+          @click.stop="emit('edit', props.doctor)"
         >
           <i class="pi pi-pencil"></i>
         </button>
@@ -49,11 +49,11 @@
         <button 
           type="button" 
           class="unity-switch-toggle" 
-          :class="{ 'active': doctor.is_active }" 
-          :aria-checked="doctor.is_active"
+          :class="{ 'active': isDoctorActive }" 
+          :aria-checked="isDoctorActive"
           role="switch"
-          :title="doctor.is_active ? t('Open Clinic') : t('Unavailable')"
-          @click.stop="emit('toggle-status', doctor)"
+          :title="isDoctorActive ? t('Open Clinic') : t('Unavailable')"
+          @click.stop="emit('toggle-status', props.doctor)"
         >
           <span class="switch-slider"></span>
         </button>
@@ -61,9 +61,9 @@
     </div>
 
     <!-- 2. Schedule Row (Optional / If provided) -->
-    <div v-if="doctor.schedule_time" class="doctor-schedule-strip">
-      <i :class="doctor.is_evening ? 'pi pi-moon' : 'pi pi-clock'"></i>
-      <span>{{ doctor.schedule_time }}</span>
+    <div v-if="scheduleTime" class="doctor-schedule-strip">
+      <i :class="isEveningSchedule ? 'pi pi-moon' : 'pi pi-clock'"></i>
+      <span>{{ scheduleTime }}</span>
     </div>
 
     <!-- 3. Action Buttons Row (Full Width - 2 Buttons) -->
@@ -72,8 +72,8 @@
       <button 
         type="button"
         class="btn-edit-schedule" 
-        :class="{ 'is-primary': doctor.primary_action }"
-        @click="emit('edit-schedule', doctor)"
+        :class="{ 'is-primary': Boolean(props.doctor?.primary_action) }"
+        @click="emit('edit-schedule', props.doctor)"
       >
         <i class="pi pi-calendar"></i>
         <span>{{ t('Edit Schedule') }}</span>
@@ -83,10 +83,10 @@
       <button 
         type="button"
         class="btn-view-cases" 
-        @click="emit('view-cases', doctor)"
+        @click="emit('view-cases', props.doctor)"
       >
         <i class="pi pi-calendar"></i>
-        <span>{{ t('Doctor Bookings') }}<template v-if="doctor.cases_count !== undefined && doctor.cases_count !== null"> ({{ doctor.cases_count }})</template></span>
+        <span>{{ t('Doctor Bookings') }}<template v-if="casesCountText"> ({{ casesCountText }})</template></span>
       </button>
     </div>
   </div>
@@ -97,9 +97,14 @@
 import { computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
-const props = defineProps<{
-  doctor: any;
-}>();
+const props = withDefaults(
+  defineProps<{
+    doctor?: any;
+  }>(),
+  {
+    doctor: () => ({}),
+  }
+);
 
 const emit = defineEmits<{
   (e: 'edit', doctor: any): void;
@@ -109,29 +114,67 @@ const emit = defineEmits<{
 }>();
 
 const { t, isRtl } = useI18n();
+const config = useRuntimeConfig();
+const baseUrl = config?.public?.apiUrl || 'http://localhost:4000';
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
+const isDoctorActive = computed(() => {
+  return Boolean(props.doctor?.is_active ?? (props.doctor?.status === 'active'));
+});
+
 const doctorDisplayName = computed(() => {
-  return isR
-  tl.value ? props.doctor?.name_ar : props.doctor?.name_en;
+  const doc = props.doctor;
+  if (!doc) return '';
+  const isArabic = Boolean(isRtl?.value);
+  if (isArabic) {
+    return doc.name_ar || doc.name || doc.name_en || '';
+  }
+  return doc.name_en || doc.name || doc.name_ar || '';
 });
 
 const doctorDisplaySpecialty = computed(() => {
-  return isRtl.value ? props.doctor?.clinic?.name_ar : props.doctor?.clinic?.name_en;
+  const doc = props.doctor;
+  if (!doc) return '';
+  if (typeof doc.clinic === 'string' && doc.clinic.trim()) {
+    return doc.clinic;
+  }
+  const isArabic = Boolean(isRtl?.value);
+  if (isArabic) {
+    return doc.clinic?.name_ar || doc.clinic_ar || doc.specialty_ar || doc.specialty || doc.clinic?.name_en || '';
+  }
+  return doc.clinic?.name_en || doc.clinic_en || doc.specialty_en || doc.specialty || doc.clinic?.name_ar || '';
+});
+
+const doctorRoom = computed(() => {
+  return props.doctor?.room || props.doctor?.room_number || '';
+});
+
+const scheduleTime = computed(() => {
+  return props.doctor?.schedule_time || '';
+});
+
+const isEveningSchedule = computed(() => {
+  return Boolean(props.doctor?.is_evening);
+});
+
+const casesCountText = computed(() => {
+  const count = props.doctor?.cases_count;
+  return count !== undefined && count !== null ? String(count) : '';
+});
+
+const doctorAvatarUrl = computed(() => {
+  const raw = props.doctor?.avatar || props.doctor?.avatar_url;
+  if (!raw || typeof raw !== 'string') return '';
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
+    return trimmed;
+  }
+  return `${baseUrl}${trimmed}`;
 });
 
 // 4. Methods (functions, handlers)
-const resolveAvatar = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
-    return url;
-  }
-  const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${url}`;
-};
 
 // 5. Watches (watch, watchEffect)
 

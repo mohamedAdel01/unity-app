@@ -9,6 +9,7 @@
     >
       <template #item="{ item }">
         <AdminDoctorCard 
+          v-if="item"
           :doctor="item"
           @edit="emit('edit', $event)"
           @edit-schedule="emit('edit-schedule', $event)"
@@ -44,7 +45,6 @@ import AppVirtualList from '../common/AppVirtualList.vue';
 interface Doctor {
   id: string | number;
   name: string;
-  phone?: string;
   avatar?: string;
   specialty?: string;
   room?: string;
