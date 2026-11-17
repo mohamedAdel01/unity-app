@@ -21,7 +21,7 @@
 
     <button class="notif-btn" aria-label="Notifications" @click="bookingModal.openNotifications">
       <i class="pi pi-bell"></i>
-      <span class="notif-dot"></span>
+      <span v-if="hasUnread" class="notif-dot"></span>
     </button>
   </header>
 </template>
@@ -32,6 +32,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { useNotifications } from '../../composables/useNotifications';
 import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
 const props = defineProps<{
@@ -43,6 +44,7 @@ const router = useRouter();
 const { t } = useI18n();
 
 const bookingModal = useBookingModal();
+const { hasUnread } = useNotifications();
 
 // 2. Data (refs, reactive state)
 

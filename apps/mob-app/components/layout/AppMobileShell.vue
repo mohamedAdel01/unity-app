@@ -13,11 +13,11 @@
         </main>
 
         <!-- Bottom Navigation Bar (Admin vs Patient) - Automatically hidden when any modal is open -->
-        <AdminBottomNavBar v-if="!hideBottomNav && isAdminRoute" />
+        <AdminBottomNavBar v-if="!hideBottomNav && showAdminNav" />
         <BottomNavBar v-else-if="!hideBottomNav" />
 
         <!-- Global Modals (Quick Book, Notifications, Booking Checkout) -->
-        <AppGlobalModals v-if="!isOnboarding" />
+        <AppGlobalModals v-if="!isOnboarding && !authStore.isReceptionist && !authStore.isAdmin" />
       </div>
     </div>
   </div>
@@ -61,6 +61,11 @@ const isAuthRoute = computed(() => {
 
 const isAdminRoute = computed(() => {
   return route.path.startsWith('/admin');
+});
+
+const showAdminNav = computed(() => {
+  if (authStore.isReceptionist) return true;
+  return isAdminRoute.value;
 });
 
 const isOnboarding = computed(() => {

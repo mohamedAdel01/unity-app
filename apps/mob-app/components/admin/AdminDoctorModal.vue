@@ -16,8 +16,16 @@
       <!-- Modal Body -->
       <form class="doctor-form" @submit.prevent="handleSubmit">
         <div class="form-body">
-          <!-- Doctor Avatar Upload -->
-        <div class="avatar-upload-section">
+          <!-- Doctor Avatar Upload (Full section is clickable) -->
+        <div 
+          class="avatar-upload-section" 
+          role="button" 
+          tabindex="0" 
+          :title="t('Upload Photo')"
+          @click="triggerFileInput"
+          @keydown.enter.prevent="triggerFileInput"
+          @keydown.space.prevent="triggerFileInput"
+        >
           <div class="avatar-preview-wrapper">
             <img 
               v-if="form.avatar" 
@@ -35,7 +43,7 @@
               class="btn-avatar-camera" 
               :title="t('Upload Photo')"
               :aria-label="t('Upload Photo')"
-              @click="triggerFileInput"
+              @click.stop="triggerFileInput"
             >
               <i class="pi pi-camera"></i>
             </button>
@@ -47,7 +55,7 @@
               class="btn-avatar-trash" 
               :title="t('Remove Photo')"
               :aria-label="t('Remove Photo')"
-              @click="removeAvatar"
+              @click.stop="removeAvatar"
             >
               <i class="pi pi-trash"></i>
             </button>
@@ -55,7 +63,7 @@
 
           <div class="avatar-info-hint">
             <span class="avatar-label">{{ t('Doctor Photo') }}</span>
-            <span class="avatar-subtext">{{ form.avatar ? t('Click camera to change') : t('JPG, PNG or WebP') }}</span>
+            <span class="avatar-subtext">{{ form.avatar ? t('Click to change photo') : t('JPG, PNG or WebP') }}</span>
           </div>
 
           <input 
@@ -337,7 +345,7 @@ const resolvePreview = (url?: string) => {
     return url;
   }
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  const baseUrl = config.public?.API_URL || config.public?.apiUrl || 'http://localhost:4000';
   return `${baseUrl}${url}`;
 };
 
@@ -632,10 +640,17 @@ onUnmounted(() => {
       background: var(--unity-bg);
       border: 1.5px dashed var(--unity-border);
       border-radius: 18px;
-      transition: all 0.2s ease;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
         border-color: var(--unity-primary);
+        background: #f0fdf4;
+      }
+
+      &:active {
+        transform: scale(0.995);
       }
 
       .avatar-preview-wrapper {

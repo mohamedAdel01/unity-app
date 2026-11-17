@@ -35,8 +35,8 @@
             </div>
             <div class="doc-texts">
               <h5>{{ doctor.name }}</h5>
-              <p v-if="doctor.specialty && doctor.specialty !== doctor.clinic?.name">{{ resolveI18n(doctor.specialty) }}</p>
-              <div v-if="doctor.clinic?.name || doctor.clinic?.name_ar || doctor.clinic?.name_en" class="doc-clinic-name">
+              <p v-if="hasDistinctSpecialty(doctor)" class="doc-specialty">{{ resolveI18n(doctor.specialty) }}</p>
+              <div v-if="getClinicName(doctor.clinic)" class="doc-clinic-name">
                 <i class="pi pi-building"></i>
                 <span>{{ getClinicName(doctor.clinic) }}</span>
               </div>
@@ -102,7 +102,18 @@ const filteredDoctors = computed(() => {
 
 // 4. Methods (functions, handlers)
 const getClinicName = (c: any) => {
-  return isRtl.value ? c?.name_ar : c?.name_en;
+  if (!c) return '';
+  return isRtl.value ? (c.name_ar || c.name || c.name_en) : (c.name_en || c.name || c.name_ar);
+};
+
+const hasDistinctSpecialty = (doctor: any) => {
+  if (!doctor?.specialty) return false;
+  const spec = String(doctor.specialty).trim().toLowerCase();
+  const clinicAr = String(doctor.clinic?.name_ar || '').trim().toLowerCase();
+  const clinicEn = String(doctor.clinic?.name_en || '').trim().toLowerCase();
+  const clinicName = String(doctor.clinic?.name || '').trim().toLowerCase();
+  if (!spec || spec === clinicAr || spec === clinicEn || spec === clinicName) return false;
+  return true;
 };
 
 const DOCTORS = async () => {
@@ -112,7 +123,7 @@ const DOCTORS = async () => {
       doctors.value = res.data.map((d: any) => ({
         id: d.id,
         name: isRtl.value ? d.name_ar : d.name_en,
-        specialty: isRtl.value ? d.clinic?.name_ar : d.clinic?.name_en,
+        specialty: d.specialty || '',
         clinic: d.clinic,
         rating: d.rating || null,
         availabilityText: t('Available Today'),
@@ -153,9 +164,10 @@ onMounted(() => {
     justify-content: space-between;
 
     h4 {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 700;
-      color: var(--unity-text-main);
+      color: var(--unity-text-main, #334155);
+      opacity: 0.9;
       margin: 0;
       line-height: 1.3;
     }
@@ -233,9 +245,9 @@ onMounted(() => {
         text-align: start;
 
         h5 {
-          font-size: 0.98rem;
-          font-weight: 600;
-          color: var(--unity-text-main);
+          font-size: 0.94rem;
+          font-weight: 700;
+          color: var(--unity-text-main, #334155);
         }
 
         p {

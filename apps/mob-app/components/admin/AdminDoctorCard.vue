@@ -34,18 +34,8 @@
         </div>
       </div>
 
-      <!-- Left Side: Controls Cell (Edit Icon Button + Status Switch Toggle) -->
+      <!-- Left Side: Controls Cell (Status Switch Toggle Only) -->
       <div class="doctor-controls-cell">
-        <button 
-          type="button" 
-          class="btn-icon-edit" 
-          :title="t('Edit Doctor')" 
-          :aria-label="t('Edit Doctor')"
-          @click.stop="emit('edit', props.doctor)"
-        >
-          <i class="pi pi-pencil"></i>
-        </button>
-
         <button 
           type="button" 
           class="unity-switch-toggle" 
@@ -66,27 +56,39 @@
       <span>{{ scheduleTime }}</span>
     </div>
 
-    <!-- 3. Action Buttons Row (Full Width - 2 Buttons) -->
-    <div class="card-action-buttons">
-      <!-- Edit Schedule Action -->
+    <!-- 3. Bottom Action Bar: 3 Icon-only Buttons side-by-side (Matching unified standard) -->
+    <div class="card-bottom-actions-row">
+      <!-- 1. Edit Doctor -->
       <button 
         type="button"
-        class="btn-edit-schedule" 
-        :class="{ 'is-primary': Boolean(props.doctor?.primary_action) }"
-        @click="emit('edit-schedule', props.doctor)"
+        class="action-icon-btn btn-edit" 
+        :title="t('Edit Doctor')" 
+        :aria-label="t('Edit Doctor')"
+        @click.stop="emit('edit', props.doctor)"
       >
-        <i class="pi pi-calendar"></i>
-        <span>{{ t('Edit Schedule') }}</span>
+        <i class="pi pi-pencil"></i>
       </button>
 
-      <!-- View Cases Action -->
+      <!-- 2. Edit Schedule -->
       <button 
         type="button"
-        class="btn-view-cases" 
-        @click="emit('view-cases', props.doctor)"
+        class="action-icon-btn btn-schedule" 
+        :title="t('Edit Schedule')" 
+        :aria-label="t('Edit Schedule')"
+        @click.stop="emit('edit-schedule', props.doctor)"
       >
         <i class="pi pi-calendar"></i>
-        <span>{{ t('Doctor Bookings') }}<template v-if="casesCountText"> ({{ casesCountText }})</template></span>
+      </button>
+
+      <!-- 3. Bookings / Cases -->
+      <button 
+        type="button"
+        class="action-icon-btn btn-bookings" 
+        :title="t('Bookings')" 
+        :aria-label="t('Bookings')"
+        @click.stop="emit('view-cases', props.doctor)"
+      >
+        <i class="pi pi-calendar-plus"></i>
       </button>
     </div>
   </div>
@@ -115,7 +117,7 @@ const emit = defineEmits<{
 
 const { t, isRtl } = useI18n();
 const config = useRuntimeConfig();
-const baseUrl = config?.public?.apiUrl || 'http://localhost:4000';
+const baseUrl = config?.public?.API_URL || config?.public?.apiUrl || 'http://localhost:4000';
 
 // 2. Data (refs, reactive state)
 
@@ -309,32 +311,7 @@ const doctorAvatarUrl = computed(() => {
     .doctor-controls-cell {
       display: flex;
       align-items: center;
-      gap: 10px;
-
-      .btn-icon-edit {
-        width: 26px;
-        height: 26px;
-        border-radius: 8px;
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
-        color: #047857;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.72rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        padding: 0;
-
-        &:hover {
-          background: #d1fae5;
-          transform: translateY(-1px);
-        }
-
-        &:active {
-          transform: translateY(0);
-        }
-      }
+      gap: 8px;
 
       .unity-switch-toggle {
         position: relative;
@@ -391,57 +368,69 @@ const doctorAvatarUrl = computed(() => {
     }
   }
 
-  // 3. Action Buttons Row
-  .card-action-buttons {
+  // 3. Bottom Action Row: 3 Icon-only buttons side-by-side
+  .card-bottom-actions-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 2px;
+    width: 100%;
+    margin-top: 10px;
 
-    button {
-      flex: 1;
-      height: 42px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 700;
+    .action-icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
       cursor: pointer;
-      transition: all 0.2s;
-      border: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0;
+      flex-shrink: 0;
 
       i {
-        font-size: 0.85rem;
-      }
-    }
-
-    .btn-edit-schedule {
-      background: #f1f5f9;
-      color: var(--unity-text-main);
-
-      &:hover {
-        background: #e2e8f0;
+        font-size: 1.15rem;
       }
 
-      &.is-primary {
-        background: var(--unity-primary-dark);
-        color: #ffffff;
-        box-shadow: 0 3px 12px rgba(6, 78, 59, 0.2);
+      &.btn-edit {
+        background: var(--unity-surface, #ffffff);
+        border: 1.5px solid var(--unity-border, #e2e8f0);
+        color: var(--unity-text-muted, #64748b);
 
         &:hover {
-          background: var(--unity-primary);
+          background: var(--unity-surface-muted, #f8fafc);
+          border-color: #cbd5e1;
+          color: var(--unity-text-main, #0f172a);
+          transform: translateY(-1px);
         }
       }
-    }
 
-    .btn-view-cases {
-      background: #eef2ff;
-      color: #3730a3;
+      &.btn-schedule {
+        background: #ecfdf5;
+        border: 1.5px solid #a7f3d0;
+        color: #047857;
 
-      &:hover {
-        background: #e0e7ff;
+        &:hover {
+          background: #d1fae5;
+          border-color: #6ee7b7;
+          transform: translateY(-1px);
+        }
+      }
+
+      &.btn-bookings {
+        background: var(--unity-primary, #047857);
+        border: none;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
+
+        &:hover {
+          background: var(--unity-primary-dark, #065f46);
+          transform: translateY(-1px);
+        }
+      }
+
+      &:active {
+        transform: scale(0.96);
       }
     }
   }

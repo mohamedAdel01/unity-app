@@ -88,11 +88,12 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, watch, onMounted } from 'vue';
+import { computed, watch, onMounted } from 'vue';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
 import { useGlobalStore } from '../stores/global';
 import { useAuthStore } from '../stores/auth';
+import { useNotifications } from '../composables/useNotifications';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -111,62 +112,29 @@ const globalStore = useGlobalStore();
 
 const authStore = useAuthStore();
 
+const { 
+  notifications, 
+  unreadCount, 
+  isFetching, 
+  NOTIFICATIONS, 
+  markRead: executeMarkRead, 
+  markAllRead: executeMarkAllRead 
+} = useNotifications();
+
 // 2. Data (refs, reactive state)
-const notifications = ref<any[]>([]);
 
 // 3. Computed (computed properties)
-// Use globalStore loading tracker for NOTIFICATIONS service
-const loading = computed(() => globalStore.loading.includes('NOTIFICATIONS'));
-
-const unreadCount = computed(() => {
-  return notifications.value.filter(n => !n.is_read).length;
-});
+// Use globalStore loading tracker or local fetching state for NOTIFICATIONS service
+const loading = computed(() => globalStore.loading.includes('NOTIFICATIONS') || isFetching.value);
 
 // 4. Methods (functions, handlers)
-// Fetch notifications only if user is logged in
-const NOTIFICATIONS = async () => {
-  if (!authStore.isAuthenticated) {
-    notifications.value = [];
-    emit('count-changed', 0);
-    return;
-  }
-
-  try {
-    const res = await api.apiRequest({ service: 'NOTIFICATIONS' });
-    if (res?.status && Array.isArray(res.data)) {
-      notifications.value = res.data;
-    } else {
-      notifications.value = [];
-    }
-  } catch (err) {
-    notifications.value = [];
-  } finally {
-    emit('count-changed', unreadCount.value);
-  }
-};
-
 const markRead = async (item: any) => {
-  if (item.is_read) return;
-  item.is_read = true;
-  try {
-    if (authStore.isAuthenticated && item.id) {
-      await api.apiRequest({ service: 'MARK_NOTIFICATION_READ', payload: { id: item.id } });
-    }
-  } catch (err) {
-    // Silent
-  }
+  await executeMarkRead(item);
   emit('count-changed', unreadCount.value);
 };
 
 const markAllRead = async () => {
-  notifications.value.forEach(n => (n.is_read = true));
-  try {
-    if (authStore.isAuthenticated) {
-      await api.apiRequest({ service: 'MARK_ALL_NOTIFICATIONS_READ' });
-    }
-  } catch (err) {
-    // Silent
-  }
+  await executeMarkAllRead();
   emit('count-changed', 0);
 };
 

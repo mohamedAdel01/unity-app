@@ -191,30 +191,37 @@ const handleEditClick = (e?: Event) => {
   }
 
   .edit-profile-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--unity-bg);
-    border: 1px solid var(--unity-border);
-    color: var(--unity-text-muted);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #ecfdf5;
+    border: 1.5px solid #a7f3d0;
+    color: #047857;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 1.05rem;
     flex-shrink: 0;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     z-index: 10;
     pointer-events: auto;
 
     i {
+      font-size: 1.05rem;
       pointer-events: none;
     }
 
     &:hover {
-      background: var(--unity-border);
-      color: var(--unity-text-main);
+      background: #d1fae5;
+      border-color: #6ee7b7;
+      color: #065f46;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: scale(0.96);
     }
   }
 }

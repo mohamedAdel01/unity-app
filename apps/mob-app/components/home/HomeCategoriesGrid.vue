@@ -27,7 +27,6 @@
 
         <div class="card-action-pill doctor-pill">
           <span>{{ t('Book Now') }}</span>
-          <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
         </div>
       </div>
 
@@ -51,7 +50,6 @@
 
         <div class="card-action-pill lab-pill">
           <span>{{ t('Explore Tests') }}</span>
-          <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
         </div>
       </div>
     </div>
@@ -99,9 +97,10 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
     justify-content: flex-start;
 
     h4 {
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 700;
-      color: var(--unity-text-main);
+      color: var(--unity-text-main, #334155);
+      opacity: 0.9;
       margin: 0;
       line-height: 1.3;
     }
@@ -207,9 +206,9 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
       margin-bottom: 14px;
 
       h5 {
-        font-size: 0.86rem;
-        font-weight: 800;
-        color: var(--unity-text-main);
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--unity-text-main, #334155);
         margin: 0 0 5px;
         line-height: 1.35;
       }

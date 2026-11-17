@@ -1,22 +1,13 @@
 <template>
   <header class="admin-promotions-header">
-    <div class="top-row">
-      <NuxtLink to="/admin" class="back-btn" :aria-label="t('Back')">
-        <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
-      </NuxtLink>
-      <div class="title-group">
-        <h2>{{ t('Offers & Promocodes') }}</h2>
-        <span class="sub-label">{{ t('Manage deals, discounts & coupons') }}</span>
-      </div>
-      <button 
-        type="button" 
-        class="create-btn" 
-        @click="activeTab === 'offers' ? emit('open-new-offer') : emit('open-new-promocode')"
-      >
-        <i class="pi pi-plus"></i>
-        <span>{{ activeTab === 'offers' ? t('Add New Offer') : t('Add New Promocode') }}</span>
-      </button>
-    </div>
+    <!-- Top Header with Short Title & Add Button -->
+    <AdminTopHeader
+      :title="activeTab === 'offers' ? t('Offers') : t('Promocodes')"
+      :icon="activeTab === 'offers' ? 'pi pi-gift' : 'pi pi-percentage'"
+      :action-text="activeTab === 'offers' ? t('New Offer') : t('New Promocode')"
+      action-icon="pi pi-plus"
+      @action="activeTab === 'offers' ? emit('open-new-offer') : emit('open-new-promocode')"
+    />
 
     <!-- Segmented Tab Switcher -->
     <div class="segmented-control">
@@ -45,6 +36,7 @@
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../../composables/useI18n';
+import AdminTopHeader from './AdminTopHeader.vue';
 
 defineProps<{
   activeTab: 'offers' | 'promocodes';

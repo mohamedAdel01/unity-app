@@ -47,10 +47,10 @@
       </NuxtLink>
 
       <NuxtLink to="/admin/appointments" class="nav-tile">
-        <div class="tile-icon"><i class="pi pi-clock"></i></div>
+        <div class="tile-icon"><i class="pi pi-calendar"></i></div>
         <div class="tile-info">
-          <strong>{{ t('Bookings & Invoices') }}</strong>
-          <small>{{ t('Live bookings & tax invoices') }}</small>
+          <strong>{{ t('Bookings') }}</strong>
+          <small>{{ t('Live bookings & appointment schedule') }}</small>
         </div>
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
       </NuxtLink>

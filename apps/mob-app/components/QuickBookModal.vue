@@ -16,7 +16,13 @@
             <!-- Doctor Consultation -->
             <button class="option" @click="chooseDoctor">
               <div class="option-icon doctor">
-                <i class="pi pi-user-plus"></i>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+                  <path d="M3 3h3"/>
+                  <path d="M16 3h3"/>
+                  <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+                  <circle cx="17" cy="16" r="2"/>
+                </svg>
               </div>
               <span class="option-label">{{ t('Doctor Consultation') }}</span>
               <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>
@@ -25,7 +31,11 @@
             <!-- Medical Service / Lab -->
             <button class="option" @click="chooseService">
               <div class="option-icon service">
-                <i class="pi pi-heart-fill"></i>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 2v7.31L4.35 18.5A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.72-3.5L14 9.31V2"/>
+                  <path d="M8.5 2h7"/>
+                  <path d="M7 16h10"/>
+                </svg>
               </div>
               <span class="option-label">{{ t('Medical Service or Lab Test') }}</span>
               <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>

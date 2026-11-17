@@ -120,20 +120,27 @@ const closeModal = () => {
 const sendBroadcastNotification = async () => {
   if (!broadcastTitle.value.trim() || !broadcastBody.value.trim()) return;
   isSending.value = true;
+  console.log('\n📢 [NOTIF-STEP-1: ADMIN_TRIGGER] Admin clicked send broadcast notification:');
+  console.log('   Title:', broadcastTitle.value.trim());
+  console.log('   Body:', broadcastBody.value.trim());
+
   try {
-    await api.apiRequest({
+    console.log('🚀 [NOTIF-STEP-2: API_DISPATCH] Calling ADMIN_BROADCAST_NOTIFICATION endpoint...');
+    const res = await api.apiRequest({
       service: 'ADMIN_BROADCAST_NOTIFICATION',
       payload: {
         title: broadcastTitle.value.trim(),
         body: broadcastBody.value.trim(),
       },
     });
+    console.log('✅ [NOTIF-STEP-2: API_SUCCESS] Broadcast response received from backend:', res);
     toast.success(t('Notification broadcasted successfully!'));
     broadcastTitle.value = '';
     broadcastBody.value = '';
     closeModal();
     emit('broadcast-sent');
   } catch (err: any) {
+    console.error('❌ [NOTIF-STEP-2: API_ERROR] Broadcast failed:', err);
     toast.error(err.message || t('Failed to send broadcast'));
   } finally {
     isSending.value = false;

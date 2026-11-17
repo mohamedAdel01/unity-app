@@ -1,10 +1,12 @@
 <template>
   <div class="admin-services-header">
-    <!-- 1. Top Supervisor Identity Bar (Unified) -->
+    <!-- 1. Top Header with Short Title & Add Button -->
     <AdminTopHeader
-      :title="activeTab === 'categories' ? t('Categories Management') : t('Services Management')"
-      :subtitle="t('Unity Clinics • Admin Portal')"
+      :title="activeTab === 'categories' ? t('Categories') : t('Services')"
       :icon="activeTab === 'categories' ? 'pi pi-folder' : 'pi pi-file-edit'"
+      :action-text="activeTab === 'categories' ? t('New Category') : t('New Examination')"
+      action-icon="pi pi-plus"
+      @action="handleTopAction"
     />
 
     <!-- 2. Dual Mode Selector Tabs (Categories vs Services) -->
@@ -17,7 +19,7 @@
       >
         <i class="pi pi-folder tab-icon"></i>
         <span>{{ t('Categories') }}</span>
-        <span class="count-pill">{{ categoriesCount }}</span>
+        <span class="count-pill">({{ categoriesCount }})</span>
       </button>
 
       <button
@@ -35,42 +37,11 @@
           <path d="M12 6V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/>
         </svg>
         <span>{{ t('Services') }}</span>
-        <span class="count-pill">{{ totalCount }}</span>
+        <span class="count-pill">({{ totalCount }})</span>
       </button>
     </div>
 
-    <!-- 3. Page Title Card with Action Button -->
-    <div class="title-action-card">
-      <div v-if="activeTab === 'services'" class="title-texts">
-        <h3>{{ t('Medical Examinations & Services') }}</h3>
-        <p>{{ t('Pricing, durations, categories & availability') }}</p>
-      </div>
-      <div v-else class="title-texts">
-        <h3>{{ t('Examination Categories') }}</h3>
-        <p>{{ t('Manage specialty sections & service grouping') }}</p>
-      </div>
-
-      <button
-        v-if="activeTab === 'services'"
-        type="button"
-        class="btn-new-item"
-        @click="emit('new-examination')"
-      >
-        <i class="pi pi-plus"></i>
-        <span>{{ t('New Examination') }}</span>
-      </button>
-      <button
-        v-else
-        type="button"
-        class="btn-new-item"
-        @click="emit('new-category')"
-      >
-        <i class="pi pi-plus"></i>
-        <span>{{ t('New Category') }}</span>
-      </button>
-    </div>
-
-    <!-- 4. Search Bar (when in Services mode) -->
+    <!-- 3. Search Bar (when in Services mode) -->
     <div v-if="activeTab === 'services'" class="search-input-box">
       <i class="pi pi-search search-icon"></i>
       <input
@@ -121,6 +92,14 @@ let debounceTimer: any = null;
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const handleTopAction = () => {
+  if (props.activeTab === 'categories') {
+    emit('new-category');
+  } else {
+    emit('new-examination');
+  }
+};
+
 const onSearchInput = () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
@@ -157,35 +136,32 @@ const clearSearch = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      height: 46px;
-      border: 1.5px solid var(--unity-border);
+      gap: 6px;
+      height: 42px;
+      border: 1px solid var(--unity-border);
       background: var(--unity-surface);
-      border-radius: 14px;
-      font-size: 0.90rem;
-      font-weight: 800;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
       color: var(--unity-text-main);
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 
       .tab-svg, .tab-icon {
-        width: 18px;
-        height: 18px;
-        font-size: 1rem;
+        width: 17px;
+        height: 17px;
+        font-size: 0.95rem;
         color: var(--unity-text-muted);
       }
 
       .count-pill {
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
+        background: transparent;
+        border: none;
         color: var(--unity-text-dim);
-        font-size: 0.72rem;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 800;
-        min-width: 20px;
-        text-align: center;
+        font-size: 0.78rem;
+        font-weight: 600;
+        opacity: 0.8;
+        padding: 0;
       }
 
       &:hover {
@@ -193,19 +169,17 @@ const clearSearch = () => {
       }
 
       &.active {
-        background: var(--unity-primary);
-        border-color: var(--unity-primary);
-        color: #ffffff;
-        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+        background: var(--unity-primary-light, #ecfdf5);
+        border: 1.5px solid var(--unity-primary);
+        color: var(--unity-primary);
 
         .tab-svg, .tab-icon {
-          color: #ffffff;
+          color: var(--unity-primary);
         }
 
         .count-pill {
-          background: rgba(255, 255, 255, 0.22);
-          border-color: rgba(255, 255, 255, 0.35);
-          color: #ffffff;
+          color: var(--unity-primary);
+          opacity: 0.9;
         }
       }
     }

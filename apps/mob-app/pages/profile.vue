@@ -2,7 +2,7 @@
   <div class="profile-page">
     <ProfileTopHeader :user="user" />
     <ProfileHeroCard :user="user" @edit="onEditProfile" />
-    <ProfileReferralCard :user="user" />
+    <ProfileReferralCard v-if="!authStore.isReceptionist && !authStore.isAdmin" :user="user" />
     <ProfileMenuSection />
     <ProfileThemeSelector />
     <ProfileLanguageSelector />
@@ -23,6 +23,7 @@
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { ref, computed } from 'vue';
 import { useUnityApi } from '../composables/useUnityApi';
+import { useAuthStore } from '../stores/auth';
 import ProfileTopHeader from '../components/profile/ProfileTopHeader.vue';
 import ProfileHeroCard from '../components/profile/ProfileHeroCard.vue';
 import ProfileReferralCard from '../components/profile/ProfileReferralCard.vue';
@@ -37,6 +38,7 @@ definePageMeta({
 });
 
 const api = useUnityApi();
+const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 const isEditModalOpen = ref(false);

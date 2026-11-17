@@ -656,12 +656,12 @@ onUnmounted(() => {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      height: 28px;
-      padding: 0 10px;
-      border-radius: 8px;
-      font-size: 0.70rem;
-      font-weight: 700;
+      gap: 5px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 9999px;
+      font-size: 0.76rem;
+      font-weight: 600;
       background: var(--unity-surface, #ffffff);
       border: 1px solid var(--unity-border, #e2e8f0);
       color: var(--unity-text-muted, #64748b);
@@ -669,14 +669,19 @@ onUnmounted(() => {
       transition: all 0.15s ease;
 
       i {
-        font-size: 0.70rem;
+        font-size: 0.74rem;
+      }
+
+      &:hover {
+        border-color: var(--unity-primary);
+        color: var(--unity-primary);
       }
 
       &.active {
-        background: var(--unity-primary, #047857);
-        color: #ffffff;
-        border-color: var(--unity-primary, #047857);
-        box-shadow: 0 1px 4px rgba(4, 120, 87, 0.2);
+        background: var(--unity-primary-light, #ecfdf5);
+        color: var(--unity-primary);
+        border: 1.5px solid var(--unity-primary);
+        font-weight: 700;
       }
     }
 

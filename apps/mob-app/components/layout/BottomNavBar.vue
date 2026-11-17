@@ -6,10 +6,10 @@
       <span>{{ t('Home') }}</span>
     </NuxtLink>
 
-    <!-- Tab 2: Bookings (حجوزاتي) -->
-    <NuxtLink to="/appointments" class="nav-btn" :class="{ 'active': route.path === '/appointments' }">
-      <i class="pi pi-calendar"></i>
-      <span>{{ t('Booking') }}</span>
+    <!-- Tab 2: Services (الخدمات) -->
+    <NuxtLink to="/services" class="nav-btn" :class="{ 'active': route.path === '/services' }">
+      <i class="pi pi-th-large"></i>
+      <span>{{ t('Services') }}</span>
     </NuxtLink>
 
     <!-- Tab 3: Center Floating Plus (+) Button -->
@@ -24,10 +24,10 @@
       <span class="fab-label">{{ t('Book') }}</span>
     </div>
 
-    <!-- Tab 4: Records -->
-    <NuxtLink to="/records" class="nav-btn" :class="{ 'active': route.path === '/records' }">
-      <i class="pi pi-file"></i>
-      <span>{{ t('Records') }}</span>
+    <!-- Tab 4: Bookings (حجوزاتي) -->
+    <NuxtLink to="/appointments" class="nav-btn" :class="{ 'active': route.path === '/appointments' }">
+      <i class="pi pi-calendar"></i>
+      <span>{{ t('Appointments') }}</span>
     </NuxtLink>
 
     <!-- Tab 5: Profile -->

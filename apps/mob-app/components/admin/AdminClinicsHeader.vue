@@ -1,10 +1,12 @@
 <template>
   <div class="admin-clinics-header">
-    <!-- 1. Top Supervisor Bar (Unified) -->
+    <!-- 1. Top Supervisor Bar with Add Button (Unified) -->
     <AdminTopHeader 
-      :title="activeTab === 'clinics' ? t('Clinics Management') : t('Examinations Management')"
-      :subtitle="t('Unity Clinics • Admin Portal')"
+      :title="activeTab === 'clinics' ? t('Clinics') : t('Examinations')"
       :icon="activeTab === 'clinics' ? 'pi pi-building' : 'pi pi-file-edit'"
+      :action-text="activeTab === 'clinics' ? t('New Clinic') : t('New Examination')"
+      action-icon="pi pi-plus"
+      @action="handleTopAction"
     />
 
     <!-- 2. Dual Mode Selector Tabs (Clinics vs Examinations) -->
@@ -22,7 +24,7 @@
           <path d="M12 6v4"/>
         </svg>
         <span>{{ t('Clinics') }}</span>
-        <span class="count-pill">{{ clinicsCount }}</span>
+        <span class="count-pill">({{ clinicsCount }})</span>
       </button>
 
       <button 
@@ -40,38 +42,7 @@
           <path d="M12 6V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/>
         </svg>
         <span>{{ t('Examinations') }}</span>
-        <span class="count-pill">{{ examinationsCount }}</span>
-      </button>
-    </div>
-
-    <!-- 3. Page Title & Action Row -->
-    <div class="page-title-row">
-      <div v-if="activeTab === 'clinics'" class="title-wrap">
-        <h3>{{ t('Clinics') }}</h3>
-        <p>{{ t('Capacity, rooms & active staff') }}</p>
-      </div>
-      <div v-else class="title-wrap">
-        <h3>{{ t('Medical Examinations & Tests') }}</h3>
-        <p>{{ t('Pricing, durations & availability') }}</p>
-      </div>
-
-      <button 
-        v-if="activeTab === 'clinics'" 
-        type="button"
-        class="btn-new-item" 
-        @click="emit('new-clinic')"
-      >
-        <i class="pi pi-plus"></i>
-        <span>{{ t('New Clinic') }}</span>
-      </button>
-      <button 
-        v-else 
-        type="button"
-        class="btn-new-item" 
-        @click="emit('new-examination')"
-      >
-        <i class="pi pi-plus"></i>
-        <span>{{ t('New Examination') }}</span>
+        <span class="count-pill">({{ examinationsCount }})</span>
       </button>
     </div>
   </div>
@@ -108,6 +79,13 @@ const { t } = useI18n();
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const handleTopAction = () => {
+  if (props.activeTab === 'clinics') {
+    emit('new-clinic');
+  } else {
+    emit('new-examination');
+  }
+};
 
 // 5. Watches (watch, watchEffect)
 
@@ -143,24 +121,24 @@ const { t } = useI18n();
       border: none;
       background: transparent;
       color: var(--unity-text-muted);
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.25s ease;
 
       .tab-svg {
-        width: 18px;
-        height: 18px;
+        width: 17px;
+        height: 17px;
       }
 
       .count-pill {
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
-        color: var(--unity-text-muted);
-        font-size: 0.68rem;
-        font-weight: 800;
-        padding: 2px 8px;
-        border-radius: 12px;
+        background: transparent;
+        border: none;
+        color: inherit;
+        font-size: 0.78rem;
+        font-weight: 600;
+        opacity: 0.8;
+        padding: 0;
       }
 
       &.active {
@@ -169,52 +147,9 @@ const { t } = useI18n();
         box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
 
         .count-pill {
-          background: rgba(255, 255, 255, 0.22);
-          border-color: rgba(255, 255, 255, 0.3);
           color: #fff;
+          opacity: 0.9;
         }
-      }
-    }
-  }
-
-  .page-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: right;
-
-    .title-wrap {
-      h3 {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: var(--unity-text-main);
-        margin: 0;
-      }
-
-      p {
-        font-size: 0.75rem;
-        color: var(--unity-text-muted);
-        margin: 2px 0 0;
-      }
-    }
-
-    .btn-new-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--unity-primary);
-      color: #fff;
-      border: none;
-      padding: 9px 16px;
-      border-radius: 14px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
-      transition: all 0.2s;
-
-      &:hover {
-        background: var(--unity-primary-dark);
       }
     }
   }

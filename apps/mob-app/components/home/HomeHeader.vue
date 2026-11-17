@@ -14,7 +14,8 @@
       </div>
       <div class="user-details">
         <h2 class="greeting-name">
-          {{ t('Welcome,') }} {{ currentUser?.name || '' }}
+          <span class="greeting-prefix">{{ t('Welcome,') }}</span>
+          <span class="greeting-user">{{ currentUser?.name || '' }}</span>
         </h2>
       </div>
     </div>
@@ -35,18 +36,19 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
+import { useNotifications } from '../../composables/useNotifications';
 import { isUserUploadedPhoto, resolveAvatarUrl, getUserInitial } from '../../composables/useUserAvatar';
 
 const api = useUnityApi();
 const { t } = useI18n();
 const bookingModal = useBookingModal();
+const { unreadCount, NOTIFICATIONS } = useNotifications();
 
 // 2. Data (refs, reactive state)
-const unreadCount = ref(0);
 
 // 3. Computed (computed properties)
 const currentUser = computed(() => api.currentUser.value);
@@ -60,6 +62,9 @@ const resolvedPhotoUrl = computed(() => resolveAvatarUrl(currentUser.value?.avat
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onMounted(() => {
+  NOTIFICATIONS();
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
@@ -119,10 +124,21 @@ const resolvedPhotoUrl = computed(() => resolveAvatarUrl(currentUser.value?.avat
 
       .greeting-name {
         font-size: 0.94rem;
-        font-weight: 700;
-        color: var(--unity-text-main);
         margin: 0;
         line-height: 1.3;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+
+        .greeting-prefix {
+          font-weight: 500;
+          color: var(--unity-text-muted, #94a3b8);
+        }
+
+        .greeting-user {
+          font-weight: 700;
+          color: var(--unity-text-main, #334155);
+        }
       }
     }
   }

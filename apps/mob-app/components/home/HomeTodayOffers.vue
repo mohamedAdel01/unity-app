@@ -30,19 +30,19 @@
 
         <!-- Card Content: Title, Description, Prices & Action -->
         <div class="offer-body">
-          <h5>{{ offer.title }}</h5>
-          <p>{{ offer.description }}</p>
+          <div class="offer-info-top">
+            <h5>{{ offer.title }}</h5>
+            <p v-if="offer.description">{{ offer.description }}</p>
+          </div>
 
           <div class="pricing-row">
-            <div class="prices">
-              <span class="current-price">{{ offer.price }} {{ t('EGP') }}</span>
-              <span class="original-price">{{ offer.originalPrice }} {{ t('EGP') }}</span>
-            </div>
-
-            <button type="button" class="btn-book-offer" @click.stop="bookOffer(offer)">
-              <span>{{ t('Book Offer') }}</span>
-            </button>
+            <span class="current-price">{{ offer.price }} {{ t('EGP') }}</span>
+            <span v-if="offer.originalPrice" class="original-price">{{ offer.originalPrice }} {{ t('EGP') }}</span>
           </div>
+
+          <button type="button" class="btn-book-offer" @click.stop="bookOffer(offer)">
+            <span>{{ t('Book Offer') }}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -139,9 +139,10 @@ onMounted(() => {
     .header-texts {
       h4 {
         margin: 0;
-        font-size: 0.88rem;
+        font-size: 0.86rem;
         font-weight: 700;
-        color: var(--unity-text-main);
+        color: var(--unity-text-main, #334155);
+        opacity: 0.9;
         line-height: 1.3;
       }
 
@@ -261,75 +262,84 @@ onMounted(() => {
       }
 
       .offer-body {
-        padding: 8px 10px 10px;
+        padding: 10px;
         display: flex;
         flex-direction: column;
         flex: 1;
+        justify-content: space-between;
+        gap: 6px;
 
-        h5 {
-          margin: 0;
-          font-size: 0.78rem;
-          font-weight: 800;
-          color: var(--unity-text-main);
-          line-height: 1.28;
-        }
+        .offer-info-top {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-height: 48px;
 
-        p {
-          margin: 2px 0 6px;
-          font-size: 0.64rem;
-          color: var(--unity-text-muted);
-          line-height: 1.32;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          flex: 1;
+          h5 {
+            margin: 0;
+            font-size: 0.80rem;
+            font-weight: 700;
+            color: var(--unity-text-main, #334155);
+            line-height: 1.28;
+          }
+
+          p {
+            margin: 0;
+            font-size: 0.65rem;
+            color: var(--unity-text-muted);
+            line-height: 1.32;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
         }
 
         .pricing-row {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding-top: 5px;
+          align-items: baseline;
+          gap: 6px;
+          margin-top: 2px;
+          padding-top: 6px;
           border-top: 1px dashed var(--unity-border-subtle);
 
-          .prices {
-            display: flex;
-            flex-direction: column;
-
-            .current-price {
-              font-size: 0.80rem;
-              font-weight: 800;
-              color: var(--unity-primary);
-            }
-
-            .original-price {
-              font-size: 0.62rem;
-              color: var(--unity-text-dim);
-              text-decoration: line-through;
-              font-weight: 600;
-            }
+          .current-price {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--unity-primary);
           }
 
-          .btn-book-offer {
-            background: var(--unity-primary);
-            color: #ffffff;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 0.66rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(4, 120, 87, 0.16);
-            transition: all 0.2s ease;
+          .original-price {
+            font-size: 0.64rem;
+            color: var(--unity-text-dim);
+            text-decoration: line-through;
+            font-weight: 600;
+          }
+        }
 
-            &:hover {
-              background: var(--unity-primary-dark);
-            }
+        .btn-book-offer {
+          width: 100%;
+          background: var(--unity-primary);
+          color: #ffffff;
+          border: none;
+          padding: 6px 10px;
+          border-radius: 10px;
+          font-size: 0.70rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(4, 120, 87, 0.16);
+          transition: all 0.2s ease;
+          margin-top: 2px;
 
-            &:active {
-              transform: scale(0.95);
-            }
+          &:hover {
+            background: var(--unity-primary-dark);
+          }
+
+          &:active {
+            transform: scale(0.97);
           }
         }
       }

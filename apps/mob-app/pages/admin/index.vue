@@ -1,8 +1,7 @@
 <template>
   <div class="admin-dashboard-page">
     <AdminTopHeader 
-      :title="t('Executive Administration')"
-      :subtitle="t('Unity Hospital & Clinics System')"
+      :title="t('Dashboard')"
       icon="pi pi-shield"
     />
 

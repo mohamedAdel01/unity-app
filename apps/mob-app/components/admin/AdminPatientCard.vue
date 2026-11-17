@@ -33,10 +33,12 @@
         </div>
       </div>
 
-      <!-- Left Side: Expand / Collapse Toggle Chevron -->
-      <button class="expand-toggle-btn" :aria-label="isExpanded ? t('Close') : t('View All')">
-        <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-      </button>
+      <!-- Left Side: Header Controls (Chevron Toggle Only) -->
+      <div class="patient-header-controls" @click.stop>
+        <button class="expand-toggle-btn" :aria-label="isExpanded ? t('Close') : t('View All')" @click.stop="toggleExpand">
+          <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+        </button>
+      </div>
     </div>
 
     <!-- ============================================== -->
@@ -71,39 +73,39 @@
         <p class="diagnosis-text">{{ patient.diagnosis }}</p>
       </div>
 
-      <!-- Action Buttons Row (3 Icon-Only Buttons) -->
-      <div class="actions-buttons-row">
-        <!-- View Medical File (Primary Green Icon) -->
+      <!-- Bottom Action Row: Icon-only buttons side-by-side matching unified standard -->
+      <div class="card-bottom-actions-row">
+        <!-- 1. Edit Patient -->
         <button 
           type="button" 
-          class="btn-action-icon btn-file" 
-          :title="t('View Medical File')" 
-          :aria-label="t('View Medical File')" 
-          @click="emit('view-file', patient)"
+          class="action-icon-btn btn-edit" 
+          :title="t('Edit Patient')" 
+          :aria-label="t('Edit Patient')" 
+          @click.stop="emit('edit', patient)"
         >
-          <i class="pi pi-folder"></i>
+          <i class="pi pi-pencil"></i>
         </button>
 
-        <!-- Book Appointment (Secondary Mint Icon) -->
+        <!-- 2. Book Appointment -->
         <button 
           type="button" 
-          class="btn-action-icon btn-book" 
+          class="action-icon-btn btn-book" 
           :title="t('Book Appointment')" 
           :aria-label="t('Book Appointment')" 
-          @click="emit('book', patient)"
+          @click.stop="emit('book', patient)"
         >
           <i class="pi pi-calendar-plus"></i>
         </button>
 
-        <!-- Edit Patient (Neutral Icon) -->
+        <!-- 3. Medical File -->
         <button 
           type="button" 
-          class="btn-action-icon btn-edit" 
-          :title="t('Edit Patient')" 
-          :aria-label="t('Edit Patient')" 
-          @click="emit('edit', patient)"
+          class="action-icon-btn btn-file" 
+          :title="t('Medical File')" 
+          :aria-label="t('Medical File')" 
+          @click.stop="emit('view-file', patient)"
         >
-          <i class="pi pi-pencil"></i>
+          <i class="pi pi-folder"></i>
         </button>
       </div>
     </div>
@@ -176,7 +178,7 @@ const resolveAvatar = (url?: string) => {
     return url;
   }
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  const baseUrl = config.public?.API_URL || config.public?.apiUrl || 'http://localhost:4000';
   return `${baseUrl}${url}`;
 };
 
@@ -340,6 +342,12 @@ const resolveAvatar = (url?: string) => {
       }
     }
 
+    .patient-header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .expand-toggle-btn {
       background: transparent;
       border: none;
@@ -467,41 +475,47 @@ const resolveAvatar = (url?: string) => {
       }
     }
 
-    // 3. Actions Row
-    .actions-buttons-row {
+    // 3. Bottom Action Row: 3 Icon-only buttons
+    .card-bottom-actions-row {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
       gap: 10px;
-      margin-top: 10px;
+      width: 100%;
+      margin-top: 12px;
 
-      .btn-action-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        display: flex;
+      .action-icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
         cursor: pointer;
-        transition: all 0.2s ease;
-        border: 1px solid transparent;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 0;
+        flex-shrink: 0;
 
-        &.btn-file {
-          background: var(--unity-primary);
-          color: #ffffff;
-          box-shadow: 0 4px 10px rgba(4, 120, 87, 0.2);
+        i {
+          font-size: 1.15rem;
+        }
+
+        &.btn-edit {
+          background: var(--unity-surface, #ffffff);
+          border: 1.5px solid var(--unity-border, #e2e8f0);
+          color: var(--unity-text-muted, #64748b);
 
           &:hover {
-            background: var(--unity-primary-dark);
+            background: var(--unity-surface-muted, #f8fafc);
+            border-color: #cbd5e1;
+            color: var(--unity-text-main, #0f172a);
             transform: translateY(-1px);
           }
         }
 
         &.btn-book {
           background: #ecfdf5;
+          border: 1.5px solid #a7f3d0;
           color: #047857;
-          border-color: #a7f3d0;
 
           &:hover {
             background: #d1fae5;
@@ -510,20 +524,20 @@ const resolveAvatar = (url?: string) => {
           }
         }
 
-        &.btn-edit {
-          background: var(--unity-bg);
-          color: var(--unity-text-muted);
-          border-color: var(--unity-border);
+        &.btn-file {
+          background: var(--unity-primary, #047857);
+          border: none;
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
 
           &:hover {
-            background: var(--unity-border);
-            color: var(--unity-text-main);
+            background: var(--unity-primary-dark, #065f46);
             transform: translateY(-1px);
           }
         }
 
         &:active {
-          transform: translateY(0);
+          transform: scale(0.96);
         }
       }
     }

@@ -53,7 +53,7 @@
       :doctor="selectedDoctorToEdit"
       @close="isDoctorModalOpen = false"
       @created="onDoctorCreated"
-      @updated="ADMIN_DOCTORS(1)"
+      @updated="onDoctorUpdated"
     />
 
     <!-- Modal: Doctor Cases & Consultations Virtual List -->
@@ -301,6 +301,21 @@ const onViewCases = (doc: any) => {
 const onDoctorCreated = () => {
   ADMIN_DOCTORS(1);
   ADMIN_CLINICS(1);
+};
+
+const onDoctorUpdated = (updatedDoc?: any) => {
+  if (updatedDoc?.id) {
+    const idx = doctors.value.findIndex((d) => String(d.id) === String(updatedDoc.id));
+    if (idx !== -1) {
+      doctors.value[idx] = {
+        ...doctors.value[idx],
+        ...updatedDoc,
+        avatar: updatedDoc.avatar || doctors.value[idx].avatar,
+        avatar_url: updatedDoc.avatar || doctors.value[idx].avatar_url,
+      };
+    }
+  }
+  ADMIN_DOCTORS(1);
 };
 
 const onScheduleUpdated = () => {

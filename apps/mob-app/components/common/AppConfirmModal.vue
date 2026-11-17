@@ -65,7 +65,7 @@ const props = withDefaults(defineProps<{
   message?: string;
   confirmText?: string;
   cancelText?: string;
-  type?: 'danger' | 'warning' | 'info';
+  type?: 'danger' | 'warning' | 'info' | 'success';
   icon?: string;
   loading?: boolean;
 }>(), {
@@ -86,6 +86,7 @@ const { t } = useI18n();
 // 3. Computed (computed properties)
 const iconName = computed(() => {
   if (props.icon) return props.icon;
+  if (props.type === 'success') return 'pi pi-check';
   if (props.type === 'danger') return 'pi pi-exclamation-triangle';
   if (props.type === 'warning') return 'pi pi-exclamation-circle';
   return 'pi pi-info-circle';
@@ -222,6 +223,13 @@ onUnmounted(() => {
       border: 2px solid #ccfbf1;
       box-shadow: 0 6px 18px rgba(13, 148, 136, 0.15);
     }
+
+    &.success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 2px solid #a7f3d0;
+      box-shadow: 0 6px 18px rgba(4, 120, 87, 0.15);
+    }
   }
 
   .confirm-text-block {
@@ -303,6 +311,16 @@ onUnmounted(() => {
 
         &:hover:not(:disabled) {
           background: var(--unity-primary-dark, #0f766e);
+        }
+      }
+
+      &.success {
+        background: var(--unity-primary, #047857);
+        color: #ffffff;
+        box-shadow: 0 6px 18px rgba(4, 120, 87, 0.28);
+
+        &:hover:not(:disabled) {
+          background: var(--unity-primary-dark, #065f46);
         }
       }
 

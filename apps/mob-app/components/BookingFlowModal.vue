@@ -42,9 +42,12 @@
             <!-- STEP 1: SELECT DATE & TIME                 -->
             <!-- ========================================== -->
             <div v-if="currentStep === 1" class="step-view step-1-view">
-              <!-- Doctor / Service Card -->
-              <div class="doctor-summary-card" :class="{ 'is-exam-card': isExamination }">
-                <div v-if="!isExamination && doctor?.rating" class="doc-badge-rating">
+              <!-- Doctor / Service / Offer Card -->
+              <div class="doctor-summary-card" :class="{ 'is-exam-card': isExamination, 'is-offer-card': isOffer }">
+                <div v-if="isOffer" class="doc-badge-rating offer-badge">
+                  <span><i class="pi pi-tag"></i> {{ t('Special Offer') }}</span>
+                </div>
+                <div v-else-if="!isExamination && doctor?.rating" class="doc-badge-rating">
                   <span>⭐ {{ doctor.rating }}</span>
                 </div>
                 <div v-else-if="isExamination" class="doc-badge-rating exam-badge">
@@ -52,8 +55,18 @@
                 </div>
                 <div class="doc-header">
                   <div class="doc-avatar-wrap">
-                    <div class="doc-avatar" :class="{ 'exam-avatar': isExamination }">
-                      <template v-if="!isExamination">
+                    <div class="doc-avatar" :class="{ 'exam-avatar': isExamination, 'offer-avatar': isOffer }">
+                      <template v-if="isOffer">
+                        <img 
+                          v-if="service?.image || appointment?.offer?.image" 
+                          :src="resolveOfferImageUrl(service?.image || appointment?.offer?.image)" 
+                          alt="" 
+                        />
+                        <div v-else class="offer-icon-circle">
+                          <i class="pi pi-tag"></i>
+                        </div>
+                      </template>
+                      <template v-else-if="!isExamination">
                         <img 
                           v-if="cleanDoctorAvatar && !avatarLoadError" 
                           :src="cleanDoctorAvatar" 
@@ -70,11 +83,14 @@
                         </div>
                       </template>
                     </div>
-                    <span v-if="!isExamination" class="verified-tick"><i class="pi pi-check"></i></span>
+                    <span v-if="!isExamination && !isOffer" class="verified-tick"><i class="pi pi-check"></i></span>
                   </div>
                   <div class="doc-info">
-                    <h4>{{ resolveI18n(isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name || '')) }}</h4>
-                    <p v-if="isExamination && (service?.description || examination?.description)" class="doc-spec">
+                    <h4>{{ resolveI18n(isOffer ? (service?.name || appointment?.offer?.title_ar || appointment?.offer?.title) : (isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name || ''))) }}</h4>
+                    <p v-if="isOffer && (service?.description || appointment?.offer?.description)" class="doc-spec">
+                      {{ resolveI18n(service?.description || appointment?.offer?.description) }}
+                    </p>
+                    <p v-else-if="isExamination && (service?.description || examination?.description)" class="doc-spec">
                       {{ resolveI18n(service?.description || examination?.description) }}
                     </p>
                     <p v-else-if="doctor?.specialty || doctor?.clinic?.name" class="doc-spec">
@@ -426,11 +442,12 @@
                   <div class="ticket-body">
                     <div class="ticket-row">
                       <span class="lbl">
-                        <AppExamIcon v-if="isExamination" :size="14" />
+                        <i v-if="isOffer" class="pi pi-tag"></i>
+                        <AppExamIcon v-else-if="isExamination" :size="14" />
                         <i v-else class="pi pi-user"></i> 
-                        {{ isExamination ? t('Examination / Service') : t('Doctor') }}
+                        {{ isOffer ? t('Special Offer') : (isExamination ? t('Examination / Service') : t('Doctor')) }}
                       </span>
-                      <strong class="val">{{ isExamination ? (service?.name || examination?.name || confirmedAppointment?.examination?.name) : (doctor?.name || confirmedAppointment?.doctor?.name) }}</strong>
+                      <strong class="val">{{ isOffer ? (service?.name || appointment?.offer?.title_ar || appointment?.offer?.title) : (isExamination ? (service?.name || examination?.name || confirmedAppointment?.examination?.name) : (doctor?.name || confirmedAppointment?.doctor?.name)) }}</strong>
                     </div>
 
                     <div class="ticket-row">
@@ -633,6 +650,17 @@ const submitting = computed(() => {
   return globalStore.loading.includes('BOOK_APPOINTMENT') || globalStore.loading.includes('RESCHEDULE_APPOINTMENT');
 });
 
+const resolveOfferImageUrl = (url?: string) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
+    return trimmed;
+  }
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  return `${baseUrl}${trimmed}`;
+};
+
 const cleanDoctorAvatar = computed(() => {
   const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
   const av = doc?.avatar || doc?.user?.avatar;
@@ -655,7 +683,12 @@ const isAdmin = computed(() => {
   return route.path.startsWith('/admin') || api.currentUser.value?.role === 'admin' || api.user.value?.role === 'admin';
 });
 
+const isOffer = computed(() => {
+  return Boolean(props.service?.is_offer || props.appointment?.offer || props.appointment?.offer_id);
+});
+
 const isExamination = computed(() => {
+  if (isOffer.value) return false;
   return props.initialType === 'examination' || Boolean(props.service || props.examination);
 });
 
@@ -679,6 +712,7 @@ const appointmentDateFormatted = computed(() => {
 });
 
 const feeLabel = computed(() => {
+  if (isOffer.value) return t('Special Offer Price');
   if (isExamination.value || props.service?.price) return t('Medical Examination Fee');
   return t('Consultation Fee');
 });

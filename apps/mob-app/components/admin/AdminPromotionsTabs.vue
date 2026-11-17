@@ -69,16 +69,18 @@
               <button 
                 type="button" 
                 class="action-pill edit-btn" 
+                :title="t('Edit')"
+                :aria-label="t('Edit')"
                 @click="emit('edit-offer', offer)"
               >
                 <i class="pi pi-pencil"></i>
-                <span>{{ t('Edit') }}</span>
               </button>
 
               <button 
                 type="button" 
                 class="action-pill delete-btn" 
                 :title="t('Delete')"
+                :aria-label="t('Delete')"
                 @click="emit('delete-offer', offer)"
               >
                 <i class="pi pi-trash"></i>
@@ -165,16 +167,18 @@
               <button 
                 type="button" 
                 class="action-pill edit-btn" 
+                :title="t('Edit')"
+                :aria-label="t('Edit')"
                 @click="emit('edit-promocode', promo)"
               >
                 <i class="pi pi-pencil"></i>
-                <span>{{ t('Edit') }}</span>
               </button>
 
               <button 
                 type="button" 
                 class="action-pill delete-btn" 
                 :title="t('Delete')"
+                :aria-label="t('Delete')"
                 @click="emit('delete-promocode', promo)"
               >
                 <i class="pi pi-trash"></i>
@@ -509,46 +513,63 @@ const resolveImageUrl = (url?: string) => {
     .card-actions-bar {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 8px;
       padding-top: 10px;
       border-top: 1px dashed var(--unity-border);
 
       .action-pill {
-        height: 36px;
+        width: 40px;
+        height: 40px;
         border-radius: 12px;
-        font-size: 0.78rem;
-        font-weight: 700;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
         cursor: pointer;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 0;
+
+        i {
+          font-size: 1.15rem;
+        }
 
         &.edit-btn {
-          background: var(--unity-bg, #f8fafc);
-          color: var(--unity-text-main, #1e293b);
-          border: 1px solid var(--unity-border, #cbd5e1);
-          flex: 1;
+          background: #ecfdf5;
+          color: #047857;
+          border: 1.5px solid #a7f3d0;
 
           &:hover {
-            background: var(--unity-primary-light, #ecfdf5);
-            border-color: var(--unity-primary, #047857);
-            color: var(--unity-primary-dark, #065f46);
+            background: #d1fae5;
+            border-color: #6ee7b7;
+            color: #065f46;
+            transform: translateY(-1px);
           }
         }
 
         &.delete-btn {
-          width: 38px;
           background: #fef2f2;
           color: #ef4444;
-          border: 1px solid #fee2e2;
-          padding: 0;
+          border: 1.5px solid #fee2e2;
 
-          &:hover {
+          &:hover:not(:disabled) {
             background: #fee2e2;
             border-color: #fca5a5;
+            transform: translateY(-1px);
           }
+
+          &:disabled,
+          &.is-disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: var(--unity-surface-muted, #f1f5f9);
+            color: var(--unity-text-dim, #94a3b8);
+            border-color: var(--unity-border, #e2e8f0);
+          }
+        }
+
+        &:active {
+          transform: scale(0.96);
         }
       }
     }

@@ -1588,20 +1588,30 @@ onUnmounted(() => {
 
   .clinic-pill {
     white-space: nowrap;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: 700;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.80rem;
+    font-weight: 600;
     border: 1px solid var(--unity-border);
-    background: var(--unity-bg);
+    background: var(--unity-surface);
     color: var(--unity-text-muted);
     cursor: pointer;
     transition: all 0.2s;
 
-    &.active {
-      background: var(--unity-primary);
+    &:hover {
       border-color: var(--unity-primary);
-      color: #fff;
+      color: var(--unity-primary);
+    }
+
+    &.active {
+      background: var(--unity-primary-light, #ecfdf5);
+      border: 1.5px solid var(--unity-primary);
+      color: var(--unity-primary);
+      font-weight: 700;
     }
   }
 }

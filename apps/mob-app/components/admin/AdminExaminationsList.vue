@@ -10,9 +10,7 @@
           :class="{ 'active': !selectedCategoryId }"
           @click="onSelectCategory('')"
         >
-          <i class="pi pi-th-large"></i>
-          <span>{{ t('All Categories') }}</span>
-          <span class="chip-count">{{ examinations.length }}</span>
+          <span>{{ t('All') }} ({{ examinations.length }})</span>
         </button>
 
         <!-- 2. Dynamic Categories Chips (Filter Only) -->
@@ -25,7 +23,7 @@
           @click="onSelectCategory(cat.id)"
         >
           <span>{{ getCategoryDisplayName(cat) }}</span>
-          <span v-if="cat.examinations_count !== undefined" class="chip-count">{{ cat.examinations_count }}</span>
+          <span v-if="cat.examinations_count !== undefined" class="chip-count">({{ cat.examinations_count }})</span>
         </button>
       </div>
     </div>
@@ -221,15 +219,15 @@ watch(
     .category-chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      height: 38px;
-      padding: 0 12px;
-      border-radius: 12px;
+      gap: 4px;
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 9999px;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
       color: var(--unity-text-muted);
       font-size: 0.80rem;
-      font-weight: 700;
+      font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
       flex-shrink: 0;
@@ -240,13 +238,9 @@ watch(
       }
 
       .chip-count {
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
-        color: var(--unity-text-dim);
-        font-size: 0.68rem;
-        padding: 1px 6px;
-        border-radius: 10px;
-        font-weight: 800;
+        font-size: 0.76rem;
+        font-weight: 500;
+        opacity: 0.8;
       }
 
       &:hover {
@@ -255,14 +249,13 @@ watch(
       }
 
       &.active {
-        background: var(--unity-primary-light);
-        border-color: var(--unity-primary);
+        background: var(--unity-primary-light, #ecfdf5);
+        border: 1.5px solid var(--unity-primary);
         color: var(--unity-primary);
+        font-weight: 700;
 
         .chip-count {
-          background: var(--unity-primary);
-          border-color: var(--unity-primary);
-          color: #ffffff;
+          opacity: 0.9;
         }
       }
     }

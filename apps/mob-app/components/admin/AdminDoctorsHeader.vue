@@ -1,10 +1,12 @@
 <template>
   <div class="admin-doctors-header">
-    <!-- 1. Top Supervisor Identity Bar (Unified) -->
+    <!-- 1. Top Supervisor Identity Bar with Add Button -->
     <AdminTopHeader
-      :title="activeTab === 'clinics' ? t('Clinics Management') : t('Doctors Management')"
-      :subtitle="t('Unity Clinics • Admin Portal')"
+      :title="activeTab === 'clinics' ? t('Clinics') : t('Doctors')"
       :icon="activeTab === 'clinics' ? 'pi pi-building' : 'pi pi-user'"
+      :action-text="activeTab === 'clinics' ? t('New Clinic') : t('New Doctor')"
+      action-icon="pi pi-plus"
+      @action="handleTopAction"
     />
 
     <!-- 2. Dual Mode Selector Tabs (Clinics vs Doctors) -->
@@ -22,7 +24,7 @@
           <path d="M12 6v4"/>
         </svg>
         <span>{{ t('Clinics') }}</span>
-        <span class="count-pill">{{ clinicsCount }}</span>
+        <span class="count-pill">({{ clinicsCount }})</span>
       </button>
 
       <button
@@ -39,42 +41,11 @@
           <circle cx="17" cy="16" r="2"/>
         </svg>
         <span>{{ t('Doctors') }}</span>
-        <span class="count-pill">{{ doctorsCount }}</span>
+        <span class="count-pill">({{ doctorsCount }})</span>
       </button>
     </div>
 
-    <!-- 3. Page Title Card with Action Button -->
-    <div class="title-action-card">
-      <div v-if="activeTab === 'doctors'" class="title-texts">
-        <h3>{{ t('Certified Medical Staff') }}</h3>
-        <p>{{ t('Manage schedules, availability & clinics') }}</p>
-      </div>
-      <div v-else class="title-texts">
-        <h3>{{ t('Clinics & Departments') }}</h3>
-        <p>{{ t('Capacity, rooms & active staff') }}</p>
-      </div>
-
-      <button
-        v-if="activeTab === 'doctors'"
-        type="button"
-        class="btn-new-item"
-        @click="emit('new-doctor')"
-      >
-        <i class="pi pi-user-plus"></i>
-        <span>{{ t('New Doctor') }}</span>
-      </button>
-      <button
-        v-else
-        type="button"
-        class="btn-new-item"
-        @click="emit('new-clinic')"
-      >
-        <i class="pi pi-plus"></i>
-        <span>{{ t('New Clinic') }}</span>
-      </button>
-    </div>
-
-    <!-- 4. Doctors Search Bar & Clinic Filter (Visible when Doctors tab is active) -->
+    <!-- 3. Doctors Search Bar & Clinic Filter (Visible when Doctors tab is active) -->
     <template v-if="activeTab === 'doctors'">
       <div class="search-input-box">
         <i class="pi pi-search search-icon"></i>
@@ -160,9 +131,11 @@ const clinicFilters = computed(() => {
 
   if (props.clinics && props.clinics.length > 0) {
     props.clinics.forEach((c) => {
+      const name = isRtl.value ? (c.name_ar || c.name || '') : (c.name_en || c.name || '');
+      const countStr = c.doctors_count !== undefined ? ` (${c.doctors_count})` : '';
       list.push({
         key: String(c.id),
-        label: isRtl.value ? (c.name_ar || c.name || '') : (c.name_en || c.name || ''),
+        label: `${name}${countStr}`,
       });
     });
   }
@@ -171,6 +144,14 @@ const clinicFilters = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
+const handleTopAction = () => {
+  if (props.activeTab === 'clinics') {
+    emit('new-clinic');
+  } else {
+    emit('new-doctor');
+  }
+};
+
 const onSearchInput = () => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
@@ -215,34 +196,31 @@ watch(() => props.activeFilter, (newVal) => {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      height: 46px;
-      border: 1.5px solid var(--unity-border);
+      gap: 6px;
+      height: 42px;
+      border: 1px solid var(--unity-border);
       background: var(--unity-surface);
-      border-radius: 14px;
-      font-size: 0.90rem;
-      font-weight: 800;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      font-weight: 700;
       color: var(--unity-text-main);
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 
       .tab-svg {
-        width: 18px;
-        height: 18px;
+        width: 17px;
+        height: 17px;
         color: var(--unity-text-muted);
       }
 
       .count-pill {
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
+        background: transparent;
+        border: none;
         color: var(--unity-text-dim);
-        font-size: 0.72rem;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 800;
-        min-width: 20px;
-        text-align: center;
+        font-size: 0.78rem;
+        font-weight: 600;
+        opacity: 0.8;
+        padding: 0;
       }
 
       &:hover {
@@ -250,19 +228,17 @@ watch(() => props.activeFilter, (newVal) => {
       }
 
       &.active {
-        background: var(--unity-primary);
-        border-color: var(--unity-primary);
-        color: #ffffff;
-        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+        background: var(--unity-primary-light, #ecfdf5);
+        border: 1.5px solid var(--unity-primary);
+        color: var(--unity-primary);
 
         .tab-svg {
-          color: #ffffff;
+          color: var(--unity-primary);
         }
 
         .count-pill {
-          background: rgba(255, 255, 255, 0.22);
-          border-color: rgba(255, 255, 255, 0.35);
-          color: #ffffff;
+          color: var(--unity-primary);
+          opacity: 0.9;
         }
       }
     }
@@ -403,15 +379,19 @@ watch(() => props.activeFilter, (newVal) => {
 
       .filter-pill {
         white-space: nowrap;
-        padding: 6px 14px;
-        border-radius: 20px;
+        height: 34px;
+        padding: 0 14px;
+        border-radius: 9999px;
         background: var(--unity-surface);
         border: 1px solid var(--unity-border);
         color: var(--unity-text-muted);
-        font-size: 0.76rem;
+        font-size: 0.80rem;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         flex-shrink: 0;
 
         &:hover {
@@ -420,11 +400,10 @@ watch(() => props.activeFilter, (newVal) => {
         }
 
         &.active {
-          background: var(--unity-primary);
-          color: #ffffff;
-          border-color: var(--unity-primary);
+          background: var(--unity-primary-light, #ecfdf5);
+          color: var(--unity-primary);
+          border: 1.5px solid var(--unity-primary);
           font-weight: 700;
-          box-shadow: 0 2px 6px rgba(4, 120, 87, 0.25);
         }
       }
     }

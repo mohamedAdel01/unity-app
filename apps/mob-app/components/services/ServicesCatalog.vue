@@ -25,8 +25,8 @@
       </button>
     </div>
 
-    <!-- Search & Filter -->
-    <div class="search-box">
+    <!-- Search & Filter (Only shown for services or when a clinic/specialty is chosen) -->
+    <div v-if="activeTab === 'services' || selectedClinicId" class="search-box">
       <i class="pi pi-search"></i>
       <input 
         v-model="searchQuery" 
@@ -109,32 +109,8 @@
 
     <!-- Content: Doctors Tab -->
     <div v-else class="tab-content-area">
-      <!-- 1. Horizontal Clinic Tabs -->
-      <div v-if="clinics.length > 0" class="clinic-tabs-nav">
-        <button 
-          class="clinic-tab-chip" 
-          :class="{ 'active': selectedClinicId === 'all' }"
-          @click="selectClinic('all')"
-        >
-          <i class="pi pi-th-large"></i>
-          <span>{{ t('All Clinics') }}</span>
-        </button>
-
-        <button 
-          v-for="clinic in clinics" 
-          :key="clinic.id" 
-          class="clinic-tab-chip" 
-          :class="{ 'active': selectedClinicId === clinic.id }"
-          @click="selectClinic(clinic.id)"
-        >
-          <i class="pi pi-building"></i>
-          <span>{{ getLocalizedName(clinic) }}</span>
-          <span v-if="clinic._count?.doctors" class="count-bubble">{{ clinic._count.doctors }}</span>
-        </button>
-      </div>
-
-      <!-- 2. Clinic Cards Overview (Shown when 'all' is selected) -->
-      <div v-if="selectedClinicId === 'all' && clinics.length > 0 && !searchQuery" class="clinics-overview-block">
+      <!-- 1. Initial State: Only Big Specialty / Clinic Cards Overview (No search, no horizontal tabs, no doctors) -->
+      <div v-if="!selectedClinicId" class="clinics-overview-block">
         <div class="block-header">
           <div class="title-wrap">
             <i class="pi pi-th-large"></i>
@@ -166,66 +142,88 @@
             </div>
           </div>
         </div>
-
-        <!-- Section divider for all doctors list -->
-        <div class="all-docs-subhead">
-          <i class="pi pi-users"></i>
-          <h5>{{ t('All Doctors') }}</h5>
-        </div>
       </div>
 
-      <!-- 3. Active Clinic Filter Banner (when a specific clinic is chosen) -->
-      <div v-else-if="selectedClinicId !== 'all'" class="active-clinic-filter-bar">
-        <div class="filter-info">
-          <i class="pi pi-filter"></i>
-          <span>{{ t('Showing doctors for:') }} <strong>{{ activeClinicName }}</strong></span>
-        </div>
-        <button class="btn-clear-clinic" @click="selectClinic('all')">
-          <i class="pi pi-times"></i>
-          <span>{{ t('Show All') }}</span>
-        </button>
-      </div>
+      <!-- 2. Selected Clinic State: Tabs + Filter Bar + Doctors Virtual List -->
+      <div v-else class="selected-clinic-flow">
+        <!-- Horizontal Clinic Tabs Bar with Back/All button -->
+        <div class="clinic-tabs-nav">
+          <button 
+            type="button"
+            class="clinic-tab-chip btn-back-chip" 
+            @click="selectClinic(null)"
+          >
+            <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
+            <span>{{ t('All Departments') }}</span>
+          </button>
 
-      <!-- 4. Doctors Virtual List -->
-      <AppVirtualList
-        :items="filteredDoctors"
-        :has-more="doctorsHasMore"
-        :loading="doctorsLoading || globalStore.loading.includes('doctors')"
-        :page-size="10"
-        @load-more="loadMoreDoctors"
-      >
-        <template #item="{ item: doc }">
-          <div class="doctor-catalog-card">
-            <div class="doc-main-row">
-              <div class="doc-img-wrap">
-                <img v-if="doc.avatar" :src="doc.avatar" :alt="doc.name" />
-                <div v-else class="doc-initial-badge">
-                  <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
+          <button 
+            v-for="clinic in clinics" 
+            :key="clinic.id" 
+            type="button"
+            class="clinic-tab-chip" 
+            :class="{ 'active': selectedClinicId === clinic.id }"
+            @click="selectClinic(clinic.id)"
+          >
+            <i class="pi pi-building"></i>
+            <span>{{ getLocalizedName(clinic) }}</span>
+            <span v-if="clinic._count?.doctors" class="count-bubble">{{ clinic._count.doctors }}</span>
+          </button>
+        </div>
+
+        <!-- Active Clinic Filter Bar -->
+        <div class="active-clinic-filter-bar">
+          <div class="filter-info">
+            <i class="pi pi-filter"></i>
+            <span>{{ t('Showing doctors for:') }} <strong>{{ activeClinicName }}</strong></span>
+          </div>
+          <button type="button" class="btn-clear-clinic" @click="selectClinic(null)">
+            <i class="pi pi-times"></i>
+            <span>{{ t('All Departments') }}</span>
+          </button>
+        </div>
+
+        <!-- Doctors Virtual List -->
+        <AppVirtualList
+          :items="filteredDoctors"
+          :has-more="doctorsHasMore"
+          :loading="doctorsLoading || globalStore.loading.includes('doctors')"
+          :page-size="10"
+          @load-more="loadMoreDoctors"
+        >
+          <template #item="{ item: doc }">
+            <div class="doctor-catalog-card">
+              <div class="doc-main-row">
+                <div class="doc-img-wrap">
+                  <img v-if="doc.avatar" :src="doc.avatar" :alt="doc.name" />
+                  <div v-else class="doc-initial-badge">
+                    <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
+                  </div>
+                  <span v-if="doc.rating" class="star-pill">⭐ {{ doc.rating }}</span>
                 </div>
-                <span v-if="doc.rating" class="star-pill">⭐ {{ doc.rating }}</span>
-              </div>
-              <div class="doc-info-block">
-                <h5>{{ doc.name }}</h5>
-                <p v-if="doc.specialty && doc.specialty !== doc.clinic?.name" class="specialty-title">{{ doc.specialty }}</p>
-                <span v-if="doc.clinic?.name" class="clinic-location"><i class="pi pi-building"></i> {{ getLocalizedName(doc.clinic) }}</span>
-                <div v-if="doc.consultation_fee" class="fee-badge">
-                  {{ t('Examination Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
+                <div class="doc-info-block">
+                  <h5>{{ doc.name }}</h5>
+                  <p v-if="hasDistinctSpecialty(doc)" class="specialty-title">{{ doc.specialty }}</p>
+                  <span v-if="getLocalizedName(doc.clinic)" class="clinic-location"><i class="pi pi-building"></i> {{ getLocalizedName(doc.clinic) }}</span>
+                  <div v-if="doc.consultation_fee" class="fee-badge">
+                    {{ t('Examination Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
+                  </div>
                 </div>
               </div>
+              <button class="doc-book-btn" @click="bookDoctor(doc)">
+                {{ t('Book Examination') }}
+              </button>
             </div>
-            <button class="doc-book-btn" @click="bookDoctor(doc)">
-              {{ t('Book Examination') }}
-            </button>
-          </div>
-        </template>
+          </template>
 
-        <template #empty>
-          <div class="empty-catalog-state">
-            <i class="pi pi-users"></i>
-            <h5>{{ selectedClinicId !== 'all' ? t('No doctors found for this clinic') : t('No doctors available') }}</h5>
-          </div>
-        </template>
-      </AppVirtualList>
+          <template #empty>
+            <div class="empty-catalog-state">
+              <i class="pi pi-users"></i>
+              <h5>{{ t('No doctors found for this clinic') }}</h5>
+            </div>
+          </template>
+        </AppVirtualList>
+      </div>
     </div>
   </div>
 </template>
@@ -253,7 +251,7 @@ const activeTab = ref<'services' | 'doctors'>('doctors');
 const searchQuery = ref('');
 
 const clinics = ref<any[]>([]);
-const selectedClinicId = ref<string>('all');
+const selectedClinicId = ref<string | null>((route.query.clinic_id as string) || null);
 const clinicsLoading = ref(false);
 
 const services = ref<any[]>([]);
@@ -274,12 +272,22 @@ const getLocalizedName = (item: any): string => {
   return isRtl.value ? item?.name_ar : item?.name_en;
 };
 
+const hasDistinctSpecialty = (doctor: any) => {
+  if (!doctor?.specialty) return false;
+  const spec = String(doctor.specialty).trim().toLowerCase();
+  const clinicAr = String(doctor.clinic?.name_ar || '').trim().toLowerCase();
+  const clinicEn = String(doctor.clinic?.name_en || '').trim().toLowerCase();
+  const clinicName = String(doctor.clinic?.name || '').trim().toLowerCase();
+  if (!spec || spec === clinicAr || spec === clinicEn || spec === clinicName) return false;
+  return true;
+};
+
 const getLocalizedDesc = (item: any): string => {
   return isRtl.value ? item?.description_ar : item?.description_en;
 };
 
 const activeClinicName = computed(() => {
-  if (selectedClinicId.value === 'all') return t('All Clinics');
+  if (!selectedClinicId.value) return '';
   const c = clinics.value.find(cl => cl.id === selectedClinicId.value);
   return c ? getLocalizedName(c) : '';
 });
@@ -300,7 +308,7 @@ const filteredServices = computed(() => {
 
 const filteredDoctors = computed(() => {
   let list = doctors.value;
-  if (selectedClinicId.value && selectedClinicId.value !== 'all') {
+  if (selectedClinicId.value) {
     list = list.filter(d => d.clinic_id === selectedClinicId.value || d.clinic?.id === selectedClinicId.value);
   }
   if (!searchQuery.value) return list;
@@ -318,9 +326,14 @@ const switchTab = (tab: 'services' | 'doctors') => {
   router.replace({ query: { ...route.query, tab } });
 };
 
-const selectClinic = (clinicId: string) => {
+const selectClinic = (clinicId: string | null) => {
   selectedClinicId.value = clinicId;
-  DOCTORS(1);
+  searchQuery.value = '';
+  if (clinicId) {
+    DOCTORS(1);
+  } else {
+    doctors.value = [];
+  }
 };
 
 const CLINICS = async () => {
@@ -369,7 +382,7 @@ const DOCTORS = async (page = 1) => {
   try {
     doctorsLoading.value = true;
     const filter: any = { page, limit: 10 };
-    if (selectedClinicId.value && selectedClinicId.value !== 'all') {
+    if (selectedClinicId.value) {
       filter.clinic_id = selectedClinicId.value;
     }
     const res = await api.apiRequest({ 
@@ -443,8 +456,10 @@ watch(() => route.query.tab, (newTab) => {
 onMounted(() => {
   CLINICS();
   SERVICES();
-  DOCTORS();
   EXAMINATION_CATEGORIES();
+  if (selectedClinicId.value) {
+    DOCTORS(1);
+  }
 });
 
 // 7. Meta (useHead, useSeoMeta)
@@ -503,11 +518,14 @@ onMounted(() => {
     inset-inline-start: 14px;
     color: var(--unity-text-dim);
     font-size: 0.95rem;
+    pointer-events: none;
   }
 
   input {
     width: 100%;
-    padding: 12px 14px 12px 42px;
+    padding-inline-start: 42px;
+    padding-inline-end: 14px;
+    padding-block: 12px;
     border-radius: 14px;
     border: 1.5px solid var(--unity-border);
     background: var(--unity-surface);
@@ -534,21 +552,23 @@ onMounted(() => {
 
   .cat-chip {
     flex-shrink: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    padding: 7px 13px;
-    border-radius: 12px;
-    border: 1.5px solid var(--unity-border);
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 9999px;
+    border: 1px solid var(--unity-border);
     background: var(--unity-surface);
     color: var(--unity-text-muted);
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.80rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
     i {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
     }
 
     &:hover {
@@ -557,14 +577,21 @@ onMounted(() => {
     }
 
     &.active {
-      background: var(--unity-primary-light);
-      border-color: var(--unity-primary);
+      background: var(--unity-primary-light, #ecfdf5);
+      border: 1.5px solid var(--unity-primary);
       color: var(--unity-primary);
+      font-weight: 700;
     }
   }
 }
 
 .tab-content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.selected-clinic-flow {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -597,6 +624,16 @@ onMounted(() => {
     i {
       font-size: 0.85rem;
       color: var(--unity-text-dim);
+    }
+
+    &.btn-back-chip {
+      background: var(--unity-primary-light);
+      border-color: var(--unity-primary);
+      color: var(--unity-primary);
+
+      i {
+        color: var(--unity-primary);
+      }
     }
 
     .count-bubble {

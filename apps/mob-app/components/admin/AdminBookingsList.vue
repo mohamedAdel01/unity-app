@@ -1,8 +1,7 @@
 <template>
   <div class="admin-bookings-list">
-    <!-- Bookings Mode -->
+    <!-- Modular Virtual Windowed Bookings List (10 by 10 Standard) -->
     <AppVirtualList
-      v-if="activeTab === 'bookings'"
       :items="bookings"
       :has-more="hasMore"
       :loading="loading"
@@ -14,7 +13,6 @@
           :booking="item"
           :initially-expanded="index === 0"
           @reschedule="emit('reschedule', $event)"
-          @download-invoice="emit('download-invoice', $event)"
           @approve="emit('approve', $event)"
           @cancel="emit('cancel', $event)"
         />
@@ -25,42 +23,6 @@
           <i class="pi pi-calendar-times"></i>
           <h5>{{ t('No bookings in this period') }}</h5>
           <p>{{ t('Try selecting another time range or clear filters.') }}</p>
-        </div>
-      </template>
-    </AppVirtualList>
-
-    <!-- Invoices Mode -->
-    <AppVirtualList
-      v-else
-      :items="invoices"
-      :has-more="hasMore"
-      :loading="loading"
-      :page-size="10"
-      @load-more="emit('load-more')"
-    >
-      <template #item="{ item: inv }">
-        <div class="invoice-summary-card">
-          <div class="inv-top">
-            <div class="inv-id-name">
-              <strong>#{{ inv.invoice_number }}</strong>
-              <span>{{ inv.patient_name }}</span>
-            </div>
-            <span class="inv-badge" :class="inv.status === 'paid' ? 'paid' : 'pending'">
-              {{ inv.status === 'paid' ? t('Paid') : t('Pending') }}
-            </span>
-          </div>
-          <div class="inv-meta">
-            <small>{{ inv.service_name }}</small>
-            <strong class="inv-amount">{{ inv.amount }} {{ t('EGP') }}</strong>
-          </div>
-        </div>
-      </template>
-
-      <template #empty>
-        <div class="empty-bookings-state">
-          <i class="pi pi-wallet"></i>
-          <h5>{{ t('No invoices found') }}</h5>
-          <p>{{ t('No billing records found for this period.') }}</p>
         </div>
       </template>
     </AppVirtualList>
@@ -75,16 +37,12 @@ import AppVirtualList from '../common/AppVirtualList.vue';
 
 const props = withDefaults(
   defineProps<{
-    activeTab?: 'bookings' | 'invoices';
     bookings?: any[];
-    invoices?: any[];
     hasMore?: boolean;
     loading?: boolean;
   }>(),
   {
-    activeTab: 'bookings',
     bookings: () => [],
-    invoices: () => [],
     hasMore: false,
     loading: false,
   }
@@ -92,7 +50,6 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'reschedule', booking: any): void;
-  (e: 'download-invoice', booking: any): void;
   (e: 'approve', booking: any): void;
   (e: 'cancel', booking: any): void;
   (e: 'load-more'): void;
@@ -153,77 +110,5 @@ const { t } = useI18n();
       line-height: 1.5;
     }
   }
-
-  .invoice-summary-card {
-    background: var(--unity-surface);
-    border: 1px solid var(--unity-border);
-    border-radius: 16px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-
-    .inv-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .inv-id-name {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        strong {
-          font-size: 0.88rem;
-          color: var(--unity-text-main);
-        }
-
-        span {
-          font-size: 0.75rem;
-          color: var(--unity-text-muted);
-        }
-      }
-
-      .inv-badge {
-        font-size: 0.72rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 20px;
-
-        &.paid {
-          background: #ecfdf5;
-          color: #059669;
-          border: 1px solid #a7f3d0;
-        }
-
-        &.pending {
-          background: #fffbeb;
-          color: #d97706;
-          border: 1px solid #fde68a;
-        }
-      }
-    }
-
-    .inv-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 8px;
-      border-top: 1px dashed var(--unity-border);
-
-      small {
-        font-size: 0.75rem;
-        color: var(--unity-text-muted);
-      }
-
-      .inv-amount {
-        font-size: 0.95rem;
-        font-weight: 800;
-        color: var(--unity-primary);
-      }
-    }
-  }
 }
 </style>
-

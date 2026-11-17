@@ -1,28 +1,34 @@
 <template>
   <div class="home-screen">
-    <!-- 1. Top Greeting Header -->
-    <HomeHeader />
+    <!-- Skeleton Loading State -->
+    <HomeSkeleton v-if="isInitialLoading" />
 
-    <!-- 2. Current/Upcoming Appointments (Compact sleek card / carousel for today & upcoming) -->
-    <HomeUpcomingCard 
-      :appointments="upcomingAppointments" 
-      @refresh="PATIENT_APPOINTMENTS"
-    />
+    <!-- Actual Dashboard Content -->
+    <template v-else>
+      <!-- 1. Top Greeting Header -->
+      <HomeHeader />
 
-    <!-- 3. Attractive Primary Action Cards (Doctor Checkup & Lab Tests, no pills, expressive icons) -->
-    <HomeCategoriesGrid />
+      <!-- 2. Current/Upcoming Appointments (Compact sleek card / carousel for today & upcoming) -->
+      <HomeUpcomingCard 
+        :appointments="upcomingAppointments" 
+        @refresh="PATIENT_APPOINTMENTS"
+      />
 
-    <!-- 4. Today's Special Offers (Image, description, price & strikethrough discount price) -->
-    <HomeTodayOffers />
+      <!-- 3. Attractive Primary Action Cards (Doctor Checkup & Lab Tests, no pills, expressive icons) -->
+      <HomeCategoriesGrid />
 
-    <!-- 5. Our Top Doctors -->
-    <HomeTopDoctors 
-      :search-query="searchQuery" 
-      :category-filter="activeFilter" 
-    />
+      <!-- 4. Today's Special Offers (Image, description, price & strikethrough discount price) -->
+      <HomeTodayOffers />
 
-    <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
-    <div class="page-bottom-spacer" aria-hidden="true" />
+      <!-- 5. Our Top Doctors -->
+      <HomeTopDoctors 
+        :search-query="searchQuery" 
+        :category-filter="activeFilter" 
+      />
+
+      <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
+      <div class="page-bottom-spacer" aria-hidden="true" />
+    </template>
   </div>
 </template>
 
@@ -35,6 +41,7 @@ import HomeUpcomingCard from './HomeUpcomingCard.vue';
 import HomeCategoriesGrid from './HomeCategoriesGrid.vue';
 import HomeTodayOffers from './HomeTodayOffers.vue';
 import HomeTopDoctors from './HomeTopDoctors.vue';
+import HomeSkeleton from './HomeSkeleton.vue';
 
 const api = useUnityApi();
 
@@ -42,6 +49,7 @@ const api = useUnityApi();
 const searchQuery = ref('');
 const activeFilter = ref('all');
 const upcomingAppointments = ref<any[]>([]);
+const isInitialLoading = ref(true);
 
 // 3. Computed (computed properties)
 
@@ -65,8 +73,14 @@ const PATIENT_APPOINTMENTS = async () => {
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
-onMounted(() => {
-  PATIENT_APPOINTMENTS();
+onMounted(async () => {
+  try {
+    await PATIENT_APPOINTMENTS();
+  } finally {
+    setTimeout(() => {
+      isInitialLoading.value = false;
+    }, 350);
+  }
 });
 
 // 7. Meta (useHead, useSeoMeta)
@@ -78,5 +92,10 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 18px;
+
+  .page-bottom-spacer {
+    height: 75px;
+    flex-shrink: 0;
+  }
 }
 </style>

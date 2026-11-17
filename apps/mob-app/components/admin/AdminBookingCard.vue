@@ -1,43 +1,76 @@
 <template>
-  <div class="admin-booking-card" :class="{ 'is-expanded': isExpanded }">
+  <div class="admin-booking-card-wrapper">
     <!-- ============================================== -->
-    <!-- Card Header Row (Click to toggle accordion)   -->
+    <!-- Top Floating Badges Bar (Lined up side-by-side) -->
     <!-- ============================================== -->
-    <div class="booking-header-row" @click="toggleExpand">
-      <!-- Right Side: Patient Avatar & Details -->
-      <div class="patient-cell">
-        <div class="avatar-wrap">
-          <img v-if="booking.avatar" :src="resolveAvatar(booking.avatar)" :alt="booking.patient_name" class="avatar-img" />
-          <div v-else class="initial-avatar">
-            <span>{{ patientInitial }}</span>
-          </div>
-        </div>
+    <div class="card-floating-badges-bar">
+      <!-- 1. Booking Type Badge -->
+      <span class="floating-badge badge-type" :class="isExamination ? 'type-exam' : 'type-consult'">
+        {{ bookingTypeLabel }}
+      </span>
 
-        <div class="patient-info">
-          <div class="patient-name-row">
-            <h5 class="patient-name">{{ booking.patient_name || t('Patient') }}</h5>
-          </div>
-          <div class="service-subline">
-            <i :class="isExamination ? 'pi pi-compass' : 'pi pi-building'" class="clinic-sub-icon"></i>
-            <span class="service-name">{{ serviceTitle }}</span>
-          </div>
-        </div>
-      </div>
+      <!-- 2. Booking Status Badge -->
+      <span class="floating-badge badge-status" :class="getStatusClass(booking.status)">
+        <span class="dot"></span>
+        <span>{{ getStatusLabel(booking.status) }}</span>
+      </span>
 
-      <!-- Left Side: Status Chip on Top Left & Expand Arrow -->
-      <div class="meta-cell">
-        <span class="type-badge" :class="isExamination ? 'badge-exam' : 'badge-consult'">
-          {{ bookingTypeLabel }}
-        </span>
-        <span class="status-badge" :class="getStatusClass(booking.status)">
-          <span class="dot"></span>
-          <span>{{ getStatusLabel(booking.status) }}</span>
-        </span>
-        <button type="button" class="expand-btn" :aria-label="isExpanded ? 'Collapse' : 'Expand'">
-          <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-        </button>
-      </div>
+      <!-- 3. Payment Status Badge -->
+      <span class="floating-badge badge-payment" :class="paymentStatusClass">
+        <i :class="isPaid ? 'pi pi-check-circle' : 'pi pi-clock'"></i>
+        <span>{{ paymentStatusLabel }}</span>
+      </span>
     </div>
+
+    <!-- ============================================== -->
+    <!-- Main Card Body                                 -->
+    <!-- ============================================== -->
+    <div class="admin-booking-card" :class="{ 'is-expanded': isExpanded }">
+      <!-- Card Header Row (Click to toggle accordion)   -->
+      <div class="booking-header-row" @click="toggleExpand">
+        <!-- Right Side: Patient Avatar & Details -->
+        <div class="patient-cell">
+          <div class="avatar-wrap">
+            <img v-if="booking.avatar" :src="resolveAvatar(booking.avatar)" :alt="booking.patient_name" class="avatar-img" />
+            <div v-else class="initial-avatar">
+              <span>{{ patientInitial }}</span>
+            </div>
+          </div>
+
+          <div class="patient-info">
+            <div class="patient-name-row">
+              <h5 class="patient-name">{{ booking.patient_name || t('Patient') }}</h5>
+            </div>
+            <div class="phone-subline" @click.stop>
+              <template v-if="displayPhone">
+                <i class="pi pi-phone phone-sub-icon"></i>
+                <span class="phone-number" dir="ltr">{{ displayPhone }}</span>
+                <button 
+                  type="button" 
+                  class="phone-copy-btn" 
+                  :class="{ copied: hasCopiedPhone }"
+                  :title="t('Copy phone number')" 
+                  :aria-label="t('Copy phone number')"
+                  @click.stop="copyPhone(displayPhone)"
+                >
+                  <i class="pi" :class="hasCopiedPhone ? 'pi-check' : 'pi-copy'"></i>
+                </button>
+              </template>
+              <template v-else>
+                <i class="pi pi-phone phone-sub-icon"></i>
+                <span class="phone-number-empty">{{ t('No phone number') }}</span>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Left Side: Expand Chevron Button Only -->
+        <div class="meta-cell">
+          <button type="button" class="expand-btn" :aria-label="isExpanded ? 'Collapse' : 'Expand'">
+            <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+          </button>
+        </div>
+      </div>
 
     <!-- ============================================== -->
     <!-- Expanded Body (Visible when isExpanded is true)-->
@@ -73,9 +106,6 @@
         <div class="payment-method-badge">
           <i :class="booking.payment_method === 'paymob' ? 'pi pi-credit-card' : 'pi pi-wallet'"></i>
           <span>{{ getPaymentMethodLabel(booking.payment_method) }}</span>
-          <span class="payment-pill" :class="paymentStatusClass">
-            {{ paymentStatusLabel }}
-          </span>
         </div>
         <div class="price-badge">
           <span class="price-val">{{ booking.price || 0 }}</span>
@@ -83,58 +113,56 @@
         </div>
       </div>
 
-      <!-- Action Buttons Grid -->
-      <div class="actions-grid">
-        <!-- Approve Booking (Prominent when pending) -->
-        <button 
-          v-if="booking.status === 'pending'" 
-          type="button" 
-          class="act-btn btn-approve" 
-          @click.stop="emit('approve', booking)"
-        >
-          <i class="pi pi-check-circle"></i>
-          <span>{{ t('Approve Booking') }}</span>
-        </button>
+      <!-- Action Bar: Large Action Buttons (Side by Side matching system standard) -->
+      <div class="card-bottom-bar-large">
+        <template v-if="booking.status === 'pending'">
+          <button 
+            type="button" 
+            class="btn-bottom-action btn-confirm" 
+            @click.stop="emit('approve', booking)"
+          >
+            <i class="pi pi-check"></i>
+            <span>{{ t('Confirm Booking') }}</span>
+          </button>
 
-        <!-- Reschedule Slot -->
+          <button 
+            type="button" 
+            class="btn-bottom-action btn-cancel" 
+            @click.stop="emit('cancel', booking)"
+          >
+            <i class="pi pi-times"></i>
+            <span>{{ t('Cancel') }}</span>
+          </button>
+        </template>
+
+        <template v-else>
+          <div class="status-summary-pill" :class="getStatusClass(booking.status)">
+            <span class="dot"></span>
+            <span>{{ getStatusLabel(booking.status) }}</span>
+          </div>
+        </template>
+
+        <!-- Edit / Reschedule slot unified button -->
         <button 
           type="button" 
-          class="act-btn btn-reschedule" 
+          class="btn-card-edit" 
+          :title="t('Reschedule Slot')" 
+          :aria-label="t('Reschedule Slot')" 
           @click.stop="emit('reschedule', booking)"
         >
-          <i class="pi pi-calendar"></i>
-          <span>{{ t('Reschedule Slot') }}</span>
-        </button>
-
-        <!-- Invoice Button -->
-        <button 
-          type="button" 
-          class="act-btn btn-invoice" 
-          @click.stop="emit('download-invoice', booking)"
-        >
-          <i class="pi pi-download"></i>
-          <span>{{ t('Invoice') }}</span>
-        </button>
-
-        <!-- Cancel Booking (Only allowed for pending bookings before confirmation) -->
-        <button 
-          v-if="booking.status === 'pending'" 
-          type="button" 
-          class="act-btn btn-cancel" 
-          @click.stop="emit('cancel', booking)"
-        >
-          <i class="pi pi-times"></i>
-          <span>{{ t('Cancel Booking') }}</span>
+          <i class="pi pi-pencil"></i>
         </button>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import { useAppToast } from '../../composables/useAppToast';
 import AppExamIcon from '../common/AppExamIcon.vue';
 
 const props = withDefaults(
@@ -155,11 +183,17 @@ const emit = defineEmits<{
 }>();
 
 const { t, isRtl } = useI18n();
+const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const isExpanded = ref(props.initiallyExpanded);
+const hasCopiedPhone = ref(false);
+let copyTimeout: any = null;
 
 // 3. Computed (computed properties)
+const displayPhone = computed(() => {
+  return props.booking?.patient_phone || props.booking?.phone || props.booking?.patient?.phone || '';
+});
 const patientInitial = computed(() => {
   const name = props.booking?.patient_name || '';
   return name.trim().charAt(0) || 'م';
@@ -225,6 +259,30 @@ const toggleExpand = () => {
   isExpanded.value = !isExpanded.value;
 };
 
+const copyPhone = async (phone: string) => {
+  if (!phone) return;
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(phone);
+    } else {
+      const input = document.createElement('input');
+      input.value = phone;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+    }
+    hasCopiedPhone.value = true;
+    toast.success(t('Phone copied to clipboard!'));
+    clearTimeout(copyTimeout);
+    copyTimeout = setTimeout(() => {
+      hasCopiedPhone.value = false;
+    }, 2000);
+  } catch (err) {
+    // silently fail
+  }
+};
+
 const formatSingleTime = (timeStr?: string) => {
   if (!timeStr) return '';
   const trimmed = String(timeStr).trim();
@@ -278,171 +336,78 @@ const resolveAvatar = (url?: string) => {
     return url;
   }
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  const baseUrl = config.public?.API_URL || config.public?.apiUrl || 'http://localhost:4000';
   return `${baseUrl}${url}`;
 };
 
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+onUnmounted(() => {
+  if (copyTimeout) clearTimeout(copyTimeout);
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
 
 <style scoped lang="scss">
-.admin-booking-card {
-  background: var(--unity-surface);
-  border: 1px solid var(--unity-border);
-  border-radius: 20px;
-  padding: 14px 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+.admin-booking-card-wrapper {
   display: flex;
   flex-direction: column;
-  transition: all 0.25s ease;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  position: relative;
+  direction: rtl;
 
-  &.is-expanded {
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
-  }
+  // Top Floating Badges Bar
+  .card-floating-badges-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+    margin-bottom: 6px;
+    z-index: 2;
 
-  // 1. Header Row
-  .booking-header-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-
-    .patient-cell {
-      display: flex;
+    .floating-badge {
+      display: inline-flex;
       align-items: center;
-      gap: 12px;
-      min-width: 0;
-      flex: 1;
+      gap: 4px;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 9999px;
+      font-size: 0.70rem;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
 
-      .avatar-wrap {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        flex-shrink: 0;
-        overflow: hidden;
+      i {
+        font-size: 0.72rem;
+      }
 
-        .avatar-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
 
-        .initial-avatar {
-          width: 100%;
-          height: 100%;
+      // 1. Type Badges
+      &.badge-type {
+        &.type-consult {
           background: #ecfdf5;
           color: #047857;
           border: 1px solid #a7f3d0;
-          border-radius: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.15rem;
-          font-weight: 800;
+        }
+
+        &.type-exam {
+          background: #f0f9ff;
+          color: #0284c7;
+          border: 1px solid #bae6fd;
         }
       }
 
-      .patient-info {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        min-width: 0;
-
-        .patient-name-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          .patient-name {
-            font-size: 0.96rem;
-            font-weight: 800;
-            color: var(--unity-text-main);
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        }
-
-        .service-subline {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          margin-top: 3px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-
-          .clinic-sub-icon {
-            font-size: 0.74rem;
-            color: var(--unity-text-dim, #94a3b8);
-            flex-shrink: 0;
-          }
-
-          .service-name {
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: var(--unity-text-muted, #64748b);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        }
-      }
-    }
-
-    .meta-cell {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-
-      .type-badge {
-        font-size: 0.67rem;
-        font-weight: 800;
-        padding: 2px 7px;
-        border-radius: 6px;
-        line-height: 1.3;
-        white-space: nowrap;
-
-        &.badge-consult {
-          background: rgba(4, 120, 87, 0.1);
-          color: #047857;
-          border: 1px solid rgba(4, 120, 87, 0.2);
-        }
-
-        &.badge-exam {
-          background: rgba(37, 99, 235, 0.1);
-          color: #2563eb;
-          border: 1px solid rgba(37, 99, 235, 0.2);
-        }
-      }
-
-      .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 2px 7px;
-        border-radius: 6px;
-        font-size: 0.67rem;
-        font-weight: 800;
-        line-height: 1.3;
-        white-space: nowrap;
-
-        .dot {
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-        }
-
+      // 2. Booking Status Badges
+      &.badge-status {
         &.status-pending {
           background: #f5f3ff;
           color: #7c3aed;
@@ -463,16 +428,6 @@ const resolveAvatar = (url?: string) => {
           }
         }
 
-        &.status-cancelled {
-          background: #fef2f2;
-          color: #dc2626;
-          border: 1px solid #fecaca;
-
-          .dot {
-            background: #ef4444;
-          }
-        }
-
         &.status-completed {
           background: #f0fdf4;
           color: #15803d;
@@ -482,22 +437,205 @@ const resolveAvatar = (url?: string) => {
             background: #22c55e;
           }
         }
+
+        &.status-cancelled {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+
+          .dot {
+            background: #ef4444;
+          }
+        }
       }
 
-      .expand-btn {
-        background: transparent;
-        border: none;
-        color: #94a3b8;
-        font-size: 0.85rem;
-        cursor: pointer;
-        padding: 4px;
+      // 3. Payment Status Badges
+      &.badge-payment {
+        &.paid {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+        }
+
+        &.pending {
+          background: #fff7ed;
+          color: #c2410c;
+          border: 1px solid #fed7aa;
+        }
+
+        &.refunded {
+          background: #eff6ff;
+          color: #1d4ed8;
+          border: 1px solid #bfdbfe;
+        }
+
+        &.failed {
+          background: #fef2f2;
+          color: #b91c1c;
+          border: 1px solid #fecaca;
+        }
+      }
+    }
+  }
+
+  .admin-booking-card {
+    background: var(--unity-surface);
+    border: 1px solid var(--unity-border);
+    border-radius: 20px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s ease;
+    margin-bottom: 0;
+
+    &.is-expanded {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    // 1. Header Row
+    .booking-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+
+      .patient-cell {
         display: flex;
         align-items: center;
-        justify-content: center;
-        transition: color 0.2s;
+        gap: 12px;
+        min-width: 0;
+        flex: 1;
 
-        &:hover {
-          color: var(--unity-text-main);
+        .avatar-wrap {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+          flex-shrink: 0;
+          overflow: hidden;
+
+          .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .initial-avatar {
+            width: 100%;
+            height: 100%;
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            font-weight: 800;
+          }
+        }
+
+        .patient-info {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+          min-width: 0;
+
+          .patient-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .patient-name {
+              font-size: 0.96rem;
+              font-weight: 800;
+              color: var(--unity-text-main);
+              margin: 0;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+
+          .phone-subline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 3px;
+            cursor: default;
+
+            .phone-sub-icon {
+              font-size: 0.72rem;
+              color: var(--unity-primary, #047857);
+              flex-shrink: 0;
+            }
+
+            .phone-number {
+              font-size: 0.78rem;
+              font-weight: 700;
+              color: var(--unity-text-muted, #475569);
+              letter-spacing: 0.3px;
+            }
+
+            .phone-number-empty {
+              font-size: 0.74rem;
+              color: var(--unity-text-dim, #94a3b8);
+            }
+
+            .phone-copy-btn {
+              width: 22px;
+              height: 22px;
+              border-radius: 6px;
+              background: #f1f5f9;
+              border: 1px solid #e2e8f0;
+              color: #64748b;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              padding: 0;
+              transition: all 0.2s ease;
+              font-size: 0.70rem;
+
+              &:hover {
+                background: #e2e8f0;
+                color: #0f172a;
+              }
+
+              &.copied {
+                background: #ecfdf5;
+                color: #047857;
+                border-color: #a7f3d0;
+              }
+            }
+          }
+        }
+      }
+
+      .meta-cell {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+
+        .expand-btn {
+          background: transparent;
+          border: none;
+          color: #94a3b8;
+          font-size: 0.95rem;
+          cursor: pointer;
+          padding: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.2s;
+
+          &:hover {
+            color: var(--unity-text-main);
+          }
         }
       }
     }
@@ -642,72 +780,129 @@ const resolveAvatar = (url?: string) => {
       }
     }
 
-    // Actions Grid
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 8px;
+    // Action Bar: Large Action Buttons (Side by Side matching system standard)
+    .card-bottom-bar-large {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
       margin-top: 4px;
+      padding-top: 4px;
 
-      .act-btn {
-        height: 40px;
-        border-radius: 12px;
-        font-size: 0.78rem;
-        font-weight: 700;
+      .btn-bottom-action {
+        flex: 1;
+        height: 44px;
+        border-radius: 14px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 8px;
+        font-size: 0.88rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.2s ease;
-        padding: 0 10px;
-        white-space: nowrap;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        border: none;
 
         i {
-          font-size: 0.85rem;
+          font-size: 1.05rem;
         }
 
-        &.btn-approve {
-          grid-column: 1 / -1;
-          background: var(--unity-primary);
-          color: #fff;
-          border: none;
-          box-shadow: 0 2px 6px rgba(18, 93, 73, 0.25);
+        &.btn-confirm {
+          background: var(--unity-primary, #047857);
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
 
           &:hover {
-            background: var(--unity-primary-dark);
+            background: var(--unity-primary-dark, #065f46);
             transform: translateY(-1px);
-          }
-        }
-
-        &.btn-reschedule {
-          background: #f1f5f9;
-          color: #1e293b;
-          border: 1px solid #cbd5e1;
-
-          &:hover {
-            background: #e2e8f0;
-          }
-        }
-
-        &.btn-invoice {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
-
-          &:hover {
-            background: #d1fae5;
           }
         }
 
         &.btn-cancel {
           background: #fef2f2;
-          color: #dc2626;
-          border: 1px solid #fecaca;
+          color: #ef4444;
+          border: 1.5px solid #fecaca;
 
           &:hover {
             background: #fee2e2;
+            border-color: #fca5a5;
+            transform: translateY(-1px);
           }
+        }
+
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+
+      .status-summary-pill {
+        flex: 1;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border-radius: 14px;
+        font-size: 0.84rem;
+        font-weight: 700;
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+        }
+
+        &.status-confirmed {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+          .dot { background: #10b981; }
+        }
+
+        &.status-cancelled {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          .dot { background: #ef4444; }
+        }
+
+        &.status-completed {
+          background: #eff6ff;
+          color: #2563eb;
+          border: 1px solid #bfdbfe;
+          .dot { background: #3b82f6; }
+        }
+      }
+
+      .btn-card-edit {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: #ecfdf5;
+        border: 1.5px solid #a7f3d0;
+        color: #047857;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 0;
+        flex-shrink: 0;
+
+        i {
+          font-size: 1.15rem;
+          color: #047857;
+        }
+
+        &:hover {
+          background: #d1fae5;
+          border-color: #6ee7b7;
+          color: #065f46;
+          transform: translateY(-1px);
+        }
+
+        &:active {
+          transform: scale(0.96);
         }
       }
     }

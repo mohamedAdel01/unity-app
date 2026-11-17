@@ -1,14 +1,23 @@
 <template>
   <div class="appointments-list-container">
-    <!-- Filter Tabs (القادمة / المكتملة / الملغية) -->
+    <!-- Filter Tabs (تحت المراجعة / القادمة / المكتملة / الملغاة) - Horizontally Scrollable -->
     <div class="status-tabs-nav">
+      <button 
+        class="tab-btn" 
+        :class="{ 'active': activeTab === 'pending' }"
+        @click="activeTab = 'pending'"
+      >
+        <span>{{ t('Under Review') }}</span>
+        <span class="count-pill">({{ pendingAppointments.length }})</span>
+      </button>
+
       <button 
         class="tab-btn" 
         :class="{ 'active': activeTab === 'upcoming' }"
         @click="activeTab = 'upcoming'"
       >
         <span>{{ t('Upcoming') }}</span>
-        <span class="count-pill">{{ upcomingAppointments.length }}</span>
+        <span class="count-pill">({{ upcomingAppointments.length }})</span>
       </button>
 
       <button 
@@ -17,7 +26,7 @@
         @click="activeTab = 'completed'"
       >
         <span>{{ t('Completed') }}</span>
-        <span class="count-pill">{{ completedAppointments.length }}</span>
+        <span class="count-pill">({{ completedAppointments.length }})</span>
       </button>
 
       <button 
@@ -26,6 +35,7 @@
         @click="activeTab = 'cancelled'"
       >
         <span>{{ t('Cancelled') }}</span>
+        <span v-if="cancelledAppointments.length > 0" class="count-pill">({{ cancelledAppointments.length }})</span>
       </button>
     </div>
 
@@ -38,25 +48,32 @@
       @load-more="loadMoreAppointments"
     >
       <template #item="{ item: apt }">
-        <div class="appointment-item-card">
-        <!-- Card Header: All Booking Metadata Side by Side -->
-        <div class="card-head">
-          <div class="head-meta-group">
-            <span class="type-pill" :class="isExaminationAppointment(apt) ? 'pill-exam' : 'pill-consult'">
-              {{ isExaminationAppointment(apt) ? t('Medical Exam') : t('Consultation') }}
+        <div class="appointment-card-wrapper">
+          <!-- Top Floating Badges Bar (Lined up side-by-side floating outside the card) -->
+          <div class="card-floating-badges-bar">
+            <span v-if="isOfferAppointment(apt)" class="floating-badge pill-offer">
+              <i class="pi pi-tag"></i>
+              <span>{{ t('Special Offer') }}</span>
             </span>
-            <div class="status-badge" :class="getStatusClass(apt.status)">
+            <span v-else-if="isExaminationAppointment(apt)" class="floating-badge pill-exam">
+              {{ t('Medical Exam') }}
+            </span>
+            <span v-else class="floating-badge pill-consult">
+              {{ t('Consultation') }}
+            </span>
+            <div class="floating-badge status-badge" :class="getStatusClass(apt.status)">
               <span class="dot"></span>
               <span>{{ getStatusLabel(apt.status) }}</span>
             </div>
-            <span class="payment-tag" :class="getPaymentClass(apt)">
+            <span class="floating-badge payment-tag" :class="getPaymentClass(apt)">
               <i :class="getPaymentIcon(apt)"></i>
               <span>{{ getPaymentLabel(apt) }}</span>
             </span>
           </div>
-        </div>
 
-        <!-- Doctor & Clinic / Examination Info -->
+          <div class="appointment-item-card">
+
+        <!-- Doctor & Clinic / Examination / Offer Info -->
         <div class="doctor-row">
           <img 
             v-if="getDoctorAvatar(apt) && !failedDoctorAvatars.has(apt.id)"
@@ -64,18 +81,19 @@
             alt=""
             @error="failedDoctorAvatars.add(apt.id)" 
           />
-          <div v-else class="doc-avatar-initial" :class="{ 'is-exam': isExaminationAppointment(apt) }">
-            <AppExamIcon v-if="isExaminationAppointment(apt)" :size="20" />
+          <div v-else class="doc-avatar-initial" :class="{ 'is-exam': isExaminationAppointment(apt), 'is-offer': isOfferAppointment(apt) }">
+            <i v-if="isOfferAppointment(apt)" class="pi pi-percentage" style="font-size: 1.15rem; color: #ffffff;"></i>
+            <AppExamIcon v-else-if="isExaminationAppointment(apt)" :size="20" />
             <span v-else>{{ getAppointmentInitial(apt) }}</span>
           </div>
           <div class="doc-text">
             <h5>{{ getAppointmentTitle(apt) }}</h5>
-            <div v-if="getAppointmentClinic(apt)" class="clinic-sub">
-              <i class="pi pi-building"></i>
+            <div v-if="getAppointmentClinic(apt)" class="clinic-sub" :class="{ 'is-offer-text': isOfferAppointment(apt) }">
+              <i :class="isOfferAppointment(apt) ? 'pi pi-sparkles' : 'pi pi-building'"></i>
               <span>{{ getAppointmentClinic(apt) }}</span>
             </div>
-            <p v-else-if="apt.examination?.description" class="exam-sub">
-              {{ resolveI18n(apt.examination.description) }}
+            <p v-else-if="apt.examination?.description || apt.offer?.description" class="exam-sub">
+              {{ resolveI18n(apt.examination?.description || apt.offer?.description) }}
             </p>
           </div>
         </div>
@@ -136,7 +154,8 @@
           </template>
         </div>
       </div>
-    </template>
+    </div>
+  </template>
 
       <template #empty>
         <div class="empty-state">
@@ -224,17 +243,19 @@ const globalStore = useGlobalStore();
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
-const activeTab = ref<'upcoming' | 'completed' | 'cancelled'>('upcoming');
+const activeTab = ref<'pending' | 'upcoming' | 'completed' | 'cancelled'>('pending');
 const failedDoctorAvatars = ref(new Set<string | number>());
 
 const getDoctorAvatar = (apt: any) => {
-  const av = apt?.doctor?.avatar || apt?.doctor?.user?.avatar;
+  const av = apt?.offer?.image || apt?.doctor?.avatar || apt?.doctor?.user?.avatar;
   if (!av || typeof av !== 'string') return '';
   const trimmed = av.trim();
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/uploads/') || trimmed.startsWith('data:image/')) {
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
     return trimmed;
   }
-  return '';
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  return `${baseUrl}${trimmed}`;
 };
 
 const appointments = ref<any[]>([]);
@@ -250,7 +271,11 @@ const selectedAptToCancel = ref<any | null>(null);
 
 // 3. Computed (computed properties)
 const upcomingAppointments = computed(() => {
-  return appointments.value.filter(a => a.status === 'confirmed' || a.status === 'pending');
+  return appointments.value.filter(a => a.status === 'confirmed');
+});
+
+const pendingAppointments = computed(() => {
+  return appointments.value.filter(a => a.status === 'pending');
 });
 
 const completedAppointments = computed(() => {
@@ -263,6 +288,7 @@ const cancelledAppointments = computed(() => {
 
 const currentList = computed(() => {
   if (activeTab.value === 'upcoming') return upcomingAppointments.value;
+  if (activeTab.value === 'pending') return pendingAppointments.value;
   if (activeTab.value === 'completed') return completedAppointments.value;
   return cancelledAppointments.value;
 });
@@ -278,6 +304,9 @@ const PATIENT_APPOINTMENTS = async (page = 1) => {
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     if (page === 1) {
       appointments.value = raw;
+      if (upcomingAppointments.value.length === 0 && pendingAppointments.value.length > 0) {
+        activeTab.value = 'pending';
+      }
     } else {
       appointments.value.push(...raw);
     }
@@ -316,20 +345,25 @@ const getStatusClass = (status: string) => {
   }
 };
 
+const isOfferAppointment = (apt: any) => {
+  return Boolean(apt.offer || apt.offer_id || apt.notes?.includes('عرض'));
+};
+
 const isExaminationAppointment = (apt: any) => {
+  if (isOfferAppointment(apt)) return false;
   return Boolean(apt.examination || apt.examination_id || apt.notes?.includes('فحص'));
 };
 
 const getAppointmentTitle = (apt: any) => {
-  const exam = apt.examination;
-  if (exam) {
-    const n = !isRtl.value && exam.name_en ? exam.name_en : (exam.name_ar || exam.name);
-    if (n) return resolveI18n(n);
-  }
   const offer = apt.offer;
   if (offer) {
     const title = !isRtl.value && offer.title_en ? offer.title_en : (offer.title_ar || offer.title);
     if (title) return resolveI18n(title);
+  }
+  const exam = apt.examination;
+  if (exam) {
+    const n = !isRtl.value && exam.name_en ? exam.name_en : (exam.name_ar || exam.name);
+    if (n) return resolveI18n(n);
   }
   const serv = apt.service;
   if (serv) {
@@ -342,16 +376,19 @@ const getAppointmentTitle = (apt: any) => {
     const after = apt.notes.split(':')[1]?.trim();
     if (after) return resolveI18n(after);
   }
-  return isExaminationAppointment(apt) ? t('Hospital Examination') : t('Doctor Consultation');
+  return isOfferAppointment(apt) ? t('Special Offer') : (isExaminationAppointment(apt) ? t('Hospital Examination') : t('Doctor Consultation'));
 };
 
 const getAppointmentSubtitle = (apt: any) => {
+  if (isOfferAppointment(apt)) return t('Special Offer');
   if (apt.examination) return t('Hospital Medical Examination');
-  if (apt.offer) return t('Medical Offer');
   return resolveI18n(apt.doctor?.specialty) || t('Consultation');
 };
 
 const getAppointmentClinic = (apt: any) => {
+  if (isOfferAppointment(apt)) {
+    return t('Unity Exclusive Offers');
+  }
   const clinic = apt.clinic || apt.doctor?.clinic || apt.doctor?.doctor?.clinic;
   if (clinic) {
     const n = !isRtl.value && clinic.name_en ? clinic.name_en : (clinic.name_ar || clinic.name);
@@ -432,7 +469,7 @@ const rebook = (apt: any) => {
     examination: apt.examination || null,
     date: apt.date ? new Date(apt.date).toISOString().split('T')[0] : '',
     slot: apt.start_time ? { start_time: apt.start_time, end_time: apt.end_time } : null,
-    type: apt.type || (isExaminationAppointment(apt) ? 'examination' : 'consultation'),
+    type: apt.type || (isOfferAppointment(apt) ? 'examination' : (isExaminationAppointment(apt) ? 'examination' : 'consultation')),
   });
 };
 
@@ -487,44 +524,64 @@ onMounted(() => {
 <style scoped lang="scss">
 .status-tabs-nav {
   display: flex;
+  align-items: center;
   background: var(--unity-surface);
-  border: 1px solid var(--unity-border);
-  border-radius: 16px;
-  padding: 4px;
+  border: 1.5px solid var(--unity-border);
+  border-radius: 18px;
+  padding: 5px;
   gap: 6px;
   margin-bottom: 16px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .tab-btn {
-    flex: 1;
-    display: flex;
+    flex: 0 0 auto;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 10px;
-    border-radius: 12px;
-    border: none;
-    background: transparent;
+    gap: 4px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 9999px;
+    border: 1px solid var(--unity-border);
+    background: var(--unity-surface);
     color: var(--unity-text-muted);
-    font-size: 0.8rem;
+    font-size: 0.80rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    white-space: nowrap;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
     .count-pill {
-      background: var(--unity-border);
-      color: var(--unity-text-main);
-      font-size: 0.65rem;
-      padding: 1px 6px;
-      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      border: none;
+      font-size: 0.76rem;
+      font-weight: 500;
+      opacity: 0.8;
+      padding: 0;
+    }
+
+    &:hover:not(.active) {
+      color: var(--unity-primary);
+      border-color: var(--unity-primary);
     }
 
     &.active {
-      background: var(--unity-primary-dark);
-      color: #fff;
+      background: var(--unity-primary);
+      color: #ffffff;
+      border-color: var(--unity-primary);
+      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
 
       .count-pill {
-        background: rgba(255, 255, 255, 0.25);
-        color: #fff;
+        color: #ffffff;
+        opacity: 0.9;
       }
     }
   }
@@ -536,143 +593,116 @@ onMounted(() => {
   gap: 14px;
 }
 
+.appointment-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+  position: relative;
+  direction: rtl;
+
+  .card-floating-badges-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+    margin-bottom: 6px;
+    z-index: 2;
+
+    .floating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 9999px;
+      font-size: 0.70rem;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 0.72rem;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+
+      &.pill-consult {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+      }
+
+      &.pill-exam {
+        background: #f0f9ff;
+        color: #0284c7;
+        border: 1px solid #bae6fd;
+      }
+
+      &.pill-offer {
+        background: #fff7ed;
+        color: #ea580c;
+        border: 1px solid #fed7aa;
+      }
+
+      &.status-badge {
+        &.status-confirmed {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+          .dot { background: #10b981; }
+        }
+
+        &.status-completed {
+          background: #f0fdf4;
+          color: #15803d;
+          border: 1px solid #bbf7d0;
+          .dot { background: #22c55e; }
+        }
+
+        &.status-cancelled {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          .dot { background: #ef4444; }
+        }
+
+        &.status-pending {
+          background: #f5f3ff;
+          color: #7c3aed;
+          border: 1px solid #ddd6fe;
+          .dot { background: #7c3aed; }
+        }
+      }
+
+      &.payment-tag {
+        &.is-paid {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+        }
+
+        &.is-unpaid {
+          background: #fff7ed;
+          color: #c2410c;
+          border: 1px solid #fed7aa;
+        }
+      }
+    }
+  }
+}
+
 .appointment-item-card {
   background: var(--unity-surface);
   border: 1.5px solid var(--unity-border);
   border-radius: 20px;
   padding: 16px;
   box-shadow: var(--unity-shadow-subtle);
-
-  .card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-
-    .head-meta-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-
-      .type-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 3px 8px;
-        border-radius: 8px;
-        font-size: 0.72rem;
-        font-weight: 800;
-
-        &.pill-consult {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid rgba(4, 120, 87, 0.2);
-        }
-
-        &.pill-exam {
-          background: #f0f9ff;
-          color: #0284c7;
-          border: 1px solid rgba(2, 132, 199, 0.2);
-        }
-      }
-
-      .status-badge {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 3px 10px;
-        border-radius: 8px;
-        font-size: 0.72rem;
-        font-weight: 800;
-
-        .dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-        }
-
-        &.status-confirmed {
-          background: #ecfdf5;
-          color: #047857;
-          .dot { background: #10b981; }
-        }
-
-        &.status-completed {
-          background: #e0f2fe;
-          color: #0369a1;
-          .dot { background: #0284c7; }
-        }
-
-        &.status-cancelled {
-          background: #fef2f2;
-          color: #dc2626;
-          .dot { background: #ef4444; }
-        }
-
-        &.status-pending {
-          background: #fffbeb;
-          color: #b45309;
-          .dot { background: #f59e0b; }
-        }
-      }
-
-      .payment-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 0.70rem;
-        font-weight: 700;
-        padding: 2.5px 8px;
-        border-radius: 8px;
-        white-space: nowrap;
-
-        i {
-          font-size: 0.74rem;
-        }
-
-        &.paid {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid rgba(4, 120, 87, 0.2);
-
-          i {
-            color: #10b981;
-          }
-        }
-
-        &.pending {
-          background: #fff7ed;
-          color: #c2410c;
-          border: 1px solid #fed7aa;
-
-          i {
-            color: #ea580c;
-          }
-        }
-
-        &.refunded {
-          background: #eff6ff;
-          color: #1d4ed8;
-          border: 1px solid #bfdbfe;
-
-          i {
-            color: #2563eb;
-          }
-        }
-
-        &.failed {
-          background: #fef2f2;
-          color: #b91c1c;
-          border: 1px solid #fecaca;
-
-          i {
-            color: #dc2626;
-          }
-        }
-      }
-    }
-  }
 
   .doctor-row {
     display: flex;
@@ -707,6 +737,16 @@ onMounted(() => {
         }
       }
 
+      &.is-offer {
+        background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+        color: #ffffff;
+        border: none;
+
+        i {
+          font-size: 1.15rem;
+        }
+      }
+
       &.is-summary {
         width: 44px;
         height: 44px;
@@ -734,6 +774,15 @@ onMounted(() => {
         font-size: 0.68rem;
         color: var(--unity-text-dim);
         margin-top: 3px;
+
+        &.is-offer-text {
+          color: #d97706;
+          font-weight: 600;
+
+          i {
+            color: #f59e0b;
+          }
+        }
       }
     }
   }

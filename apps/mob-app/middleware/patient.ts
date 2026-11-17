@@ -18,8 +18,16 @@ export default defineNuxtRouteMiddleware((to) => {
     });
   }
 
-  // 2. Allow patients and admins assisting patients
-  if (!authStore.isPatient && !authStore.isAdmin) {
+  // 2. Strictly redirect staff away from patient screens
+  if (authStore.isAdmin) {
+    return navigateTo('/admin');
+  }
+  if (authStore.isReceptionist) {
+    return navigateTo('/admin/appointments');
+  }
+
+  // 3. Must be a patient
+  if (!authStore.isPatient) {
     return navigateTo('/');
   }
 });

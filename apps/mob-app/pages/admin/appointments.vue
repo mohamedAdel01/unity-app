@@ -1,24 +1,23 @@
 <template>
   <div class="admin-bookings-page">
-    <!-- 1. Header with Mode Tabs & Metrics Cards -->
+    <!-- 1. Header with Metrics Cards (Total Bookings & Total Paid) & Quick Filters -->
     <AdminBookingsHeader 
       :stats="stats"
-      :today-count="stats.today_appointments"
-      :pending-count="stats.pending_invoices"
-      @tab-change="onTabChange"
+      :total-count="bookings.length"
+      :today-count="todayBookingsCount"
+      :pending-count="pendingCount"
+      :total-paid-amount="totalPaidRevenue"
+      :active-period="activePeriod"
       @period-change="onPeriodChange"
-      @toggle-sort="toggleSortOrder"
+      @new-booking="isNewBookingModalOpen = true"
     />
 
-    <!-- 2. Modular Bookings & Invoices Virtual List (10 by 10) -->
+    <!-- 2. Modular Bookings Virtual Windowed List (10 by 10 Standard) -->
     <AdminBookingsList
-      :active-tab="activeTab"
       :bookings="filteredBookings"
-      :invoices="invoicesList"
-      :has-more="activeTab === 'bookings' ? bookingsHasMore : invoicesHasMore"
-      :loading="activeTab === 'bookings' ? bookingsLoading : invoicesLoading"
+      :has-more="bookingsHasMore"
+      :loading="bookingsLoading"
       @reschedule="openReschedule"
-      @download-invoice="downloadInvoice"
       @approve="onApproveBooking"
       @cancel="onCancelBooking"
       @load-more="onLoadMore"
@@ -30,6 +29,24 @@
       :booking="selectedBookingForReschedule"
       @close="isRescheduleModalOpen = false"
       @rescheduled="onBookingRescheduled"
+    />
+
+    <!-- Modal: Confirm Action (Approve / Cancel) -->
+    <AppConfirmModal
+      v-model="isConfirmModalOpen"
+      :title="t('Are you sure?')"
+      :type="confirmActionType === 'approve' ? 'success' : 'danger'"
+      :confirm-text="confirmActionType === 'approve' ? t('Confirm Booking') : t('Cancel Booking')"
+      :cancel-text="t('Cancel')"
+      :loading="confirmActionLoading"
+      @confirm="executeConfirmedAction"
+    />
+
+    <!-- Modal: New Booking (Receptionist & Admin) -->
+    <AdminBookAppointmentModal
+      :is-open="isNewBookingModalOpen"
+      @close="isNewBookingModalOpen = false"
+      @booked="ADMIN_APPOINTMENTS(1)"
     />
 
     <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
@@ -46,22 +63,27 @@ import { useAppToast } from '../../composables/useAppToast';
 import AdminBookingsHeader from '../../components/admin/AdminBookingsHeader.vue';
 import AdminBookingsList from '../../components/admin/AdminBookingsList.vue';
 import AdminRescheduleModal from '../../components/admin/AdminRescheduleModal.vue';
+import AdminBookAppointmentModal from '../../components/admin/AdminBookAppointmentModal.vue';
+import AppConfirmModal from '../../components/common/AppConfirmModal.vue';
 
 definePageMeta({
   layout: 'admin',
 });
 
-const { t, resolveI18n } = useI18n();
-
+const { t, isRtl } = useI18n();
 const api = useUnityApi();
-
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
-const activeTab = ref<'bookings' | 'invoices'>('bookings');
-const activePeriod = ref<'today' | 'week' | 'pending'>('today');
+const activePeriod = ref<'all' | 'today' | 'week' | 'pending'>('all');
 const isRescheduleModalOpen = ref(false);
+const isNewBookingModalOpen = ref(false);
 const selectedBookingForReschedule = ref<any>(null);
+
+const isConfirmModalOpen = ref(false);
+const confirmActionType = ref<'approve' | 'cancel'>('approve');
+const targetBooking = ref<any>(null);
+const confirmActionLoading = ref(false);
 
 const stats = ref({
   today_revenue: 0,
@@ -76,26 +98,46 @@ const bookingsPage = ref(1);
 const bookingsHasMore = ref(false);
 const bookingsLoading = ref(false);
 
-const invoicesList = ref<any[]>([]);
-const invoicesPage = ref(1);
-const invoicesHasMore = ref(false);
-const invoicesLoading = ref(false);
-
 // 3. Computed (computed properties)
+const todayBookingsCount = computed(() => {
+  return bookings.value.filter(b => b.is_today || b.period === 'today').length || Number(stats.value.today_appointments || 0);
+});
+
+const pendingCount = computed(() => {
+  return bookings.value.filter(b => b.status === 'pending').length;
+});
+
+const totalPaidRevenue = computed(() => {
+  if (stats.value?.total_revenue && Number(stats.value.total_revenue) > 0) {
+    return Number(stats.value.total_revenue);
+  }
+  return bookings.value
+    .filter((b: any) => b.is_paid)
+    .reduce((acc: number, curr: any) => acc + (Number(curr.price) || 0), 0);
+});
+
 const filteredBookings = computed(() => {
   let list = bookings.value;
 
   if (activePeriod.value === 'pending') {
     list = list.filter(b => b.status === 'pending');
   } else if (activePeriod.value === 'today') {
-    list = list.filter(b => b.period === 'today' || b.status === 'confirmed');
+    list = list.filter(b => b.is_today || b.period === 'today');
+  } else if (activePeriod.value === 'week') {
+    const now = new Date();
+    const weekAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    list = list.filter(b => {
+      if (!b.date) return false;
+      const d = new Date(b.date);
+      return d >= now && d <= weekAhead;
+    });
   }
 
   return list;
 });
 
 // 4. Methods (functions, handlers)
-// Load backend appointments (10 by 10)
+// Load backend appointments (10 by 10 Standard)
 const ADMIN_APPOINTMENTS = async (page = 1) => {
   try {
     bookingsLoading.value = true;
@@ -104,34 +146,51 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
       filter: { page, limit: 10 },
     });
 
+    const isAr = Boolean(isRtl.value);
     const raw = res?.data?.appointments || (Array.isArray(res?.data) ? res.data : []);
-    const items = raw.map((a: any, idx: number) => ({
-      id: a.id,
-      booking_number: a.id ? a.id.slice(-6).toUpperCase() : `BK-${7830 + idx + (page - 1) * 10}`,
-      patient_name: a.patient?.name || a.patient?.user?.name,
-      avatar: a.patient?.avatar,
-      time_badge: a.start_time,
-      clinic_name: isRtl.value
-        ? (a.examination?.name_ar || a.doctor?.clinic?.name_ar)
-        : (a.examination?.name_en || a.doctor?.clinic?.name_en),
-      doctor_name: isRtl.value ? a.doctor?.name_ar : a.doctor?.name_en,
-      examination_name: isRtl.value ? a.examination?.name_ar : a.examination?.name_en,
-      is_examination: Boolean(a.examination_id || a.examination),
-      time: a.start_time,
-      status: a.status || 'pending',
-      payment_status: a.invoice?.status || a.payment_status || 'pending',
-      is_paid: a.invoice?.status === 'paid' || a.payment_status === 'paid' || a.is_paid === true,
-      payment_method: a.invoice?.payment_method || a.payment_method || 'cash',
-      price: a.invoice?.total || a.examination?.price || a.total || 0,
-      period: 'today',
-      raw: a,
-    }));
+    const now = new Date();
+
+    const items = raw.map((a: any, idx: number) => {
+      let isToday = false;
+      if (a.date) {
+        const d = new Date(a.date);
+        const matchLocal = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+        const matchUtc = d.getUTCFullYear() === now.getUTCFullYear() && d.getUTCMonth() === now.getUTCMonth() && d.getUTCDate() === now.getUTCDate();
+        isToday = matchLocal || matchUtc;
+      }
+
+      return {
+        id: a.id,
+        booking_number: a.id ? String(a.id).slice(-6).toUpperCase() : `BK-${7830 + idx + (page - 1) * 10}`,
+        patient_name: a.patient?.name || a.patient?.user?.name || (isAr ? 'مريض' : 'Patient'),
+        patient_phone: a.patient?.phone || a.patient?.user?.phone || a.phone || '',
+        avatar: a.patient?.avatar || '',
+        time_badge: a.start_time,
+        date: a.date,
+        is_today: isToday,
+        clinic_name: isAr
+          ? (a.examination?.name_ar || a.doctor?.clinic?.name_ar || a.doctor?.specialty || '')
+          : (a.examination?.name_en || a.doctor?.clinic?.name_en || a.doctor?.specialty || ''),
+        doctor_name: isAr ? (a.doctor?.name_ar || a.doctor?.name_en || '') : (a.doctor?.name_en || a.doctor?.name_ar || ''),
+        examination_name: isAr ? (a.examination?.name_ar || a.examination?.name_en || '') : (a.examination?.name_en || a.examination?.name_ar || ''),
+        is_examination: Boolean(a.examination_id || a.examination),
+        time: a.start_time,
+        status: a.status || 'pending',
+        payment_status: a.invoice?.status || a.payment_status || 'pending',
+        is_paid: a.invoice?.status === 'paid' || a.payment_status === 'paid' || a.is_paid === true,
+        payment_method: a.invoice?.payment_method || a.payment_method || 'cash',
+        price: a.invoice?.total || a.examination?.price || a.doctor?.consultation_fee || a.total || 0,
+        period: isToday ? 'today' : 'other',
+        raw: a,
+      };
+    });
 
     if (page === 1) {
       bookings.value = items;
     } else {
       bookings.value.push(...items);
     }
+
     bookingsPage.value = page;
     bookingsHasMore.value = res?.pagination?.hasMore ?? res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
   } catch (err) {
@@ -141,63 +200,14 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
   }
 };
 
-const ADMIN_BILLING_INVOICES = async (page = 1) => {
-  try {
-    invoicesLoading.value = true;
-    const res = await api.apiRequest({ 
-      service: 'ADMIN_BILLING_INVOICES',
-      filter: { page, limit: 10 },
-    });
-    const raw = res?.data?.invoices || (Array.isArray(res?.data) ? res.data : []);
-    const items = raw.map((inv: any) => ({
-      id: inv.id,
-      invoice_number: inv.invoice_number || inv.id,
-      patient_name: inv.patient?.name || '',
-      status: inv.status || 'paid',
-      service_name: inv.appointment?.service?.name || t('Medical Consultation'),
-      amount: inv.total || 0,
-    }));
-
-    if (page === 1) {
-      invoicesList.value = items;
-    } else {
-      invoicesList.value.push(...items);
-    }
-    invoicesPage.value = page;
-    invoicesHasMore.value = res?.pagination?.hasMore ?? res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
-  } catch (err) {
-    if (page === 1) invoicesList.value = [];
-  } finally {
-    invoicesLoading.value = false;
-  }
-};
-
 const onLoadMore = () => {
-  if (activeTab.value === 'bookings') {
-    if (bookingsHasMore.value && !bookingsLoading.value) {
-      ADMIN_APPOINTMENTS(bookingsPage.value + 1);
-    }
-  } else {
-    if (invoicesHasMore.value && !invoicesLoading.value) {
-      ADMIN_BILLING_INVOICES(invoicesPage.value + 1);
-    }
+  if (bookingsHasMore.value && !bookingsLoading.value) {
+    ADMIN_APPOINTMENTS(bookingsPage.value + 1);
   }
 };
 
-const onTabChange = (tab: 'bookings' | 'invoices') => {
-  activeTab.value = tab;
-  if (tab === 'invoices' && invoicesList.value.length === 0) {
-    ADMIN_BILLING_INVOICES();
-  }
-};
-
-const onPeriodChange = (period: 'today' | 'week' | 'pending') => {
+const onPeriodChange = (period: 'all' | 'today' | 'week' | 'pending') => {
   activePeriod.value = period;
-};
-
-const toggleSortOrder = () => {
-  bookings.value.reverse();
-  toast.info(t('Sort order toggled'));
 };
 
 const openReschedule = (booking: any) => {
@@ -223,38 +233,46 @@ const onBookingRescheduled = async (payload: any) => {
   toast.success(t('Booking rescheduled successfully!'));
 };
 
-const downloadInvoice = (booking: any) => {
-  toast.success(
-    `${t('Invoice downloaded for #')}${booking.booking_number}`,
-    t('Billing')
-  );
+const onApproveBooking = (booking: any) => {
+  targetBooking.value = booking;
+  confirmActionType.value = 'approve';
+  isConfirmModalOpen.value = true;
 };
 
-const onApproveBooking = async (booking: any) => {
-  try {
-    await api.apiRequest({
-      service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
-      payload: { id: booking.id, status: 'confirmed' },
-    });
-    booking.status = 'confirmed';
-    toast.success(t('Appointment confirmed successfully!'));
-    ADMIN_BILLING_STATS();
-  } catch (err: any) {
-    toast.error(err?.data?.message || err?.message || t('Failed to update appointment'));
-  }
+const onCancelBooking = (booking: any) => {
+  targetBooking.value = booking;
+  confirmActionType.value = 'cancel';
+  isConfirmModalOpen.value = true;
 };
 
-const onCancelBooking = async (booking: any) => {
+const executeConfirmedAction = async () => {
+  if (!targetBooking.value) return;
+  const booking = targetBooking.value;
+  confirmActionLoading.value = true;
+
   try {
-    await api.apiRequest({
-      service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
-      payload: { id: booking.id, status: 'cancelled' },
-    });
-    booking.status = 'cancelled';
-    toast.success(t('Appointment cancelled successfully!'));
-    ADMIN_BILLING_STATS();
+    if (confirmActionType.value === 'approve') {
+      await api.apiRequest({
+        service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
+        payload: { id: booking.id, status: 'confirmed' },
+      });
+      booking.status = 'confirmed';
+      toast.success(t('Appointment confirmed successfully!'));
+      ADMIN_BILLING_STATS();
+    } else {
+      await api.apiRequest({
+        service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
+        payload: { id: booking.id, status: 'cancelled' },
+      });
+      booking.status = 'cancelled';
+      toast.success(t('Appointment cancelled successfully!'));
+      ADMIN_BILLING_STATS();
+    }
+    isConfirmModalOpen.value = false;
   } catch (err: any) {
     toast.error(err?.data?.message || err?.message || t('Failed to update appointment'));
+  } finally {
+    confirmActionLoading.value = false;
   }
 };
 
@@ -280,13 +298,12 @@ const ADMIN_BILLING_STATS = async () => {
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   ADMIN_APPOINTMENTS();
-  ADMIN_BILLING_INVOICES();
   ADMIN_BILLING_STATS();
 });
 
 // 7. Meta (useHead, useSeoMeta)
 useHead({
-  title: computed(() => t('Bookings & Billing Management — Admin Portal')),
+  title: computed(() => t('Bookings Management — Admin Portal')),
 });
 </script>
 
@@ -296,113 +313,5 @@ useHead({
   display: flex;
   flex-direction: column;
   gap: 14px;
-
-  .bookings-cards-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .invoices-mode-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    .invoice-summary-card {
-      background: var(--unity-surface);
-      border: 1px solid var(--unity-border);
-      border-radius: 18px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-
-      .inv-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        .inv-id-name {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          strong {
-            font-size: 0.95rem;
-            color: var(--unity-text-main);
-          }
-
-          span {
-            font-size: 0.82rem;
-            color: var(--unity-text-muted);
-          }
-        }
-
-        .inv-badge {
-          font-size: 0.68rem;
-          font-weight: 700;
-          padding: 2px 8px;
-          border-radius: 10px;
-
-          &.paid {
-            background: #d1fae5;
-            color: #065f46;
-          }
-
-          &.pending {
-            background: #ede9fe;
-            color: #6b21a8;
-          }
-        }
-      }
-
-      .inv-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        small {
-          font-size: 0.74rem;
-          color: var(--unity-text-muted);
-        }
-
-        .inv-amount {
-          font-size: 0.95rem;
-          font-weight: 800;
-          color: #047857;
-        }
-      }
-    }
-  }
-
-  .empty-bookings-state {
-    background: var(--unity-surface);
-    border: 1.5px dashed var(--unity-border);
-    border-radius: 20px;
-    padding: 36px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-
-    i {
-      font-size: 2.2rem;
-      color: var(--unity-text-dim);
-    }
-
-    h5 {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: var(--unity-text-main);
-    }
-
-    p {
-      font-size: 0.8rem;
-      color: var(--unity-text-muted);
-      max-width: 280px;
-      line-height: 1.5;
-    }
-  }
 }
 </style>

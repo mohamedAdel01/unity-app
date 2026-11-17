@@ -1,68 +1,62 @@
 <template>
   <div class="admin-unified-top-bar">
-    <!-- Right: Identity with Avatar, Title, Badge, Subtitle -->
+    <!-- Right: Identity with Avatar and Title only -->
     <div class="admin-identity">
       <div class="admin-avatar-ring">
         <i :class="icon || 'pi pi-shield'"></i>
       </div>
       <div class="admin-meta">
-        <div class="name-badge-row">
-          <h4 class="role-title">{{ title }}</h4>
-          <span class="supervisor-badge" :class="{ 'reception-badge': authStore.isReceptionist }">
-            {{ roleBadgeText }}
-          </span>
-        </div>
-        <small class="facility-subline">{{ subtitle || defaultSubtitle }}</small>
+        <h4 class="role-title">{{ title }}</h4>
       </div>
     </div>
 
-    <!-- Left: Switch back to Patient Mode (Icon only, Red) -->
-    <button 
-      class="switch-patient-mode-btn" 
-      :aria-label="t('Patient Mode')" 
-      :title="t('Patient Mode')" 
-      @click="router.push('/')"
-    >
-      <i class="pi pi-sign-out" :class="{ 'rtl-flip': isRtl }"></i>
-    </button>
+    <!-- Left: Action Button (Add) or Slot -->
+    <slot name="action">
+      <button 
+        v-if="actionText || showAdd"
+        type="button" 
+        class="admin-header-add-btn" 
+        :title="actionText || t('Add')"
+        :aria-label="actionText || t('Add')"
+        @click="emit('action')"
+      >
+        <i :class="actionIcon || 'pi pi-plus'"></i>
+      </button>
+    </slot>
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
-import { useAuthStore } from '../../stores/auth';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     subtitle?: string;
     icon?: string;
+    actionText?: string;
+    actionIcon?: string;
+    showAdd?: boolean;
   }>(),
   {
     subtitle: '',
     icon: 'pi pi-shield',
+    actionText: '',
+    actionIcon: 'pi pi-plus',
+    showAdd: false,
   }
 );
 
-const router = useRouter();
+const emit = defineEmits<{
+  (e: 'action'): void;
+}>();
+
 const { t, isRtl } = useI18n();
-const authStore = useAuthStore();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
-const roleBadgeText = computed(() => {
-  if (authStore.isReceptionist) return t('Receptionist');
-  return t('Admin');
-});
-
-const defaultSubtitle = computed(() => {
-  if (authStore.isReceptionist) return t('Unity Clinics • Reception Desk');
-  return t('Unity Clinics • Admin Portal');
-});
 
 // 4. Methods (functions, handlers)
 
@@ -111,86 +105,44 @@ const defaultSubtitle = computed(() => {
 
     .admin-meta {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       text-align: right;
-      gap: 2px;
 
-      .name-badge-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .role-title {
-          font-size: 1.02rem;
-          font-weight: 800;
-          color: var(--unity-text-main);
-          margin: 0;
-          line-height: 1.2;
-        }
-
-        .supervisor-badge {
-          background: #d1fae5;
-          color: #065f46;
-          font-size: 0.72rem;
-          font-weight: 700;
-          padding: 2px 8px;
-          border-radius: 20px;
-          line-height: 1.3;
-
-          &.reception-badge {
-            background: #e0f2fe;
-            color: #0369a1;
-          }
-        }
-      }
-
-      .facility-subline {
-        font-size: 0.76rem;
-        color: var(--unity-text-muted);
+      .role-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--unity-text-main);
+        margin: 0;
         line-height: 1.2;
       }
     }
   }
 
-  .switch-patient-mode-btn {
-    width: 38px;
-    height: 38px;
-    padding: 0;
-    border-radius: 12px;
-    background: #fef2f2;
-    border: 1.5px solid #fecaca;
-    color: #ef4444;
+  .admin-header-add-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: var(--unity-primary, #047857);
+    border: none;
+    color: #ffffff;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.08);
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     flex-shrink: 0;
 
     i {
-      font-size: 1.05rem;
-      color: #ef4444;
-      transition: all 0.2s ease;
-
-      &.rtl-flip {
-        transform: scaleX(-1);
-      }
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
     }
 
     &:hover {
-      background: #fee2e2;
-      border-color: #fca5a5;
-      color: #dc2626;
-
-      i {
-        color: #dc2626;
-        transform: scale(1.08);
-
-        &.rtl-flip {
-          transform: scaleX(-1) scale(1.08);
-        }
-      }
+      background: var(--unity-primary-dark, #065f46);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(4, 120, 87, 0.28);
     }
 
     &:active {

@@ -90,9 +90,10 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       return response;
     } catch (error: any) {
-      if (error?.data?.message) {
+      if (!error.message && error?.data?.message) {
         error.message = error.data.message;
       }
+      console.error(`❌ [ApiRequest: ${service}]`, error?.message || error);
       throw error;
     } finally {
       globalStore.setLoading([service, false]);

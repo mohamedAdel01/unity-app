@@ -1,14 +1,9 @@
 <template>
   <div class="admin-patients-page">
-    <!-- Admin Header with Switch to Patient Mode & Search & Filters -->
+    <!-- Admin Header with Search & Add Patient -->
     <AdminPatientsHeader 
       :total-count="filterCounts.all" 
-      :today-count="filterCounts.today"
-      :recent-count="filterCounts.recent"
-      :under-review-count="filterCounts.under_review"
-      :active-filter="activeFilter"
       @search="onSearch"
-      @filter="onFilter"
       @new-patient="openNewPatientModal"
     />
 
@@ -70,7 +65,7 @@ definePageMeta({
   layout: 'admin',
 });
 
-const { t } = useI18n();
+const { t, isRtl } = useI18n();
 
 const api = useUnityApi();
 
@@ -170,7 +165,8 @@ const ADMIN_PATIENTS = async (page: any = 1) => {
     }
     patientsPage.value = targetPage;
     patientsHasMore.value = res?.pagination?.hasMore ?? res?.data?.hasMore ?? res?.hasMore ?? (items.length >= 10);
-  } catch (err) {
+  } catch (err: any) {
+    console.error('❌ ADMIN_PATIENTS error:', err);
     if (targetPage === 1) {
       patients.value = [];
     }

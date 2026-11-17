@@ -22,16 +22,17 @@
         @click="openDetails(apt)"
       >
         <div class="card-left-part">
-          <!-- Doctor / Exam Avatar -->
+          <!-- Doctor / Exam / Offer Avatar -->
           <div class="avatar-wrap">
             <img 
-              v-if="apt.doctor?.avatar || apt.doctor?.user?.avatar"
-              :src="apt.doctor?.avatar || apt.doctor?.user?.avatar" 
+              v-if="getAvatarUrl(apt)"
+              :src="getAvatarUrl(apt)" 
               alt=""
               @error="(e: any) => e.target.style.display = 'none'" 
             />
-            <div v-else class="initial-box">
-              <span>{{ (apt.doctor?.name || apt.doctor?.user?.name || apt.examination?.name || 'D').charAt(0).toUpperCase() }}</span>
+            <div v-else class="initial-box" :class="{ 'is-offer': Boolean(apt.offer) }">
+              <i v-if="apt.offer" class="pi pi-tag"></i>
+              <span v-else>{{ getAppointmentInitial(apt) }}</span>
             </div>
           </div>
 
@@ -54,6 +55,13 @@
                 <i class="pi pi-calendar"></i>
                 {{ formatAppointmentDate(apt.date) }}
               </span>
+              <template v-if="apt.offer">
+                <span class="bullet-dot">•</span>
+                <span class="offer-pill-tag">
+                  <i class="pi pi-tag"></i>
+                  {{ t('Special Offer') }}
+                </span>
+              </template>
             </div>
           </div>
         </div>
@@ -71,13 +79,11 @@
           <i class="pi pi-calendar"></i>
         </div>
         <div class="empty-text">
-          <h5>{{ t('No bookings for today') }}</h5>
-          <p>{{ t('You have no scheduled appointments for today') }}</p>
+          <h5 class="empty-single-title">{{ t('You have no appointments today') }}</h5>
         </div>
       </div>
       <button class="empty-action-pill" type="button">
         <span>{{ t('Book Now') }}</span>
-        <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
       </button>
     </div>
   </section>
@@ -117,18 +123,42 @@ const appointmentsList = computed<any[]>(() => {
 });
 
 // 4. Methods (functions, handlers)
+const getAvatarUrl = (apt: any) => {
+  const raw = apt?.offer?.image || apt?.doctor?.avatar || apt?.doctor?.user?.avatar;
+  if (!raw || typeof raw !== 'string') return '';
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
+    return trimmed;
+  }
+  const config = useRuntimeConfig();
+  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
+  return `${baseUrl}${trimmed}`;
+};
+
+const getAppointmentInitial = (apt: any) => {
+  const title = getCardTitle(apt);
+  return title ? title.charAt(0).toUpperCase() : 'M';
+};
+
 const getCardTitle = (apt: any) => {
   if (!apt) return '';
-  if (apt.examination) {
-    return isRtl.value ? apt.examination.name_ar : apt.examination.name_en;
-  }
   if (apt.offer) {
-    return isRtl.value ? apt.offer.title_ar : apt.offer.title_en;
+    const title = !isRtl.value && apt.offer.title_en ? apt.offer.title_en : (apt.offer.title_ar || apt.offer.title);
+    if (title) return resolveI18n(title);
+  }
+  if (apt.examination) {
+    const name = !isRtl.value && apt.examination.name_en ? apt.examination.name_en : (apt.examination.name_ar || apt.examination.name);
+    if (name) return resolveI18n(name);
   }
   if (apt.doctor) {
-    return isRtl.value ? apt.doctor.name_ar : apt.doctor.name_en;
+    const name = !isRtl.value && apt.doctor.name_en ? apt.doctor.name_en : (apt.doctor.name_ar || apt.doctor.name);
+    if (name) return resolveI18n(name);
   }
-  return '';
+  if (apt.notes && apt.notes.includes(':')) {
+    const after = apt.notes.split(':')[1]?.trim();
+    if (after) return resolveI18n(after);
+  }
+  return t('Booked Service');
 };
 const formatSlotTime = (timeStr?: string) => {
   if (!timeStr) return '';
@@ -165,7 +195,7 @@ const openDetails = (apt: any) => {
       examination: apt.examination || null,
       date: apt.date ? new Date(apt.date).toISOString().split('T')[0] : '',
       slot: apt.start_time ? { start_time: apt.start_time, end_time: apt.end_time } : null,
-      type: apt.type || (apt.examination ? 'examination' : 'consultation'),
+      type: apt.type || (apt.offer ? 'examination' : (apt.examination ? 'examination' : 'consultation')),
     });
   } else {
     router.push('/appointments');
@@ -197,18 +227,19 @@ const openDetails = (apt: any) => {
       gap: 6px;
 
       h4 {
-        font-size: 0.88rem;
+        font-size: 0.86rem;
         font-weight: 700;
-        color: var(--unity-text-main);
+        color: var(--unity-text-main, #334155);
+        opacity: 0.9;
         margin: 0;
         line-height: 1.3;
       }
 
       .count-pill {
-        background: var(--unity-primary);
-        color: #fff;
+        background: rgba(4, 120, 87, 0.15);
+        color: var(--unity-primary);
         font-size: 0.65rem;
-        font-weight: 800;
+        font-weight: 700;
         padding: 1px 6px;
         border-radius: 10px;
       }
@@ -317,6 +348,28 @@ const openDetails = (apt: any) => {
       justify-content: center;
       font-size: 1rem;
       font-weight: 800;
+
+      &.is-offer {
+        background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  .offer-pill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+    font-size: 0.60rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 6px;
+
+    i {
+      font-size: 0.55rem;
+      color: #d97706;
     }
   }
 
@@ -438,34 +491,24 @@ const openDetails = (apt: any) => {
 
     .empty-text {
       display: flex;
-      flex-direction: column;
-      gap: 1px;
+      align-items: center;
       min-width: 0;
 
-      h5 {
-        font-size: 0.82rem;
-        font-weight: 800;
-        color: var(--unity-text-main);
+      .empty-single-title {
+        font-size: 0.80rem;
+        font-weight: 600;
+        color: var(--unity-text-main, #334155);
         margin: 0;
         white-space: nowrap;
-      }
-
-      p {
-        font-size: 0.68rem;
-        color: var(--unity-text-muted);
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
     }
   }
 
   .empty-action-pill {
-    background: var(--unity-primary);
-    color: #ffffff;
-    border: none;
-    padding: 6px 12px;
+    background: var(--unity-primary-light, #ecfdf5);
+    color: var(--unity-primary, #047857);
+    border: 1px solid rgba(4, 120, 87, 0.2);
+    padding: 5px 12px;
     border-radius: 12px;
     font-size: 0.72rem;
     font-weight: 700;
@@ -474,11 +517,12 @@ const openDetails = (apt: any) => {
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
+    box-shadow: none;
     transition: all 0.2s ease;
 
     &:hover {
-      background: var(--unity-primary-dark);
+      background: rgba(4, 120, 87, 0.12);
+      border-color: rgba(4, 120, 87, 0.35);
     }
   }
 }

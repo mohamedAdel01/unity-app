@@ -37,7 +37,7 @@
               v-if="(schedulesByDay[day.key] || []).length > 0" 
               class="slots-count-dot"
             >
-              {{ (schedulesByDay[day.key] || []).length }}
+              ({{ (schedulesByDay[day.key] || []).length }})
             </span>
           </button>
         </div>
@@ -555,26 +555,28 @@ onUnmounted(() => {
       .day-tab-btn {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        justify-content: center;
+        gap: 4px;
         white-space: nowrap;
-        padding: 8px 14px;
-        border-radius: 20px;
+        height: 34px;
+        padding: 0 14px;
+        border-radius: 9999px;
         background: var(--unity-surface);
         border: 1px solid var(--unity-border);
         color: var(--unity-text-muted);
-        font-size: 0.78rem;
-        font-weight: 700;
+        font-size: 0.80rem;
+        font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease;
         flex-shrink: 0;
 
         .slots-count-dot {
-          background: rgba(16, 185, 129, 0.15);
-          color: #047857;
-          border-radius: 12px;
-          padding: 1px 6px;
-          font-size: 0.68rem;
-          font-weight: 800;
+          background: transparent;
+          color: inherit;
+          font-size: 0.76rem;
+          font-weight: 500;
+          opacity: 0.8;
+          padding: 0;
         }
 
         &:hover {

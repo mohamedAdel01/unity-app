@@ -43,10 +43,10 @@
         type="button" 
         class="btn-card-edit" 
         :title="t('Edit Clinic')"
+        :aria-label="t('Edit Clinic')"
         @click.stop="emit('edit', clinic)"
       >
         <i class="pi pi-pencil"></i>
-        <span>{{ t('Edit') }}</span>
       </button>
     </div>
   </div>
@@ -214,28 +214,38 @@ const primaryName = computed(() => {
     }
 
     .btn-card-edit {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      border: 1.5px solid #a7f3d0;
+      color: #047857;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border-radius: 10px;
-      background: var(--unity-bg);
-      border: 1px solid var(--unity-border);
-      color: var(--unity-text-main);
-      font-size: 0.75rem;
-      font-weight: 700;
+      justify-content: center;
+      font-size: 1.15rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0;
 
       i {
-        font-size: 0.75rem;
-        color: var(--unity-primary);
+        font-size: 1.15rem;
+        color: #047857;
       }
 
       &:hover {
-        background: var(--unity-primary-light);
-        border-color: var(--unity-primary);
-        color: var(--unity-primary);
+        background: #d1fae5;
+        border-color: #6ee7b7;
+        color: #065f46;
+        transform: translateY(-1px);
+
+        i {
+          color: #065f46;
+        }
+      }
+
+      &:active {
+        transform: scale(0.96);
       }
     }
   }

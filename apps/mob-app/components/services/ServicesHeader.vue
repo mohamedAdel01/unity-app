@@ -4,9 +4,7 @@
       <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
     </button>
     <h3 class="page-title">{{ t('Medical Services & Clinics') }}</h3>
-    <div class="placeholder-icon">
-      <i class="pi pi-search"></i>
-    </div>
+    <div class="placeholder-spacer" aria-hidden="true" />
   </div>
 </template>
 
@@ -57,15 +55,9 @@ const { t, isRtl } = useI18n();
     color: var(--unity-text-main);
   }
 
-  .placeholder-icon {
+  .placeholder-spacer {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    background: var(--unity-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--unity-text-dim);
   }
 }
 </style>
