@@ -51,6 +51,7 @@
     <AdminDoctorModal 
       :is-open="isDoctorModalOpen"
       :doctor="selectedDoctorToEdit"
+      :clinics="clinics"
       @close="isDoctorModalOpen = false"
       @created="onDoctorCreated"
       @updated="onDoctorUpdated"
@@ -68,8 +69,8 @@
       :is-open="isClinicModalOpen"
       :clinic="selectedClinicToEdit"
       @close="isClinicModalOpen = false"
-      @created="ADMIN_CLINICS()"
-      @updated="ADMIN_CLINICS()"
+      @created="onClinicCreated"
+      @updated="onClinicUpdated"
     />
 
     <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
@@ -218,9 +219,12 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
         rating: Number(d.rating) || 4.9,
         reviews_count: d.reviews_count || 120,
         experience_years: d.experience_years,
-        bio: isRtl.value ? d.bio_ar : d.bio_en,
-        bio_ar: d.bio_ar,
-        bio_en: d.bio_en,
+        bio: isRtl.value ? (d.description_ar || d.bio_ar || d.bio) : (d.description_en || d.bio_en || d.bio),
+        bio_ar: d.description_ar || d.bio_ar || d.bio,
+        bio_en: d.description_en || d.bio_en || d.bio,
+        description: isRtl.value ? (d.description_ar || d.description || d.bio_ar || d.bio) : (d.description_en || d.description || d.bio_en || d.bio),
+        description_ar: d.description_ar || d.bio_ar || d.description,
+        description_en: d.description_en || d.bio_en || d.description,
         price: d.consultation_fee,
         consultation_fee: d.consultation_fee,
         is_active: d.is_active ?? (d.status === 'active'),
@@ -329,13 +333,14 @@ const ADMIN_CLINICS = async (page: any = 1) => {
     clinicsLoading.value = true;
     const res = await api.apiRequest({ 
       service: 'ADMIN_CLINICS',
-      filter: { page: targetPage, limit: 10 },
+      filter: { page: targetPage, limit: 20 },
     });
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     const items = raw.map((c: any) => ({
       id: c.id,
       name_ar: c.name_ar,
       name_en: c.name_en,
+      name: isRtl.value ? (c.name_ar || c.name || c.name_en) : (c.name_en || c.name || c.name_ar),
       doctors_count: c._count?.doctors || c.doctors_count || 0,
       is_active: c.is_active ?? true,
     }));
@@ -347,13 +352,35 @@ const ADMIN_CLINICS = async (page: any = 1) => {
     }
     clinicsPage.value = targetPage;
     clinicsTotal.value = res?.pagination?.total ?? res?.total ?? items.length;
-    clinicsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 10);
+    clinicsHasMore.value = res?.pagination?.hasMore ?? res?.hasMore ?? (items.length >= 20);
     clinicsLoaded.value = true;
   } catch (_) {
     if (targetPage === 1) clinics.value = [];
   } finally {
     clinicsLoading.value = false;
   }
+};
+
+const onClinicCreated = (newClinic?: any) => {
+  ADMIN_CLINICS(1);
+  if (newClinic) {
+    const exists = clinics.value.some((c) => String(c.id) === String(newClinic.id));
+    if (!exists) {
+      clinics.value.unshift({
+        id: newClinic.id,
+        name_ar: newClinic.name_ar,
+        name_en: newClinic.name_en,
+        name: isRtl.value ? (newClinic.name_ar || newClinic.name_en) : (newClinic.name_en || newClinic.name_ar),
+        doctors_count: 0,
+        is_active: newClinic.is_active ?? true,
+      });
+      clinicsTotal.value = (clinicsTotal.value || 0) + 1;
+    }
+  }
+};
+
+const onClinicUpdated = () => {
+  ADMIN_CLINICS(1);
 };
 
 const loadMoreClinics = () => {

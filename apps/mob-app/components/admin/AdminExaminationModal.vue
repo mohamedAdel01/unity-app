@@ -13,11 +13,11 @@
         <div class="form-body">
           <!-- Examination Basic Info -->
         <div class="form-group">
-          <label class="field-label">{{ t('Examination Category') }}</label>
+          <label class="field-label">{{ t('Examination Category') }} <span class="required">*</span></label>
           <div class="input-shell select-shell">
             <i class="pi pi-folder"></i>
-            <select v-model="form.category_id" class="input-select">
-              <option value="">{{ t('General (No Category)') }}</option>
+            <select v-model="form.category_id" class="input-select" required>
+              <option value="" disabled>{{ t('Select Category') }}</option>
               <option v-for="cat in uniqueCategories" :key="cat.id" :value="cat.id">
                 {{ getCategoryDisplayName(cat) }}
               </option>
@@ -377,6 +377,7 @@ const hasAnyScheduleOverlap = computed(() => {
 
 const isFormValid = computed(() => {
   return (
+    Boolean(form.value.category_id && String(form.value.category_id).trim()) &&
     (form.value.name_ar.trim().length >= 2 || form.value.name_en.trim().length >= 2) &&
     form.value.price !== '' &&
     form.value.price !== null &&
@@ -542,11 +543,20 @@ const saveExamination = async () => {
     const enName = form.value.name_en.trim();
     const arDesc = form.value.description_ar.trim();
     const enDesc = form.value.description_en.trim();
+    const catId = String(form.value.category_id || '').trim();
+
+    if (!catId) {
+      toast.show({
+        title: t('Please select an examination category'),
+        type: 'warning',
+      });
+      return;
+    }
 
     const payload = {
       name_ar: arName,
       name_en: enName || null,
-      category_id: form.value.category_id || null,
+      category_id: catId,
       price: numPrice,
       duration: numDuration,
       description_ar: arDesc || null,

@@ -64,7 +64,7 @@ const isAdminRoute = computed(() => {
 });
 
 const showAdminNav = computed(() => {
-  if (authStore.isReceptionist) return true;
+  if (authStore.isAdmin || authStore.isReceptionist) return true;
   return isAdminRoute.value;
 });
 

@@ -25,14 +25,17 @@
       </button>
     </div>
 
-    <!-- Search & Filter (Only shown for services or when a clinic/specialty is chosen) -->
-    <div v-if="activeTab === 'services' || selectedClinicId" class="search-box">
+    <!-- Search Bar -->
+    <div class="search-box">
       <i class="pi pi-search"></i>
       <input 
         v-model="searchQuery" 
         type="text" 
         :placeholder="activeTab === 'services' ? t('Search service, lab test, or radiology...') : t('Search by doctor name or specialty...')" 
       />
+      <button v-if="searchQuery" type="button" class="clear-search-btn" @click="searchQuery = ''">
+        <i class="pi pi-times"></i>
+      </button>
     </div>
 
     <!-- Categories Filter Chips for Services/Examinations -->
@@ -57,6 +60,32 @@
       >
         <i :class="cat.icon || 'pi pi-folder'"></i>
         <span>{{ isRtl ? (cat.name_ar || cat.name || cat.name_en) : (cat.name_en || cat.name || cat.name_ar) }}</span>
+      </button>
+    </div>
+
+    <!-- Clinics Filter Chips for Doctors -->
+    <div v-if="activeTab === 'doctors' && clinics.length > 0" class="categories-chips-scroll">
+      <button 
+        type="button" 
+        class="cat-chip" 
+        :class="{ 'active': !selectedClinicId || selectedClinicId === 'all' }"
+        @click="selectClinic('all')"
+      >
+        <i class="pi pi-users"></i>
+        <span>{{ t('All') }} ({{ totalDoctorsCount || doctors.length }})</span>
+      </button>
+
+      <button 
+        v-for="clinic in clinics" 
+        :key="clinic.id" 
+        type="button" 
+        class="cat-chip" 
+        :class="{ 'active': String(selectedClinicId) === String(clinic.id) }"
+        @click="selectClinic(clinic.id)"
+      >
+        <i class="pi pi-building"></i>
+        <span>{{ getLocalizedName(clinic) }}</span>
+        <span v-if="clinic.doctors_count !== undefined" class="count-pill">({{ clinic.doctors_count }})</span>
       </button>
     </div>
 
@@ -109,82 +138,7 @@
 
     <!-- Content: Doctors Tab -->
     <div v-else class="tab-content-area">
-      <!-- 1. Initial State: Only Big Specialty / Clinic Cards Overview (No search, no horizontal tabs, no doctors) -->
-      <div v-if="!selectedClinicId" class="clinics-overview-block">
-        <div class="block-header">
-          <div class="title-wrap">
-            <i class="pi pi-th-large"></i>
-            <h5>{{ t('Specialized Clinics & Departments') }}</h5>
-          </div>
-          <span class="sub-hint">{{ t('Select a clinic to view its doctors') }}</span>
-        </div>
-
-        <div class="clinics-cards-grid">
-          <div 
-            v-for="clinic in clinics" 
-            :key="clinic.id" 
-            class="clinic-card-item"
-            @click="selectClinic(clinic.id)"
-          >
-            <div class="card-icon-row">
-              <div class="clinic-icon-box">
-                <i class="pi pi-building"></i>
-              </div>
-              <span class="doc-badge">
-                <i class="pi pi-users"></i>
-                <span>{{ clinic._count?.doctors || 1 }} {{ t('Doctors') }}</span>
-              </span>
-            </div>
-            <h6 class="clinic-title">{{ getLocalizedName(clinic) }}</h6>
-            <div class="card-action-row">
-              <span class="action-text">{{ t('View Doctors') }}</span>
-              <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Selected Clinic State: Tabs + Filter Bar + Doctors Virtual List -->
-      <div v-else class="selected-clinic-flow">
-        <!-- Horizontal Clinic Tabs Bar with Back/All button -->
-        <div class="clinic-tabs-nav">
-          <button 
-            type="button"
-            class="clinic-tab-chip btn-back-chip" 
-            @click="selectClinic(null)"
-          >
-            <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
-            <span>{{ t('All Departments') }}</span>
-          </button>
-
-          <button 
-            v-for="clinic in clinics" 
-            :key="clinic.id" 
-            type="button"
-            class="clinic-tab-chip" 
-            :class="{ 'active': selectedClinicId === clinic.id }"
-            @click="selectClinic(clinic.id)"
-          >
-            <i class="pi pi-building"></i>
-            <span>{{ getLocalizedName(clinic) }}</span>
-            <span v-if="clinic._count?.doctors" class="count-bubble">{{ clinic._count.doctors }}</span>
-          </button>
-        </div>
-
-        <!-- Active Clinic Filter Bar -->
-        <div class="active-clinic-filter-bar">
-          <div class="filter-info">
-            <i class="pi pi-filter"></i>
-            <span>{{ t('Showing doctors for:') }} <strong>{{ activeClinicName }}</strong></span>
-          </div>
-          <button type="button" class="btn-clear-clinic" @click="selectClinic(null)">
-            <i class="pi pi-times"></i>
-            <span>{{ t('All Departments') }}</span>
-          </button>
-        </div>
-
-        <!-- Doctors Virtual List -->
-        <AppVirtualList
+      <AppVirtualList
           :items="filteredDoctors"
           :has-more="doctorsHasMore"
           :loading="doctorsLoading || globalStore.loading.includes('doctors')"
@@ -193,8 +147,8 @@
         >
           <template #item="{ item: doc }">
             <div class="doctor-catalog-card">
-              <div class="doc-main-row">
-                <div class="doc-img-wrap">
+              <div class="doc-main-row" :title="t('View Doctor Profile')" @click="openDoctorPreview(doc)">
+                <div class="doc-img-wrap clickable-avatar">
                   <img v-if="doc.avatar" :src="doc.avatar" :alt="doc.name" />
                   <div v-else class="doc-initial-badge">
                     <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
@@ -219,12 +173,19 @@
           <template #empty>
             <div class="empty-catalog-state">
               <i class="pi pi-users"></i>
-              <h5>{{ t('No doctors found for this clinic') }}</h5>
+              <h5>{{ t('No doctors found') }}</h5>
             </div>
           </template>
         </AppVirtualList>
-      </div>
     </div>
+
+    <!-- Doctor Profile & Full Image Preview Modal -->
+    <DoctorPreviewModal
+      :is-open="isDoctorPreviewOpen"
+      :doctor="selectedDoctorForPreview"
+      @close="isDoctorPreviewOpen = false"
+      @book="bookDoctor"
+    />
   </div>
 </template>
 
@@ -238,6 +199,7 @@ import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
 import AppVirtualList from '../common/AppVirtualList.vue';
 import AppExamIcon from '../common/AppExamIcon.vue';
+import DoctorPreviewModal from '../doctor/DoctorPreviewModal.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -266,6 +228,8 @@ const doctors = ref<any[]>([]);
 const doctorsPage = ref(1);
 const doctorsHasMore = ref(false);
 const doctorsLoading = ref(false);
+const isDoctorPreviewOpen = ref(false);
+const selectedDoctorForPreview = ref<any>(null);
 
 // 3. Computed (computed properties)
 const getLocalizedName = (item: any): string => {
@@ -308,15 +272,15 @@ const filteredServices = computed(() => {
 
 const filteredDoctors = computed(() => {
   let list = doctors.value;
-  if (selectedClinicId.value) {
-    list = list.filter(d => d.clinic_id === selectedClinicId.value || d.clinic?.id === selectedClinicId.value);
+  if (selectedClinicId.value && selectedClinicId.value !== 'all') {
+    list = list.filter(d => String(d.clinic_id || d.clinic?.id) === String(selectedClinicId.value));
   }
   if (!searchQuery.value) return list;
-  const q = searchQuery.value.toLowerCase();
+  const q = searchQuery.value.toLowerCase().trim();
   return list.filter(d => 
-    d.name.toLowerCase().includes(q) || 
-    d.specialty?.toLowerCase().includes(q) ||
-    d.clinic?.name?.toLowerCase().includes(q)
+    (d.name || '').toLowerCase().includes(q) || 
+    (d.specialty || '').toLowerCase().includes(q) ||
+    (d.clinic?.name || '').toLowerCase().includes(q)
   );
 });
 
@@ -329,11 +293,7 @@ const switchTab = (tab: 'services' | 'doctors') => {
 const selectClinic = (clinicId: string | null) => {
   selectedClinicId.value = clinicId;
   searchQuery.value = '';
-  if (clinicId) {
-    DOCTORS(1);
-  } else {
-    doctors.value = [];
-  }
+  DOCTORS(1);
 };
 
 const CLINICS = async () => {
@@ -382,7 +342,7 @@ const DOCTORS = async (page = 1) => {
   try {
     doctorsLoading.value = true;
     const filter: any = { page, limit: 10 };
-    if (selectedClinicId.value) {
+    if (selectedClinicId.value && selectedClinicId.value !== 'all') {
       filter.clinic_id = selectedClinicId.value;
     }
     const res = await api.apiRequest({ 
@@ -391,19 +351,26 @@ const DOCTORS = async (page = 1) => {
     });
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     const items = raw.map((d: any) => ({
+      ...d,
       id: d.id,
-      name: d.user?.name || d.name,
+      name: isRtl.value ? (d.name_ar || d.name || d.name_en) : (d.name_en || d.name || d.name_ar),
       specialty: d.specialty || '',
       clinic: d.clinic,
       clinic_id: d.clinic_id || d.clinic?.id,
       rating: d.rating || null,
-      avatar: d.user?.avatar || d.avatar || '',
+      avatar: d.avatar || d.user?.avatar || '',
       consultation_fee: d.consultation_fee || 250,
       follow_up_fee: d.follow_up_fee || 150,
+      slot_duration: d.slot_duration || 15,
+      description: d.description,
+      description_ar: d.description_ar,
+      description_en: d.description_en,
+      bio: d.bio,
     }));
 
     if (page === 1) {
       doctors.value = items;
+      totalDoctorsCount.value = res?.pagination?.total || items.length;
     } else {
       doctors.value.push(...items);
     }
@@ -434,6 +401,11 @@ const bookDoctor = (doctor: any) => {
   bookingModal.openBookingFlow({ doctor, type: 'consultation' });
 };
 
+const openDoctorPreview = (doctor: any) => {
+  selectedDoctorForPreview.value = doctor;
+  isDoctorPreviewOpen.value = true;
+};
+
 const EXAMINATION_CATEGORIES = async () => {
   try {
     const res = await api.apiRequest({ service: 'EXAMINATION_CATEGORIES' });
@@ -455,11 +427,9 @@ watch(() => route.query.tab, (newTab) => {
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   CLINICS();
-  SERVICES();
+  SERVICES(1);
   EXAMINATION_CATEGORIES();
-  if (selectedClinicId.value) {
-    DOCTORS(1);
-  }
+  DOCTORS(1);
 });
 
 // 7. Meta (useHead, useSeoMeta)
@@ -488,7 +458,7 @@ onMounted(() => {
     gap: 8px;
     padding: 10px;
     border-radius: 12px;
-    border: none;
+    border: 1.5px solid transparent;
     background: transparent;
     color: var(--unity-text-muted);
     font-size: 0.85rem;
@@ -501,14 +471,39 @@ onMounted(() => {
     }
 
     &.active {
-      background: var(--unity-primary-dark);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+      background: var(--unity-primary-light, #ecfdf5);
+      border: 1.5px solid var(--unity-primary);
+      color: var(--unity-primary);
+      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.12);
+
+      .tab-icon-svg {
+        color: var(--unity-primary);
+      }
     }
   }
 }
 
 .search-box {
+  .clear-search-btn {
+    position: absolute;
+    inset-inline-end: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: 1.5px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+
+    i {
+      position: static !important;
+      font-size: 0.7rem !important;
+      color: inherit !important;
+    }
+  }
   position: relative;
   display: flex;
   align-items: center;
@@ -857,6 +852,16 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.92;
+
+      .doc-img-wrap img {
+        transform: scale(1.05);
+      }
+    }
 
     .doc-img-wrap {
       position: relative;
@@ -933,7 +938,7 @@ onMounted(() => {
     border-radius: 12px;
     background: var(--unity-primary-dark);
     color: #fff;
-    border: none;
+    border: 1.5px solid transparent;
     font-size: 0.85rem;
     font-weight: 800;
     cursor: pointer;

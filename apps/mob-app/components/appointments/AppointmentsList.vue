@@ -1,23 +1,14 @@
 <template>
   <div class="appointments-list-container">
-    <!-- Filter Tabs (تحت المراجعة / القادمة / المكتملة / الملغاة) - Horizontally Scrollable -->
+    <!-- Filter Tabs (القادمة وتحت المراجعة / المكتملة / الملغاة) - Horizontally Scrollable -->
     <div class="status-tabs-nav">
-      <button 
-        class="tab-btn" 
-        :class="{ 'active': activeTab === 'pending' }"
-        @click="activeTab = 'pending'"
-      >
-        <span>{{ t('Under Review') }}</span>
-        <span class="count-pill">({{ pendingAppointments.length }})</span>
-      </button>
-
       <button 
         class="tab-btn" 
         :class="{ 'active': activeTab === 'upcoming' }"
         @click="activeTab = 'upcoming'"
       >
-        <span>{{ t('Upcoming') }}</span>
-        <span class="count-pill">({{ upcomingAppointments.length }})</span>
+        <span>{{ t('Upcoming & In Review') }}</span>
+        <span class="count-pill">({{ activeAppointments.length }})</span>
       </button>
 
       <button 
@@ -49,29 +40,28 @@
     >
       <template #item="{ item: apt }">
         <div class="appointment-card-wrapper">
-          <!-- Top Floating Badges Bar (Lined up side-by-side floating outside the card) -->
-          <div class="card-floating-badges-bar">
-            <span v-if="isOfferAppointment(apt)" class="floating-badge pill-offer">
-              <i class="pi pi-tag"></i>
-              <span>{{ t('Special Offer') }}</span>
-            </span>
-            <span v-else-if="isExaminationAppointment(apt)" class="floating-badge pill-exam">
-              {{ t('Medical Exam') }}
-            </span>
-            <span v-else class="floating-badge pill-consult">
-              {{ t('Consultation') }}
-            </span>
-            <div class="floating-badge status-badge" :class="getStatusClass(apt.status)">
-              <span class="dot"></span>
-              <span>{{ getStatusLabel(apt.status) }}</span>
-            </div>
-            <span class="floating-badge payment-tag" :class="getPaymentClass(apt)">
-              <i :class="getPaymentIcon(apt)"></i>
-              <span>{{ getPaymentLabel(apt) }}</span>
-            </span>
-          </div>
-
           <div class="appointment-item-card">
+            <!-- Top Floating Badges Bar (Half in, half out of card) -->
+            <div class="card-floating-badges-bar">
+              <span v-if="isOfferAppointment(apt)" class="floating-badge pill-offer">
+                <i class="pi pi-tag"></i>
+                <span>{{ t('Special Offer') }}</span>
+              </span>
+              <span v-else-if="isExaminationAppointment(apt)" class="floating-badge pill-exam">
+                {{ t('Medical Exam') }}
+              </span>
+              <span v-else class="floating-badge pill-consult">
+                {{ t('Consultation') }}
+              </span>
+              <div class="floating-badge status-badge" :class="getStatusClass(apt.status)">
+                <span class="dot"></span>
+                <span>{{ getStatusLabel(apt.status) }}</span>
+              </div>
+              <span class="floating-badge payment-tag" :class="getPaymentClass(apt)">
+                <i :class="getPaymentIcon(apt)"></i>
+                <span>{{ getPaymentLabel(apt) }}</span>
+              </span>
+            </div>
 
         <!-- Doctor & Clinic / Examination / Offer Info -->
         <div class="doctor-row">
@@ -243,7 +233,7 @@ const globalStore = useGlobalStore();
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
-const activeTab = ref<'pending' | 'upcoming' | 'completed' | 'cancelled'>('pending');
+const activeTab = ref<'upcoming' | 'completed' | 'cancelled'>('upcoming');
 const failedDoctorAvatars = ref(new Set<string | number>());
 
 const getDoctorAvatar = (apt: any) => {
@@ -270,12 +260,8 @@ const showCancelModal = ref(false);
 const selectedAptToCancel = ref<any | null>(null);
 
 // 3. Computed (computed properties)
-const upcomingAppointments = computed(() => {
-  return appointments.value.filter(a => a.status === 'confirmed');
-});
-
-const pendingAppointments = computed(() => {
-  return appointments.value.filter(a => a.status === 'pending');
+const activeAppointments = computed(() => {
+  return appointments.value.filter(a => a.status === 'confirmed' || a.status === 'pending');
 });
 
 const completedAppointments = computed(() => {
@@ -287,8 +273,7 @@ const cancelledAppointments = computed(() => {
 });
 
 const currentList = computed(() => {
-  if (activeTab.value === 'upcoming') return upcomingAppointments.value;
-  if (activeTab.value === 'pending') return pendingAppointments.value;
+  if (activeTab.value === 'upcoming') return activeAppointments.value;
   if (activeTab.value === 'completed') return completedAppointments.value;
   return cancelledAppointments.value;
 });
@@ -304,9 +289,6 @@ const PATIENT_APPOINTMENTS = async (page = 1) => {
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     if (page === 1) {
       appointments.value = raw;
-      if (upcomingAppointments.value.length === 0 && pendingAppointments.value.length > 0) {
-        activeTab.value = 'pending';
-      }
     } else {
       appointments.value.push(...raw);
     }
@@ -328,7 +310,7 @@ const loadMoreAppointments = () => {
 const getStatusLabel = (status: string) => {
   switch (status) {
     case 'confirmed': return t('Confirmed');
-    case 'pending': return t('Pending Review');
+    case 'pending': return t('Under Review');
     case 'completed': return t('Completed');
     case 'cancelled': return t('Cancelled');
     default: return status;
@@ -458,6 +440,19 @@ const handleConfirmCancel = async () => {
 };
 
 const rebook = (apt: any) => {
+  if (apt.status === 'completed') {
+    toast.error(t('Cannot reschedule appointment after attendance and completion'), t('Appointments'));
+    return;
+  }
+  if (apt.status === 'cancelled') {
+    bookingModal.openBookingFlow({
+      doctor: apt.doctor,
+      service: apt.examination || apt.offer || null,
+      examination: apt.examination || null,
+      type: apt.type || (isOfferAppointment(apt) ? 'examination' : (isExaminationAppointment(apt) ? 'examination' : 'consultation')),
+    });
+    return;
+  }
   if (apt.status !== 'pending') {
     toast.error(t('Cannot modify confirmed appointment. Please contact clinic.'), t('Appointments'));
     return;
@@ -574,13 +569,13 @@ onMounted(() => {
     }
 
     &.active {
-      background: var(--unity-primary);
-      color: #ffffff;
-      border-color: var(--unity-primary);
-      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
+      background: var(--unity-primary-light, #ecfdf5);
+      color: var(--unity-primary);
+      border: 1.5px solid var(--unity-primary);
+      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.12);
 
       .count-pill {
-        color: #ffffff;
+        color: var(--unity-primary);
         opacity: 0.9;
       }
     }
@@ -596,17 +591,41 @@ onMounted(() => {
 .appointment-card-wrapper {
   display: flex;
   flex-direction: column;
+  margin-top: 14px;
   margin-bottom: 14px;
   position: relative;
   direction: rtl;
 
+  :global([dir='ltr']) &,
+  :global(html:not([dir='rtl'])) & {
+    direction: ltr;
+  }
+}
+
+.appointment-item-card {
+  background: var(--unity-surface);
+  border: 1.5px solid var(--unity-border);
+  border-radius: 20px;
+  padding: 18px 16px 16px;
+  box-shadow: var(--unity-shadow-subtle);
+  position: relative;
+
   .card-floating-badges-bar {
+    position: absolute;
+    top: 0;
+    transform: translateY(-50%);
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 0 4px;
-    margin-bottom: 6px;
-    z-index: 2;
+    z-index: 5;
+    left: 14px;
+    right: auto;
+
+    :global([dir='ltr']) &,
+    :global(html[dir='ltr']) & {
+      right: 14px;
+      left: auto;
+    }
 
     .floating-badge {
       display: inline-flex;
@@ -619,7 +638,7 @@ onMounted(() => {
       font-weight: 800;
       line-height: 1;
       white-space: nowrap;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
       transition: all 0.2s ease;
 
       i {
@@ -695,14 +714,6 @@ onMounted(() => {
       }
     }
   }
-}
-
-.appointment-item-card {
-  background: var(--unity-surface);
-  border: 1.5px solid var(--unity-border);
-  border-radius: 20px;
-  padding: 16px;
-  box-shadow: var(--unity-shadow-subtle);
 
   .doctor-row {
     display: flex;

@@ -208,14 +208,25 @@ const ADMIN_EXAMINATION_CATEGORIES = async () => {
   } catch (_) {}
 };
 
-const onCategorySaved = () => {
-  ADMIN_EXAMINATION_CATEGORIES();
-  ADMIN_EXAMINATIONS(1);
+const onCategorySaved = async (savedCategory?: any) => {
+  if (savedCategory && savedCategory.id) {
+    const idx = categories.value.findIndex(c => String(c.id) === String(savedCategory.id));
+    if (idx !== -1) {
+      categories.value[idx] = { ...categories.value[idx], ...savedCategory };
+    } else {
+      categories.value.unshift(savedCategory);
+    }
+  }
+  await ADMIN_EXAMINATION_CATEGORIES();
+  await ADMIN_EXAMINATIONS(1);
 };
 
-const onCategoryDeleted = () => {
-  ADMIN_EXAMINATION_CATEGORIES();
-  ADMIN_EXAMINATIONS(1);
+const onCategoryDeleted = async (deletedId?: any) => {
+  if (deletedId) {
+    categories.value = categories.value.filter(c => String(c.id) !== String(deletedId));
+  }
+  await ADMIN_EXAMINATION_CATEGORIES();
+  await ADMIN_EXAMINATIONS(1);
 };
 
 const onExaminationSaved = () => {

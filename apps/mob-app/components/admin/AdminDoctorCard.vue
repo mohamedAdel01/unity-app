@@ -77,7 +77,7 @@
         :aria-label="t('Edit Schedule')"
         @click.stop="emit('edit-schedule', props.doctor)"
       >
-        <i class="pi pi-calendar"></i>
+        <i class="pi pi-clock"></i>
       </button>
 
       <!-- 3. Bookings / Cases -->
@@ -375,6 +375,13 @@ const doctorAvatarUrl = computed(() => {
     gap: 10px;
     width: 100%;
     margin-top: 10px;
+    direction: ltr;
+    justify-content: flex-start; // Visual LEFT in Arabic RTL
+
+    :global([dir='ltr']) &,
+    :global(html[dir='ltr']) & {
+      justify-content: flex-end; // Visual RIGHT in English LTR
+    }
 
     .action-icon-btn {
       width: 44px;

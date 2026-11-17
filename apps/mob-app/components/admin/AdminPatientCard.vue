@@ -479,9 +479,15 @@ const resolveAvatar = (url?: string) => {
     .card-bottom-actions-row {
       display: flex;
       align-items: center;
+      justify-content: flex-end;
       gap: 10px;
       width: 100%;
       margin-top: 12px;
+
+      :global([dir='ltr']) &,
+      :global(html:not([dir='rtl'])) & {
+        justify-content: flex-start;
+      }
 
       .action-icon-btn {
         width: 44px;

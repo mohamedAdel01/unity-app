@@ -5,7 +5,7 @@
         <h4>{{ t("Today's Special Offers") }}</h4>
         <p>{{ t('Limited Time Offers') }}</p>
       </div>
-      <NuxtLink to="/services?tab=services" class="see-all-link">
+      <NuxtLink to="/offers" class="see-all-link">
         {{ t('View All') }}
         <i :class="isRtl ? 'pi pi-angle-left' : 'pi pi-angle-right'"></i>
       </NuxtLink>

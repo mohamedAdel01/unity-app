@@ -135,7 +135,7 @@
                 >
                   <div class="option-content">
                     <span class="clinic-bullet"></span>
-                    <span class="clinic-name">{{ clinic.name }}</span>
+                    <span class="clinic-name">{{ getClinicDisplayName(clinic) }}</span>
                   </div>
                   <i v-if="String(clinic.id) === String(form.clinic_id)" class="pi pi-check check-icon"></i>
                 </div>
@@ -194,14 +194,27 @@
           </div>
         </div>
 
-        <!-- Doctor Professional Bio -->
+        <!-- Doctor Description (Arabic) -->
         <div class="form-group">
-          <label>{{ t('Professional Bio') }}</label>
+          <label>{{ t('Doctor Description (Arabic)') }}</label>
           <textarea 
-            v-model="form.bio" 
+            v-model="form.description_ar" 
             rows="2"
+            dir="rtl"
             class="textarea-shell"
-            :placeholder="t('e.g. Senior consultant with extensive clinical experience')"
+            :placeholder="t('Write doctor description, qualifications, and clinical experience in Arabic...')"
+          ></textarea>
+        </div>
+
+        <!-- Doctor Description (English) -->
+        <div class="form-group">
+          <label>{{ t('Doctor Description (English)') }}</label>
+          <textarea 
+            v-model="form.description_en" 
+            rows="2"
+            dir="ltr"
+            class="textarea-shell"
+            :placeholder="t('Write doctor description, qualifications, and clinical experience in English...')"
           ></textarea>
         </div>
 
@@ -249,10 +262,17 @@ interface Doctor {
   bio?: string | null;
 }
 
-const props = defineProps<{
-  isOpen: boolean;
-  doctor?: Doctor | null;
-}>();
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    doctor?: Doctor | null;
+    clinics?: any[];
+  }>(),
+  {
+    doctor: null,
+    clinics: () => [],
+  }
+);
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -280,6 +300,8 @@ const form = ref<{
   follow_up_fee: number | string;
   slot_duration: number | string;
   bio: string;
+  description_ar: string;
+  description_en: string;
 }>({
   name_ar: '',
   name_en: '',
@@ -289,6 +311,8 @@ const form = ref<{
   follow_up_fee: '',
   slot_duration: '',
   bio: '',
+  description_ar: '',
+  description_en: '',
 });
 
 // 3. Computed (computed properties)
@@ -300,7 +324,7 @@ const selectedClinicName = computed(() => {
   if (!form.value.clinic_id) return '';
   const match = clinics.value.find((c) => String(c.id) === String(form.value.clinic_id));
   if (!match) return '';
-  return isRtl.value ? match.name_ar : match.name_en;
+  return getClinicDisplayName(match);
 });
 
 const isFormValid = computed(() => {
@@ -365,6 +389,8 @@ const close = () => {
     follow_up_fee: '',
     slot_duration: '',
     bio: '',
+    description_ar: '',
+    description_en: '',
   };
   if (fileInputRef.value) {
     fileInputRef.value.value = '';
@@ -372,17 +398,41 @@ const close = () => {
   emit('close');
 };
 
+const getClinicDisplayName = (clinic: any) => {
+  if (!clinic) return '';
+  const isAr = Boolean(isRtl.value);
+  if (isAr) {
+    return clinic.name_ar || clinic.name || clinic.name_en || '';
+  }
+  return clinic.name_en || clinic.name || clinic.name_ar || '';
+};
+
 const ADMIN_CLINICS = async () => {
   try {
-    const res = await api.apiRequest({ service: 'ADMIN_CLINICS' });
-    if (res?.status && Array.isArray(res?.data)) {
-      clinics.value = res.data;
-      if (clinics.value.length > 0 && !form.value.clinic_id) {
+    const res = await api.apiRequest({ 
+      service: 'ADMIN_CLINICS',
+      filter: { page: 1, limit: 100 },
+    });
+    const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
+    if (raw.length > 0) {
+      clinics.value = raw.map((c: any) => ({
+        id: c.id,
+        name_ar: c.name_ar || '',
+        name_en: c.name_en || '',
+        name: getClinicDisplayName(c),
+        is_active: c.is_active ?? true,
+      }));
+      if (!form.value.clinic_id && clinics.value.length > 0) {
         form.value.clinic_id = clinics.value[0].id;
       }
     }
   } catch (err) {
-    clinics.value = [];
+    if (props.clinics && props.clinics.length > 0) {
+      clinics.value = props.clinics.map((c: any) => ({
+        ...c,
+        name: getClinicDisplayName(c),
+      }));
+    }
   }
 };
 
@@ -395,7 +445,9 @@ const handleSubmit = async () => {
     const numConsultation = form.value.consultation_fee !== '' && form.value.consultation_fee !== null ? Number(form.value.consultation_fee) : 0;
     const numFollowUp = form.value.follow_up_fee !== '' && form.value.follow_up_fee !== null ? Number(form.value.follow_up_fee) : 0;
     const numSlotDuration = form.value.slot_duration !== '' && form.value.slot_duration !== null ? Number(form.value.slot_duration) : 15;
-    const cleanBio = form.value.bio?.trim() || null;
+    const cleanDescAr = form.value.description_ar?.trim() || '';
+    const cleanDescEn = form.value.description_en?.trim() || '';
+    const cleanBio = cleanDescAr || cleanDescEn ? (cleanDescAr || cleanDescEn) : (form.value.bio?.trim() || null);
     const arName = form.value.name_ar.trim();
     const enName = form.value.name_en.trim();
 
@@ -408,6 +460,8 @@ const handleSubmit = async () => {
       follow_up_fee: numFollowUp,
       slot_duration: numSlotDuration,
       bio: cleanBio,
+      description_ar: cleanDescAr || null,
+      description_en: cleanDescEn || null,
     };
 
     const res = await api.apiRequest({
@@ -444,9 +498,39 @@ const handleSubmit = async () => {
 
 // 5. Watches (watch, watchEffect)
 watch(
+  () => props.clinics,
+  (newClinics) => {
+    if (newClinics && newClinics.length > 0) {
+      clinics.value = newClinics.map((c: any) => ({
+        ...c,
+        name: getClinicDisplayName(c),
+      }));
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+watch(
   () => props.doctor,
   (val) => {
     if (val) {
+      let dAr = val.description_ar || val.bio_ar || '';
+      let dEn = val.description_en || val.bio_en || '';
+      if (!dAr && !dEn && val.bio) {
+        const raw = String(val.bio).trim();
+        if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
+          try {
+            const p = JSON.parse(raw);
+            dAr = p.ar || '';
+            dEn = p.en || '';
+          } catch (_) {
+            dAr = raw;
+          }
+        } else {
+          dAr = raw;
+        }
+      }
+
       form.value = {
         name_ar: val.name_ar || val.name || '',
         name_en: val.name_en || '',
@@ -456,6 +540,8 @@ watch(
         follow_up_fee: val.follow_up_fee !== undefined && val.follow_up_fee !== null ? Number(val.follow_up_fee) : '',
         slot_duration: val.slot_duration !== undefined && val.slot_duration !== null ? Number(val.slot_duration) : '',
         bio: val.bio || '',
+        description_ar: dAr,
+        description_en: dEn,
       };
     } else {
       form.value = {
@@ -467,6 +553,8 @@ watch(
         follow_up_fee: '',
         slot_duration: '',
         bio: '',
+        description_ar: '',
+        description_en: '',
       };
     }
   },
@@ -477,11 +565,39 @@ watch(
   () => props.isOpen,
   (open) => {
     if (open) {
+      registerModalOpen();
       isClinicDropdownOpen.value = false;
-      if (clinics.value.length === 0) {
-        ADMIN_CLINICS();
+
+      // 1. Sync from props.clinics if provided
+      if (props.clinics && props.clinics.length > 0) {
+        clinics.value = props.clinics.map((c: any) => ({
+          ...c,
+          name: getClinicDisplayName(c),
+        }));
       }
+
+      // 2. Always fetch fresh clinics list from server so newly added clinics appear immediately
+      ADMIN_CLINICS();
+
+      // 3. Populate Form
       if (props.doctor) {
+        let dAr = props.doctor.description_ar || props.doctor.bio_ar || '';
+        let dEn = props.doctor.description_en || props.doctor.bio_en || '';
+        if (!dAr && !dEn && props.doctor.bio) {
+          const raw = String(props.doctor.bio).trim();
+          if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
+            try {
+              const p = JSON.parse(raw);
+              dAr = p.ar || '';
+              dEn = p.en || '';
+            } catch (_) {
+              dAr = raw;
+            }
+          } else {
+            dAr = raw;
+          }
+        }
+
         form.value = {
           name_ar: props.doctor.name_ar || props.doctor.name || '',
           name_en: props.doctor.name_en || '',
@@ -491,33 +607,45 @@ watch(
           follow_up_fee: props.doctor.follow_up_fee !== undefined && props.doctor.follow_up_fee !== null ? Number(props.doctor.follow_up_fee) : '',
           slot_duration: props.doctor.slot_duration !== undefined && props.doctor.slot_duration !== null ? Number(props.doctor.slot_duration) : '',
           bio: props.doctor.bio || '',
+          description_ar: dAr,
+          description_en: dEn,
         };
       } else {
+        const defaultClinicId = (props.clinics && props.clinics[0]?.id) || clinics.value[0]?.id || '';
         form.value = {
           name_ar: '',
           name_en: '',
           avatar: '',
-          clinic_id: clinics.value[0]?.id || '',
+          clinic_id: defaultClinicId,
           consultation_fee: '',
           follow_up_fee: '',
           slot_duration: '',
           bio: '',
+          description_ar: '',
+          description_en: '',
         };
       }
-    }
-  }
-);
-
-watch(
-  () => props.isOpen,
-  (open) => {
-    if (open) {
-      registerModalOpen();
     } else {
       registerModalClose();
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => props.clinics,
+  (newClinics) => {
+    if (Array.isArray(newClinics) && newClinics.length > 0) {
+      clinics.value = newClinics.map((c: any) => ({
+        ...c,
+        name: getClinicDisplayName(c),
+      }));
+      if (!form.value.clinic_id && clinics.value.length > 0) {
+        form.value.clinic_id = clinics.value[0].id;
+      }
+    }
+  },
+  { deep: true }
 );
 
 // 6. Hooks (onMounted, onUnmounted, etc.)

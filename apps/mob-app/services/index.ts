@@ -614,10 +614,10 @@ export default {
     });
   },
 
-  async ADMIN_UPDATE_INVOICE_STATUS({ API, payload }: { API: any; payload: { id: string | number; status: string } }) {
+  async ADMIN_UPDATE_INVOICE_STATUS({ API, payload }: { API: any; payload: { id: string | number; status: string; payment_method?: string } }) {
     return await API(`admin/billing/invoices/${payload.id}/status`, {
       method: 'PATCH',
-      body: JSON.stringify({ status: payload.status }),
+      body: JSON.stringify({ status: payload.status, payment_method: payload.payment_method }),
     });
   },
 

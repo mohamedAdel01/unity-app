@@ -2,6 +2,8 @@
   <div class="admin-promotions-page">
     <AdminPromotionsHeader
       :active-tab="activeTab"
+      :offers-count="offers.length"
+      :promos-count="promocodes.length"
       @update:active-tab="onTabChange"
       @open-new-offer="openCreateOfferModal"
       @open-new-promocode="openCreatePromoModal"
@@ -157,9 +159,9 @@ const ADMIN_PROMOCODES = async (page = 1) => {
 
 const onTabChange = (tab: 'offers' | 'promocodes') => {
   activeTab.value = tab;
-  if (tab === 'offers' && offers.value.length === 0) {
+  if (tab === 'offers') {
     ADMIN_OFFERS(1);
-  } else if (tab === 'promocodes' && promocodes.value.length === 0) {
+  } else if (tab === 'promocodes') {
     ADMIN_PROMOCODES(1);
   }
 };
@@ -278,6 +280,7 @@ const handleConfirmDelete = async () => {
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
   ADMIN_OFFERS(1);
+  ADMIN_PROMOCODES(1);
 });
 
 // 7. Meta (useHead, useSeoMeta)

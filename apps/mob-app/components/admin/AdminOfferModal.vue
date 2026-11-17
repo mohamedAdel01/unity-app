@@ -38,7 +38,6 @@
             <div class="form-group">
               <label class="form-label">
                 <span>{{ t('Offer Title (English)') }}</span>
-                <span class="req">*</span>
               </label>
               <input 
                 v-model="form.title_en" 
@@ -46,7 +45,6 @@
                 class="form-input" 
                 dir="ltr"
                 placeholder="e.g. Comprehensive Heart & Vitals Checkup" 
-                required 
               />
             </div>
 

@@ -1137,6 +1137,10 @@ const submitBooking = async () => {
 
     // Case 1: Rescheduling an existing pending appointment
     if (props.appointment?.id) {
+      if (props.appointment.status === 'completed') {
+        toast.error(t('Cannot reschedule appointment after attendance and completion'));
+        return;
+      }
       if (props.appointment.status !== 'pending') {
         toast.error(t('Cannot modify confirmed appointment. Please contact clinic.'));
         return;

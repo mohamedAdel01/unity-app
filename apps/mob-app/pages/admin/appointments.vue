@@ -19,7 +19,10 @@
       :loading="bookingsLoading"
       @reschedule="openReschedule"
       @approve="onApproveBooking"
+      @complete="onCompleteBooking"
       @cancel="onCancelBooking"
+      @change-status="openChangeStatus"
+      @change-payment-status="openChangePaymentStatus"
       @load-more="onLoadMore"
     />
 
@@ -31,12 +34,31 @@
       @rescheduled="onBookingRescheduled"
     />
 
-    <!-- Modal: Confirm Action (Approve / Cancel) -->
+    <!-- Modal: Change Status (Attended / Cancelled / Confirmed / Pending) -->
+    <AdminChangeStatusModal
+      :is-open="isChangeStatusModalOpen"
+      :booking="selectedBookingForStatusChange"
+      :loading="changeStatusLoading"
+      @close="isChangeStatusModalOpen = false"
+      @save="onSaveStatusChange"
+    />
+
+    <!-- Modal: Change Payment Status (Paid / Pending / Refunded / Cancelled) -->
+    <AdminChangePaymentModal
+      :is-open="isChangePaymentModalOpen"
+      :booking="selectedBookingForPaymentChange"
+      :loading="changePaymentLoading"
+      @close="isChangePaymentModalOpen = false"
+      @save="onSavePaymentStatusChange"
+    />
+
+    <!-- Modal: Confirm Action (Approve / Complete / Cancel) -->
     <AppConfirmModal
       v-model="isConfirmModalOpen"
-      :title="t('Are you sure?')"
-      :type="confirmActionType === 'approve' ? 'success' : 'danger'"
-      :confirm-text="confirmActionType === 'approve' ? t('Confirm Booking') : t('Cancel Booking')"
+      :title="confirmModalTitle"
+      :message="confirmModalMessage"
+      :type="confirmModalType"
+      :confirm-text="confirmModalBtnText"
       :cancel-text="t('Cancel')"
       :loading="confirmActionLoading"
       @confirm="executeConfirmedAction"
@@ -64,6 +86,8 @@ import AdminBookingsHeader from '../../components/admin/AdminBookingsHeader.vue'
 import AdminBookingsList from '../../components/admin/AdminBookingsList.vue';
 import AdminRescheduleModal from '../../components/admin/AdminRescheduleModal.vue';
 import AdminBookAppointmentModal from '../../components/admin/AdminBookAppointmentModal.vue';
+import AdminChangeStatusModal from '../../components/admin/AdminChangeStatusModal.vue';
+import AdminChangePaymentModal from '../../components/admin/AdminChangePaymentModal.vue';
 import AppConfirmModal from '../../components/common/AppConfirmModal.vue';
 
 definePageMeta({
@@ -80,8 +104,16 @@ const isRescheduleModalOpen = ref(false);
 const isNewBookingModalOpen = ref(false);
 const selectedBookingForReschedule = ref<any>(null);
 
+const isChangeStatusModalOpen = ref(false);
+const selectedBookingForStatusChange = ref<any>(null);
+const changeStatusLoading = ref(false);
+
+const isChangePaymentModalOpen = ref(false);
+const selectedBookingForPaymentChange = ref<any>(null);
+const changePaymentLoading = ref(false);
+
 const isConfirmModalOpen = ref(false);
-const confirmActionType = ref<'approve' | 'cancel'>('approve');
+const confirmActionType = ref<'approve' | 'complete' | 'cancel'>('approve');
 const targetBooking = ref<any>(null);
 const confirmActionLoading = ref(false);
 
@@ -136,6 +168,34 @@ const filteredBookings = computed(() => {
   return list;
 });
 
+const confirmModalTitle = computed(() => {
+  if (confirmActionType.value === 'complete') return t('Confirm Patient Attendance');
+  if (confirmActionType.value === 'approve') return t('Confirm Booking');
+  return t('Cancel Booking / Did Not Attend');
+});
+
+const confirmModalMessage = computed(() => {
+  if (confirmActionType.value === 'complete') {
+    return t('Are you sure you want to mark this patient as attended and consultation completed?');
+  }
+  if (confirmActionType.value === 'approve') {
+    return t('Are you sure you want to confirm this booking?');
+  }
+  return t('Are you sure you want to mark this appointment as cancelled or patient did not attend?');
+});
+
+const confirmModalBtnText = computed(() => {
+  if (confirmActionType.value === 'complete') return t('Yes, Attended');
+  if (confirmActionType.value === 'approve') return t('Confirm Booking');
+  return t('Yes, Mark Cancelled');
+});
+
+const confirmModalType = computed(() => {
+  if (confirmActionType.value === 'complete') return 'success';
+  if (confirmActionType.value === 'approve') return 'info';
+  return 'danger';
+});
+
 // 4. Methods (functions, handlers)
 // Load backend appointments (10 by 10 Standard)
 const ADMIN_APPOINTMENTS = async (page = 1) => {
@@ -176,6 +236,7 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
         is_examination: Boolean(a.examination_id || a.examination),
         time: a.start_time,
         status: a.status || 'pending',
+        invoice_id: a.invoice?.id || null,
         payment_status: a.invoice?.status || a.payment_status || 'pending',
         is_paid: a.invoice?.status === 'paid' || a.payment_status === 'paid' || a.is_paid === true,
         payment_method: a.invoice?.payment_method || a.payment_method || 'cash',
@@ -211,6 +272,14 @@ const onPeriodChange = (period: 'all' | 'today' | 'week' | 'pending') => {
 };
 
 const openReschedule = (booking: any) => {
+  if (booking?.status === 'completed') {
+    toast.error(t('Cannot reschedule appointment after attendance and completion'));
+    return;
+  }
+  if (booking?.status === 'cancelled') {
+    toast.error(t('Cannot reschedule a cancelled appointment'));
+    return;
+  }
   selectedBookingForReschedule.value = booking;
   isRescheduleModalOpen.value = true;
 };
@@ -218,6 +287,10 @@ const openReschedule = (booking: any) => {
 const onBookingRescheduled = async (payload: any) => {
   const target = bookings.value.find(b => b.id === payload.bookingId);
   if (target) {
+    if (target.status === 'completed') {
+      toast.error(t('Cannot reschedule appointment after attendance and completion'));
+      return;
+    }
     target.doctor_name = payload.doctor_name;
     target.time = `${payload.time}`;
   }
@@ -225,7 +298,12 @@ const onBookingRescheduled = async (payload: any) => {
   try {
     await api.apiRequest({
       service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
-      payload: { id: payload.bookingId, status: 'confirmed' },
+      payload: {
+        id: payload.bookingId,
+        status: target?.status === 'pending' ? 'confirmed' : target?.status,
+        date: payload.date,
+        start_time: payload.time,
+      },
     });
     ADMIN_BILLING_STATS();
   } catch (err) {}
@@ -239,10 +317,80 @@ const onApproveBooking = (booking: any) => {
   isConfirmModalOpen.value = true;
 };
 
+const onCompleteBooking = (booking: any) => {
+  targetBooking.value = booking;
+  confirmActionType.value = 'complete';
+  isConfirmModalOpen.value = true;
+};
+
 const onCancelBooking = (booking: any) => {
   targetBooking.value = booking;
   confirmActionType.value = 'cancel';
   isConfirmModalOpen.value = true;
+};
+
+const openChangeStatus = (booking: any) => {
+  selectedBookingForStatusChange.value = booking;
+  isChangeStatusModalOpen.value = true;
+};
+
+const openChangePaymentStatus = (booking: any) => {
+  selectedBookingForPaymentChange.value = booking;
+  isChangePaymentModalOpen.value = true;
+};
+
+const onSaveStatusChange = async (payload: { bookingId: string | number; status: string; booking: any }) => {
+  changeStatusLoading.value = true;
+  try {
+    await api.apiRequest({
+      service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
+      payload: { id: payload.bookingId, status: payload.status },
+    });
+    const target = bookings.value.find(b => b.id === payload.bookingId);
+    if (target) {
+      target.status = payload.status;
+    }
+    isChangeStatusModalOpen.value = false;
+    toast.success(t('Appointment status updated successfully!'));
+    ADMIN_BILLING_STATS();
+  } catch (err: any) {
+    toast.error(err?.data?.message || err?.message || t('Failed to update appointment'));
+  } finally {
+    changeStatusLoading.value = false;
+  }
+};
+
+const onSavePaymentStatusChange = async (payload: { bookingId: string | number; invoiceId?: string; status: string; payment_method: string; booking: any }) => {
+  changePaymentLoading.value = true;
+  try {
+    const invoiceTargetId = payload.invoiceId || payload.bookingId;
+    await api.apiRequest({
+      service: 'ADMIN_UPDATE_INVOICE_STATUS',
+      payload: {
+        id: invoiceTargetId,
+        status: payload.status,
+        payment_method: payload.payment_method,
+      },
+    });
+
+    const target = bookings.value.find(b => b.id === payload.bookingId);
+    if (target) {
+      target.payment_status = payload.status;
+      target.is_paid = payload.status === 'paid';
+      target.payment_method = payload.payment_method;
+      if (payload.status === 'paid' && target.status === 'pending') {
+        target.status = 'confirmed';
+      }
+    }
+
+    isChangePaymentModalOpen.value = false;
+    toast.success(t('Payment status updated successfully!'));
+    ADMIN_BILLING_STATS();
+  } catch (err: any) {
+    toast.error(err?.data?.message || err?.message || t('Failed to update payment status'));
+  } finally {
+    changePaymentLoading.value = false;
+  }
 };
 
 const executeConfirmedAction = async () => {
@@ -251,7 +399,15 @@ const executeConfirmedAction = async () => {
   confirmActionLoading.value = true;
 
   try {
-    if (confirmActionType.value === 'approve') {
+    if (confirmActionType.value === 'complete') {
+      await api.apiRequest({
+        service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
+        payload: { id: booking.id, status: 'completed' },
+      });
+      booking.status = 'completed';
+      toast.success(t('Patient attendance registered and consultation completed!'));
+      ADMIN_BILLING_STATS();
+    } else if (confirmActionType.value === 'approve') {
       await api.apiRequest({
         service: 'ADMIN_UPDATE_APPOINTMENT_STATUS',
         payload: { id: booking.id, status: 'confirmed' },

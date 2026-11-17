@@ -180,7 +180,7 @@ const isMoreMenuActive = computed(() => {
   return (
     route.path.startsWith('/admin/patients') || 
     route.path.startsWith('/admin/promotions') || 
-    route.path === '/profile'
+    route.path.startsWith('/profile')
   );
 });
 

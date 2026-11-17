@@ -14,7 +14,10 @@
           :initially-expanded="index === 0"
           @reschedule="emit('reschedule', $event)"
           @approve="emit('approve', $event)"
+          @complete="emit('complete', $event)"
           @cancel="emit('cancel', $event)"
+          @change-status="emit('change-status', $event)"
+          @change-payment-status="emit('change-payment-status', $event)"
         />
       </template>
 
@@ -51,7 +54,10 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'reschedule', booking: any): void;
   (e: 'approve', booking: any): void;
+  (e: 'complete', booking: any): void;
   (e: 'cancel', booking: any): void;
+  (e: 'change-status', booking: any): void;
+  (e: 'change-payment-status', booking: any): void;
   (e: 'load-more'): void;
 }>();
 

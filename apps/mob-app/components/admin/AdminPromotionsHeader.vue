@@ -19,6 +19,7 @@
       >
         <i class="pi pi-gift"></i>
         <span>{{ t('Special Offers') }}</span>
+        <span v-if="offersCount !== undefined" class="count-tag">({{ offersCount }})</span>
       </button>
       <button
         type="button"
@@ -28,6 +29,7 @@
       >
         <i class="pi pi-percentage"></i>
         <span>{{ t('Promocodes') }}</span>
+        <span v-if="promosCount !== undefined" class="count-tag">({{ promosCount }})</span>
       </button>
     </div>
   </header>
@@ -38,9 +40,17 @@
 import { useI18n } from '../../composables/useI18n';
 import AdminTopHeader from './AdminTopHeader.vue';
 
-defineProps<{
-  activeTab: 'offers' | 'promocodes';
-}>();
+withDefaults(
+  defineProps<{
+    activeTab: 'offers' | 'promocodes';
+    offersCount?: number;
+    promosCount?: number;
+  }>(),
+  {
+    offersCount: 0,
+    promosCount: 0,
+  }
+);
 
 const emit = defineEmits<{
   (e: 'update:active-tab', tab: 'offers' | 'promocodes'): void;
@@ -165,10 +175,21 @@ const { t, isRtl } = useI18n();
       cursor: pointer;
       transition: all 0.2s ease;
 
+      .count-tag {
+        font-size: 0.76rem;
+        opacity: 0.85;
+        font-weight: 600;
+      }
+
       &.active {
         background: var(--unity-surface);
         color: var(--unity-primary);
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+        .count-tag {
+          color: var(--unity-primary);
+          font-weight: 700;
+        }
       }
     }
   }

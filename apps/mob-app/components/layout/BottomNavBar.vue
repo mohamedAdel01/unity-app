@@ -6,10 +6,10 @@
       <span>{{ t('Home') }}</span>
     </NuxtLink>
 
-    <!-- Tab 2: Services (الخدمات) -->
-    <NuxtLink to="/services" class="nav-btn" :class="{ 'active': route.path === '/services' }">
-      <i class="pi pi-th-large"></i>
-      <span>{{ t('Services') }}</span>
+    <!-- Tab 2: Offers (العروض) -->
+    <NuxtLink to="/offers" class="nav-btn" :class="{ 'active': route.path === '/offers' }">
+      <i class="pi pi-tag"></i>
+      <span>{{ t('Offers') }}</span>
     </NuxtLink>
 
     <!-- Tab 3: Center Floating Plus (+) Button -->

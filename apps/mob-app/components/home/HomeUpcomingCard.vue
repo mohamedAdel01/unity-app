@@ -41,7 +41,7 @@
             <div class="top-row">
               <h5 class="doc-title">{{ getCardTitle(apt) }}</h5>
               <span class="status-chip" :class="apt.status">
-                {{ apt.status === 'confirmed' ? t('Confirmed') : t('Pending Confirmation') }}
+                {{ apt.status === 'confirmed' ? t('Confirmed') : t('Under Review') }}
               </span>
             </div>
             

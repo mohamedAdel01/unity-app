@@ -1,31 +1,43 @@
 <template>
   <div class="admin-booking-card-wrapper">
     <!-- ============================================== -->
-    <!-- Top Floating Badges Bar (Lined up side-by-side) -->
-    <!-- ============================================== -->
-    <div class="card-floating-badges-bar">
-      <!-- 1. Booking Type Badge -->
-      <span class="floating-badge badge-type" :class="isExamination ? 'type-exam' : 'type-consult'">
-        {{ bookingTypeLabel }}
-      </span>
-
-      <!-- 2. Booking Status Badge -->
-      <span class="floating-badge badge-status" :class="getStatusClass(booking.status)">
-        <span class="dot"></span>
-        <span>{{ getStatusLabel(booking.status) }}</span>
-      </span>
-
-      <!-- 3. Payment Status Badge -->
-      <span class="floating-badge badge-payment" :class="paymentStatusClass">
-        <i :class="isPaid ? 'pi pi-check-circle' : 'pi pi-clock'"></i>
-        <span>{{ paymentStatusLabel }}</span>
-      </span>
-    </div>
-
-    <!-- ============================================== -->
     <!-- Main Card Body                                 -->
     <!-- ============================================== -->
     <div class="admin-booking-card" :class="{ 'is-expanded': isExpanded }">
+      <!-- ============================================== -->
+      <!-- Top Floating Badges Bar (Half in, half out)    -->
+      <!-- ============================================== -->
+      <div class="card-floating-badges-bar">
+        <!-- 1. Booking Type Badge -->
+        <span class="floating-badge badge-type" :class="isExamination ? 'type-exam' : 'type-consult'">
+          {{ bookingTypeLabel }}
+        </span>
+
+        <!-- 2. Booking Status Badge (Clickable to change status directly) -->
+        <span 
+          class="floating-badge badge-status is-clickable" 
+          :class="getStatusClass(booking.status)"
+          :title="t('Change Status')"
+          @click.stop="emit('change-status', booking)"
+        >
+          <span class="dot"></span>
+          <span>{{ getStatusLabel(booking.status) }}</span>
+          <i class="pi pi-chevron-down pill-chevron"></i>
+        </span>
+
+        <!-- 3. Payment Status Badge -->
+        <span 
+          class="floating-badge badge-payment is-clickable" 
+          :class="paymentStatusClass"
+          :title="t('Change Payment Status')"
+          @click.stop="emit('change-payment-status', booking)"
+        >
+          <i :class="isPaid ? 'pi pi-check-circle' : 'pi pi-clock'"></i>
+          <span>{{ paymentStatusLabel }}</span>
+          <i class="pi pi-chevron-down pill-chevron"></i>
+        </span>
+      </div>
+
       <!-- Card Header Row (Click to toggle accordion)   -->
       <div class="booking-header-row" @click="toggleExpand">
         <!-- Right Side: Patient Avatar & Details -->
@@ -103,9 +115,14 @@
 
       <!-- Finance & Payment Bar -->
       <div class="finance-bar">
-        <div class="payment-method-badge">
-          <i :class="booking.payment_method === 'paymob' ? 'pi pi-credit-card' : 'pi pi-wallet'"></i>
+        <div 
+          class="payment-method-badge is-clickable"
+          :title="t('Change Payment Status')"
+          @click.stop="emit('change-payment-status', booking)"
+        >
+          <i :class="booking.payment_method === 'paymob' || booking.payment_method === 'card' ? 'pi pi-credit-card' : 'pi pi-wallet'"></i>
           <span>{{ getPaymentMethodLabel(booking.payment_method) }}</span>
+          <i class="pi pi-pencil edit-icon-subtle"></i>
         </div>
         <div class="price-badge">
           <span class="price-val">{{ booking.price || 0 }}</span>
@@ -115,6 +132,7 @@
 
       <!-- Action Bar: Large Action Buttons (Side by Side matching system standard) -->
       <div class="card-bottom-bar-large">
+        <!-- 1. Pending: Confirm or Cancel -->
         <template v-if="booking.status === 'pending'">
           <button 
             type="button" 
@@ -135,15 +153,53 @@
           </button>
         </template>
 
+        <!-- 2. Confirmed: Mark Attended (Completed) OR Did Not Attend (Cancel) -->
+        <template v-else-if="booking.status === 'confirmed'">
+          <button 
+            type="button" 
+            class="btn-bottom-action btn-complete" 
+            @click.stop="emit('complete', booking)"
+          >
+            <i class="pi pi-check-circle"></i>
+            <span>{{ t('Attended') }}</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="btn-bottom-action btn-no-show" 
+            @click.stop="emit('cancel', booking)"
+          >
+            <i class="pi pi-times-circle"></i>
+            <span>{{ t('Did Not Attend') }}</span>
+          </button>
+        </template>
+
+        <!-- 3. Completed or Cancelled: Status Pill + Change Status button -->
         <template v-else>
-          <div class="status-summary-pill" :class="getStatusClass(booking.status)">
+          <div 
+            class="status-summary-pill is-clickable" 
+            :class="getStatusClass(booking.status)"
+            :title="t('Change Status')"
+            @click.stop="emit('change-status', booking)"
+          >
             <span class="dot"></span>
             <span>{{ getStatusLabel(booking.status) }}</span>
+            <i class="pi pi-chevron-down pill-chevron"></i>
           </div>
+
+          <button 
+            type="button" 
+            class="btn-bottom-action btn-modify-status" 
+            @click.stop="emit('change-status', booking)"
+          >
+            <i class="pi pi-sliders-h"></i>
+            <span>{{ t('Change Status') }}</span>
+          </button>
         </template>
 
         <!-- Edit / Reschedule slot unified button -->
         <button 
+          v-if="booking.status !== 'completed' && booking.status !== 'cancelled'"
           type="button" 
           class="btn-card-edit" 
           :title="t('Reschedule Slot')" 
@@ -179,7 +235,12 @@ const emit = defineEmits<{
   (e: 'reschedule', booking: any): void;
   (e: 'download-invoice', booking: any): void;
   (e: 'approve', booking: any): void;
+  (e: 'complete', booking: any): void;
   (e: 'cancel', booking: any): void;
+  (e: 'change-status', booking: any): void;
+  (e: 'change-payment-status', booking: any): void;
+  (e: 'change-status', booking: any): void;
+  (e: 'change-payment-status', booking: any): void;
 }>();
 
 const { t, isRtl } = useI18n();
@@ -354,140 +415,184 @@ onUnmounted(() => {
 .admin-booking-card-wrapper {
   display: flex;
   flex-direction: column;
+  margin-top: 14px;
   margin-bottom: 14px;
   position: relative;
   direction: rtl;
 
-  // Top Floating Badges Bar
-  .card-floating-badges-bar {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0 4px;
-    margin-bottom: 6px;
-    z-index: 2;
-
-    .floating-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      height: 24px;
-      padding: 0 10px;
-      border-radius: 9999px;
-      font-size: 0.70rem;
-      font-weight: 800;
-      line-height: 1;
-      white-space: nowrap;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-      transition: all 0.2s ease;
-
-      i {
-        font-size: 0.72rem;
-      }
-
-      .dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-      }
-
-      // 1. Type Badges
-      &.badge-type {
-        &.type-consult {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
-        }
-
-        &.type-exam {
-          background: #f0f9ff;
-          color: #0284c7;
-          border: 1px solid #bae6fd;
-        }
-      }
-
-      // 2. Booking Status Badges
-      &.badge-status {
-        &.status-pending {
-          background: #f5f3ff;
-          color: #7c3aed;
-          border: 1px solid #ddd6fe;
-
-          .dot {
-            background: #7c3aed;
-          }
-        }
-
-        &.status-confirmed {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
-
-          .dot {
-            background: #10b981;
-          }
-        }
-
-        &.status-completed {
-          background: #f0fdf4;
-          color: #15803d;
-          border: 1px solid #bbf7d0;
-
-          .dot {
-            background: #22c55e;
-          }
-        }
-
-        &.status-cancelled {
-          background: #fef2f2;
-          color: #dc2626;
-          border: 1px solid #fecaca;
-
-          .dot {
-            background: #ef4444;
-          }
-        }
-      }
-
-      // 3. Payment Status Badges
-      &.badge-payment {
-        &.paid {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
-        }
-
-        &.pending {
-          background: #fff7ed;
-          color: #c2410c;
-          border: 1px solid #fed7aa;
-        }
-
-        &.refunded {
-          background: #eff6ff;
-          color: #1d4ed8;
-          border: 1px solid #bfdbfe;
-        }
-
-        &.failed {
-          background: #fef2f2;
-          color: #b91c1c;
-          border: 1px solid #fecaca;
-        }
-      }
-    }
+  :global([dir='ltr']) &,
+  :global(html:not([dir='rtl'])) & {
+    direction: ltr;
   }
 
   .admin-booking-card {
     background: var(--unity-surface);
     border: 1px solid var(--unity-border);
     border-radius: 20px;
-    padding: 14px 16px;
+    padding: 18px 16px 14px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     display: flex;
     flex-direction: column;
+    position: relative;
     transition: all 0.25s ease;
     margin-bottom: 0;
+
+    &.is-expanded {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    // Top Floating Badges Bar (Half in, half out: top border overlap)
+    // On the LEFT in Arabic (RTL), on the RIGHT in English (LTR)
+    .card-floating-badges-bar {
+      position: absolute;
+      top: 0;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 5;
+      left: 14px;
+      right: auto;
+
+      :global([dir='ltr']) &,
+      :global(html[dir='ltr']) & {
+        right: 14px;
+        left: auto;
+      }
+
+      .floating-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        height: 24px;
+        padding: 0 10px;
+        border-radius: 9999px;
+        font-size: 0.70rem;
+        font-weight: 800;
+        line-height: 1;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+
+        i {
+          font-size: 0.72rem;
+        }
+
+        .dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+        }
+
+        // 1. Type Badges
+        &.badge-type {
+          &.type-consult {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+          }
+
+          &.type-exam {
+            background: #f0f9ff;
+            color: #0284c7;
+            border: 1px solid #bae6fd;
+          }
+        }
+
+        // 2. Booking Status Badges
+        &.badge-status {
+          &.is-clickable {
+            cursor: pointer;
+            &:hover {
+              filter: brightness(0.96);
+              transform: translateY(-1px);
+            }
+          }
+
+          .pill-chevron {
+            font-size: 0.60rem;
+            margin-inline-start: 1px;
+            opacity: 0.7;
+          }
+
+          &.status-pending {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border: 1px solid #ddd6fe;
+
+            .dot {
+              background: #7c3aed;
+            }
+          }
+
+          &.status-confirmed {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+
+            .dot {
+              background: #10b981;
+            }
+          }
+
+          &.status-completed {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+
+            .dot {
+              background: #22c55e;
+            }
+          }
+
+          &.status-cancelled {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+
+            .dot {
+              background: #ef4444;
+            }
+          }
+        }
+
+        // 3. Payment Status Badges
+        &.badge-payment {
+          &.is-clickable {
+            cursor: pointer;
+            &:hover {
+              filter: brightness(0.96);
+              transform: translateY(-1px);
+            }
+          }
+
+          &.paid {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+          }
+
+          &.pending {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+          }
+
+          &.refunded {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+          }
+
+          &.failed {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+          }
+        }
+      }
+    }
 
     &.is-expanded {
       border-color: #cbd5e1;
@@ -723,6 +828,31 @@ onUnmounted(() => {
         font-weight: 700;
         color: #0f172a;
 
+        &.is-clickable {
+          cursor: pointer;
+          padding: 2px 6px;
+          border-radius: 8px;
+          transition: all 0.15s ease;
+
+          &:hover {
+            background: var(--unity-bg, #f1f5f9);
+            color: var(--unity-primary, #047857);
+
+            .edit-icon-subtle {
+              opacity: 1;
+              color: var(--unity-primary, #047857);
+            }
+          }
+        }
+
+        .edit-icon-subtle {
+          font-size: 0.72rem;
+          color: var(--unity-text-dim, #94a3b8);
+          opacity: 0.65;
+          margin-inline-start: 2px;
+          transition: all 0.15s ease;
+        }
+
         i {
           color: #10b981;
           font-size: 0.9rem;
@@ -818,7 +948,19 @@ onUnmounted(() => {
           }
         }
 
-        &.btn-cancel {
+        &.btn-complete {
+          background: var(--unity-primary, #047857);
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
+
+          &:hover {
+            background: var(--unity-primary-dark, #065f46);
+            transform: translateY(-1px);
+          }
+        }
+
+        &.btn-cancel,
+        &.btn-no-show {
           background: #fef2f2;
           color: #ef4444;
           border: 1.5px solid #fecaca;
@@ -826,6 +968,19 @@ onUnmounted(() => {
           &:hover {
             background: #fee2e2;
             border-color: #fca5a5;
+            transform: translateY(-1px);
+          }
+        }
+
+        &.btn-modify-status {
+          background: var(--unity-surface, #ffffff);
+          color: var(--unity-text-main, #1e293b);
+          border: 1.5px solid var(--unity-border, #e2e8f0);
+
+          &:hover {
+            background: var(--unity-bg, #f8fafc);
+            border-color: var(--unity-primary, #047857);
+            color: var(--unity-primary, #047857);
             transform: translateY(-1px);
           }
         }
@@ -845,6 +1000,22 @@ onUnmounted(() => {
         border-radius: 14px;
         font-size: 0.84rem;
         font-weight: 700;
+
+        &.is-clickable {
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+          }
+        }
+
+        .pill-chevron {
+          font-size: 0.65rem;
+          margin-inline-start: 2px;
+          opacity: 0.75;
+        }
 
         .dot {
           width: 8px;

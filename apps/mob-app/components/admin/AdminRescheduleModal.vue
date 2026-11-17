@@ -87,6 +87,10 @@ const close = () => {
 };
 
 const saveNewSlot = () => {
+  if (props.booking?.status === 'completed') {
+    close();
+    return;
+  }
   emit('rescheduled', {
     bookingId: props.booking.id,
     doctor_name: form.value.doctor_name,

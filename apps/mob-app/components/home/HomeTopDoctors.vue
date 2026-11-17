@@ -22,15 +22,16 @@
         :key="doctor.id" 
         class="doctor-item-card"
       >
-        <div class="doc-card-header">
+        <div class="doc-card-header" :title="t('View Doctor Profile')" @click="openDoctorPreview(doctor)">
           <div class="doc-avatar-group">
             <img 
               v-if="doctor.avatar && !failedAvatars.has(doctor.id)"
               :src="doctor.avatar" 
-              alt=""
+              :alt="doctor.name"
+              class="clickable-doc-avatar"
               @error="failedAvatars.add(doctor.id)" 
             />
-            <div v-else class="doc-initial-avatar">
+            <div v-else class="doc-initial-avatar clickable-doc-avatar">
               <span>{{ (doctor.name || 'D').charAt(0).toUpperCase() }}</span>
             </div>
             <div class="doc-texts">
@@ -61,6 +62,14 @@
         </div>
       </div>
     </div>
+
+    <!-- Doctor Profile & Full Image Preview Modal -->
+    <DoctorPreviewModal
+      :is-open="isDoctorPreviewOpen"
+      :doctor="selectedDoctorForPreview"
+      @close="isDoctorPreviewOpen = false"
+      @book="bookDoctor"
+    />
   </section>
 </template>
 
@@ -71,6 +80,7 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useI18n } from '../../composables/useI18n';
 import { useBookingModal } from '../../composables/useBookingModal';
 import { useGlobalStore } from '../../stores/global';
+import DoctorPreviewModal from '../doctor/DoctorPreviewModal.vue';
 
 const props = defineProps<{
   searchQuery?: string;
@@ -88,6 +98,8 @@ const globalStore = useGlobalStore();
 // 2. Data (refs, reactive state)
 const doctors = ref<any[]>([]);
 const failedAvatars = ref(new Set<string | number>());
+const isDoctorPreviewOpen = ref(false);
+const selectedDoctorForPreview = ref<any>(null);
 
 // 3. Computed (computed properties)
 const filteredDoctors = computed(() => {
@@ -121,14 +133,20 @@ const DOCTORS = async () => {
     const res = await api.apiRequest({ service: 'DOCTORS' });
     if (res && res.status && Array.isArray(res.data)) {
       doctors.value = res.data.map((d: any) => ({
+        ...d,
         id: d.id,
-        name: isRtl.value ? d.name_ar : d.name_en,
+        name: isRtl.value ? (d.name_ar || d.name) : (d.name_en || d.name),
         specialty: d.specialty || '',
         clinic: d.clinic,
         rating: d.rating || null,
         availabilityText: t('Available Today'),
         avatar: d.avatar,
         consultation_fee: d.consultation_fee,
+        slot_duration: d.slot_duration,
+        description: d.description,
+        description_ar: d.description_ar,
+        description_en: d.description_en,
+        bio: d.bio,
       }));
     } else {
       doctors.value = [];
@@ -140,6 +158,11 @@ const DOCTORS = async () => {
 
 const bookDoctor = (doctor: any) => {
   bookingModal.openBookingFlow({ doctor, type: 'consultation' });
+};
+
+const openDoctorPreview = (doctor: any) => {
+  selectedDoctorForPreview.value = doctor;
+  isDoctorPreviewOpen.value = true;
 };
 
 // 5. Watches (watch, watchEffect)
@@ -226,6 +249,16 @@ onMounted(() => {
     align-items: flex-start;
     justify-content: space-between;
     margin-bottom: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      opacity: 0.94;
+
+      .clickable-doc-avatar {
+        transform: scale(1.05);
+      }
+    }
 
     .doc-rating-badge {
       background: var(--unity-primary-light);

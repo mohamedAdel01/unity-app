@@ -107,7 +107,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'edit', cat: Category): void;
-  (e: 'deleted'): void;
+  (e: 'deleted', id?: string | number): void;
   (e: 'new-category'): void;
   (e: 'select-category', cat: Category): void;
 }>();
@@ -156,7 +156,7 @@ const executeDeleteCategory = async () => {
       type: 'success',
     });
     categoryToDelete.value = null;
-    emit('deleted');
+    emit('deleted', cat.id);
   } catch (err: any) {
     toast.show({
       title: err?.message || t('Failed to delete category'),
