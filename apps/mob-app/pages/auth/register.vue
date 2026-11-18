@@ -78,7 +78,8 @@ const handleStepBack = () => {
 const handleStep1Success = (data: { name: string; phone: string }) => {
   registrationData.value.name = data.name;
   registrationData.value.phone = data.phone;
-  currentStep.value = 2;
+  // Phone verification temporarily disabled - navigate directly to profile completion
+  currentStep.value = 3;
 };
 
 const handleStep2Verified = () => {

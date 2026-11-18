@@ -1,0 +1,225 @@
+<template>
+  <div class="profile-menu-groups">
+    <!-- Group: المساعدة والمعلومات القانونية -->
+    <div class="menu-group">
+      <span class="group-title">{{ t('Help & Legal Information') }}</span>
+      <div class="group-card">
+        <!-- Item 1: الدعم الفني -->
+        <button class="menu-item-row" @click="navigate('/support')">
+          <div class="item-icon-box light-green">
+            <i class="pi pi-headphones"></i>
+          </div>
+          <div class="item-text-box">
+            <div class="title-with-online">
+              <span class="live-dot"></span>
+              <h6>{{ t('Help & Technical Support') }}</h6>
+            </div>
+            <small>{{ t('Instant chat with customer care 24/7') }}</small>
+          </div>
+          <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
+        </button>
+
+        <div class="item-divider"></div>
+
+        <!-- Item 2: الشروط والسياسات -->
+        <button class="menu-item-row" @click="navigate('/terms')">
+          <div class="item-icon-box slate">
+            <i class="pi pi-shield"></i>
+          </div>
+          <div class="item-text-box">
+            <h6>{{ t('Terms & Medical Use Policies') }}</h6>
+            <small>{{ t('Data protection & health records privacy') }}</small>
+          </div>
+          <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
+        </button>
+
+        <!-- Item 3: لوحة تحكم الإشراف (تظهر فقط إذا كان المستخدم أدمن) -->
+        <template v-if="isAdmin">
+          <div class="item-divider"></div>
+
+          <button class="menu-item-row" @click="navigate('/admin')">
+            <div class="item-icon-box green">
+              <i class="pi pi-shield"></i>
+            </div>
+            <div class="item-text-box">
+              <h6>{{ t('Executive Administration • Overview') }}</h6>
+              <small>{{ t('Hospital operations & administrative overview') }}</small>
+            </div>
+            <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
+          </button>
+        </template>
+
+        <!-- Item 4: لوحة الاستقبال (تظهر فقط إذا كان المستخدم موظف استقبال) -->
+        <template v-else-if="isReceptionist">
+          <div class="item-divider"></div>
+
+          <button class="menu-item-row" @click="navigate('/admin/appointments')">
+            <div class="item-icon-box green">
+              <i class="pi pi-calendar"></i>
+            </div>
+            <div class="item-text-box">
+              <h6>{{ t('Reception Dashboard') }}</h6>
+              <small>{{ t('Reception Desk • Bookings') }}</small>
+            </div>
+            <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'item-chevron']"></i>
+          </button>
+        </template>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+// 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from '../../composables/useI18n';
+import { useAuthStore } from '../../stores/auth';
+
+defineProps<{
+  walletBalance?: string | number;
+}>();
+
+const emit = defineEmits<{
+  (e: 'action', key: string): void;
+}>();
+
+const router = useRouter();
+const { t, isRtl } = useI18n();
+const authStore = useAuthStore();
+
+// 2. Data (refs, reactive state)
+
+// 3. Computed (computed properties)
+const isAdmin = computed(() => authStore.isAdmin || authStore.user?.role === 'admin');
+const isReceptionist = computed(() => authStore.isReceptionist || authStore.user?.role === 'receptionist');
+
+// 4. Methods (functions, handlers)
+const navigate = (path: string) => {
+  router.push(path);
+};
+
+// 5. Watches (watch, watchEffect)
+
+// 6. Hooks (onMounted, onUnmounted, etc.)
+
+// 7. Meta (useHead, useSeoMeta)
+</script>
+
+<style scoped lang="scss">
+.profile-menu-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .group-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--unity-text-muted);
+    padding: 0 4px;
+  }
+
+  .group-card {
+    background: var(--unity-surface);
+    border: 1px solid var(--unity-border);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: var(--unity-shadow-subtle);
+  }
+}
+
+.menu-item-row {
+  width: 100%;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--unity-bg);
+  }
+
+  .item-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+
+    &.mint { background: #ecfdf5; color: #047857; }
+    &.teal { background: #f0fdfa; color: #0f766e; }
+    &.green { background: #dcfce7; color: #15803d; }
+    &.emerald { background: #ecfdf5; color: #059669; }
+    &.cyan { background: #e0f2fe; color: #0284c7; }
+    &.light-green { background: #f0fdf4; color: #16a34a; }
+    &.slate { background: #f1f5f9; color: #475569; }
+  }
+
+  .item-text-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .title-with-online {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .live-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #10b981;
+      }
+    }
+
+    h6 {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--unity-text-main);
+    }
+
+    small {
+      font-size: 0.72rem;
+      color: var(--unity-text-muted);
+      line-height: 1.3;
+    }
+  }
+
+  .balance-pill {
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-inline-end: 4px;
+  }
+
+  .item-chevron {
+    font-size: 0.78rem;
+    color: var(--unity-text-dim);
+  }
+}
+
+.item-divider {
+  height: 1px;
+  background: var(--unity-border-light);
+  margin-inline-start: 68px;
+}
+</style>

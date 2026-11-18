@@ -11,6 +11,18 @@
       <slot />
     </main>
 
+    <!-- Global Web Booking Modal -->
+    <BookingFlowModal
+      v-model="bookingModal.isBookingFlowOpen.value"
+      :doctor="bookingModal.activeDoctor.value"
+      :service="bookingModal.activeService.value"
+      :initial-type="bookingModal.activeType.value"
+      :selected-date="bookingModal.activeDate.value"
+      :selected-slot="bookingModal.activeSlot.value"
+      :appointment="bookingModal.activeAppointment.value"
+      @booking-completed="onBookingSuccess"
+    />
+
     <!-- Global Web Footer -->
     <WebFooter />
   </div>
@@ -21,18 +33,28 @@
 import { onMounted } from 'vue';
 import { useTheme } from '../composables/useTheme';
 import { useI18n } from '../composables/useI18n';
+import { useBookingModal } from '../composables/useBookingModal';
+import { useAuthStore } from '../stores/auth';
+import { useAppToast } from '../composables/useAppToast';
 import WebHeader from '../components/web/WebHeader.vue';
 import WebFooter from '../components/web/WebFooter.vue';
 import AppToastContainer from '../components/common/AppToastContainer.vue';
+import BookingFlowModal from '../components/BookingFlowModal.vue';
 
 const theme = useTheme();
-const { initLocale } = useI18n();
+const { initLocale, t } = useI18n();
+const bookingModal = useBookingModal();
+const authStore = useAuthStore();
+const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
+const onBookingSuccess = (appointment: any) => {
+  toast.success(t('Appointment booked successfully!'));
+};
 
 // 5. Watches (watch, watchEffect)
 
@@ -40,6 +62,7 @@ const { initLocale } = useI18n();
 onMounted(() => {
   theme.initTheme();
   initLocale();
+  authStore.initAuth();
 });
 
 // 7. Meta (useHead, useSeoMeta)

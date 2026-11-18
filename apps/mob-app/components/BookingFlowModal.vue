@@ -372,23 +372,21 @@
                 </div>
 
                 <div class="payment-options">
-                  <!-- Paymob Online Payment (Cards & Digital Wallets) -->
+                  <!-- Paymob Online Payment (Cards & Digital Wallets) - Temporarily Disabled -->
                   <div 
                     v-if="!isAdmin"
-                    class="pay-opt" 
-                    :class="{ 'selected': selectedMethod === 'paymob' }"
-                    @click="selectedMethod = 'paymob'"
+                    class="pay-opt is-disabled" 
+                    :title="t('Online payment is temporarily disabled')"
                   >
                     <div class="opt-radio">
-                      <span class="circle-check" v-if="selectedMethod === 'paymob'"><i class="pi pi-check"></i></span>
-                      <span class="circle-empty" v-else></span>
+                      <span class="circle-empty"></span>
                     </div>
                     <div class="opt-info">
                       <div class="opt-brand-title">
                         <strong>{{ t('Paymob Electronic Payment') }}</strong>
-                        <span class="paymob-pill-tag">Paymob</span>
+                        <span class="paymob-pill-tag">{{ t('Online payment is temporarily disabled') }}</span>
                       </div>
-                      <small>{{ t('Credit / Debit Cards (Visa, MasterCard, Meeza) & Mobile Wallets') }}</small>
+                      <small>{{ t('Temporarily unavailable - Please choose Pay on Arrival') }}</small>
                     </div>
                     <div class="opt-brand">
                       <i class="pi pi-credit-card"></i>
@@ -614,7 +612,7 @@ const canBookFollowUp = ref(false);
 
 const checkingEligibility = ref(false);
 
-const selectedMethod = ref<'paymob' | 'cash'>('paymob');
+const selectedMethod = ref<'paymob' | 'cash'>('cash');
 
 const confirmedAppointment = ref<any>(null);
 
@@ -1296,7 +1294,7 @@ watch(
       currentStep.value = 1;
       confirmedAppointment.value = null;
       selectedType.value = props.initialType || props.appointment?.type || 'consultation';
-      selectedMethod.value = isAdmin.value ? 'cash' : 'paymob';
+      selectedMethod.value = 'cash';
       removePromo();
       showPaymobModal.value = false;
 
@@ -2603,6 +2601,22 @@ onUnmounted(() => {
       &.selected {
         border-color: var(--unity-primary);
         background: #f0fdf4;
+      }
+
+      &.is-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: var(--unity-surface-muted, #f8fafc);
+
+        .paymob-pill-tag {
+          background: #64748b !important;
+          color: #fff !important;
+        }
+
+        strong, small, .opt-brand {
+          color: var(--unity-text-dim, #94a3b8) !important;
+        }
       }
     }
   }

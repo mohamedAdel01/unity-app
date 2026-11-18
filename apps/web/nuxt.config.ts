@@ -8,6 +8,7 @@ export default defineNuxtConfig({
   ssr: false,
   alias: {
     '@shared': fileURLToPath(new URL('../../shared', import.meta.url)),
+    '@mob-app': fileURLToPath(new URL('../mob-app', import.meta.url)),
   },
   runtimeConfig: {
     public: {

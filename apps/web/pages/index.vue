@@ -1,13 +1,21 @@
 <template>
   <WebHeroSection />
-  <WebFeaturesGrid />
+  <WebClinicsGrid />
+  <WebTopDoctors />
+  <WebFeaturedOffers />
+  <WebQuickSteps />
+  <WebPatientPortalBanner />
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { useI18n } from '../composables/useI18n';
 import WebHeroSection from '../components/web/WebHeroSection.vue';
-import WebFeaturesGrid from '../components/web/WebFeaturesGrid.vue';
+import WebClinicsGrid from '../components/web/WebClinicsGrid.vue';
+import WebTopDoctors from '../components/web/WebTopDoctors.vue';
+import WebFeaturedOffers from '../components/web/WebFeaturedOffers.vue';
+import WebQuickSteps from '../components/web/WebQuickSteps.vue';
+import WebPatientPortalBanner from '../components/web/WebPatientPortalBanner.vue';
 
 const { t } = useI18n();
 
@@ -23,7 +31,7 @@ const { t } = useI18n();
 
 // 7. Meta (useHead, useSeoMeta)
 useHead({
-  title: t('Unity Specialized Clinics — Official Medical Services & Patient Information Portal'),
+  title: t('Unity Specialized Clinics — World-Class Specialized Healthcare'),
 });
 </script>
 

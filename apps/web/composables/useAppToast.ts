@@ -32,6 +32,21 @@ function formatErrorMessage(msg: string, t: (k: string) => string): { title?: st
     };
   }
 
+  // Preserve full detailed error for network failures, HTTP statuses, and system/Prisma exceptions
+  if (
+    msg.startsWith('[') ||
+    msg.includes('Failed to fetch') ||
+    msg.toLowerCase().includes('prisma') ||
+    msg.toLowerCase().includes('database') ||
+    msg.toLowerCase().includes('network error') ||
+    msg.toLowerCase().includes('connection')
+  ) {
+    return {
+      title: t('Error Details'),
+      message: msg,
+    };
+  }
+
   const lower = msg.toLowerCase();
 
   // Password length
@@ -50,14 +65,10 @@ function formatErrorMessage(msg: string, t: (k: string) => string): { title?: st
     };
   }
 
-  // Phone validation
+  // Explicit phone format error only (e.g. user input failed Saudi phone format)
   if (
-    lower.includes('phone') &&
-    (lower.includes('required') ||
-      lower.includes('valid') ||
-      lower.includes('pattern') ||
-      lower.includes('صحيح') ||
-      lower.includes('10'))
+    (lower.includes('phone') || lower.includes('جوال') || lower.includes('موبايل')) &&
+    (lower.includes('10') || lower.includes('05') || lower.includes('digits') || lower.includes('رقم غير صحيح') || lower.includes('pattern'))
   ) {
     return {
       title: t('Invalid Phone Number'),

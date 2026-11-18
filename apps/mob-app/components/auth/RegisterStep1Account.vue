@@ -156,7 +156,7 @@ const handleSubmit = async () => {
       pinia: true,
     });
 
-    toast.success(t('Account created! Verification code sent to your phone.'));
+    toast.success(t('Account created successfully!'));
     emit('success', {
       name: form.value.name.trim(),
       phone: form.value.phone.trim(),
