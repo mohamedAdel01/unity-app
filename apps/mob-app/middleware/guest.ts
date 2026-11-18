@@ -14,6 +14,12 @@ export default defineNuxtRouteMiddleware(() => {
   authStore.initAuth();
 
   if (authStore.isAuthenticated) {
+    if (authStore.user?.role === 'patient' && authStore.user?.mobile_verified === false) {
+      return navigateTo({
+        path: '/auth/verify-mobile',
+        query: { phone: authStore.user.phone || '' },
+      });
+    }
     if (authStore.isAdmin) {
       return navigateTo('/');
     } else if (authStore.isDoctor) {

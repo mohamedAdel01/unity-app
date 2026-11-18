@@ -151,9 +151,9 @@ const filteredDoctors = computed(() => {
     const q = searchQuery.value.toLowerCase();
     list = list.filter((d) => {
       const matchName = (d.name || d.name_ar || d.name_en || '').toLowerCase().includes(q);
-      const matchSpec = (d.specialty || d.specialty_ar || d.specialty_en || '').toLowerCase().includes(q);
+      const matchClinic = (d.clinic_name || d.clinic?.name || d.clinic?.name_ar || d.clinic?.name_en || (typeof d.clinic === 'string' ? d.clinic : '') || '').toLowerCase().includes(q);
       const matchRoom = (d.room || d.room_number || '').toLowerCase().includes(q);
-      return matchName || matchSpec || matchRoom;
+      return matchName || matchClinic || matchRoom;
     });
   }
 
@@ -204,9 +204,6 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
         name_ar: arName,
         name_en: enName,
         name: isRtl.value ? (arName || d.name) : (enName || d.name),
-        specialty: d.specialty || (isRtl.value ? (d.specialty_ar || d.clinic?.name_ar) : (d.specialty_en || d.clinic?.name_en)) || cName || '',
-        specialty_ar: d.specialty_ar || d.specialty || d.clinic?.name_ar,
-        specialty_en: d.specialty_en || d.specialty || d.clinic?.name_en,
         title: isRtl.value ? d.title_ar : d.title_en,
         title_ar: d.title_ar,
         title_en: d.title_en,

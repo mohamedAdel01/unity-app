@@ -253,7 +253,6 @@ interface Doctor {
   user?: any;
   clinic?: any;
   clinic_id?: string | number;
-  specialty?: string;
   status?: string;
   is_active?: boolean;
   consultation_fee?: number | string | null;
@@ -480,7 +479,6 @@ const handleSubmit = async () => {
         avatar: resultData.avatar || form.value.avatar || null,
         clinic: matchedClinic || resultData.clinic,
         clinic_id: form.value.clinic_id,
-        specialty: isRtl.value ? matchedClinic?.name_ar : matchedClinic?.name_en,
         consultation_fee: numConsultation,
         follow_up_fee: numFollowUp,
         slot_duration: numSlotDuration,

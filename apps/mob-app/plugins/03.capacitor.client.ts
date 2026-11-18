@@ -156,26 +156,38 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
       // iOS APNs to Firebase FCM Token exchange (if running on iOS)
       if (platform === 'ios') {
-        console.log('🍏 [PUSH-STEP-5: IOS_FCM_CHECK] iOS platform detected. Checking FCM exchange...');
+        const isApnsHex = /^[0-9a-fA-F]{64}$/.test(tokenValue || '');
+        console.log('🍏 ================== [iOS PUSH TOKEN INSPECTION] ==================');
+        console.log(`🍏 [iOS-TOKEN-TYPE] Token format: ${isApnsHex ? '64-hex Raw APNs Device Token' : 'FCM / Hybrid Token'}`);
+        console.log(`🍏 [iOS-RAW-TOKEN] ${tokenValue}`);
+
         try {
+          console.log('🍏 [iOS-FCM-EXCHANGE] Importing @capacitor-community/fcm to retrieve Firebase FCM token...');
           const { FCM } = await import('@capacitor-community/fcm');
-          for (let attempt = 1; attempt <= 3; attempt++) {
+          for (let attempt = 1; attempt <= 4; attempt++) {
             try {
-              console.log(`   🔄 FCM.getToken() attempt ${attempt}/3...`);
+              console.log(`   🔄 [iOS-FCM-ATTEMPT ${attempt}/4] Calling FCM.getToken()...`);
               const fcmRes = await FCM.getToken();
-              if (fcmRes?.token && fcmRes.token !== pushToken.value) {
+              console.log(`   📋 [iOS-FCM-RESULT] Attempt ${attempt} result:`, fcmRes);
+
+              if (fcmRes?.token && fcmRes.token !== tokenValue) {
+                console.log(`   🔥 [iOS-FCM-SUCCESS] Received FCM Token from Firebase SDK on iOS!`);
+                console.log(`   🔥 [iOS-FCM-TOKEN] ${fcmRes.token}`);
                 tokenValue = fcmRes.token;
-                console.log(`   ✅ Obtained valid FCM token on iOS: ${tokenValue.slice(0, 20)}...`);
+                break;
+              } else if (fcmRes?.token) {
+                console.log(`   ℹ️ [iOS-FCM-SAME] Token returned matches initial value: ${fcmRes.token.slice(0, 20)}...`);
                 break;
               }
-            } catch (fcmErr) {
-              console.warn(`   ⚠️ Attempt ${attempt} error:`, fcmErr);
+            } catch (fcmErr: any) {
+              console.warn(`   ⚠️ [iOS-FCM-ERROR] Attempt ${attempt} failed:`, fcmErr?.message || fcmErr);
             }
-            await new Promise((r) => setTimeout(r, 600 * attempt));
+            await new Promise((r) => setTimeout(r, 800 * attempt));
           }
-        } catch (importErr) {
-          console.warn('ℹ️ @capacitor-community/fcm skipped or not available:', importErr);
+        } catch (importErr: any) {
+          console.warn('ℹ️ [iOS-FCM-IMPORT] @capacitor-community/fcm import error or unavailable:', importErr?.message || importErr);
         }
+        console.log('🍏 ===================================================================');
       }
 
       // Always save token locally for debugging and persistence
@@ -215,7 +227,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // LISTENER B: Registration Error from OS
     // ─────────────────────────────────────────────────────────────
     PushNotifications.addListener('registrationError', (err) => {
-      console.error('\n💥 [PUSH-STEP-ERROR: REGISTRATION_FAILED] Native layer error:', err);
+      console.error('\n======================================================================');
+      console.error('💥 [PUSH-STEP-ERROR: REGISTRATION_FAILED] Native layer error:', err);
+      if (platform === 'ios') {
+        console.error('🍏 [iOS-PUSH-ERROR-DIAGNOSTICS] Common iOS registration issues:');
+        console.error('   1. iOS Simulator cannot register for real APNs push notifications.');
+        console.error('   2. Missing "aps-environment" in App.entitlements or Push Notifications capability.');
+        console.error('   3. Provisioning profile for com.unityClinics.app does not have Push Notifications enabled.');
+      }
+      console.error('======================================================================\n');
       Toast.show({
         text: `❌ خطأ في تسجيل الإشعارات: ${err.error || 'Unknown error'}`,
         duration: 'long',

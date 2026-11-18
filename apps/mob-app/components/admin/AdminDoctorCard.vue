@@ -24,8 +24,8 @@
             <h4 class="doctor-name">{{ doctorDisplayName }}</h4>
             <span class="inline-status-dot" :class="isDoctorActive ? 'online' : 'offline'"></span>
           </div>
-          <p class="specialty-clinic-line">
-            <span>{{ doctorDisplaySpecialty }}</span>
+          <p class="clinic-line">
+            <span>{{ doctorDisplayClinic }}</span>
             <template v-if="doctorRoom">
               <span class="dot-separator">•</span>
               <span>{{ t('Clinic Room') }} {{ doctorRoom }}</span>
@@ -165,7 +165,7 @@ const doctorDisplayName = computed(() => {
   return doc.name_en || doc.name || doc.name_ar || '';
 });
 
-const doctorDisplaySpecialty = computed(() => {
+const doctorDisplayClinic = computed(() => {
   const doc = props.doctor;
   if (!doc) return '';
   if (typeof doc.clinic === 'string' && doc.clinic.trim()) {
@@ -173,9 +173,9 @@ const doctorDisplaySpecialty = computed(() => {
   }
   const isArabic = Boolean(isRtl?.value);
   if (isArabic) {
-    return doc.clinic?.name_ar || doc.clinic_ar || doc.specialty_ar || doc.specialty || doc.clinic?.name_en || '';
+    return doc.clinic?.name_ar || doc.clinic_ar || doc.clinic?.name_en || '';
   }
-  return doc.clinic?.name_en || doc.clinic_en || doc.specialty_en || doc.specialty || doc.clinic?.name_ar || '';
+  return doc.clinic?.name_en || doc.clinic_en || doc.clinic?.name_ar || '';
 });
 
 const doctorDisplayDescription = computed(() => {
@@ -313,7 +313,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  direction: rtl;
+  direction: inherit;
 
   &[dir='ltr'] {
     direction: ltr;
@@ -416,7 +416,7 @@ onUnmounted(() => {
           }
         }
 
-        .specialty-clinic-line {
+        .clinic-line {
           display: flex;
           align-items: center;
           gap: 6px;

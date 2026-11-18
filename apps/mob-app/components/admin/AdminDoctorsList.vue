@@ -22,7 +22,7 @@
         <div class="empty-doctors-state">
           <i class="pi pi-search"></i>
           <h5>{{ t('No doctors match your criteria') }}</h5>
-          <p>{{ t('Try searching for another name, specialty, or clinic room.') }}</p>
+          <p>{{ t('Try searching for another name or clinic room.') }}</p>
           <button type="button" class="btn-reset" @click="emit('reset')">{{ t('Reset') }}</button>
         </div>
       </template>
@@ -46,7 +46,6 @@ interface Doctor {
   id: string | number;
   name: string;
   avatar?: string;
-  specialty?: string;
   room?: string;
   category?: string;
   status_badge?: string;

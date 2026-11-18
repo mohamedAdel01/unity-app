@@ -29,6 +29,14 @@ export default defineNuxtRouteMiddleware((to) => {
     return;
   }
 
+  // Strict Mobile Verification Gate for patients
+  if (authStore.user?.role === 'patient' && authStore.user?.mobile_verified === false) {
+    return navigateTo({
+      path: '/auth/verify-mobile',
+      query: { phone: authStore.user.phone || '' },
+    });
+  }
+
   // 1. Receptionist restrictions
   if (authStore.isReceptionist) {
     const isAllowed = 

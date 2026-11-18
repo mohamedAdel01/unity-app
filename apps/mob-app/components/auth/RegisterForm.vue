@@ -379,7 +379,7 @@ const isPhoneValid = ref(false);
 // ==========================================
 // STEP 2: OTP / MOBILE VERIFICATION
 // ==========================================
-const otpDigits = ref(['', '', '', '']);
+const otpDigits = ref(['', '', '', '', '', '']);
 
 const otpInputRefs = ref<(HTMLInputElement | null)[]>([]);
 
@@ -451,6 +451,7 @@ const handleStep1Submit = async () => {
 
     toast.success(t('Account created! Verification code sent to your phone.'));
     currentStep.value = 2;
+    startOtpCountdown();
   } catch (err: any) {
     toast.error(err.message || (t('Failed to create account')));
   }
@@ -472,10 +473,19 @@ const startOtpCountdown = () => {
   }, 1000);
 };
 
-const handleResendOtp = () => {
-  otpDigits.value = ['', '', '', ''];
+const handleResendOtp = async () => {
+  otpDigits.value = ['', '', '', '', '', ''];
   startOtpCountdown();
-  toast.success(t('Verification code resent successfully!'));
+  try {
+    await api.apiRequest({
+      module: 'auth',
+      service: 'SEND_VERIFICATION_OTP',
+      payload: { phone: step1Form.value.phone.trim() },
+    });
+    toast.success(t('Verification code resent successfully!'));
+  } catch (err: any) {
+    toast.error(err?.message || t('Failed to send verification code'));
+  }
   nextTick(() => {
     otpInputRefs.value[0]?.focus();
   });
@@ -486,7 +496,7 @@ const onDigitInput = (e: Event, index: number) => {
   const val = input.value.slice(-1);
   otpDigits.value[index] = val;
 
-  if (val && index < 3) {
+  if (val && index < 5) {
     otpInputRefs.value[index + 1]?.focus();
   }
 
@@ -507,12 +517,12 @@ const onDigitFocus = (index: number) => {
 
 const handleOtpPaste = (e: ClipboardEvent) => {
   const pasteData = e.clipboardData?.getData('text') || '';
-  const digits = pasteData.replace(/\D/g, '').slice(0, 4);
+  const digits = pasteData.replace(/\D/g, '').slice(0, 6);
   if (digits.length > 0) {
     digits.split('').forEach((char, idx) => {
-      if (idx < 4) otpDigits.value[idx] = char;
+      if (idx < 6) otpDigits.value[idx] = char;
     });
-    if (digits.length === 4) {
+    if (digits.length === 6) {
       handleVerifyOtp();
     } else {
       otpInputRefs.value[digits.length]?.focus();
@@ -521,11 +531,20 @@ const handleOtpPaste = (e: ClipboardEvent) => {
 };
 
 const handleVerifyOtp = async () => {
-  if (!isOtpComplete.value) return;
+  if (!isOtpComplete.value || isVerifyingOtp.value) return;
 
   try {
     isVerifyingOtp.value = true;
-    await new Promise(r => setTimeout(r, 600));
+    const fullOtp = otpDigits.value.join('');
+    await api.apiRequest({
+      module: 'auth',
+      service: 'VERIFY_MOBILE_OTP',
+      payload: {
+        phone: step1Form.value.phone.trim(),
+        otp: fullOtp,
+      },
+      pinia: true,
+    });
     toast.success(t('Mobile number verified successfully!'));
     currentStep.value = 3;
   } catch (err: any) {

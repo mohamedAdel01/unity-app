@@ -36,7 +36,6 @@
             </div>
             <div class="doc-texts">
               <h5>{{ doctor.name }}</h5>
-              <p v-if="hasDistinctSpecialty(doctor)" class="doc-specialty">{{ resolveI18n(doctor.specialty) }}</p>
               <div v-if="getClinicName(doctor.clinic)" class="doc-clinic-name">
                 <i class="pi pi-building"></i>
                 <span>{{ getClinicName(doctor.clinic) }}</span>
@@ -122,7 +121,7 @@ const filteredDoctors = computed(() => {
   const q = props.searchQuery.toLowerCase();
   return doctors.value.filter(d => 
     d.name.toLowerCase().includes(q) || 
-    d.specialty?.toLowerCase().includes(q) ||
+    getClinicName(d.clinic).toLowerCase().includes(q) ||
     d.clinic?.name?.toLowerCase().includes(q)
   );
 });
@@ -133,16 +132,6 @@ const getClinicName = (c: any) => {
   return isRtl.value ? (c.name_ar || c.name || c.name_en) : (c.name_en || c.name || c.name_ar);
 };
 
-const hasDistinctSpecialty = (doctor: any) => {
-  if (!doctor?.specialty) return false;
-  const spec = String(doctor.specialty).trim().toLowerCase();
-  const clinicAr = String(doctor.clinic?.name_ar || '').trim().toLowerCase();
-  const clinicEn = String(doctor.clinic?.name_en || '').trim().toLowerCase();
-  const clinicName = String(doctor.clinic?.name || '').trim().toLowerCase();
-  if (!spec || spec === clinicAr || spec === clinicEn || spec === clinicName) return false;
-  return true;
-};
-
 const DOCTORS = async () => {
   try {
     const res = await api.apiRequest({ service: 'DOCTORS' });
@@ -151,7 +140,6 @@ const DOCTORS = async () => {
         ...d,
         id: d.id,
         name: isRtl.value ? (d.name_ar || d.name) : (d.name_en || d.name),
-        specialty: d.specialty || '',
         clinic: d.clinic,
         rating: d.rating || null,
         availabilityText: t('Available Today'),

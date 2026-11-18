@@ -240,6 +240,12 @@ watch(() => route.path, () => {
   flex-direction: column;
   gap: 10px;
 
+  @media (min-width: 600px) {
+    max-width: 580px;
+    bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + 80px);
+    padding: 18px;
+  }
+
   .dropdown-header {
     display: flex;
     align-items: center;
@@ -409,6 +415,24 @@ watch(() => route.path, () => {
   z-index: 45;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: background-color 0.25s ease, border-color 0.25s ease;
+
+  @media (min-width: 600px) {
+    max-width: 580px;
+    height: 70px;
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    padding: 0 14px;
+
+    .admin-nav-btn {
+      min-width: 70px;
+      max-width: 86px;
+      height: 52px;
+      font-size: 0.70rem;
+
+      i {
+        font-size: 1.25rem;
+      }
+    }
+  }
 
   &.is-modal-hidden {
     display: none !important;

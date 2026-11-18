@@ -74,7 +74,7 @@ const { t, isRtl } = useI18n();
   justify-content: space-between;
   width: 100%;
   padding: 14px 0 16px;
-  direction: rtl;
+  direction: inherit;
 
   &[dir='ltr'] {
     direction: ltr;

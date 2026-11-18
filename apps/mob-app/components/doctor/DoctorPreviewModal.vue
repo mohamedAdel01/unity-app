@@ -41,11 +41,6 @@
             <h3 class="doctor-full-name">{{ doctorName }}</h3>
             
             <div class="doctor-tags-row">
-              <span v-if="doctorSpecialty" class="meta-tag specialty-tag">
-                <i class="pi pi-stethoscope"></i>
-                <span>{{ doctorSpecialty }}</span>
-              </span>
-
               <span v-if="doctorClinic" class="meta-tag clinic-tag">
                 <i class="pi pi-building"></i>
                 <span>{{ doctorClinic }}</span>
@@ -146,16 +141,6 @@ const doctorAvatarUrl = computed(() => {
     return trimmed;
   }
   return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
-});
-
-const doctorSpecialty = computed(() => {
-  const d = props.doctor;
-  if (!d) return '';
-  if (d.specialty) {
-    return resolveI18nText(d.specialty);
-  }
-  const isAr = Boolean(isRtl.value);
-  return isAr ? (d.clinic?.name_ar || d.clinic_ar || '') : (d.clinic?.name_en || d.clinic_en || '');
 });
 
 const doctorClinic = computed(() => {
@@ -456,16 +441,10 @@ onUnmounted(() => {
             font-size: 0.82rem;
           }
 
-          &.specialty-tag {
+          &.clinic-tag {
             background: #ecfdf5;
             border: 1px solid #a7f3d0;
             color: #047857;
-          }
-
-          &.clinic-tag {
-            background: var(--unity-bg);
-            border: 1px solid var(--unity-border);
-            color: var(--unity-text-muted);
           }
         }
       }

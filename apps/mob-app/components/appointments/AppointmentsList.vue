@@ -364,7 +364,7 @@ const getAppointmentTitle = (apt: any) => {
 const getAppointmentSubtitle = (apt: any) => {
   if (isOfferAppointment(apt)) return t('Special Offer');
   if (apt.examination) return t('Hospital Medical Examination');
-  return resolveI18n(apt.doctor?.specialty) || t('Consultation');
+  return resolveI18n(apt.doctor?.clinic?.name_ar || apt.doctor?.clinic?.name_en || apt.doctor?.clinic?.name) || t('Consultation');
 };
 
 const getAppointmentClinic = (apt: any) => {

@@ -10,7 +10,7 @@
           </div>
           <div class="header-texts">
             <h4>{{ t('Edit Doctor Schedule') }}</h4>
-            <small>{{ doctor.name }} • {{ doctor.specialty || doctor.clinic?.name || '' }}</small>
+            <small>{{ doctor.name }} • {{ (isRtl ? doctor.clinic?.name_ar : doctor.clinic?.name_en) || doctor.clinic?.name || '' }}</small>
           </div>
         </div>
         <button class="btn-close" :aria-label="t('Close')" @click="close">

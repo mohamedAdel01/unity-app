@@ -16,5 +16,13 @@ export default defineNuxtRouteMiddleware((to) => {
       query: { redirect: to.fullPath },
     });
   }
+
+  // Ensure mobile verified
+  if (authStore.user?.role === 'patient' && authStore.user?.mobile_verified === false) {
+    return navigateTo({
+      path: '/auth/verify-mobile',
+      query: { phone: authStore.user.phone || '' },
+    });
+  }
 });
 

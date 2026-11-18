@@ -28,6 +28,20 @@ export default {
     });
   },
 
+  async SEND_VERIFICATION_OTP({ API, payload }: { API: any; payload: { phone: string } }) {
+    return await API('auth/send-verification-otp', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async VERIFY_MOBILE_OTP({ API, payload }: { API: any; payload: { phone: string; otp: string } }) {
+    return await API('auth/verify-mobile-otp', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
   async FORGOT_PASSWORD_REQUEST_OTP({ API, payload }: { API: any; payload: any }) {
     return await API('auth/forgot-password', {
       method: 'POST',
@@ -300,11 +314,18 @@ export default {
     });
   },
 
-  async ADMIN_UPDATE_PATIENT({ API, payload }: { API: any; payload: { id: string | number; name?: string; phone?: string; gender?: string } }) {
+  async ADMIN_UPDATE_PATIENT({ API, payload }: { API: any; payload: { id: string | number; name?: string; phone?: string; gender?: string; role?: string } }) {
     const { id, ...data } = payload;
     return await API(`admin/patients/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    });
+  },
+
+  async ADMIN_CHANGE_USER_ROLE({ API, payload }: { API: any; payload: { id: string | number; role: 'receptionist' | 'patient' } }) {
+    return await API(`admin/patients/${payload.id}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role: payload.role }),
     });
   },
 

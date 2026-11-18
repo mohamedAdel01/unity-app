@@ -231,7 +231,7 @@ const legacyDotAliases: Record<string, string> = {
   'servicesCatalog.tabServices': 'Services & Labs',
   'servicesCatalog.tabDoctors': 'Top Specialists',
   'servicesCatalog.searchServicesPlaceholder': 'Search service, lab test, or radiology...',
-  'servicesCatalog.searchDoctorsPlaceholder': 'Search by doctor name or specialty...',
+  'servicesCatalog.searchDoctorsPlaceholder': 'Search by doctor or clinic name...',
   'servicesCatalog.bookThisService': 'Book This Service',
   'servicesCatalog.bookConsultation': 'Book Consultation',
   'servicesCatalog.consultationPrice': 'Fee:',

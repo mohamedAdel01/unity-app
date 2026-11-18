@@ -110,24 +110,18 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .web-viewport-wrapper {
+  width: 100%;
   height: 100vh;
-  max-height: 100vh;
-  background-color: var(--web-outer-bg);
+  height: 100dvh;
+  max-height: 100dvh;
+  background-color: var(--unity-bg);
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  padding: 12px 0;
+  padding: 0;
   overflow: hidden;
 
-  // On native device (phone or tablet) OR on viewports up to 1024px:
   &.is-native {
-    padding: 0;
-    height: 100dvh;
-    max-height: 100dvh;
-    background-color: var(--unity-bg);
-  }
-
-  @media (max-width: 1024px) {
     padding: 0;
     height: 100dvh;
     max-height: 100dvh;
@@ -137,31 +131,13 @@ onUnmounted(() => {
 
 .desktop-screen-frame {
   width: 100%;
-  max-width: 430px;
+  max-width: 100%;
   height: 100%;
-  max-height: 900px;
+  min-height: 100%;
   display: flex;
   justify-content: center;
 
-  // Tablet screen expansion:
-  @media (min-width: 600px) and (max-width: 1024px) {
-    max-width: 100%;
-    max-height: 100%;
-  }
-
-  // Large desktop browser preview - elegant tablet-pro chassis:
-  @media (min-width: 1025px) {
-    max-width: 900px;
-    max-height: 920px;
-  }
-
-  // Native app on any device (phone or tablet):
   &.is-native {
-    max-width: 100%;
-    max-height: 100%;
-  }
-
-  @media (max-width: 1024px) {
     max-width: 100%;
     max-height: 100%;
   }
@@ -169,24 +145,17 @@ onUnmounted(() => {
 
 .mobile-device-shell {
   width: 100%;
-  background: var(--unity-bg);
   height: 100%;
+  background: var(--unity-bg);
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
-  border-radius: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 
-  // Full-bleed clean interface for native app and tablets:
   &.is-native {
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-  }
-
-  @media (max-width: 1024px) {
     border-radius: 0;
     border: none;
     box-shadow: none;
@@ -202,30 +171,34 @@ onUnmounted(() => {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  background: var(--unity-bg);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding-top: max(20px, env(safe-area-inset-top, 20px));
+  padding-bottom: 0;
 
-  // On tablets, center and balance the main view container so content looks balanced:
+  // On tablets & wide viewports, provide balanced horizontal padding
+  @media (min-width: 600px) {
+    padding-left: max(24px, env(safe-area-inset-left, 24px));
+    padding-right: max(24px, env(safe-area-inset-right, 24px));
+  }
+
+  // Tablet & Desktop layout: Content is nicely centered and proportioned
   & > * {
     width: 100%;
     max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
 
-    @media (min-width: 768px) {
+    @media (min-width: 600px) {
       max-width: 860px;
       margin-left: auto;
       margin-right: auto;
     }
-  }
 
-  padding-top: max(32px, env(safe-area-inset-top, 32px));
-  padding-bottom: 0;
-  background: var(--unity-bg);
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-
-  @media (min-width: 768px) {
-    padding-left: max(20px, env(safe-area-inset-left, 20px));
-    padding-right: max(20px, env(safe-area-inset-right, 20px));
+    @media (min-width: 1024px) {
+      max-width: 960px;
+    }
   }
 
   &.is-onboarding {
@@ -240,8 +213,8 @@ onUnmounted(() => {
 
 .mobile-bottom-nav-spacer {
   width: 100%;
-  height: calc(140px + max(20px, env(safe-area-inset-bottom, 20px)));
-  min-height: calc(140px + max(20px, env(safe-area-inset-bottom, 20px)));
+  height: calc(110px + max(14px, env(safe-area-inset-bottom, 14px)));
+  min-height: calc(110px + max(14px, env(safe-area-inset-bottom, 14px)));
   flex-shrink: 0;
   pointer-events: none;
 }

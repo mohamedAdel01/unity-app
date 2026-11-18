@@ -229,8 +229,8 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
         date: a.date,
         is_today: isToday,
         clinic_name: isAr
-          ? (a.examination?.name_ar || a.doctor?.clinic?.name_ar || a.doctor?.specialty || '')
-          : (a.examination?.name_en || a.doctor?.clinic?.name_en || a.doctor?.specialty || ''),
+          ? (a.examination?.name_ar || a.doctor?.clinic?.name_ar || a.clinic?.name_ar || a.clinic?.name || '')
+          : (a.examination?.name_en || a.doctor?.clinic?.name_en || a.clinic?.name_en || a.clinic?.name || ''),
         doctor_name: isAr ? (a.doctor?.name_ar || a.doctor?.name_en || '') : (a.doctor?.name_en || a.doctor?.name_ar || ''),
         examination_name: isAr ? (a.examination?.name_ar || a.examination?.name_en || '') : (a.examination?.name_en || a.examination?.name_ar || ''),
         is_examination: Boolean(a.examination_id || a.examination),

@@ -15,6 +15,7 @@
       @view-file="onViewMedicalFile"
       @book="onBookAppointment"
       @edit="onEditPatient"
+      @change-role="onChangeRole"
       @load-more="loadMorePatients"
       @reset="resetFilters"
     />
@@ -44,6 +45,18 @@
       @booked="ADMIN_PATIENTS"
     />
 
+    <!-- Modal: Confirm Role Assignment (Admin only: Receptionist <-> Patient) -->
+    <AppConfirmModal
+      v-model="isRoleConfirmModalOpen"
+      :title="selectedPatientForRole?.role === 'receptionist' ? t('Change role to Patient') : t('Assign as Receptionist')"
+      :message="selectedPatientForRole?.role === 'receptionist' ? t('Are you sure you want to revert this user to Patient?') : t('Are you sure you want to assign this user as Receptionist?')"
+      :type="selectedPatientForRole?.role === 'receptionist' ? 'warning' : 'info'"
+      :confirm-text="selectedPatientForRole?.role === 'receptionist' ? t('Revert to Patient') : t('Assign as Receptionist')"
+      :cancel-text="t('Cancel')"
+      :loading="roleChangeLoading"
+      @confirm="handleConfirmRoleChange"
+    />
+
     <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
     <div class="page-bottom-spacer" aria-hidden="true" />
   </div>
@@ -61,6 +74,7 @@ import AdminPatientsList from '../../components/admin/AdminPatientsList.vue';
 import AdminPatientModal from '../../components/admin/AdminPatientModal.vue';
 import AdminPatientFileModal from '../../components/admin/AdminPatientFileModal.vue';
 import AdminBookAppointmentModal from '../../components/admin/AdminBookAppointmentModal.vue';
+import AppConfirmModal from '../../components/common/AppConfirmModal.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -88,6 +102,10 @@ const isBookAppointmentModalOpen = ref(false);
 const selectedPatientForFile = ref<any>(null);
 const selectedPatientToEdit = ref<any>(null);
 const selectedPatientForBooking = ref<any>(null);
+const selectedPatientForRole = ref<any>(null);
+
+const isRoleConfirmModalOpen = ref(false);
+const roleChangeLoading = ref(false);
 
 const patients = ref<any[]>([]);
 const patientsPage = ref(1);
@@ -145,6 +163,7 @@ const ADMIN_PATIENTS = async (page: any = 1) => {
         name: p.name,
         avatar: p.avatar,
         phone: p.phone,
+        role: p.role || 'patient',
         clinic: isRtl.value ? latestAppt?.doctor?.clinic?.name_ar : latestAppt?.doctor?.clinic?.name_en,
         insurance: p.insurance,
         badge: p.badge,
@@ -217,6 +236,34 @@ const onBookAppointment = (patient: any) => {
 const onEditPatient = (patient: any) => {
   selectedPatientToEdit.value = patient;
   isPatientModalOpen.value = true;
+};
+
+const onChangeRole = (patient: any) => {
+  selectedPatientForRole.value = patient;
+  isRoleConfirmModalOpen.value = true;
+};
+
+const handleConfirmRoleChange = async () => {
+  if (!selectedPatientForRole.value) return;
+  roleChangeLoading.value = true;
+  try {
+    const targetRole = selectedPatientForRole.value.role === 'receptionist' ? 'patient' : 'receptionist';
+    await api.apiRequest({
+      service: 'ADMIN_CHANGE_USER_ROLE',
+      payload: {
+        id: selectedPatientForRole.value.id,
+        role: targetRole,
+      },
+    });
+    toast.success(t('Role updated successfully!'));
+    isRoleConfirmModalOpen.value = false;
+    selectedPatientForRole.value = null;
+    ADMIN_PATIENTS();
+  } catch (err: any) {
+    toast.error(err?.message || t('Failed to update role'));
+  } finally {
+    roleChangeLoading.value = false;
+  }
 };
 
 // 5. Watches (watch, watchEffect)

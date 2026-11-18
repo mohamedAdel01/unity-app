@@ -14,6 +14,7 @@
           @view-file="emit('view-file', $event)"
           @book="emit('book', $event)"
           @edit="emit('edit', $event)"
+          @change-role="emit('change-role', $event)"
         />
       </template>
 
@@ -54,6 +55,7 @@ const emit = defineEmits<{
   (e: 'view-file', patient: any): void;
   (e: 'book', patient: any): void;
   (e: 'edit', patient: any): void;
+  (e: 'change-role', patient: any): void;
   (e: 'load-more'): void;
   (e: 'reset'): void;
 }>();

@@ -52,7 +52,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="t('Search doctor, specialty, or clinic room...')"
+          :placeholder="t('Search doctor or clinic room...')"
           @input="onSearchInput"
         />
         <button v-if="searchQuery" type="button" class="clear-search-btn" @click="clearSearch">

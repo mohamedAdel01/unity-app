@@ -97,5 +97,10 @@ useHead({
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  @media (min-width: 600px) {
+    padding: 24px 28px 36px;
+    gap: 20px;
+  }
 }
 </style>

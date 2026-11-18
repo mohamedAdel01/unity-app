@@ -88,6 +88,23 @@ const { isAnyModalOpen } = useModalState();
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: background-color 0.25s ease, border-color 0.25s ease;
 
+  @media (min-width: 600px) {
+    max-width: 580px;
+    height: 70px;
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    padding: 0 14px;
+
+    .nav-btn {
+      width: 70px;
+      height: 52px;
+      font-size: 0.70rem;
+
+      i {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
   &.is-modal-hidden {
     display: none !important;
     opacity: 0 !important;

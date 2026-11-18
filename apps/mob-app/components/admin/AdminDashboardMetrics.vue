@@ -162,7 +162,7 @@ const currentRevenue = computed(() => {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
 
-    @media (min-width: 640px) {
+    @media (min-width: 600px) {
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
     }
@@ -176,6 +176,11 @@ const currentRevenue = computed(() => {
       align-items: center;
       gap: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+      @media (min-width: 600px) {
+        padding: 18px 16px;
+        gap: 14px;
+      }
 
       .metric-icon {
         width: 42px;

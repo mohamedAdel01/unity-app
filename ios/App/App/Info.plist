@@ -66,5 +66,32 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<!-- Custom URL Schemes for Deep Linking -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>unityclinics</string>
+				<string>unity</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.unityClinics.app</string>
+		</dict>
+	</array>
+	<!-- Allow querying external apps (WhatsApp, Phone, Mail) -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>whatsapp</string>
+		<string>tel</string>
+		<string>mailto</string>
+	</array>
+	<!-- CRITICAL: Disable Firebase Method Swizzling to prevent conflicts with Capacitor Push Notifications -->
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 </dict>
 </plist>

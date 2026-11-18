@@ -31,7 +31,7 @@
       <input 
         v-model="searchQuery" 
         type="text" 
-        :placeholder="activeTab === 'services' ? t('Search service, lab test, or radiology...') : t('Search by doctor name or specialty...')" 
+        :placeholder="activeTab === 'services' ? t('Search service, lab test, or radiology...') : t('Search by doctor or clinic name...')" 
       />
       <button v-if="searchQuery" type="button" class="clear-search-btn" @click="searchQuery = ''">
         <i class="pi pi-times"></i>
@@ -162,7 +162,6 @@
                 </div>
                 <div class="doc-info-block">
                   <h5>{{ doc.name }}</h5>
-                  <p v-if="hasDistinctSpecialty(doc)" class="specialty-title">{{ doc.specialty }}</p>
                   <span v-if="getLocalizedName(doc.clinic)" class="clinic-location"><i class="pi pi-building"></i> {{ getLocalizedName(doc.clinic) }}</span>
                   <div v-if="doc.consultation_fee" class="fee-badge">
                     {{ t('Examination Fee:') }} <strong>{{ doc.consultation_fee }} {{ t('EGP') }}</strong>
@@ -260,16 +259,6 @@ const getLocalizedName = (item: any): string => {
     : (item.name_en || item.name || item.name_ar || '');
 };
 
-const hasDistinctSpecialty = (doctor: any) => {
-  if (!doctor?.specialty) return false;
-  const spec = String(doctor.specialty).trim().toLowerCase();
-  const clinicAr = String(doctor.clinic?.name_ar || '').trim().toLowerCase();
-  const clinicEn = String(doctor.clinic?.name_en || '').trim().toLowerCase();
-  const clinicName = String(doctor.clinic?.name || '').trim().toLowerCase();
-  if (!spec || spec === clinicAr || spec === clinicEn || spec === clinicName) return false;
-  return true;
-};
-
 const getLocalizedDesc = (item: any): string => {
   if (!item) return '';
   return isRtl.value
@@ -306,8 +295,9 @@ const filteredDoctors = computed(() => {
   const q = searchQuery.value.toLowerCase().trim();
   return list.filter(d => 
     (d.name || '').toLowerCase().includes(q) || 
-    (d.specialty || '').toLowerCase().includes(q) ||
-    (d.clinic?.name || '').toLowerCase().includes(q)
+    (d.clinic?.name || '').toLowerCase().includes(q) ||
+    (d.clinic?.name_ar || '').toLowerCase().includes(q) ||
+    (d.clinic?.name_en || '').toLowerCase().includes(q)
   );
 });
 
@@ -381,7 +371,6 @@ const DOCTORS = async (page = 1) => {
       ...d,
       id: d.id,
       name: isRtl.value ? (d.name_ar || d.name || d.name_en) : (d.name_en || d.name || d.name_ar),
-      specialty: d.specialty || '',
       clinic: d.clinic,
       clinic_id: d.clinic_id || d.clinic?.id,
       rating: d.rating || null,
@@ -925,12 +914,6 @@ onMounted(() => {
         font-size: 1rem;
         font-weight: 800;
         color: var(--unity-text-main);
-      }
-
-      .specialty-title {
-        font-size: 0.78rem;
-        color: var(--unity-text-muted);
-        margin-top: 2px;
       }
 
       .clinic-location {

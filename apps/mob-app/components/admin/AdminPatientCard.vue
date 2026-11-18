@@ -25,6 +25,10 @@
         <div class="patient-details">
           <div class="name-badge-line">
             <h4 class="patient-name">{{ patient.name }}</h4>
+            <span v-if="patient.role === 'receptionist'" class="role-badge-tag receptionist">
+              <i class="pi pi-id-card"></i>
+              {{ t('Receptionist') }}
+            </span>
           </div>
 
           <p v-if="patient.clinic" class="mrn-clinic-line">
@@ -107,6 +111,19 @@
         >
           <i class="pi pi-folder"></i>
         </button>
+
+        <!-- 4. Change Role (Admin only: Assign as Receptionist / Revert to Patient) -->
+        <button 
+          v-if="isAdmin"
+          type="button" 
+          class="action-icon-btn btn-role" 
+          :class="{ 'is-receptionist': patient.role === 'receptionist' }"
+          :title="patient.role === 'receptionist' ? t('Change role to Patient') : t('Assign as Receptionist')" 
+          :aria-label="t('Change Role')" 
+          @click.stop="emit('change-role', patient)"
+        >
+          <i :class="patient.role === 'receptionist' ? 'pi pi-id-card' : 'pi pi-user-plus'"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -114,8 +131,9 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from '../../composables/useI18n';
+import { useAuthStore } from '../../stores/auth';
 
 const props = withDefaults(
   defineProps<{
@@ -131,9 +149,12 @@ const emit = defineEmits<{
   (e: 'view-file', patient: any): void;
   (e: 'book', patient: any): void;
   (e: 'edit', patient: any): void;
+  (e: 'change-role', patient: any): void;
 }>();
 
 const { t } = useI18n();
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.isAdmin);
 
 // 2. Data (refs, reactive state)
 const isExpanded = ref(props.initiallyExpanded);
@@ -286,6 +307,26 @@ const resolveAvatar = (url?: string) => {
             font-size: 0.98rem;
             font-weight: 800;
             color: var(--unity-text-main);
+          }
+
+          .role-badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+
+            &.receptionist {
+              background: #f5f3ff;
+              color: #7c3aed;
+              border: 1px solid #ddd6fe;
+            }
+
+            i {
+              font-size: 0.72rem;
+            }
           }
 
           .insurance-badge {
@@ -539,6 +580,29 @@ const resolveAvatar = (url?: string) => {
           &:hover {
             background: var(--unity-primary-dark, #065f46);
             transform: translateY(-1px);
+          }
+        }
+
+        &.btn-role {
+          background: #eff6ff;
+          border: 1.5px solid #bfdbfe;
+          color: #1d4ed8;
+
+          &:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            transform: translateY(-1px);
+          }
+
+          &.is-receptionist {
+            background: #f5f3ff;
+            border: 1.5px solid #ddd6fe;
+            color: #7c3aed;
+
+            &:hover {
+              background: #ede9fe;
+              border-color: #c4b5fd;
+            }
           }
         }
 

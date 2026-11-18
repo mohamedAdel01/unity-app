@@ -26,7 +26,15 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo('/admin/appointments');
   }
 
-  // 3. Must be a patient
+  // 3. Must be mobile verified
+  if (authStore.user?.mobile_verified === false) {
+    return navigateTo({
+      path: '/auth/verify-mobile',
+      query: { phone: authStore.user.phone || '' },
+    });
+  }
+
+  // 4. Must be a patient
   if (!authStore.isPatient) {
     return navigateTo('/');
   }

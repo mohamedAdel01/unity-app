@@ -44,7 +44,7 @@
   --unity-radius-lg: 24px;
   --unity-radius-full: 9999px;
   
-  --web-outer-bg: #090e17;            // Desktop preview container backdrop
+  --web-outer-bg: var(--unity-bg);            // Full viewport background matches theme
 }
 
 [data-theme='teal'] {
@@ -78,7 +78,7 @@
   --unity-accent-glow: rgba(52, 211, 153, 0.25);
   --unity-shadow-subtle: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
   --unity-shadow-card: 0 4px 14px -3px rgba(0, 0, 0, 0.5);
-  --web-outer-bg: #030712;
+  --web-outer-bg: var(--unity-bg);
 
   --unity-navbar-bg: rgba(17, 24, 39, 0.88);
   --unity-navbar-border: rgba(255, 255, 255, 0.1);
@@ -103,7 +103,7 @@ html, body, input, button, select, textarea, optgroup {
 }
 
 html, body {
-  background-color: var(--web-outer-bg);
+  background-color: var(--unity-bg);
   color: var(--unity-text-main);
   line-height: 1.5;
   font-weight: 400;
@@ -232,4 +232,28 @@ body:has(.modal-sheet) .admin-bottom-nav {
   flex-shrink: 0;
   pointer-events: none;
 }
+
+// ==========================================
+// Tablet Responsive Modal Standard (>= 600px)
+// ==========================================
+@media (min-width: 600px) {
+  .modal-backdrop,
+  .admin-booking-backdrop,
+  [class*="-modal-backdrop"] {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 24px !important;
+  }
+
+  .modal-sheet,
+  .admin-booking-modal-sheet,
+  [class*="-modal-sheet"] {
+    max-width: 540px !important;
+    max-height: 88vh !important;
+    border-radius: 26px !important;
+    margin: auto !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25) !important;
+  }
+}
+
 

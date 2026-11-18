@@ -235,6 +235,11 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
+  @media (min-width: 600px) {
+    align-items: center;
+    padding: 24px;
+  }
 }
 
 .modal-sheet {
@@ -251,6 +256,17 @@ onUnmounted(() => {
   border-top: 1.5px solid var(--unity-border);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   direction: rtl;
+
+  @media (min-width: 600px) {
+    max-width: 520px;
+    border-radius: 24px;
+    border: 1.5px solid var(--unity-border);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+
+    .pill {
+      display: none;
+    }
+  }
 
   .pill {
     width: 40px;

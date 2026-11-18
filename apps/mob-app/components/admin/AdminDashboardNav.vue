@@ -106,10 +106,10 @@ const { t, isRtl } = useI18n();
     flex-direction: column;
     gap: 10px;
 
-    @media (min-width: 640px) {
+    @media (min-width: 600px) {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 14px;
     }
 
     .nav-tile {
@@ -121,10 +121,25 @@ const { t, isRtl } = useI18n();
       border: 1px solid var(--unity-border-subtle);
       border-radius: 18px;
       text-decoration: none;
-      transition: transform 0.15s, border-color 0.15s;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+
+      @media (min-width: 600px) {
+        padding: 16px 20px;
+      }
 
       &:active {
         transform: scale(0.99);
+      }
+
+      &:hover {
+        border-color: var(--unity-primary);
+        box-shadow: 0 4px 14px -3px rgba(4, 120, 87, 0.12);
+      }
+
+      &:last-child:nth-child(odd) {
+        @media (min-width: 600px) {
+          grid-column: span 2;
+        }
       }
 
       .tile-icon {

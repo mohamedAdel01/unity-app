@@ -93,8 +93,8 @@
                     <p v-else-if="isExamination && (service?.description || examination?.description)" class="doc-spec">
                       {{ resolveI18n(service?.description || examination?.description) }}
                     </p>
-                    <p v-else-if="doctor?.specialty || doctor?.clinic?.name" class="doc-spec">
-                      {{ resolveI18n(doctor?.specialty || doctor?.clinic?.name) }}
+                    <p v-else-if="doctor?.clinic?.name_ar || doctor?.clinic?.name_en || doctor?.clinic?.name" class="doc-spec">
+                      {{ resolveI18n(doctor?.clinic?.name_ar || doctor?.clinic?.name_en || doctor?.clinic?.name) }}
                     </p>
                   </div>
                 </div>

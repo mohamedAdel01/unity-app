@@ -18,7 +18,7 @@
                 <h3>{{ doctor.name }}</h3>
                 <span class="cases-total-pill">{{ totalCases }} {{ t('Doctor Bookings') }}</span>
               </div>
-              <p class="specialty-clinic">
+              <p class="doctor-clinic">
                 <span>{{ isRtl ? doctor.clinic?.name_ar : doctor.clinic?.name_en }}</span>
               </p>
             </div>
@@ -546,7 +546,7 @@ onUnmounted(() => {
           }
         }
 
-        .specialty-clinic {
+        .doctor-clinic {
           font-size: 0.76rem;
           color: var(--unity-text-muted, #64748b);
           margin: 0;

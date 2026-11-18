@@ -205,7 +205,7 @@
             </button>
           </div>
 
-          <!-- Specialty / Clinic Filter Pills -->
+          <!-- Clinic Filter Pills -->
           <div class="clinic-filter-pills">
             <button 
               type="button" 

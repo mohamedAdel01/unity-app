@@ -100,6 +100,15 @@ const handleSubmit = async () => {
       pinia: true,
     });
     if (res && res.status && res.data?.user) {
+      if (res.data.user.role === 'patient' && res.data.user.mobile_verified === false) {
+        toast.info(t('Please verify your mobile number to complete sign in'));
+        router.push({
+          path: '/auth/verify-mobile',
+          query: { phone: form.value.login, redirect: (route.query.redirect as string) || '/' },
+        });
+        return;
+      }
+
       toast.success(t('Welcome back!'));
       emit('success', res.data.user);
       let target = (route.query.redirect as string);
@@ -111,6 +120,15 @@ const handleSubmit = async () => {
       router.push(target);
     }
   } catch (err: any) {
+    const errorData = err?.data || err?.response?._data;
+    if (errorData?.requires_verification) {
+      toast.info(t('Please verify your mobile number to complete sign in'));
+      router.push({
+        path: '/auth/verify-mobile',
+        query: { phone: form.value.login, redirect: (route.query.redirect as string) || '/' },
+      });
+      return;
+    }
     toast.error(err.message || 'فشل تسجيل الدخول');
   }
 };

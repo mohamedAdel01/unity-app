@@ -1062,4 +1062,7 @@ export default {
   "Cancelled / Refunded": "Cancelled / Refunded",
   "Paid in Full": "Paid in Full",
   "Manage Doctor": "Manage Doctor",
+  "Search by doctor or clinic name...": "Search by doctor or clinic name...",
+  "Search doctor or clinic room...": "Search doctor or clinic room...",
+  "Try searching for another name or clinic room.": "Try searching for another name or clinic room.",
 };

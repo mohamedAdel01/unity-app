@@ -41,6 +41,31 @@
           />
         </div>
 
+        <!-- User Role (Admin only - assign to Receptionist or Patient only) -->
+        <div v-if="isAdmin" class="form-group">
+          <label>{{ t('User Role') }}</label>
+          <div class="role-selector-pills">
+            <button 
+              type="button" 
+              class="role-pill" 
+              :class="{ active: form.role === 'patient' }"
+              @click="form.role = 'patient'"
+            >
+              <i class="pi pi-user"></i>
+              <span>{{ t('Patient') }}</span>
+            </button>
+            <button 
+              type="button" 
+              class="role-pill" 
+              :class="{ active: form.role === 'receptionist' }"
+              @click="form.role = 'receptionist'"
+            >
+              <i class="pi pi-id-card"></i>
+              <span>{{ t('Receptionist') }}</span>
+            </button>
+          </div>
+        </div>
+
         </div>
 
         <!-- Submit Button -->
@@ -68,11 +93,13 @@ import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
 import { useGlobalStore } from '../../stores/global';
 import AppPhoneInput from '../common/AppPhoneInput.vue';
+import { useAuthStore } from '../../stores/auth';
 
 interface Patient {
   id?: string | number;
   name: string;
   phone: string;
+  role?: string;
   gender?: string | null;
   status?: string;
 }
@@ -92,7 +119,10 @@ const api = useUnityApi();
 const { t } = useI18n();
 const toast = useAppToast();
 const globalStore = useGlobalStore();
+const authStore = useAuthStore();
 const { registerModalOpen, registerModalClose } = useModalState();
+
+const isAdmin = computed(() => authStore.isAdmin);
 
 // 2. Data (refs, reactive state)
 const isPhoneValid = ref(false);
@@ -100,6 +130,7 @@ const isPhoneValid = ref(false);
 const form = ref({
   name: '',
   phone: '',
+  role: 'patient' as 'patient' | 'receptionist',
 });
 
 // 3. Computed (computed properties)
@@ -115,6 +146,7 @@ const isFormValid = computed(() => {
 const close = () => {
   form.value.name = '';
   form.value.phone = '';
+  form.value.role = 'patient';
   emit('close');
 };
 
@@ -122,10 +154,13 @@ const handleSubmit = async () => {
   if (!isFormValid.value || loading.value) return;
 
   try {
-    const payload = {
+    const payload: any = {
       name: form.value.name.trim(),
       phone: form.value.phone.trim(),
     };
+    if (isAdmin.value) {
+      payload.role = form.value.role;
+    }
 
     const res = await api.apiRequest({
       service: props.patient?.id ? 'ADMIN_UPDATE_PATIENT' : 'ADMIN_CREATE_PATIENT',
@@ -157,12 +192,14 @@ watch(
       form.value = {
         name: val.name || '',
         phone: val.phone || '',
+        role: val.role === 'receptionist' ? 'receptionist' : 'patient',
       };
       isPhoneValid.value = true;
     } else {
       form.value = {
         name: '',
         phone: '',
+        role: 'patient',
       };
       isPhoneValid.value = false;
     }
@@ -308,6 +345,45 @@ onUnmounted(() => {
           .required {
             color: #ef4444;
             margin-inline-start: 2px;
+          }
+        }
+
+        .role-selector-pills {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          width: 100%;
+
+          .role-pill {
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 12px;
+            border: 1.5px solid var(--unity-border, #e2e8f0);
+            background: var(--unity-bg, #f8fafc);
+            color: var(--unity-text-muted, #64748b);
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+            i {
+              font-size: 1rem;
+            }
+
+            &:hover {
+              border-color: #cbd5e1;
+              color: var(--unity-text-main, #0f172a);
+            }
+
+            &.active {
+              background: #ecfdf5;
+              border-color: #047857;
+              color: #047857;
+              box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+            }
           }
         }
 
