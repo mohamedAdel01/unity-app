@@ -54,6 +54,12 @@ export const useAuthStore = defineStore('auth', {
       if (typeof window !== 'undefined') {
         localStorage.setItem('unity_token', token);
         localStorage.setItem('unity_user', JSON.stringify(user));
+        try {
+          const nuxtApp = useNuxtApp();
+          if ((nuxtApp as any)?.$triggerPushFlow) {
+            (nuxtApp as any).$triggerPushFlow();
+          }
+        } catch (_) {}
       }
     },
 
@@ -65,6 +71,13 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
+      try {
+        const nuxtApp = useNuxtApp();
+        if ((nuxtApp as any)?.$unregisterPush) {
+          await (nuxtApp as any).$unregisterPush();
+        }
+      } catch (_) {}
+
       this.user = null;
       this.token = null;
       this.initialized = true;

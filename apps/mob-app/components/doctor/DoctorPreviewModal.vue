@@ -137,7 +137,12 @@ const doctorAvatarUrl = computed(() => {
   const raw = props.doctor?.avatar || props.doctor?.avatar_url;
   if (!raw || typeof raw !== 'string') return '';
   const trimmed = raw.trim();
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
+  if (trimmed.startsWith('data:image/')) return trimmed;
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
   }
   return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;

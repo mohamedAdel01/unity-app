@@ -149,7 +149,12 @@
             <div class="doctor-catalog-card">
               <div class="doc-main-row" :title="t('View Doctor Profile')" @click="openDoctorPreview(doc)">
                 <div class="doc-img-wrap clickable-avatar">
-                  <img v-if="doc.avatar" :src="doc.avatar" :alt="doc.name" />
+                  <img 
+                    v-if="doc.avatar && !failedAvatars.has(doc.id)" 
+                    :src="resolveDoctorAvatar(doc.avatar)" 
+                    :alt="doc.name" 
+                    @error="failedAvatars.add(doc.id)"
+                  />
                   <div v-else class="doc-initial-badge">
                     <span>{{ (doc.name || 'D').charAt(0).toUpperCase() }}</span>
                   </div>
@@ -230,10 +235,29 @@ const doctorsHasMore = ref(false);
 const doctorsLoading = ref(false);
 const isDoctorPreviewOpen = ref(false);
 const selectedDoctorForPreview = ref<any>(null);
+const failedAvatars = ref(new Set<string | number>());
 
 // 3. Computed (computed properties)
+const resolveDoctorAvatar = (url?: string) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return trimmed;
+  const config = useRuntimeConfig();
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+};
 const getLocalizedName = (item: any): string => {
-  return isRtl.value ? item?.name_ar : item?.name_en;
+  if (!item) return '';
+  return isRtl.value
+    ? (item.name_ar || item.name || item.name_en || '')
+    : (item.name_en || item.name || item.name_ar || '');
 };
 
 const hasDistinctSpecialty = (doctor: any) => {
@@ -247,7 +271,10 @@ const hasDistinctSpecialty = (doctor: any) => {
 };
 
 const getLocalizedDesc = (item: any): string => {
-  return isRtl.value ? item?.description_ar : item?.description_en;
+  if (!item) return '';
+  return isRtl.value
+    ? (item.description_ar || item.description || item.description_en || '')
+    : (item.description_en || item.description || item.description_ar || '');
 };
 
 const activeClinicName = computed(() => {

@@ -14,17 +14,29 @@
         <h4>{{ primaryName }}</h4>
       </div>
 
-      <button 
-        type="button"
-        class="unity-switch-toggle" 
-        :class="{ 'active': clinic.is_active }"
-        :aria-checked="clinic.is_active"
-        role="switch"
-        :title="clinic.is_active ? t('Active') : t('Inactive')"
-        @click.stop="emit('toggle-status', clinic)"
-      >
-        <span class="switch-slider"></span>
-      </button>
+      <div class="card-controls" @click.stop>
+        <button 
+          type="button"
+          class="unity-switch-toggle" 
+          :class="{ 'active': clinic.is_active }"
+          :aria-checked="clinic.is_active"
+          role="switch"
+          :title="clinic.is_active ? t('Active') : t('Inactive')"
+          @click.stop="emit('toggle-status', clinic)"
+        >
+          <span class="switch-slider"></span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-card-edit" 
+          :title="t('Edit Clinic')"
+          :aria-label="t('Edit Clinic')"
+          @click.stop="emit('edit', clinic)"
+        >
+          <i class="pi pi-pencil"></i>
+        </button>
+      </div>
     </div>
 
     <div class="card-footer">
@@ -38,16 +50,6 @@
         </svg>
         <span>{{ clinic.doctors_count }} {{ t('Doctors') }}</span>
       </span>
-
-      <button 
-        type="button" 
-        class="btn-card-edit" 
-        :title="t('Edit Clinic')"
-        :aria-label="t('Edit Clinic')"
-        @click.stop="emit('edit', clinic)"
-      >
-        <i class="pi pi-pencil"></i>
-      </button>
     </div>
   </div>
 </template>
@@ -152,42 +154,85 @@ const primaryName = computed(() => {
       }
     }
 
-    .unity-switch-toggle {
-      position: relative;
-      width: 46px;
-      height: 26px;
-      border-radius: 9999px;
-      background: #cbd5e1;
-      border: none;
-      padding: 2px;
-      cursor: pointer;
-      outline: none;
-      display: inline-flex;
+    .card-controls {
+      display: flex;
       align-items: center;
-      transition: background-color 0.25s ease;
+      gap: 10px;
       flex-shrink: 0;
-      direction: ltr;
 
-      .switch-slider {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateX(0);
-      }
-
-      &.active {
-        background: #059669;
+      .unity-switch-toggle {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        border-radius: 9999px;
+        background: #cbd5e1;
+        border: none;
+        padding: 2px;
+        cursor: pointer;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        transition: background-color 0.25s ease;
+        flex-shrink: 0;
+        direction: ltr;
 
         .switch-slider {
-          transform: translateX(20px);
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #ffffff;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+          transform: translateX(0);
+        }
+
+        &.active {
+          background: #059669;
+
+          .switch-slider {
+            transform: translateX(20px);
+          }
+        }
+
+        &:focus-visible {
+          box-shadow: 0 0 0 2px #fff, 0 0 0 4px #059669;
         }
       }
 
-      &:focus-visible {
-        box-shadow: 0 0 0 2px #fff, 0 0 0 4px #059669;
+      .btn-card-edit {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: #ecfdf5;
+        border: 1.5px solid #a7f3d0;
+        color: #047857;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 0;
+
+        i {
+          font-size: 1.05rem;
+          color: #047857;
+        }
+
+        &:hover {
+          background: #d1fae5;
+          border-color: #6ee7b7;
+          color: #065f46;
+          transform: translateY(-1px);
+
+          i {
+            color: #065f46;
+          }
+        }
+
+        &:active {
+          transform: scale(0.96);
+        }
       }
     }
   }
@@ -195,7 +240,6 @@ const primaryName = computed(() => {
   .card-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     border-top: 1px solid var(--unity-border);
     padding-top: 10px;
 
@@ -210,42 +254,6 @@ const primaryName = computed(() => {
       svg {
         color: var(--unity-primary);
         flex-shrink: 0;
-      }
-    }
-
-    .btn-card-edit {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: #ecfdf5;
-      border: 1.5px solid #a7f3d0;
-      color: #047857;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 0;
-
-      i {
-        font-size: 1.15rem;
-        color: #047857;
-      }
-
-      &:hover {
-        background: #d1fae5;
-        border-color: #6ee7b7;
-        color: #065f46;
-        transform: translateY(-1px);
-
-        i {
-          color: #065f46;
-        }
-      }
-
-      &:active {
-        transform: scale(0.96);
       }
     }
   }

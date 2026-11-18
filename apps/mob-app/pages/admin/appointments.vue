@@ -241,6 +241,7 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
         is_paid: a.invoice?.status === 'paid' || a.payment_status === 'paid' || a.is_paid === true,
         payment_method: a.invoice?.payment_method || a.payment_method || 'cash',
         price: a.invoice?.total || a.examination?.price || a.doctor?.consultation_fee || a.total || 0,
+        notes: a.notes || null,
         period: isToday ? 'today' : 'other',
         raw: a,
       };

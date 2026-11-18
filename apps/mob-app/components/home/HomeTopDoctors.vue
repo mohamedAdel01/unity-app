@@ -26,7 +26,7 @@
           <div class="doc-avatar-group">
             <img 
               v-if="doctor.avatar && !failedAvatars.has(doctor.id)"
-              :src="doctor.avatar" 
+              :src="resolveDoctorAvatar(doctor.avatar)" 
               :alt="doctor.name"
               class="clickable-doc-avatar"
               @error="failedAvatars.add(doctor.id)" 
@@ -102,6 +102,21 @@ const isDoctorPreviewOpen = ref(false);
 const selectedDoctorForPreview = ref<any>(null);
 
 // 3. Computed (computed properties)
+const resolveDoctorAvatar = (url?: string) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return trimmed;
+  const config = useRuntimeConfig();
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+};
 const filteredDoctors = computed(() => {
   if (!props.searchQuery) return doctors.value;
   const q = props.searchQuery.toLowerCase();

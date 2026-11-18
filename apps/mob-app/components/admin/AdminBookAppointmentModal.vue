@@ -240,13 +240,14 @@
                 type="button" 
                 class="selection-item-card doctor-item"
                 :class="{ active: selectedDoctor?.id === doc.id }"
-                @click="selectedDoctor = doc"
+                @click="onSelectDoctor(doc)"
               >
                 <div class="item-avatar">
                   <img 
-                    v-if="doc.user?.avatar || doc.avatar" 
-                    :src="resolveAvatar(doc.user?.avatar || doc.avatar)" 
-                    :alt="doc.user?.name || doc.name"
+                    v-if="(doc.avatar || doc.user?.avatar) && !failedDoctorAvatars.has(doc.id)" 
+                    :src="resolveAvatar(doc.avatar || doc.user?.avatar)" 
+                    :alt="doc.name || doc.user?.name"
+                    @error="failedDoctorAvatars.add(doc.id)"
                   />
                   <div v-else class="avatar-placeholder">
                     <i class="pi pi-user"></i>
@@ -255,14 +256,14 @@
 
                 <div class="item-details">
                   <div class="item-name-row">
-                    <h6>{{ doc.user?.name || doc.name }}</h6>
+                    <h6>{{ doc.name || doc.user?.name }}</h6>
                   </div>
                   <span class="item-sub">{{ getClinicName(doc.clinic) || t('Specialist') }}</span>
                   <div class="item-pricing">
                     <span class="price-value">{{ getDoctorFee(doc) }} {{ t('EGP') }}</span>
                     <span class="duration-tag">
                       <i class="pi pi-clock"></i>
-                      <span>{{ doc.examination_duration || 20 }} {{ t('minutes') }}</span>
+                      <span>{{ doc.slot_duration || doc.examination_duration || 20 }} {{ t('minutes') }}</span>
                     </span>
                   </div>
                 </div>
@@ -366,8 +367,60 @@
       <div v-if="currentStep === 3" class="step-container step-datetime">
         <h4 class="step-title">{{ t('Select Date & Time') }}</h4>
 
-        <!-- Date Presets -->
-        <div class="date-presets-row">
+        <!-- Doctor Available Working Days Horizontal Chips -->
+        <div v-if="bookingType === 'doctor'" class="doctor-available-days-block">
+          <div class="block-title-row">
+            <label class="section-label">
+              <i class="pi pi-calendar"></i>
+              <span>{{ t('Doctor Working Days') }}</span>
+            </label>
+            <span v-if="selectedDoctor" class="doctor-name-pill">
+              {{ selectedDoctor.name || selectedDoctor.user?.name }}
+            </span>
+          </div>
+
+          <div v-if="daysLoading" class="days-loading-chip">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>{{ t('Checking available days...') }}</span>
+          </div>
+
+          <div v-else-if="availableDaysList.length > 0" class="days-chips-scroll">
+            <button
+              v-for="day in availableDaysList"
+              :key="day.date"
+              type="button"
+              class="day-chip-btn"
+              :class="{ active: selectedDate === day.date }"
+              @click="onSelectWorkingDay(day.date)"
+            >
+              <span class="day-chip-title">{{ day.label }}</span>
+              <span class="day-chip-num">{{ day.dayNum }}</span>
+              <span v-if="day.count !== undefined" class="day-chip-slots">
+                {{ day.count }} {{ t('slots') }}
+              </span>
+            </button>
+
+            <!-- Custom Calendar Picker Chip -->
+            <button 
+              type="button" 
+              class="day-chip-btn custom-picker-chip" 
+              :class="{ active: isCustomDateSelected }"
+              @click="openDatePicker"
+            >
+              <i class="pi pi-calendar-plus"></i>
+              <span class="day-chip-title">{{ t('Other Date') }}</span>
+              <span class="day-chip-num">{{ isCustomDateSelected ? formatShortDate(selectedDate) : t('Pick') }}</span>
+            </button>
+          </div>
+
+          <div v-else class="no-working-days-warning">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>{{ t('No available appointment dates found for this doctor currently.') }}</span>
+          </div>
+        </div>
+
+        <!-- Examination Date Presets -->
+        <div v-else class="date-presets-row">
           <button 
             type="button" 
             class="preset-btn" 
@@ -396,16 +449,16 @@
             <i class="pi pi-calendar-plus"></i>
             <span>{{ selectedDate ? formatShortDate(selectedDate) : t('Pick Date') }}</span>
           </button>
-
-          <input 
-            ref="nativeDateInputRef"
-            type="date" 
-            class="hidden-native-date" 
-            :min="todayDateString"
-            :value="selectedDate"
-            @change="onCustomDateSelected(($event.target as HTMLInputElement).value)"
-          />
         </div>
+
+        <input 
+          ref="nativeDateInputRef"
+          type="date" 
+          class="hidden-native-date" 
+          :min="todayDateString"
+          :value="selectedDate"
+          @change="onCustomDateSelected(($event.target as HTMLInputElement).value)"
+        />
 
         <!-- Formatted Active Date Banner -->
         <div class="active-date-display">
@@ -418,6 +471,7 @@
           <label class="section-label">{{ t('Available Time Slots') }}</label>
           <div v-if="slotsLoading" class="loading-state">
             <i class="pi pi-spin pi-spinner"></i>
+            <span>{{ t('Loading available slots...') }}</span>
           </div>
           <div v-else-if="timeSlots.length > 0" class="slots-grid">
             <button 
@@ -438,7 +492,14 @@
           </div>
           <div v-else class="empty-selection-state">
             <i class="pi pi-calendar-times"></i>
-            <p>{{ t('No slots available for this date') }}</p>
+            <h5 v-if="noScheduleForDay">{{ t('Doctor has no schedule on this day') }}</h5>
+            <h5 v-else>{{ t('No slots available for this date') }}</h5>
+            <p v-if="noScheduleForDay && availableDaysList.length > 0">
+              {{ t('Please choose one of the available working days above.') }}
+            </p>
+            <p v-else>
+              {{ t('Please try another date.') }}
+            </p>
           </div>
         </div>
 
@@ -497,6 +558,11 @@
             <span class="summary-value">
               {{ formatHumanDate(selectedDate) }} - {{ formatSlotTime(selectedSlot?.start_time) }}
             </span>
+          </div>
+
+          <div v-if="bookingNotes?.trim()" class="summary-row summary-notes-row">
+            <span class="summary-label">{{ t('Booking Notes') }}:</span>
+            <span class="summary-value notes-text">{{ bookingNotes.trim() }}</span>
           </div>
 
           <div class="summary-divider"></div>
@@ -602,6 +668,10 @@ const selectedExam = ref<any>(null);
 // Loading states
 const loadingItems = ref(false);
 const slotsLoading = ref(false);
+const daysLoading = ref(false);
+const noScheduleForDay = ref(false);
+const failedDoctorAvatars = ref<Set<string>>(new Set());
+const availableDaysList = ref<any[]>([]);
 
 // Date & Time State
 const datePreset = ref<'today' | 'tomorrow' | 'custom'>('today');
@@ -612,6 +682,11 @@ const selectedSlot = ref<any>(null);
 const bookingNotes = ref('');
 
 // 3. Computed (computed properties)
+const isCustomDateSelected = computed(() => {
+  if (!selectedDate.value) return false;
+  return !availableDaysList.value.some(d => d.date === selectedDate.value);
+});
+
 const submitting = computed(() => {
   return globalStore.loading.includes('ADMIN_BOOK_APPOINTMENT');
 });
@@ -678,13 +753,20 @@ const getInitial = (name?: string) => {
 };
 
 const resolveAvatar = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
-    return url;
-  }
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return trimmed;
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${url}`;
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return `${baseUrl}${cleanPath}`;
 };
 
 const getDoctorFee = (doc: any) => {
@@ -734,11 +816,82 @@ const prevStep = () => {
   }
 };
 
-const goToStep = (step: number) => {
+const goToStep = async (step: number) => {
   currentStep.value = step;
-  if (step === 3 && !selectedDate.value) {
-    setDatePreset('today');
+  if (step === 3) {
+    if (bookingType.value === 'doctor' && selectedDoctor.value) {
+      if (availableDaysList.value.length === 0) {
+        await DOCTOR_AVAILABLE_DAYS();
+      } else {
+        await generateSlots();
+      }
+    } else {
+      if (!selectedDate.value) {
+        setDatePreset('today');
+      } else {
+        await generateSlots();
+      }
+    }
   }
+};
+
+const onSelectDoctor = async (doc: any) => {
+  selectedDoctor.value = doc;
+  availableDaysList.value = [];
+  timeSlots.value = [];
+  selectedSlot.value = null;
+  noScheduleForDay.value = false;
+  await DOCTOR_AVAILABLE_DAYS();
+};
+
+const DOCTOR_AVAILABLE_DAYS = async () => {
+  if (bookingType.value !== 'doctor' || !selectedDoctor.value) return;
+  const docId = selectedDoctor.value.id;
+  try {
+    daysLoading.value = true;
+    const res = await api.apiRequest({
+      service: 'DOCTOR_AVAILABLE_DAYS',
+      filter: { id: docId, days: 30 },
+    });
+    if (res?.status && Array.isArray(res.data) && res.data.length > 0) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+      availableDaysList.value = res.data.map((item: any) => {
+        const d = new Date(item.date);
+        let label = '';
+        if (item.date === todayStr) label = t('Today');
+        else if (item.date === tomorrowStr) label = t('Tomorrow');
+        else label = d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { weekday: 'short' });
+
+        const dayNum = d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'short' });
+        return {
+          date: item.date,
+          label,
+          dayNum,
+          count: item.available_slots_count,
+        };
+      });
+
+      selectedDate.value = availableDaysList.value[0].date;
+    } else {
+      availableDaysList.value = [];
+      selectedDate.value = new Date().toISOString().split('T')[0];
+    }
+  } catch (err) {
+    availableDaysList.value = [];
+    selectedDate.value = new Date().toISOString().split('T')[0];
+  } finally {
+    daysLoading.value = false;
+    await generateSlots();
+  }
+};
+
+const onSelectWorkingDay = (dateStr: string) => {
+  selectedDate.value = dateStr;
+  generateSlots();
 };
 
 const selectType = (type: 'doctor' | 'examination') => {
@@ -790,87 +943,73 @@ const setDatePreset = (preset: 'today' | 'tomorrow' | 'custom') => {
 const generateSlots = async () => {
   slotsLoading.value = true;
   selectedSlot.value = null;
+  noScheduleForDay.value = false;
 
   try {
-    // If doctor is selected, try calling DOCTOR_SLOTS endpoint
+    // 1. If doctor is selected, fetch exact slots from DOCTOR_SLOTS endpoint
     if (bookingType.value === 'doctor' && selectedDoctor.value) {
-      const docId = selectedDoctor.value.user_id || selectedDoctor.value.user?.id || selectedDoctor.value.id;
+      const docId = selectedDoctor.value.id;
       const res = await api.apiRequest({
         service: 'DOCTOR_SLOTS',
-        filter: { id: docId, date: selectedDate.value },
-      });
-
-      if (res?.data?.slots && Array.isArray(res.data.slots) && res.data.slots.length > 0) {
-        timeSlots.value = res.data.slots.map((s: any) => ({
-          start_time: s.start_time,
-          end_time: s.end_time || calculateEndTime(s.start_time, selectedDoctor.value?.examination_duration || 20),
-          is_available: s.is_available ?? true,
-        }));
-        selectedSlot.value = timeSlots.value.find((s: any) => s.is_available) || timeSlots.value[0];
-        return;
-      }
-    }
-
-    // If examination is selected, check its examination_schedule via EXAMINATION_SLOTS endpoint
-    if (bookingType.value === 'examination' && selectedExam.value) {
-      const res = await api.apiRequest({
-        service: 'EXAMINATION_SLOTS',
-        filter: { id: selectedExam.value.id, date: selectedDate.value },
+        filter: { id: docId, date: selectedDate.value, no_cache: 1 },
       });
 
       if (res?.data) {
-        if (!res.data.is_working_day) {
+        if (res.data.is_working_day === false || (Array.isArray(res.data.slots) && res.data.slots.length === 0)) {
           timeSlots.value = [];
           selectedSlot.value = null;
+          noScheduleForDay.value = true;
+          return;
+        }
+
+        if (Array.isArray(res.data.slots)) {
+          const slotDuration = selectedDoctor.value?.slot_duration || selectedDoctor.value?.examination_duration || 20;
+          timeSlots.value = res.data.slots.map((s: any) => ({
+            start_time: s.start_time,
+            end_time: s.end_time || calculateEndTime(s.start_time, slotDuration),
+            is_available: s.is_available ?? true,
+          }));
+          selectedSlot.value = timeSlots.value.find((s: any) => s.is_available) || null;
+          return;
+        }
+      }
+
+      timeSlots.value = [];
+      selectedSlot.value = null;
+      noScheduleForDay.value = true;
+      return;
+    }
+
+    // 2. If examination is selected, check its examination_schedule via EXAMINATION_SLOTS endpoint
+    if (bookingType.value === 'examination' && selectedExam.value) {
+      const res = await api.apiRequest({
+        service: 'EXAMINATION_SLOTS',
+        filter: { id: selectedExam.value.id, date: selectedDate.value, no_cache: 1 },
+      });
+
+      if (res?.data) {
+        if (!res.data.is_working_day || (Array.isArray(res.data.slots) && res.data.slots.length === 0)) {
+          timeSlots.value = [];
+          selectedSlot.value = null;
+          noScheduleForDay.value = true;
           return;
         }
 
         if (Array.isArray(res.data.slots)) {
           timeSlots.value = res.data.slots;
-          selectedSlot.value = timeSlots.value.find((s: any) => s.is_available) || timeSlots.value[0];
+          selectedSlot.value = timeSlots.value.find((s: any) => s.is_available) || null;
           return;
         }
       }
-    }
 
-    // Default slot generator for clinics/examinations
-    const duration = bookingType.value === 'doctor' 
-      ? (selectedDoctor.value?.examination_duration || 20)
-      : (selectedExam.value?.duration || 15);
-
-    const generated: any[] = [];
-    // Morning shifts (09:00 to 13:00)
-    for (let h = 9; h < 13; h++) {
-      for (let m = 0; m < 60; m += duration) {
-        if (m + duration > 60 && m !== 0) continue;
-        const start = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        const end = calculateEndTime(start, duration);
-        generated.push({ start_time: start, end_time: end, is_available: true });
-      }
-    }
-    // Evening shifts (16:00 to 21:00)
-    for (let h = 16; h < 21; h++) {
-      for (let m = 0; m < 60; m += duration) {
-        if (m + duration > 60 && m !== 0) continue;
-        const start = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        const end = calculateEndTime(start, duration);
-        generated.push({ start_time: start, end_time: end, is_available: true });
-      }
-    }
-
-    timeSlots.value = generated;
-    if (generated.length > 0) {
-      selectedSlot.value = generated[0];
+      timeSlots.value = [];
+      selectedSlot.value = null;
+      noScheduleForDay.value = true;
+      return;
     }
   } catch (err) {
-    timeSlots.value = [
-      { start_time: '10:00', end_time: '10:30', is_available: true },
-      { start_time: '10:30', end_time: '11:00', is_available: true },
-      { start_time: '11:00', end_time: '11:30', is_available: true },
-      { start_time: '18:00', end_time: '18:30', is_available: true },
-      { start_time: '18:30', end_time: '19:00', is_available: true },
-    ];
-    selectedSlot.value = timeSlots.value[0];
+    timeSlots.value = [];
+    selectedSlot.value = null;
   } finally {
     slotsLoading.value = false;
   }
@@ -987,9 +1126,9 @@ const submitBooking = async () => {
     examination_id: examinationId,
     date: selectedDate.value,
     start_time: selectedSlot.value.start_time,
-    end_time: selectedSlot.value.end_time,
+    end_time: selectedSlot.value.end_time || calculateEndTime(selectedSlot.value.start_time, 20),
     type: 'consultation',
-    notes: bookingNotes.value || null,
+    notes: bookingNotes.value?.trim() || null,
     status: 'confirmed',
   };
 
@@ -1026,6 +1165,11 @@ watch(() => props.isOpen, (newVal) => {
     doctorSearch.value = '';
     examSearch.value = '';
     bookingNotes.value = '';
+    availableDaysList.value = [];
+    timeSlots.value = [];
+    selectedSlot.value = null;
+    noScheduleForDay.value = false;
+    failedDoctorAvatars.value.clear();
     if (!props.patient) {
       selectedPatient.value = null;
       patientSearchQuery.value = '';
@@ -1733,6 +1877,123 @@ onUnmounted(() => {
 }
 
 /* Step 3: Datetime */
+.doctor-available-days-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .block-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .doctor-name-pill {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--unity-primary);
+      background: var(--unity-primary-soft);
+      padding: 2px 10px;
+      border-radius: 9999px;
+    }
+  }
+
+  .days-loading-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    font-size: 0.8rem;
+    color: var(--unity-text-muted);
+  }
+
+  .days-chips-scroll {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 2px 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .day-chip-btn {
+      flex: 0 0 auto;
+      min-width: 86px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1.5px solid var(--unity-border);
+      background: var(--unity-surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+      .day-chip-title {
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--unity-text-muted);
+      }
+
+      .day-chip-num {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--unity-text-main);
+      }
+
+      .day-chip-slots {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--unity-primary);
+        background: var(--unity-primary-soft);
+        padding: 1px 6px;
+        border-radius: 9999px;
+      }
+
+      &:hover:not(.active) {
+        border-color: var(--unity-primary);
+      }
+
+      &.active {
+        background: var(--unity-primary-light, #ecfdf5);
+        border: 1.5px solid var(--unity-primary);
+        box-shadow: 0 2px 8px rgba(4, 120, 87, 0.15);
+
+        .day-chip-title,
+        .day-chip-num {
+          color: var(--unity-primary);
+        }
+      }
+
+      &.custom-picker-chip {
+        border-style: dashed;
+        i {
+          font-size: 0.9rem;
+          color: var(--unity-text-dim);
+        }
+      }
+    }
+  }
+
+  .no-working-days-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    color: #b45309;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+}
+
 .date-presets-row {
   display: flex;
   gap: 8px;
@@ -1913,6 +2174,17 @@ onUnmounted(() => {
       .total-amount {
         color: var(--unity-primary);
         font-size: 1.1rem;
+      }
+    }
+
+    &.summary-notes-row {
+      .notes-text {
+        font-size: 0.82rem;
+        color: var(--unity-text-main);
+        font-weight: 500;
+        max-width: 65%;
+        text-align: end;
+        word-break: break-word;
       }
     }
   }

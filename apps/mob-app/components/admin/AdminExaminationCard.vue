@@ -20,35 +20,43 @@
         <p v-if="displayDescription" class="srv-desc">{{ displayDescription }}</p>
       </div>
 
-      <button 
-        type="button"
-        class="unity-switch-toggle" 
-        :class="{ 'active': examination.is_active }"
-        :aria-checked="examination.is_active"
-        role="switch"
-        :title="examination.is_active ? t('Active') : t('Inactive')"
-        @click.stop="emit('toggle-status', examination)"
-      >
-        <span class="switch-slider"></span>
-      </button>
+      <div class="card-controls" @click.stop>
+        <button 
+          type="button"
+          class="unity-switch-toggle" 
+          :class="{ 'active': examination.is_active }"
+          :aria-checked="examination.is_active"
+          role="switch"
+          :title="examination.is_active ? t('Active') : t('Inactive')"
+          @click.stop="emit('toggle-status', examination)"
+        >
+          <span class="switch-slider"></span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-card-edit" 
+          :title="t('Edit Examination')"
+          :aria-label="t('Edit Examination')"
+          @click.stop="emit('edit', examination)"
+        >
+          <i class="pi pi-pencil"></i>
+        </button>
+      </div>
     </div>
 
     <div class="card-footer">
-      <div class="footer-meta">
-        <span class="srv-price">{{ examination.price }} {{ t('EGP') }}</span>
-        <span class="srv-dot">•</span>
-        <span class="srv-duration"><i class="pi pi-clock"></i> {{ examination.duration || 15 }} {{ t('mins') }}</span>
+      <!-- Price on the Right in RTL -->
+      <div class="srv-price-box">
+        <span class="srv-price">{{ examination.price }}</span>
+        <span class="srv-currency">{{ t('EGP') }}</span>
       </div>
 
-      <button 
-        type="button" 
-        class="btn-card-edit" 
-        :title="t('Edit Examination')"
-        :aria-label="t('Edit Examination')"
-        @click.stop="emit('edit', examination)"
-      >
-        <i class="pi pi-pencil"></i>
-      </button>
+      <!-- Timing on the Left in RTL -->
+      <div class="srv-duration-box">
+        <i class="pi pi-clock"></i>
+        <span>{{ examination.duration || 15 }} {{ t('mins') }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -197,42 +205,84 @@ const categoryName = computed(() => {
       }
     }
 
-    .unity-switch-toggle {
-      position: relative;
-      width: 46px;
-      height: 26px;
-      border-radius: 9999px;
-      background: #cbd5e1;
-      border: none;
-      padding: 2px;
-      cursor: pointer;
-      outline: none;
-      display: inline-flex;
+    .card-controls {
+      display: flex;
       align-items: center;
-      transition: background-color 0.25s ease;
+      gap: 10px;
       flex-shrink: 0;
-      direction: ltr;
 
-      .switch-slider {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        background: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateX(0);
-      }
-
-      &.active {
-        background: #059669;
+      .unity-switch-toggle {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        border-radius: 9999px;
+        background: #cbd5e1;
+        border: none;
+        padding: 2px;
+        cursor: pointer;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        transition: background-color 0.25s ease;
+        flex-shrink: 0;
+        direction: ltr;
 
         .switch-slider {
-          transform: translateX(20px);
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #ffffff;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+          transform: translateX(0);
+        }
+
+        &.active {
+          background: #059669;
+
+          .switch-slider {
+            transform: translateX(20px);
+          }
+        }
+
+        &:focus-visible {
+          box-shadow: 0 0 0 2px #fff, 0 0 0 4px #059669;
         }
       }
 
-      &:focus-visible {
-        box-shadow: 0 0 0 2px #fff, 0 0 0 4px #059669;
+      .btn-card-edit {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: #ecfdf5;
+        border: 1.5px solid #a7f3d0;
+        color: #047857;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 0;
+
+        i {
+          font-size: 1.05rem;
+          color: #047857;
+        }
+
+        &:hover {
+          background: #d1fae5;
+          border-color: #6ee7b7;
+          color: #065f46;
+          transform: translateY(-1px);
+
+          i {
+            color: #065f46;
+          }
+        }
+
+        &:active {
+          transform: scale(0.94);
+        }
       }
     }
   }
@@ -244,63 +294,36 @@ const categoryName = computed(() => {
     border-top: 1px solid var(--unity-border);
     padding-top: 10px;
 
-    .footer-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    .srv-price-box {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
 
       .srv-price {
-        font-size: 0.85rem;
+        font-size: 0.96rem;
         font-weight: 800;
         color: #047857;
       }
 
-      .srv-dot {
-        color: var(--unity-text-dim);
-      }
-
-      .srv-duration {
-        font-size: 0.72rem;
-        color: var(--unity-text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
+      .srv-currency {
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: #047857;
+        opacity: 0.85;
       }
     }
 
-    .btn-card-edit {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: #ecfdf5;
-      border: 1.5px solid #a7f3d0;
-      color: #047857;
+    .srv-duration-box {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--unity-text-muted, #64748b);
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      font-size: 1.15rem;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 0;
+      gap: 5px;
 
       i {
-        font-size: 1.15rem;
-        color: #047857;
-      }
-
-      &:hover {
-        background: #d1fae5;
-        border-color: #6ee7b7;
-        color: #065f46;
-        transform: translateY(-1px);
-
-        i {
-          color: #065f46;
-        }
-      }
-
-      &:active {
-        transform: scale(0.96);
+        font-size: 0.76rem;
+        color: var(--unity-text-muted, #64748b);
       }
     }
   }

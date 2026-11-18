@@ -15,16 +15,8 @@
               {{ isRtl ? (cat.description_ar || cat.description) : (cat.description || cat.description_ar) }}
             </p>
           </div>
-        </div>
 
-        <!-- Bottom Row: Count Badge + Large Bottom Action Buttons -->
-        <div class="card-bottom-row">
-          <span class="count-badge" @click="emit('select-category', cat)">
-            <i class="pi pi-file"></i>
-            <span>{{ cat.examinations_count ?? 0 }} {{ t('Services') }}</span>
-          </span>
-
-          <div class="card-actions-cell">
+          <div class="card-controls" @click.stop>
             <button
               type="button"
               class="btn-action-icon btn-edit"
@@ -34,18 +26,15 @@
             >
               <i class="pi pi-pencil"></i>
             </button>
-            <button
-              type="button"
-              class="btn-action-icon btn-delete"
-              :class="{ 'is-disabled': (cat.examinations_count ?? 0) > 0 }"
-              :disabled="(cat.examinations_count ?? 0) > 0"
-              :title="(cat.examinations_count ?? 0) > 0 ? t('Cannot delete category with linked services') : t('Delete')"
-              :aria-label="(cat.examinations_count ?? 0) > 0 ? t('Cannot delete category with linked services') : t('Delete')"
-              @click.stop="confirmDeleteCategory(cat)"
-            >
-              <i class="pi pi-trash"></i>
-            </button>
           </div>
+        </div>
+
+        <!-- Bottom Row: Count Badge -->
+        <div class="card-bottom-row">
+          <span class="count-badge" @click="emit('select-category', cat)">
+            <i class="pi pi-file"></i>
+            <span>{{ cat.examinations_count ?? 0 }} {{ t('Services') }}</span>
+          </span>
         </div>
       </div>
     </div>
@@ -60,29 +49,12 @@
         <span>{{ t('New Category') }}</span>
       </button>
     </div>
-
-    <!-- Confirm Delete Category Modal -->
-    <AppConfirmModal
-      :is-open="!!categoryToDelete"
-      :title="t('Delete Category')"
-      :message="t('Are you sure you want to delete this category?')"
-      :confirm-text="t('Delete')"
-      :cancel-text="t('Cancel')"
-      :loading="deleting"
-      danger
-      @close="categoryToDelete = null"
-      @confirm="executeDeleteCategory"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref } from 'vue';
 import { useI18n } from '../../composables/useI18n';
-import { useUnityApi } from '../../composables/useUnityApi';
-import { useAppToast } from '../../composables/useAppToast';
-import AppConfirmModal from '../common/AppConfirmModal.vue';
 
 interface Category {
   id: string | number;
@@ -113,59 +85,12 @@ const emit = defineEmits<{
 }>();
 
 const { t, isRtl } = useI18n();
-const api = useUnityApi();
-const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
-const categoryToDelete = ref<any | null>(null);
-const deleting = ref(false);
 
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
-const confirmDeleteCategory = (cat: any) => {
-  if (cat.examinations_count && cat.examinations_count > 0) {
-    toast.show({
-      title: t('Cannot delete category with linked services'),
-      type: 'warning',
-    });
-    return;
-  }
-  categoryToDelete.value = cat;
-};
-
-const executeDeleteCategory = async () => {
-  if (!categoryToDelete.value || deleting.value) return;
-  const cat = categoryToDelete.value;
-  if (cat.examinations_count && cat.examinations_count > 0) {
-    toast.show({
-      title: t('Cannot delete category with linked services'),
-      type: 'warning',
-    });
-    categoryToDelete.value = null;
-    return;
-  }
-  try {
-    deleting.value = true;
-    await api.apiRequest({
-      service: 'ADMIN_DELETE_EXAMINATION_CATEGORY',
-      payload: { id: cat.id },
-    });
-    toast.show({
-      title: t('Category deleted successfully!'),
-      type: 'success',
-    });
-    categoryToDelete.value = null;
-    emit('deleted', cat.id);
-  } catch (err: any) {
-    toast.show({
-      title: err?.message || t('Failed to delete category'),
-      type: 'error',
-    });
-  } finally {
-    deleting.value = false;
-  }
-};
 
 // 5. Watches (watch, watchEffect)
 
@@ -253,12 +178,53 @@ const executeDeleteCategory = async () => {
           overflow: hidden;
         }
       }
+      .card-controls {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+
+        .btn-action-icon {
+          width: 38px;
+          height: 38px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.05rem;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          border: 1.5px solid #a7f3d0;
+          background: #ecfdf5;
+          color: #047857;
+          padding: 0;
+
+          i {
+            font-size: 1.05rem;
+            color: #047857;
+          }
+
+          &:hover {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+            color: #065f46;
+            transform: translateY(-1px);
+
+            i {
+              color: #065f46;
+            }
+          }
+
+          &:active {
+            transform: scale(0.96);
+          }
+        }
+      }
     }
 
     .card-bottom-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       padding-top: 10px;
       border-top: 1px dashed var(--unity-border);
 
@@ -283,69 +249,6 @@ const executeDeleteCategory = async () => {
         &:hover {
           background: rgba(4, 120, 87, 0.08);
           color: var(--unity-primary);
-        }
-      }
-
-      .card-actions-cell {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .btn-action-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.05rem;
-          cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-          border: 1.5px solid transparent;
-          padding: 0;
-
-          i {
-            font-size: 1.15rem;
-          }
-
-          &.btn-edit {
-            background: #ecfdf5;
-            color: #047857;
-            border-color: #a7f3d0;
-
-            &:hover {
-              background: #d1fae5;
-              border-color: #6ee7b7;
-              color: #065f46;
-              transform: translateY(-1px);
-            }
-          }
-
-          &.btn-delete {
-            background: #fef2f2;
-            color: #ef4444;
-            border-color: #fee2e2;
-
-            &:hover:not(:disabled) {
-              background: #fee2e2;
-              border-color: #fca5a5;
-              transform: translateY(-1px);
-            }
-
-            &:disabled,
-            &.is-disabled {
-              opacity: 0.45;
-              cursor: not-allowed;
-              pointer-events: none;
-              background: var(--unity-surface-muted, #f1f5f9);
-              color: var(--unity-text-dim, #94a3b8);
-              border-color: var(--unity-border, #e2e8f0);
-            }
-          }
-
-          &:active {
-            transform: scale(0.96);
-          }
         }
       }
     }

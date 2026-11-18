@@ -75,11 +75,18 @@
                 <span class="timeline-type-pill" :class="apt.examination ? 'pill-exam' : 'pill-consult'">
                   {{ apt.examination ? t('Medical Exam') : t('Consultation') }}
                 </span>
-                <strong>{{ resolveI18n(apt.examination?.name || apt.doctor?.name || apt.service?.name) || (apt.type === 'examination' ? t('Medical Exam') : t('Consultation')) }}</strong>
+                <strong>{{ getAppointmentTitle(apt) }}</strong>
               </div>
               <small>{{ formatAptMeta(apt) }}</small>
+              <div v-if="apt.notes" class="apt-notes-preview">
+                <i class="pi pi-comment"></i>
+                <span>{{ apt.notes }}</span>
+              </div>
             </div>
-            <span class="status-chip" :class="apt.status">{{ formatStatus(apt.status) }}</span>
+            <div class="timeline-end-meta">
+              <span class="status-chip" :class="apt.status">{{ formatStatus(apt.status) }}</span>
+              <span v-if="getAptPrice(apt)" class="apt-price-chip">{{ getAptPrice(apt) }} {{ t('EGP') }}</span>
+            </div>
           </div>
         </div>
 
@@ -119,11 +126,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void;
+  (e: 'book', patient: any): void;
 }>();
 
 const { t, isRtl, resolveI18n } = useI18n();
 const api = useUnityApi();
-const bookingModal = useBookingModal();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
@@ -167,6 +174,39 @@ const resolveAvatar = (url?: string) => {
   return `${baseUrl}${url}`;
 };
 
+const getAppointmentTitle = (apt: any) => {
+  if (apt.examination) {
+    return resolveI18n(apt.examination) || apt.examination.name || t('Medical Exam');
+  }
+  if (apt.doctor) {
+    return resolveI18n(apt.doctor) || apt.doctor.name || apt.doctor.user?.name || t('Doctor Consultation');
+  }
+  if (apt.service) {
+    return resolveI18n(apt.service) || apt.service.name || '';
+  }
+  return apt.type === 'examination' ? t('Medical Exam') : t('Doctor Consultation');
+};
+
+const getDoctorName = (doc: any) => {
+  if (!doc) return '';
+  return resolveI18n(doc) || doc.name || doc.user?.name || '';
+};
+
+const getExamName = (exam: any) => {
+  if (!exam) return '';
+  return resolveI18n(exam) || exam.name || '';
+};
+
+const getClinicName = (doc: any) => {
+  const c = doc?.clinic || doc?.doctor?.clinic;
+  if (!c) return '';
+  return resolveI18n(c) || c.name || '';
+};
+
+const getAptPrice = (apt: any) => {
+  return apt.invoice?.total || apt.invoice?.amount || apt.examination?.price || apt.doctor?.consultation_fee || '';
+};
+
 const formatTime12h = (timeStr?: string) => {
   if (!timeStr) return '';
   const trimmed = String(timeStr).trim();
@@ -202,12 +242,15 @@ const formatAptMeta = (apt: any) => {
   if (timeVal) {
     parts.push(formatTimeRange(timeVal));
   }
-  if (apt.doctor?.name && apt.examination) {
-    parts.push(apt.doctor.name);
-  } else if (apt.doctor?.doctor?.clinic?.name) {
-    parts.push(apt.doctor.doctor.clinic.name);
-  } else if (apt.clinic?.name) {
-    parts.push(apt.clinic.name);
+  const docName = getDoctorName(apt.doctor);
+  const examName = getExamName(apt.examination);
+  const clinicName = getClinicName(apt.doctor);
+
+  if (examName && docName) {
+    parts.push(docName);
+  }
+  if (clinicName) {
+    parts.push(clinicName);
   }
   return parts.join(' • ');
 };
@@ -233,35 +276,66 @@ const ADMIN_PATIENT_BY_ID = async () => {
       service: 'ADMIN_PATIENT_BY_ID',
       filter: { id: props.patient.id },
     });
-    if (res?.status && res?.data?.patient_appointments) {
+    if (res?.status && Array.isArray(res?.data?.patient_appointments) && res.data.patient_appointments.length > 0) {
       detailedAppointments.value = res.data.patient_appointments;
+      return;
+    }
+
+    // Resilient fallback: Query admin appointments filtered by patient
+    const aptRes = await api.apiRequest({
+      service: 'ADMIN_APPOINTMENTS',
+      filter: { 
+        patient_id: props.patient.id, 
+        search: props.patient.phone || props.patient.name,
+        limit: 50 
+      },
+    });
+    const items = aptRes?.data?.appointments || (Array.isArray(aptRes?.data) ? aptRes.data : (aptRes?.data?.items || []));
+    const matched = items.filter((a: any) => 
+      String(a.patient_id) === String(props.patient.id) || 
+      String(a.patient?.id) === String(props.patient.id)
+    );
+    if (matched.length > 0) {
+      detailedAppointments.value = matched;
+      return;
+    }
+
+    // Fallback to patient's embedded appointments
+    if (Array.isArray(props.patient?.patient_appointments) && props.patient.patient_appointments.length > 0) {
+      detailedAppointments.value = props.patient.patient_appointments;
     } else {
       detailedAppointments.value = [];
     }
-  } catch (err) {
-    detailedAppointments.value = [];
+  } catch (_) {
+    if (Array.isArray(props.patient?.patient_appointments) && props.patient.patient_appointments.length > 0) {
+      detailedAppointments.value = props.patient.patient_appointments;
+    } else {
+      detailedAppointments.value = [];
+    }
   } finally {
     loadingDetails.value = false;
   }
 };
 
 const onBookAppointment = () => {
+  const patientData = props.patient;
   close();
-  bookingModal.openQuickBook();
+  emit('book', patientData);
 };
 
 // 5. Watches (watch, watchEffect)
 watch(
-  () => props.isOpen,
-  (open) => {
+  [() => props.isOpen, () => props.patient?.id],
+  ([open, id]) => {
     if (open) {
       registerModalOpen();
-      if (props.patient?.id) {
+      if (id) {
         ADMIN_PATIENT_BY_ID();
       }
     } else {
       registerModalClose();
       detailedAppointments.value = [];
+      loadingDetails.value = false;
     }
   },
   { immediate: true }
@@ -572,63 +646,101 @@ onUnmounted(() => {
           font-size: 0.72rem;
           color: var(--unity-text-muted);
         }
+
+        .apt-notes-preview {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 0.70rem;
+          color: #047857;
+          background: #ecfdf5;
+          padding: 2px 8px;
+          border-radius: 6px;
+          margin-top: 2px;
+
+          i {
+            font-size: 0.72rem;
+          }
+        }
       }
 
-      .status-chip {
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 10px;
-        background: #d1fae5;
-        color: #065f46;
+      .timeline-end-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
 
-        &.completed {
-          background: #e0f2fe;
-          color: #0369a1;
+        .status-chip {
+          font-size: 0.65rem;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 10px;
+          background: #d1fae5;
+          color: #065f46;
+
+          &.completed {
+            background: #e0f2fe;
+            color: #0369a1;
+          }
+
+          &.cancelled {
+            background: #fee2e2;
+            color: #b91c1c;
+          }
+
+          &.scheduled {
+            background: #fef3c7;
+            color: #92400e;
+          }
         }
 
-        &.cancelled {
-          background: #fee2e2;
-          color: #b91c1c;
-        }
-
-        &.scheduled {
-          background: #fef3c7;
-          color: #92400e;
+        .apt-price-chip {
+          font-size: 0.68rem;
+          font-weight: 800;
+          color: var(--unity-primary);
         }
       }
     }
   }
+}
 
   .sheet-footer-actions {
     flex-shrink: 0;
-    padding: 14px 20px 24px;
+    padding: 12px 20px max(14px, env(safe-area-inset-bottom, 14px));
     border-top: 1px solid var(--unity-border-light, var(--unity-border));
     background: var(--unity-surface);
 
     .btn-book-more {
       width: 100%;
-      padding: 12px;
+      height: 48px;
+      padding: 0 16px;
       border-radius: 14px;
       background: var(--unity-primary);
-      color: #fff;
+      color: #ffffff;
       border: none;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
-      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.22);
+      transition: all 0.2s ease;
 
       &:hover {
         background: var(--unity-primary-dark);
       }
+
+      &:active {
+        transform: scale(0.98);
+      }
+
+      i {
+        font-size: 1.05rem;
+      }
     }
   }
-}
 }
 
 @keyframes slideUp {

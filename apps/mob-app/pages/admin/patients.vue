@@ -33,6 +33,7 @@
       :is-open="isMedicalFileModalOpen" 
       :patient="selectedPatientForFile"
       @close="isMedicalFileModalOpen = false"
+      @book="onBookAppointment"
     />
 
     <!-- Modal: Book Appointment for Patient (Multi-Step Wizard) -->
@@ -153,6 +154,7 @@ const ADMIN_PATIENTS = async (page: any = 1) => {
           ? `${new Date(latestAppt.date).toISOString().split('T')[0]} ${latestAppt.start_time || ''}`
           : p.next_appointment,
         diagnosis: p.diagnosis,
+        patient_appointments: p.patient_appointments || [],
         is_today: isToday,
         status: p.status || 'active',
       };

@@ -76,9 +76,14 @@
           </div>
         </div>
 
-        <!-- Left Side: Expand Chevron Button Only -->
-        <div class="meta-cell">
-          <button type="button" class="expand-btn" :aria-label="isExpanded ? 'Collapse' : 'Expand'">
+        <!-- Left Side: Expand Chevron Button -->
+        <div class="meta-cell" @click.stop>
+          <button 
+            type="button" 
+            class="expand-btn" 
+            :aria-label="isExpanded ? 'Collapse' : 'Expand'"
+            @click.stop="toggleExpand"
+          >
             <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
           </button>
         </div>
@@ -129,86 +134,6 @@
           <span class="currency">{{ t('EGP') }}</span>
         </div>
       </div>
-
-      <!-- Action Bar: Large Action Buttons (Side by Side matching system standard) -->
-      <div class="card-bottom-bar-large">
-        <!-- 1. Pending: Confirm or Cancel -->
-        <template v-if="booking.status === 'pending'">
-          <button 
-            type="button" 
-            class="btn-bottom-action btn-confirm" 
-            @click.stop="emit('approve', booking)"
-          >
-            <i class="pi pi-check"></i>
-            <span>{{ t('Confirm Booking') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="btn-bottom-action btn-cancel" 
-            @click.stop="emit('cancel', booking)"
-          >
-            <i class="pi pi-times"></i>
-            <span>{{ t('Cancel') }}</span>
-          </button>
-        </template>
-
-        <!-- 2. Confirmed: Mark Attended (Completed) OR Did Not Attend (Cancel) -->
-        <template v-else-if="booking.status === 'confirmed'">
-          <button 
-            type="button" 
-            class="btn-bottom-action btn-complete" 
-            @click.stop="emit('complete', booking)"
-          >
-            <i class="pi pi-check-circle"></i>
-            <span>{{ t('Attended') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="btn-bottom-action btn-no-show" 
-            @click.stop="emit('cancel', booking)"
-          >
-            <i class="pi pi-times-circle"></i>
-            <span>{{ t('Did Not Attend') }}</span>
-          </button>
-        </template>
-
-        <!-- 3. Completed or Cancelled: Status Pill + Change Status button -->
-        <template v-else>
-          <div 
-            class="status-summary-pill is-clickable" 
-            :class="getStatusClass(booking.status)"
-            :title="t('Change Status')"
-            @click.stop="emit('change-status', booking)"
-          >
-            <span class="dot"></span>
-            <span>{{ getStatusLabel(booking.status) }}</span>
-            <i class="pi pi-chevron-down pill-chevron"></i>
-          </div>
-
-          <button 
-            type="button" 
-            class="btn-bottom-action btn-modify-status" 
-            @click.stop="emit('change-status', booking)"
-          >
-            <i class="pi pi-sliders-h"></i>
-            <span>{{ t('Change Status') }}</span>
-          </button>
-        </template>
-
-        <!-- Edit / Reschedule slot unified button -->
-        <button 
-          v-if="booking.status !== 'completed' && booking.status !== 'cancelled'"
-          type="button" 
-          class="btn-card-edit" 
-          :title="t('Reschedule Slot')" 
-          :aria-label="t('Reschedule Slot')" 
-          @click.stop="emit('reschedule', booking)"
-        >
-          <i class="pi pi-pencil"></i>
-        </button>
-      </div>
     </div>
   </div>
   </div>
@@ -216,7 +141,7 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { ref, computed, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import { useAppToast } from '../../composables/useAppToast';
 import AppExamIcon from '../common/AppExamIcon.vue';
@@ -239,8 +164,7 @@ const emit = defineEmits<{
   (e: 'cancel', booking: any): void;
   (e: 'change-status', booking: any): void;
   (e: 'change-payment-status', booking: any): void;
-  (e: 'change-status', booking: any): void;
-  (e: 'change-payment-status', booking: any): void;
+  (e: 'open-options', booking: any): void;
 }>();
 
 const { t, isRtl } = useI18n();
@@ -415,7 +339,7 @@ onUnmounted(() => {
 .admin-booking-card-wrapper {
   display: flex;
   flex-direction: column;
-  margin-top: 14px;
+  padding-top: 14px;
   margin-bottom: 14px;
   position: relative;
   direction: rtl;
@@ -429,7 +353,7 @@ onUnmounted(() => {
     background: var(--unity-surface);
     border: 1px solid var(--unity-border);
     border-radius: 20px;
-    padding: 18px 16px 14px;
+    padding: 30px 16px 14px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     display: flex;
     flex-direction: column;
@@ -443,46 +367,70 @@ onUnmounted(() => {
     }
 
     // Top Floating Badges Bar (Half in, half out: top border overlap)
-    // On the LEFT in Arabic (RTL), on the RIGHT in English (LTR)
+    // Centered horizontally across the top edge of the card
     .card-floating-badges-bar {
       position: absolute;
       top: 0;
-      transform: translateY(-50%);
+      left: 50%;
+      transform: translate(-50%, -50%);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 8px;
       z-index: 5;
-      left: 14px;
-      right: auto;
-
-      :global([dir='ltr']) &,
-      :global(html[dir='ltr']) & {
-        right: 14px;
-        left: auto;
-      }
 
       .floating-badge {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        height: 24px;
-        padding: 0 10px;
+        gap: 6px;
+        height: 30px;
+        padding: 0 12px;
         border-radius: 9999px;
-        font-size: 0.70rem;
+        font-size: 0.76rem;
         font-weight: 800;
         line-height: 1;
         white-space: nowrap;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
         i {
-          font-size: 0.72rem;
+          font-size: 0.80rem;
         }
 
         .dot {
-          width: 6px;
-          height: 6px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
+          flex-shrink: 0;
+        }
+
+        .pill-chevron {
+          font-size: 0.68rem;
+          margin-inline-start: 2px;
+          opacity: 0.75;
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s;
+        }
+
+        // Clickable Button-Like States
+        &.is-clickable {
+          cursor: pointer;
+          user-select: none;
+
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+            filter: brightness(0.98);
+
+            .pill-chevron {
+              transform: translateY(1px);
+              opacity: 1;
+            }
+          }
+
+          &:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+          }
         }
 
         // 1. Type Badges
@@ -490,105 +438,87 @@ onUnmounted(() => {
           &.type-consult {
             background: #ecfdf5;
             color: #047857;
-            border: 1px solid #a7f3d0;
+            border: 1.5px solid #a7f3d0;
           }
 
           &.type-exam {
             background: #f0f9ff;
             color: #0284c7;
-            border: 1px solid #bae6fd;
+            border: 1.5px solid #bae6fd;
           }
         }
 
         // 2. Booking Status Badges
         &.badge-status {
-          &.is-clickable {
-            cursor: pointer;
-            &:hover {
-              filter: brightness(0.96);
-              transform: translateY(-1px);
-            }
-          }
-
-          .pill-chevron {
-            font-size: 0.60rem;
-            margin-inline-start: 1px;
-            opacity: 0.7;
-          }
-
           &.status-pending {
             background: #f5f3ff;
             color: #7c3aed;
-            border: 1px solid #ddd6fe;
+            border: 1.5px solid #c4b5fd;
 
             .dot {
               background: #7c3aed;
+              box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
             }
           }
 
           &.status-confirmed {
             background: #ecfdf5;
             color: #047857;
-            border: 1px solid #a7f3d0;
+            border: 1.5px solid #6ee7b7;
 
             .dot {
               background: #10b981;
+              box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
             }
           }
 
           &.status-completed {
             background: #f0fdf4;
             color: #15803d;
-            border: 1px solid #bbf7d0;
+            border: 1.5px solid #86efac;
 
             .dot {
               background: #22c55e;
+              box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
             }
           }
 
           &.status-cancelled {
             background: #fef2f2;
             color: #dc2626;
-            border: 1px solid #fecaca;
+            border: 1.5px solid #fca5a5;
 
             .dot {
               background: #ef4444;
+              box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
             }
           }
         }
 
         // 3. Payment Status Badges
         &.badge-payment {
-          &.is-clickable {
-            cursor: pointer;
-            &:hover {
-              filter: brightness(0.96);
-              transform: translateY(-1px);
-            }
-          }
-
           &.paid {
             background: #ecfdf5;
             color: #047857;
-            border: 1px solid #a7f3d0;
+            border: 1.5px solid #6ee7b7;
           }
 
           &.pending {
             background: #fff7ed;
             color: #c2410c;
-            border: 1px solid #fed7aa;
+            border: 1.5px solid #fdba74;
           }
 
           &.refunded {
             background: #eff6ff;
             color: #1d4ed8;
-            border: 1px solid #bfdbfe;
+            border: 1.5px solid #93c5fd;
           }
 
           &.failed {
             background: #fef2f2;
             color: #b91c1c;
-            border: 1px solid #fecaca;
+            border: 1.5px solid #fca5a5;
           }
         }
       }
@@ -723,23 +653,30 @@ onUnmounted(() => {
       .meta-cell {
         display: flex;
         align-items: center;
-        gap: 6px;
         flex-shrink: 0;
 
         .expand-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
           background: transparent;
-          border: none;
+          border: 1px solid transparent;
           color: #94a3b8;
-          font-size: 0.95rem;
+          font-size: 1rem;
           cursor: pointer;
-          padding: 6px;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: color 0.2s;
+          transition: all 0.2s ease;
 
           &:hover {
-            color: var(--unity-text-main);
+            background: var(--unity-bg, #f8fafc);
+            border-color: var(--unity-border, #e2e8f0);
+            color: var(--unity-text-main, #0f172a);
+          }
+
+          &:active {
+            transform: scale(0.92);
           }
         }
       }
@@ -906,174 +843,6 @@ onUnmounted(() => {
           font-size: 0.72rem;
           font-weight: 700;
           color: #64748b;
-        }
-      }
-    }
-
-    // Action Bar: Large Action Buttons (Side by Side matching system standard)
-    .card-bottom-bar-large {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      margin-top: 4px;
-      padding-top: 4px;
-
-      .btn-bottom-action {
-        flex: 1;
-        height: 44px;
-        border-radius: 14px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-size: 0.88rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        border: none;
-
-        i {
-          font-size: 1.05rem;
-        }
-
-        &.btn-confirm {
-          background: var(--unity-primary, #047857);
-          color: #ffffff;
-          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
-
-          &:hover {
-            background: var(--unity-primary-dark, #065f46);
-            transform: translateY(-1px);
-          }
-        }
-
-        &.btn-complete {
-          background: var(--unity-primary, #047857);
-          color: #ffffff;
-          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
-
-          &:hover {
-            background: var(--unity-primary-dark, #065f46);
-            transform: translateY(-1px);
-          }
-        }
-
-        &.btn-cancel,
-        &.btn-no-show {
-          background: #fef2f2;
-          color: #ef4444;
-          border: 1.5px solid #fecaca;
-
-          &:hover {
-            background: #fee2e2;
-            border-color: #fca5a5;
-            transform: translateY(-1px);
-          }
-        }
-
-        &.btn-modify-status {
-          background: var(--unity-surface, #ffffff);
-          color: var(--unity-text-main, #1e293b);
-          border: 1.5px solid var(--unity-border, #e2e8f0);
-
-          &:hover {
-            background: var(--unity-bg, #f8fafc);
-            border-color: var(--unity-primary, #047857);
-            color: var(--unity-primary, #047857);
-            transform: translateY(-1px);
-          }
-        }
-
-        &:active {
-          transform: scale(0.98);
-        }
-      }
-
-      .status-summary-pill {
-        flex: 1;
-        height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        border-radius: 14px;
-        font-size: 0.84rem;
-        font-weight: 700;
-
-        &.is-clickable {
-          cursor: pointer;
-          transition: all 0.2s ease;
-
-          &:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-          }
-        }
-
-        .pill-chevron {
-          font-size: 0.65rem;
-          margin-inline-start: 2px;
-          opacity: 0.75;
-        }
-
-        .dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-        }
-
-        &.status-confirmed {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
-          .dot { background: #10b981; }
-        }
-
-        &.status-cancelled {
-          background: #fef2f2;
-          color: #dc2626;
-          border: 1px solid #fecaca;
-          .dot { background: #ef4444; }
-        }
-
-        &.status-completed {
-          background: #eff6ff;
-          color: #2563eb;
-          border: 1px solid #bfdbfe;
-          .dot { background: #3b82f6; }
-        }
-      }
-
-      .btn-card-edit {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        background: #ecfdf5;
-        border: 1.5px solid #a7f3d0;
-        color: #047857;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        padding: 0;
-        flex-shrink: 0;
-
-        i {
-          font-size: 1.15rem;
-          color: #047857;
-        }
-
-        &:hover {
-          background: #d1fae5;
-          border-color: #6ee7b7;
-          color: #065f46;
-          transform: translateY(-1px);
-        }
-
-        &:active {
-          transform: scale(0.96);
         }
       }
     }

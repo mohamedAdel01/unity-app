@@ -228,6 +228,20 @@ export default {
     });
   },
 
+  async REGISTER_DEVICE_TOKEN({ API, payload }: { API: any; payload: { token: string; platform?: string } }) {
+    return await API('client/notifications/device-token', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async UNREGISTER_DEVICE_TOKEN({ API, payload }: { API: any; payload: { token: string } }) {
+    return await API('client/notifications/device-token', {
+      method: 'DELETE',
+      body: JSON.stringify(payload),
+    });
+  },
+
   async PAYMOB_INITIATE({ API, payload }: { API: any; payload: { invoice_id?: string | number; appointment_id?: string | number } }) {
     return await API('client/payments/paymob/initiate', {
       method: 'POST',

@@ -31,11 +31,14 @@
               <span>{{ t('Clinic Room') }} {{ doctorRoom }}</span>
             </template>
           </p>
+          <p v-if="doctorDisplayDescription" class="doctor-description-line">
+            {{ doctorDisplayDescription }}
+          </p>
         </div>
       </div>
 
-      <!-- Left Side: Controls Cell (Status Switch Toggle Only) -->
-      <div class="doctor-controls-cell">
+      <!-- Left Side: Controls Cell (Status Switch Toggle + Gear Action with Dropdown) -->
+      <div class="doctor-controls-cell" @click.stop>
         <button 
           type="button" 
           class="unity-switch-toggle" 
@@ -47,6 +50,67 @@
         >
           <span class="switch-slider"></span>
         </button>
+
+        <div class="gear-menu-wrapper">
+          <button 
+            type="button" 
+            class="btn-gear-action" 
+            :class="{ 'is-active': isGearMenuOpen }"
+            :title="t('Manage Doctor')" 
+            :aria-label="t('Manage Doctor')"
+            @click.stop="toggleGearMenu"
+          >
+            <i class="pi pi-cog"></i>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <transition name="dropdown-anim">
+            <div v-if="isGearMenuOpen" class="gear-dropdown-menu" @click.stop>
+              <!-- 1. Doctor Bookings / Cases -->
+              <button 
+                type="button" 
+                class="dropdown-menu-item" 
+                @click.stop="onSelectCases"
+              >
+                <div class="item-icon-pill icon-cases">
+                  <i class="pi pi-calendar-plus"></i>
+                </div>
+                <span class="item-title">{{ t('Doctor Bookings') }}</span>
+                <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+              </button>
+
+              <div class="dropdown-menu-divider" />
+
+              <!-- 2. Edit Schedule -->
+              <button 
+                type="button" 
+                class="dropdown-menu-item" 
+                @click.stop="onSelectSchedule"
+              >
+                <div class="item-icon-pill icon-schedule">
+                  <i class="pi pi-clock"></i>
+                </div>
+                <span class="item-title">{{ t('Edit Schedule') }}</span>
+                <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+              </button>
+
+              <div class="dropdown-menu-divider" />
+
+              <!-- 3. Edit Doctor Profile -->
+              <button 
+                type="button" 
+                class="dropdown-menu-item" 
+                @click.stop="onSelectEdit"
+              >
+                <div class="item-icon-pill icon-edit">
+                  <i class="pi pi-pencil"></i>
+                </div>
+                <span class="item-title">{{ t('Edit Doctor') }}</span>
+                <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="item-chevron"></i>
+              </button>
+            </div>
+          </transition>
+        </div>
       </div>
     </div>
 
@@ -55,48 +119,12 @@
       <i :class="isEveningSchedule ? 'pi pi-moon' : 'pi pi-clock'"></i>
       <span>{{ scheduleTime }}</span>
     </div>
-
-    <!-- 3. Bottom Action Bar: 3 Icon-only Buttons side-by-side (Matching unified standard) -->
-    <div class="card-bottom-actions-row">
-      <!-- 1. Edit Doctor -->
-      <button 
-        type="button"
-        class="action-icon-btn btn-edit" 
-        :title="t('Edit Doctor')" 
-        :aria-label="t('Edit Doctor')"
-        @click.stop="emit('edit', props.doctor)"
-      >
-        <i class="pi pi-pencil"></i>
-      </button>
-
-      <!-- 2. Edit Schedule -->
-      <button 
-        type="button"
-        class="action-icon-btn btn-schedule" 
-        :title="t('Edit Schedule')" 
-        :aria-label="t('Edit Schedule')"
-        @click.stop="emit('edit-schedule', props.doctor)"
-      >
-        <i class="pi pi-clock"></i>
-      </button>
-
-      <!-- 3. Bookings / Cases -->
-      <button 
-        type="button"
-        class="action-icon-btn btn-bookings" 
-        :title="t('Bookings')" 
-        :aria-label="t('Bookings')"
-        @click.stop="emit('view-cases', props.doctor)"
-      >
-        <i class="pi pi-calendar-plus"></i>
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 
 const props = withDefaults(
@@ -120,6 +148,7 @@ const config = useRuntimeConfig();
 const baseUrl = config?.public?.API_URL || config?.public?.apiUrl || 'http://localhost:4000';
 
 // 2. Data (refs, reactive state)
+const isGearMenuOpen = ref(false);
 
 // 3. Computed (computed properties)
 const isDoctorActive = computed(() => {
@@ -147,6 +176,58 @@ const doctorDisplaySpecialty = computed(() => {
     return doc.clinic?.name_ar || doc.clinic_ar || doc.specialty_ar || doc.specialty || doc.clinic?.name_en || '';
   }
   return doc.clinic?.name_en || doc.clinic_en || doc.specialty_en || doc.specialty || doc.clinic?.name_ar || '';
+});
+
+const doctorDisplayDescription = computed(() => {
+  const d = props.doctor;
+  if (!d) return '';
+  const isAr = Boolean(isRtl?.value);
+
+  // 1. Direct localized description fields
+  if (isAr && d.description_ar && typeof d.description_ar === 'string' && d.description_ar.trim()) {
+    return d.description_ar.trim();
+  }
+  if (!isAr && d.description_en && typeof d.description_en === 'string' && d.description_en.trim()) {
+    return d.description_en.trim();
+  }
+  if (isAr && d.bio_ar && typeof d.bio_ar === 'string' && d.bio_ar.trim()) {
+    return d.bio_ar.trim();
+  }
+  if (!isAr && d.bio_en && typeof d.bio_en === 'string' && d.bio_en.trim()) {
+    return d.bio_en.trim();
+  }
+
+  // 2. Generic description field
+  if (d.description && typeof d.description === 'string' && d.description.trim()) {
+    const raw = d.description.trim();
+    if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
+      try {
+        const p = JSON.parse(raw);
+        const resolved = isAr ? (p.ar || p.en || '') : (p.en || p.ar || '');
+        if (resolved) return resolved.trim();
+      } catch (_) {}
+    }
+    return raw;
+  }
+
+  // 3. Fallback from bio field
+  if (d.bio && typeof d.bio === 'string' && d.bio.trim()) {
+    const raw = d.bio.trim();
+    if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
+      try {
+        const p = JSON.parse(raw);
+        const resolved = isAr ? (p.ar || p.en || '') : (p.en || p.ar || '');
+        if (resolved) return resolved.trim();
+      } catch (_) {}
+    }
+    return raw;
+  }
+
+  // 4. Cross-language fallback if one language was omitted
+  const fallback = isAr
+    ? (d.description_en || d.bio_en || '')
+    : (d.description_ar || d.bio_ar || '');
+  return typeof fallback === 'string' ? fallback.trim() : '';
 });
 
 const doctorRoom = computed(() => {
@@ -177,10 +258,47 @@ const doctorAvatarUrl = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
+const toggleGearMenu = () => {
+  isGearMenuOpen.value = !isGearMenuOpen.value;
+};
+
+const closeGearMenu = () => {
+  isGearMenuOpen.value = false;
+};
+
+const onSelectCases = () => {
+  closeGearMenu();
+  emit('view-cases', props.doctor);
+};
+
+const onSelectSchedule = () => {
+  closeGearMenu();
+  emit('edit-schedule', props.doctor);
+};
+
+const onSelectEdit = () => {
+  closeGearMenu();
+  emit('edit', props.doctor);
+};
 
 // 5. Watches (watch, watchEffect)
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
+const onWindowClick = () => {
+  closeGearMenu();
+};
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('click', onWindowClick);
+  }
+});
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('click', onWindowClick);
+  }
+});
 
 // 7. Meta (useHead, useSeoMeta)
 </script>
@@ -213,14 +331,17 @@ const doctorAvatarUrl = computed(() => {
 
     .doctor-identity-cell {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
+      min-width: 0;
+      flex: 1;
 
       .avatar-holder {
         position: relative;
         width: 48px;
         height: 48px;
         flex-shrink: 0;
+        margin-top: 2px;
 
         .avatar-photo {
           width: 100%;
@@ -266,6 +387,8 @@ const doctorAvatarUrl = computed(() => {
         display: flex;
         flex-direction: column;
         text-align: right;
+        min-width: 0;
+        flex: 1;
 
         .name-status-line {
           display: flex;
@@ -305,13 +428,65 @@ const doctorAvatarUrl = computed(() => {
             opacity: 0.5;
           }
         }
+
+        .doctor-description-line {
+          font-size: 0.76rem;
+          color: var(--unity-text-muted, #64748b);
+          line-height: 1.4;
+          margin-top: 3px;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
 
     .doctor-controls-cell {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      flex-shrink: 0;
+
+      .gear-menu-wrapper {
+        position: relative;
+        display: inline-flex;
+      }
+
+      .btn-gear-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--unity-surface, #ffffff);
+        border: 1.5px solid var(--unity-border, #e2e8f0);
+        color: var(--unity-text-muted, #64748b);
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.22s ease;
+
+        i {
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        &:hover,
+        &.is-active {
+          background: #ecfdf5;
+          border-color: var(--unity-primary, #047857);
+          color: var(--unity-primary, #047857);
+
+          i {
+            transform: rotate(60deg);
+          }
+        }
+
+        &:active {
+          transform: scale(0.94);
+        }
+      }
 
       .unity-switch-toggle {
         position: relative;
@@ -368,78 +543,137 @@ const doctorAvatarUrl = computed(() => {
     }
   }
 
-  // 3. Bottom Action Row: 3 Icon-only buttons side-by-side
-  .card-bottom-actions-row {
+  // Gear Dropdown Floating Menu (Ultra-Modern Glassmorphic Style)
+  .gear-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 220px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    border-radius: 18px;
+    box-shadow: 
+      0 16px 36px -4px rgba(15, 23, 42, 0.12),
+      0 6px 14px -2px rgba(15, 23, 42, 0.06);
+    padding: 7px;
+    z-index: 70;
     display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    margin-top: 10px;
-    direction: ltr;
-    justify-content: flex-start; // Visual LEFT in Arabic RTL
+    flex-direction: column;
+    gap: 3px;
 
     :global([dir='ltr']) &,
     :global(html[dir='ltr']) & {
-      justify-content: flex-end; // Visual RIGHT in English LTR
+      left: auto;
+      right: 0;
     }
 
-    .action-icon-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      display: inline-flex;
+    .dropdown-menu-item {
+      display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border: none;
+      background: transparent;
+      border-radius: 12px;
+      color: var(--unity-text-main, #0f172a);
       cursor: pointer;
+      width: 100%;
+      text-align: right;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 0;
-      flex-shrink: 0;
 
-      i {
-        font-size: 1.15rem;
+      :global([dir='ltr']) &,
+      :global(html[dir='ltr']) & {
+        text-align: left;
       }
 
-      &.btn-edit {
-        background: var(--unity-surface, #ffffff);
-        border: 1.5px solid var(--unity-border, #e2e8f0);
-        color: var(--unity-text-muted, #64748b);
+      .item-icon-pill {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
 
-        &:hover {
-          background: var(--unity-surface-muted, #f8fafc);
-          border-color: #cbd5e1;
-          color: var(--unity-text-main, #0f172a);
-          transform: translateY(-1px);
+        i {
+          font-size: 0.95rem;
+        }
+
+        &.icon-cases {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+        }
+
+        &.icon-schedule {
+          background: #f0f9ff;
+          color: #0284c7;
+          border: 1px solid #bae6fd;
+        }
+
+        &.icon-edit {
+          background: #fffbeb;
+          color: #d97706;
+          border: 1px solid #fde68a;
         }
       }
 
-      &.btn-schedule {
-        background: #ecfdf5;
-        border: 1.5px solid #a7f3d0;
-        color: #047857;
-
-        &:hover {
-          background: #d1fae5;
-          border-color: #6ee7b7;
-          transform: translateY(-1px);
-        }
+      .item-title {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: var(--unity-text-main, #0f172a);
+        white-space: nowrap;
+        flex: 1;
       }
 
-      &.btn-bookings {
-        background: var(--unity-primary, #047857);
-        border: none;
-        color: #ffffff;
-        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
-
-        &:hover {
-          background: var(--unity-primary-dark, #065f46);
-          transform: translateY(-1px);
-        }
+      .item-chevron {
+        font-size: 0.70rem;
+        color: #94a3b8;
+        opacity: 0.5;
+        transition: all 0.2s ease;
       }
 
+      &:hover,
       &:active {
-        transform: scale(0.96);
+        background: var(--unity-bg, #f8fafc);
+
+        .item-icon-pill {
+          transform: scale(1.06);
+        }
+
+        .item-title {
+          color: var(--unity-primary, #047857);
+        }
+
+        .item-chevron {
+          opacity: 1;
+          color: var(--unity-primary, #047857);
+        }
       }
+    }
+
+    .dropdown-menu-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(226, 232, 240, 0.8), transparent);
+      margin: 2px 8px;
     }
   }
+}
+
+.dropdown-anim-enter-active {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdown-anim-leave-active {
+  transition: all 0.15s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.dropdown-anim-enter-from,
+.dropdown-anim-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
 }
 </style>
