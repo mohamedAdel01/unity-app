@@ -250,6 +250,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  @media (min-width: 640px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    align-items: stretch;
+  }
 }
 
 .doctor-item-card {

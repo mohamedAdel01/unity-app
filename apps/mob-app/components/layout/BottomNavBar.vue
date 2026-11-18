@@ -70,8 +70,10 @@ const { isAnyModalOpen } = useModalState();
 .bottom-nav-bar {
   position: absolute;
   bottom: max(14px, env(safe-area-inset-bottom, 14px));
-  left: 16px;
-  right: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 520px;
   height: 66px;
   background: var(--unity-navbar-bg, rgba(255, 255, 255, 0.85));
   backdrop-filter: blur(20px);

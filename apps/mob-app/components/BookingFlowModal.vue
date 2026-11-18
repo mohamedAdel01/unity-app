@@ -1349,6 +1349,11 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
+  @media (min-width: 640px) {
+    align-items: center;
+    padding: 24px;
+  }
 }
 
 .booking-container {
@@ -1362,6 +1367,12 @@ onUnmounted(() => {
   overflow: hidden;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (min-width: 640px) {
+    border-radius: 28px;
+    max-width: 540px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  }
 }
 
 @keyframes slideUp {

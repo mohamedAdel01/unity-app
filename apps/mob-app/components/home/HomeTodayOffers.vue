@@ -192,10 +192,20 @@ onMounted(() => {
       display: none;
     }
 
+    @media (min-width: 640px) {
+      margin-inline: 0;
+      padding-inline: 0;
+      gap: 16px;
+    }
+
     .offer-card {
       width: 176px;
       flex-shrink: 0;
       scroll-snap-align: start;
+
+      @media (min-width: 640px) {
+        width: 220px;
+      }
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
       border-radius: 14px;

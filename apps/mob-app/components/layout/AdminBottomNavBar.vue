@@ -226,8 +226,10 @@ watch(() => route.path, () => {
 .admin-more-dropdown-menu {
   position: absolute;
   bottom: calc(max(14px, env(safe-area-inset-bottom, 14px)) + 74px);
-  left: 16px;
-  right: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 520px;
   background: var(--unity-surface, #ffffff);
   border: 1.5px solid var(--unity-border, #e2e8f0);
   border-radius: 24px;
@@ -390,8 +392,10 @@ watch(() => route.path, () => {
 .admin-bottom-nav {
   position: absolute;
   bottom: max(14px, env(safe-area-inset-bottom, 14px));
-  left: 16px;
-  right: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 520px;
   height: 66px;
   background: var(--unity-navbar-bg, rgba(255, 255, 255, 0.85));
   backdrop-filter: blur(20px);

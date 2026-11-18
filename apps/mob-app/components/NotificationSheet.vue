@@ -267,6 +267,11 @@ onMounted(() => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
+  @media (min-width: 640px) {
+    align-items: center;
+    padding: 24px;
+  }
 }
 
 .notif-drawer {
@@ -281,6 +286,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (min-width: 640px) {
+    border-radius: 28px;
+    max-width: 520px;
+    border: 1px solid var(--unity-border);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .drawer-pill {

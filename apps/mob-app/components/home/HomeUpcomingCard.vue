@@ -289,6 +289,18 @@ const openDetails = (apt: any) => {
       min-width: 100%;
     }
   }
+
+  @media (min-width: 640px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    overflow-x: visible;
+
+    .compact-booking-card {
+      flex: 1 1 100%;
+      min-width: 0;
+      width: 100%;
+    }
+  }
 }
 
 .compact-booking-card {

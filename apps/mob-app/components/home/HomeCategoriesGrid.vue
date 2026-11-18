@@ -112,11 +112,20 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
   grid-template-columns: repeat(2, 1fr);
   gap: 11px;
 
+  @media (min-width: 640px) {
+    gap: 16px;
+  }
+
   .category-card {
     position: relative;
     border-radius: 22px;
     padding: 20px 14px 16px;
     min-height: 200px;
+
+    @media (min-width: 640px) {
+      padding: 24px 20px 20px;
+      min-height: 180px;
+    }
     display: flex;
     flex-direction: column;
     align-items: center;

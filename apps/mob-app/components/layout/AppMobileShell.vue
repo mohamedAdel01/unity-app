@@ -1,7 +1,7 @@
 <template>
-  <div class="web-viewport-wrapper">
-    <div class="desktop-screen-frame">
-      <div class="mobile-device-shell">
+  <div class="web-viewport-wrapper" :class="{ 'is-native': isNativePlatform }">
+    <div class="desktop-screen-frame" :class="{ 'is-native': isNativePlatform }">
+      <div class="mobile-device-shell" :class="{ 'is-native': isNativePlatform }">
         <!-- Global Mobile Floating Toast Notification Container -->
         <AppToastContainer />
 
@@ -27,6 +27,7 @@
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { Capacitor } from '@capacitor/core';
 import { useTheme } from '../../composables/useTheme';
 import { useI18n } from '../../composables/useI18n';
 import { useAuthStore } from '../../stores/auth';
@@ -53,6 +54,9 @@ const { initBackButtonHandler, destroyBackButtonHandler } = useAppBackButton();
 const { initLocale } = useI18n();
 
 // 2. Data (refs, reactive state)
+const isNativePlatform = computed(() => {
+  return Capacitor.isNativePlatform();
+});
 
 // 3. Computed (computed properties)
 const isAuthRoute = computed(() => {
@@ -115,7 +119,15 @@ onUnmounted(() => {
   padding: 12px 0;
   overflow: hidden;
 
-  @media (max-width: 480px) {
+  // On native device (phone or tablet) OR on viewports up to 1024px:
+  &.is-native {
+    padding: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    background-color: var(--unity-bg);
+  }
+
+  @media (max-width: 1024px) {
     padding: 0;
     height: 100dvh;
     max-height: 100dvh;
@@ -131,7 +143,25 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
 
-  @media (max-width: 480px) {
+  // Tablet screen expansion:
+  @media (min-width: 600px) and (max-width: 1024px) {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  // Large desktop browser preview - elegant tablet-pro chassis:
+  @media (min-width: 1025px) {
+    max-width: 900px;
+    max-height: 920px;
+  }
+
+  // Native app on any device (phone or tablet):
+  &.is-native {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  @media (max-width: 1024px) {
     max-width: 100%;
     max-height: 100%;
   }
@@ -149,7 +179,14 @@ onUnmounted(() => {
   border-radius: 40px;
   border: 4px solid rgba(255, 255, 255, 0.08);
 
-  @media (max-width: 480px) {
+  // Full-bleed clean interface for native app and tablets:
+  &.is-native {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  @media (max-width: 1024px) {
     border-radius: 0;
     border: none;
     box-shadow: none;
@@ -166,11 +203,18 @@ onUnmounted(() => {
   overflow-y: auto;
   overflow-x: hidden;
 
+  // On tablets, center and balance the main view container so content looks balanced:
   & > * {
     width: 100%;
     max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
+
+    @media (min-width: 768px) {
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 
   padding-top: max(32px, env(safe-area-inset-top, 32px));
@@ -178,6 +222,11 @@ onUnmounted(() => {
   background: var(--unity-bg);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+
+  @media (min-width: 768px) {
+    padding-left: max(20px, env(safe-area-inset-left, 20px));
+    padding-right: max(20px, env(safe-area-inset-right, 20px));
+  }
 
   &.is-onboarding {
     padding-top: 0;

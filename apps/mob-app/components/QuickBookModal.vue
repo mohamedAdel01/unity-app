@@ -99,6 +99,11 @@ const chooseService = () => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
+  @media (min-width: 640px) {
+    align-items: center;
+    padding: 24px;
+  }
 }
 
 .modal-sheet {
@@ -112,6 +117,12 @@ const chooseService = () => {
   border-radius: 24px 24px 0 0;
   padding: 12px 20px 28px;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (min-width: 640px) {
+    border-radius: 24px;
+    max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  }
 }
 
 @keyframes slideUp {

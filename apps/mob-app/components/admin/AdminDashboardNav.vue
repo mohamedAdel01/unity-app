@@ -106,6 +106,12 @@ const { t, isRtl } = useI18n();
     flex-direction: column;
     gap: 10px;
 
+    @media (min-width: 640px) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
     .nav-tile {
       display: flex;
       align-items: center;

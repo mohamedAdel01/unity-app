@@ -163,10 +163,23 @@ onBeforeUnmount(() => {
     flex-direction: column;
     gap: 12px;
     width: 100%;
+
+    @media (min-width: 640px) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
   }
 
   .virtual-item-wrapper {
     width: 100%;
+    min-width: 0;
   }
 
   .virtual-sentinel {
@@ -175,6 +188,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     padding: 14px 0 6px;
     width: 100%;
+    grid-column: 1 / -1;
 
     .loading-more-pill {
       display: inline-flex;

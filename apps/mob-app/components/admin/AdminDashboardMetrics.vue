@@ -162,6 +162,11 @@ const currentRevenue = computed(() => {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
 
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
     .metric-card {
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);

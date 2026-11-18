@@ -42,10 +42,11 @@ const { t } = useI18n();
 
   .auth-content-wrapper {
     width: 100%;
+    max-width: 440px;
+    margin: auto;
     display: flex;
     flex-direction: column;
     gap: 18px;
-    margin: auto 0;
   }
 }
 </style>

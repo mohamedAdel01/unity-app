@@ -112,10 +112,11 @@ const handleRegistrationComplete = () => {
 
   .auth-content-wrapper {
     width: 100%;
+    max-width: 460px;
+    margin: auto;
     display: flex;
     flex-direction: column;
     gap: 18px;
-    margin: auto 0;
   }
 }
 
