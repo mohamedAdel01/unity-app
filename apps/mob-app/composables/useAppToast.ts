@@ -32,14 +32,23 @@ function formatErrorMessage(msg: string, t: (k: string) => string): { title?: st
     };
   }
 
-  // Preserve full detailed error for network failures, HTTP statuses, and system/Prisma exceptions
+  // Friendly localized handling for network failures & connectivity issues
+  if (
+    msg.toLowerCase().includes('network error') ||
+    msg.includes('Failed to fetch') ||
+    msg.toLowerCase().includes('check connection')
+  ) {
+    return {
+      title: t('Connection Error'),
+      message: t('Unable to connect to the server. Please check your internet connection and try again.'),
+    };
+  }
+
+  // Preserve full detailed error for HTTP statuses and system/Prisma exceptions
   if (
     msg.startsWith('[') ||
-    msg.includes('Failed to fetch') ||
     msg.toLowerCase().includes('prisma') ||
-    msg.toLowerCase().includes('database') ||
-    msg.toLowerCase().includes('network error') ||
-    msg.toLowerCase().includes('connection')
+    msg.toLowerCase().includes('database')
   ) {
     return {
       title: t('Error Details'),

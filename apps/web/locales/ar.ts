@@ -1454,4 +1454,6 @@ export default {
   "Search by doctor or clinic name...": "ابحث باسم الطبيب أو العيادة...",
   "Search doctor or clinic room...": "ابحث باسم الطبيب أو رقم العيادة...",
   "Try searching for another name or clinic room.": "جرب البحث باسم طبيب آخر أو رقم عيادة آخر.",
+  "Connection Error": "خطأ في الاتصال بالخادم",
+  "Unable to connect to the server. Please check your internet connection and try again.": "تعذر الاتصال بالخادم، يرجى التأكد من اتصال الإنترنت وإعادة المحاولة.",
 };
