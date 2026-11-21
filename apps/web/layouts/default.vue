@@ -14,12 +14,13 @@
     <!-- Global Web Booking Modal -->
     <BookingFlowModal
       v-model="bookingModal.isBookingFlowOpen.value"
-      :doctor="bookingModal.activeDoctor.value"
-      :service="bookingModal.activeService.value"
-      :initial-type="bookingModal.activeType.value"
-      :selected-date="bookingModal.activeDate.value"
-      :selected-slot="bookingModal.activeSlot.value"
-      :appointment="bookingModal.activeAppointment.value"
+      :doctor="bookingModal.activeDoctor?.value ?? null"
+      :service="bookingModal.activeService?.value ?? null"
+      :initial-type="bookingModal.activeType?.value ?? 'consultation'"
+      :selected-date="bookingModal.activeDate?.value ?? ''"
+      :selected-slot="bookingModal.activeSlot?.value ?? null"
+      :appointment="bookingModal.activeAppointment?.value ?? null"
+      :consultation-type="bookingModal.activeConsultationType?.value ?? 'clinic'"
       @booking-completed="onBookingSuccess"
     />
 

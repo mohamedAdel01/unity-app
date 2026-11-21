@@ -158,6 +158,14 @@
                   <i class="pi pi-info-circle"></i>
                   <p>{{ item.diagnosis || item.notes }}</p>
                 </div>
+
+                <!-- Google Meet Link for Doctor Cases -->
+                <div v-if="item.meeting_link" class="meet-case-strip">
+                  <a :href="item.meeting_link" target="_blank" rel="noopener noreferrer" class="btn-meet-case">
+                    <i class="pi pi-video"></i>
+                    <span>{{ t('Join Google Meet') }}</span>
+                  </a>
+                </div>
               </div>
             </template>
           </AppVirtualList>
@@ -656,11 +664,11 @@ onUnmounted(() => {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      height: 32px;
-      padding: 0 12px;
+      gap: 4px;
+      height: 28px;
+      padding: 0 10px;
       border-radius: 9999px;
-      font-size: 0.76rem;
+      font-size: 0.74rem;
       font-weight: 600;
       background: var(--unity-surface, #ffffff);
       border: 1px solid var(--unity-border, #e2e8f0);
@@ -669,7 +677,7 @@ onUnmounted(() => {
       transition: all 0.15s ease;
 
       i {
-        font-size: 0.74rem;
+        font-size: 0.72rem;
       }
 
       &:hover {
@@ -678,10 +686,14 @@ onUnmounted(() => {
       }
 
       &.active {
-        background: var(--unity-primary-light, #ecfdf5);
-        color: var(--unity-primary);
-        border: 1.5px solid var(--unity-primary);
+        background: var(--unity-primary);
+        color: #ffffff;
+        border-color: var(--unity-primary);
         font-weight: 700;
+
+        i {
+          color: #ffffff;
+        }
       }
     }
 
@@ -941,6 +953,34 @@ onUnmounted(() => {
         background: #0f172a;
         color: #cbd5e1;
       }
+    }
+  }
+}
+
+.meet-case-strip {
+  margin-top: 10px;
+
+  .btn-meet-case {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 12px;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 0.84rem;
+    font-weight: 700;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+
+    &:hover {
+      background: #0369a1;
+    }
+
+    i {
+      font-size: 0.95rem;
     }
   }
 }

@@ -12,6 +12,7 @@
           :clinic="item" 
           @toggle-status="emit('toggle-status', $event)"
           @edit="emit('edit', $event)"
+          @select="emit('select', $event)"
         />
       </template>
 
@@ -61,6 +62,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'toggle-status', clinic: Clinic): void;
   (e: 'edit', clinic: Clinic): void;
+  (e: 'select', clinic: Clinic): void;
   (e: 'load-more'): void;
 }>();
 

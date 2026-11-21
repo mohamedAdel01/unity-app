@@ -4,9 +4,6 @@
     <AdminTopHeader 
       :title="t('Bookings')"
       icon="pi pi-calendar"
-      :action-text="t('New Booking')"
-      action-icon="pi pi-plus"
-      @action="emit('new-booking')"
     />
 
     <!-- 2. Dual Metrics Summary Cards: Total Bookings & Total Paid -->
@@ -288,47 +285,47 @@ watch(
     .time-filter-pill {
       flex-shrink: 0;
       white-space: nowrap;
-      height: 34px;
-      padding: 0 14px;
+      height: 28px;
+      padding: 0 11px;
       border-radius: 9999px;
       background: var(--unity-surface);
       border: 1px solid var(--unity-border);
       color: var(--unity-text-muted);
-      font-size: 0.80rem;
+      font-size: 0.74rem;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
       i {
-        font-size: 0.8rem;
+        font-size: 0.74rem;
       }
 
       &.with-red-dot {
         .red-alert-dot {
-          width: 7px;
-          height: 7px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           background: #ef4444;
         }
       }
 
       &:hover {
-        border-color: var(--unity-primary-light, #a7f3d0);
+        border-color: var(--unity-primary);
+        color: var(--unity-primary);
       }
 
       &.active {
-        background: var(--unity-primary-light, #ecfdf5);
-        color: var(--unity-primary);
-        border: 1.5px solid var(--unity-primary);
+        background: var(--unity-primary);
+        color: #ffffff;
+        border-color: var(--unity-primary);
         font-weight: 700;
-        box-shadow: 0 1px 4px rgba(4, 120, 87, 0.08);
 
         i {
-          color: var(--unity-primary);
+          color: #ffffff;
         }
       }
     }

@@ -16,12 +16,18 @@
             <div class="card-main">
               <!-- Offer Media / Icon -->
               <div class="media-thumb">
-                <img v-if="offer.image" :src="resolveImageUrl(offer.image)" :alt="offer.title" class="thumb-img" />
+                <img 
+                  v-if="offer.image && !failedImages.has(offer.id)" 
+                  :src="resolveImageUrl(offer.image)" 
+                  :alt="offer.title" 
+                  class="thumb-img" 
+                  @error="failedImages.add(offer.id)"
+                />
                 <div v-else class="thumb-placeholder">
                   <i class="pi pi-gift"></i>
                 </div>
-                <span v-if="offer.discount_percentage" class="discount-badge">
-                  -{{ offer.discount_percentage }}%
+                <span v-if="getDiscountPercentage(offer)" class="discount-badge">
+                  -{{ getDiscountPercentage(offer) }}%
                 </span>
               </div>
 
@@ -113,23 +119,15 @@
         <template #item="{ item: promo }">
           <div class="promotion-item-card promo-card" :class="{ 'is-inactive': !promo.is_active }">
             <div class="card-main">
-              <!-- Code Monospace Banner -->
+              <!-- Code Icon Bubble -->
               <div class="promo-code-bubble">
                 <i class="pi pi-ticket"></i>
-                <strong class="code-text" dir="ltr">{{ promo.code }}</strong>
               </div>
 
               <!-- Promo Details -->
               <div class="info-cell">
                 <div class="title-row">
-                  <div class="discount-display">
-                    <span class="value-highlight">
-                      {{ promo.discount_type === 'percentage' ? `${promo.discount_value}%` : `${promo.discount_value} ${t('EGP')}` }}
-                    </span>
-                    <span class="discount-kind-text">
-                      {{ promo.discount_type === 'percentage' ? t('Percentage Discount') : t('Fixed Discount') }}
-                    </span>
-                  </div>
+                  <strong class="code-title" dir="ltr">{{ promo.code }}</strong>
                   <button 
                     type="button"
                     class="unity-switch-toggle" 
@@ -141,6 +139,15 @@
                   >
                     <span class="switch-slider"></span>
                   </button>
+                </div>
+
+                <div class="discount-display">
+                  <span class="value-highlight">
+                    {{ promo.discount_type === 'percentage' ? `${promo.discount_value}%` : `${promo.discount_value} ${t('EGP')}` }}
+                  </span>
+                  <span class="discount-kind-text">
+                    {{ promo.discount_type === 'percentage' ? t('Percentage Discount') : t('Fixed Discount') }}
+                  </span>
                 </div>
 
                 <div class="meta-tags-row">
@@ -201,6 +208,7 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
+import { ref } from 'vue';
 import { useI18n } from '../../composables/useI18n';
 import AppVirtualList from '../common/AppVirtualList.vue';
 
@@ -228,18 +236,32 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 // 2. Data (refs, reactive state)
+const failedImages = ref(new Set<string | number>());
 
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
-const resolveImageUrl = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
-    return url;
+const getDiscountPercentage = (offer: any) => {
+  if (offer.original_price && Number(offer.original_price) > Number(offer.price)) {
+    return Math.round(((Number(offer.original_price) - Number(offer.price)) / Number(offer.original_price)) * 100);
   }
+  return null;
+};
+
+const resolveImageUrl = (url?: string) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return trimmed;
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${url}`;
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
 };
 
 // 5. Watches (watch, watchEffect)
@@ -268,8 +290,14 @@ const resolveImageUrl = (url?: string) => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 
     &.is-inactive {
-      opacity: 0.65;
-      background: var(--unity-bg);
+      opacity: 0.72;
+      background: var(--unity-surface);
+      border-color: var(--unity-border);
+
+      &:hover {
+        transform: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+      }
     }
 
     .card-main {
@@ -317,28 +345,19 @@ const resolveImageUrl = (url?: string) => {
       }
 
       .promo-code-bubble {
-        width: 72px;
-        height: 64px;
-        border-radius: 14px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         background: #ecfdf5;
         border: 1.5px dashed #059669;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 3px;
         flex-shrink: 0;
 
         i {
-          font-size: 0.95rem;
+          font-size: 1.25rem;
           color: #059669;
-        }
-
-        .code-text {
-          font-size: 0.76rem;
-          font-weight: 800;
-          color: #065f46;
-          letter-spacing: 0.5px;
         }
       }
 
@@ -355,6 +374,13 @@ const resolveImageUrl = (url?: string) => {
           justify-content: space-between;
           gap: 8px;
 
+          .code-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--unity-text-main);
+            letter-spacing: 0.5px;
+          }
+
           .title-ar {
             margin: 0;
             font-size: 0.95rem;
@@ -363,24 +389,6 @@ const resolveImageUrl = (url?: string) => {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-          }
-
-          .discount-display {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-
-            .value-highlight {
-              font-size: 1.05rem;
-              font-weight: 800;
-              color: var(--unity-primary);
-            }
-
-            .discount-kind-text {
-              font-size: 0.72rem;
-              font-weight: 600;
-              color: var(--unity-text-muted);
-            }
           }
 
           .unity-switch-toggle {
@@ -420,6 +428,24 @@ const resolveImageUrl = (url?: string) => {
             &:active .switch-slider {
               width: 22px;
             }
+          }
+        }
+
+        .discount-display {
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+
+          .value-highlight {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--unity-primary);
+          }
+
+          .discount-kind-text {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--unity-text-muted);
           }
         }
 

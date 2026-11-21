@@ -6,6 +6,15 @@
         <i :class="icon || 'pi pi-shield'"></i>
       </div>
       <div class="admin-meta">
+        <button 
+          v-if="showBack" 
+          type="button" 
+          class="top-back-link" 
+          @click="emit('back')"
+        >
+          <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
+          <span>{{ backText || t('Return') }}</span>
+        </button>
         <h4 class="role-title">{{ title }}</h4>
       </div>
     </div>
@@ -38,6 +47,8 @@ const props = withDefaults(
     actionText?: string;
     actionIcon?: string;
     showAdd?: boolean;
+    showBack?: boolean;
+    backText?: string;
   }>(),
   {
     subtitle: '',
@@ -45,11 +56,14 @@ const props = withDefaults(
     actionText: '',
     actionIcon: 'pi pi-plus',
     showAdd: false,
+    showBack: false,
+    backText: '',
   }
 );
 
 const emit = defineEmits<{
   (e: 'action'): void;
+  (e: 'back'): void;
 }>();
 
 const { t, isRtl } = useI18n();
@@ -105,8 +119,32 @@ const { t, isRtl } = useI18n();
 
     .admin-meta {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      align-items: flex-start;
       text-align: right;
+
+      .top-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-bottom: 2px;
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: var(--unity-text-muted);
+        cursor: pointer;
+        transition: color 0.15s ease;
+
+        i {
+          font-size: 0.68rem;
+        }
+
+        &:hover {
+          color: var(--unity-primary);
+        }
+      }
 
       .role-title {
         font-size: 1.05rem;

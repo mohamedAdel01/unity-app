@@ -103,11 +103,11 @@ const handleTopAction = () => {
 
   .clinics-mode-tabs {
     display: flex;
-    gap: 8px;
-    background: var(--unity-surface);
+    gap: 4px;
+    background: var(--unity-surface-muted, #f1f5f9);
     border: 1px solid var(--unity-border);
-    padding: 6px;
-    border-radius: 18px;
+    padding: 3px;
+    border-radius: 12px;
     width: 100%;
 
     .tab-btn {
@@ -115,40 +115,41 @@ const handleTopAction = () => {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 14px;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 9px;
       border: none;
       background: transparent;
       color: var(--unity-text-muted);
-      font-size: 0.84rem;
+      font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.2s ease;
 
       .tab-svg {
-        width: 17px;
-        height: 17px;
+        width: 15px;
+        height: 15px;
       }
 
       .count-pill {
         background: transparent;
         border: none;
         color: inherit;
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 600;
         opacity: 0.8;
         padding: 0;
       }
 
       &.active {
-        background: var(--unity-primary);
-        color: #fff;
-        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+        background: var(--unity-surface, #ffffff);
+        color: var(--unity-primary);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
         .count-pill {
-          color: #fff;
-          opacity: 0.9;
+          color: var(--unity-primary);
+          opacity: 0.95;
         }
       }
     }

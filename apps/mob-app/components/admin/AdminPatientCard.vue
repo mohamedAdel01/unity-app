@@ -37,8 +37,19 @@
         </div>
       </div>
 
-      <!-- Left Side: Header Controls (Chevron Toggle Only) -->
+      <!-- Left Side: Header Controls (Quick Book + Chevron Toggle) -->
       <div class="patient-header-controls" @click.stop>
+        <button 
+          type="button" 
+          class="header-quick-book-btn" 
+          :title="t('Book Appointment')" 
+          :aria-label="t('Book Appointment')" 
+          @click.stop="emit('book', patient)"
+        >
+          <i class="pi pi-calendar-plus"></i>
+          <span>{{ t('Book') }}</span>
+        </button>
+
         <button class="expand-toggle-btn" :aria-label="isExpanded ? t('Close') : t('View All')" @click.stop="toggleExpand">
           <i :class="isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
         </button>
@@ -296,7 +307,17 @@ const resolveAvatar = (url?: string) => {
       .patient-details {
         display: flex;
         flex-direction: column;
-        text-align: right;
+        text-align: start;
+
+        :global(html[dir='ltr']) &,
+        :global([dir='ltr']) & {
+          text-align: left;
+        }
+
+        :global(html[dir='rtl']) &,
+        :global([dir='rtl']) & {
+          text-align: right;
+        }
 
         .name-badge-line {
           display: flex;
@@ -387,6 +408,30 @@ const resolveAvatar = (url?: string) => {
       display: flex;
       align-items: center;
       gap: 8px;
+
+      .header-quick-book-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--unity-primary);
+        background: var(--unity-primary-light, #ecfdf5);
+        color: var(--unity-primary);
+        font-size: 0.76rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+        i {
+          font-size: 0.8rem;
+        }
+
+        &:hover {
+          background: var(--unity-primary);
+          color: #ffffff;
+        }
+      }
     }
 
     .expand-toggle-btn {

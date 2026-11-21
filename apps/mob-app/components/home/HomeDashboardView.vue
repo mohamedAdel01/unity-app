@@ -20,12 +20,6 @@
       <!-- 4. Today's Special Offers (Image, description, price & strikethrough discount price) -->
       <HomeTodayOffers />
 
-      <!-- 5. Our Top Doctors -->
-      <HomeTopDoctors 
-        :search-query="searchQuery" 
-        :category-filter="activeFilter" 
-      />
-
       <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
       <div class="page-bottom-spacer" aria-hidden="true" />
     </template>
@@ -40,14 +34,11 @@ import HomeHeader from './HomeHeader.vue';
 import HomeUpcomingCard from './HomeUpcomingCard.vue';
 import HomeCategoriesGrid from './HomeCategoriesGrid.vue';
 import HomeTodayOffers from './HomeTodayOffers.vue';
-import HomeTopDoctors from './HomeTopDoctors.vue';
 import HomeSkeleton from './HomeSkeleton.vue';
 
 const api = useUnityApi();
 
 // 2. Data (refs, reactive state)
-const searchQuery = ref('');
-const activeFilter = ref('all');
 const upcomingAppointments = ref<any[]>([]);
 const isInitialLoading = ref(true);
 
@@ -59,9 +50,20 @@ const PATIENT_APPOINTMENTS = async () => {
     const res = await api.apiRequest({ service: 'PATIENT_APPOINTMENTS' });
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     if (raw.length > 0) {
-      // Find all active upcoming/today appointments (confirmed or pending)
-      const active = raw.filter((a: any) => a.status === 'confirmed' || a.status === 'pending');
-      upcomingAppointments.value = active;
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+
+      // Filter only active appointments scheduled for TODAY (confirmed or pending)
+      const todayActive = raw.filter((a: any) => {
+        if (a.status !== 'confirmed' && a.status !== 'pending') return false;
+        if (!a.date) return false;
+        const aptDateStr = typeof a.date === 'string' ? a.date.split('T')[0] : new Date(a.date).toISOString().split('T')[0];
+        return aptDateStr === todayStr;
+      });
+      upcomingAppointments.value = todayActive;
     } else {
       upcomingAppointments.value = [];
     }

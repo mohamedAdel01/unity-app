@@ -2,79 +2,45 @@
   <div class="admin-doctors-header">
     <!-- 1. Top Supervisor Identity Bar with Add Button -->
     <AdminTopHeader
-      :title="activeTab === 'clinics' ? t('Clinics') : t('Doctors')"
-      :icon="activeTab === 'clinics' ? 'pi pi-building' : 'pi pi-user'"
-      :action-text="activeTab === 'clinics' ? t('New Clinic') : t('New Doctor')"
+      :title="selectedClinicId || activeTab === 'doctors' ? t('Doctors') : t('Clinics')"
+      :icon="selectedClinicId || activeTab === 'doctors' ? 'pi pi-user' : 'pi pi-building'"
+      :action-text="selectedClinicId || activeTab === 'doctors' ? t('New Doctor') : t('New Clinic')"
       action-icon="pi pi-plus"
+      :show-back="Boolean(selectedClinicId)"
+      :back-text="t('Return')"
       @action="handleTopAction"
+      @back="emit('back-to-clinics')"
     />
 
-    <!-- 2. Dual Mode Selector Tabs (Clinics vs Doctors) -->
-    <div class="clinics-doctors-tabs">
-      <button
-        type="button"
-        class="tab-btn"
-        :class="{ 'active': activeTab === 'clinics' }"
-        @click="emit('tab-change', 'clinics')"
-      >
-        <svg viewBox="0 0 24 24" class="tab-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"/>
-          <path d="M9 21v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>
-          <path d="M10 8h4"/>
-          <path d="M12 6v4"/>
-        </svg>
-        <span>{{ t('Clinics') }}</span>
-        <span class="count-pill">({{ clinicsCount }})</span>
-      </button>
-
-      <button
-        type="button"
-        class="tab-btn"
-        :class="{ 'active': activeTab === 'doctors' }"
-        @click="emit('tab-change', 'doctors')"
-      >
-        <svg viewBox="0 0 24 24" class="tab-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
-          <path d="M3 3h3"/>
-          <path d="M16 3h3"/>
-          <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
-          <circle cx="17" cy="16" r="2"/>
-        </svg>
-        <span>{{ t('Doctors') }}</span>
-        <span class="count-pill">({{ doctorsCount }})</span>
+    <!-- 2. Search Bar -->
+    <div class="search-input-box">
+      <i class="pi pi-search search-icon"></i>
+      <input
+        v-model="searchQuery"
+        type="text"
+        :placeholder="selectedClinicId || activeTab === 'doctors' ? t('Search doctor or clinic room...') : t('Search doctor or clinic name...')"
+        @input="onSearchInput"
+      />
+      <button v-if="searchQuery" type="button" class="clear-search-btn" @click="clearSearch">
+        <i class="pi pi-times"></i>
       </button>
     </div>
 
-    <!-- 3. Doctors Search Bar & Clinic Filter (Visible when Doctors tab is active) -->
-    <template v-if="activeTab === 'doctors'">
-      <div class="search-input-box">
-        <i class="pi pi-search search-icon"></i>
-        <input
-          v-model="searchQuery"
-          type="text"
-          :placeholder="t('Search doctor or clinic room...')"
-          @input="onSearchInput"
-        />
-        <button v-if="searchQuery" type="button" class="clear-search-btn" @click="clearSearch">
-          <i class="pi pi-times"></i>
+    <!-- 4. Filter Pills - Only shown when in doctor view -->
+    <div v-if="selectedClinicId || activeTab === 'doctors'" class="filter-pills-row">
+      <div class="pills-scroll-container">
+        <button
+          v-for="pill in clinicFilters"
+          :key="pill.key"
+          type="button"
+          class="filter-pill"
+          :class="{ 'active': activeClinic === pill.key }"
+          @click="selectClinic(pill.key)"
+        >
+          <span>{{ pill.label }}</span>
         </button>
       </div>
-
-      <div class="filter-pills-row">
-        <div class="pills-scroll-container">
-          <button
-            v-for="pill in clinicFilters"
-            :key="pill.key"
-            type="button"
-            class="filter-pill"
-            :class="{ 'active': activeClinic === pill.key }"
-            @click="selectClinic(pill.key)"
-          >
-            <span>{{ pill.label }}</span>
-          </button>
-        </div>
-      </div>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -94,6 +60,9 @@ interface ClinicOption {
 const props = withDefaults(
   defineProps<{
     activeTab?: 'doctors' | 'clinics';
+    showTabs?: boolean;
+    selectedClinicId?: string | number;
+    selectedClinicName?: string;
     doctorsCount?: number;
     clinicsCount?: number;
     clinics?: ClinicOption[];
@@ -101,6 +70,9 @@ const props = withDefaults(
   }>(),
   {
     activeTab: 'doctors',
+    showTabs: true,
+    selectedClinicId: '',
+    selectedClinicName: '',
     doctorsCount: 0,
     clinicsCount: 0,
     clinics: () => [],
@@ -112,6 +84,7 @@ const emit = defineEmits<{
   (e: 'tab-change', tab: 'doctors' | 'clinics'): void;
   (e: 'search', q: string): void;
   (e: 'filter', key: string): void;
+  (e: 'back-to-clinics'): void;
   (e: 'new-doctor'): void;
   (e: 'new-clinic'): void;
 }>();
@@ -145,7 +118,7 @@ const clinicFilters = computed(() => {
 
 // 4. Methods (functions, handlers)
 const handleTopAction = () => {
-  if (props.activeTab === 'clinics') {
+  if (!props.showTabs || props.activeTab === 'clinics') {
     emit('new-clinic');
   } else {
     emit('new-doctor');
@@ -186,63 +159,6 @@ watch(() => props.activeFilter, (newVal) => {
   gap: 12px;
   width: 100%;
 
-  .clinics-doctors-tabs {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-
-    .tab-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      height: 42px;
-      border: 1px solid var(--unity-border);
-      background: var(--unity-surface);
-      border-radius: 12px;
-      font-size: 0.86rem;
-      font-weight: 700;
-      color: var(--unity-text-main);
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-      .tab-svg {
-        width: 17px;
-        height: 17px;
-        color: var(--unity-text-muted);
-      }
-
-      .count-pill {
-        background: transparent;
-        border: none;
-        color: var(--unity-text-dim);
-        font-size: 0.78rem;
-        font-weight: 600;
-        opacity: 0.8;
-        padding: 0;
-      }
-
-      &:hover {
-        border-color: var(--unity-primary-light, #a7f3d0);
-      }
-
-      &.active {
-        background: var(--unity-primary-light, #ecfdf5);
-        border: 1.5px solid var(--unity-primary);
-        color: var(--unity-primary);
-
-        .tab-svg {
-          color: var(--unity-primary);
-        }
-
-        .count-pill {
-          color: var(--unity-primary);
-          opacity: 0.9;
-        }
-      }
-    }
-  }
 
   .title-action-card {
     display: flex;
@@ -379,13 +295,13 @@ watch(() => props.activeFilter, (newVal) => {
 
       .filter-pill {
         white-space: nowrap;
-        height: 34px;
-        padding: 0 14px;
+        height: 28px;
+        padding: 0 11px;
         border-radius: 9999px;
         background: var(--unity-surface);
         border: 1px solid var(--unity-border);
         color: var(--unity-text-muted);
-        font-size: 0.80rem;
+        font-size: 0.74rem;
         font-weight: 600;
         cursor: pointer;
         display: inline-flex;
@@ -400,9 +316,9 @@ watch(() => props.activeFilter, (newVal) => {
         }
 
         &.active {
-          background: var(--unity-primary-light, #ecfdf5);
-          color: var(--unity-primary);
-          border: 1.5px solid var(--unity-primary);
+          background: var(--unity-primary);
+          color: #ffffff;
+          border-color: var(--unity-primary);
           font-weight: 700;
         }
       }

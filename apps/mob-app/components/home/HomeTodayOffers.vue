@@ -21,9 +21,19 @@
       >
         <!-- Card Image, Soft Veil & Discount Badge -->
         <div class="offer-image-box">
-          <img :src="resolveImageUrl(offer.image)" :alt="offer.title" class="offer-img" loading="lazy" />
+          <img 
+            v-if="resolveImageUrl(offer.image) && !failedImages.has(offer.id)"
+            :src="resolveImageUrl(offer.image)" 
+            :alt="offer.title" 
+            class="offer-img" 
+            loading="lazy" 
+            @error="failedImages.add(offer.id)"
+          />
+          <div v-else class="offer-img-placeholder">
+            <i class="pi pi-gift placeholder-icon"></i>
+          </div>
           <div class="image-soft-veil"></div>
-          <div class="discount-tag">
+          <div v-if="offer.discountPercent" class="discount-tag">
             <span>-{{ offer.discountPercent }}%</span>
           </div>
         </div>
@@ -63,18 +73,25 @@ const api = useUnityApi();
 // 2. Data (refs, reactive state)
 const offers = ref<any[]>([]);
 const loading = ref(false);
+const failedImages = ref(new Set<string | number>());
 
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
 const resolveImageUrl = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
-    return url;
-  }
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return trimmed;
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${url}`;
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
 };
 
 const OFFERS = async () => {
@@ -90,7 +107,7 @@ const OFFERS = async () => {
         image: o.image,
         price: Number(o.price),
         originalPrice: o.original_price ? Number(o.original_price) : null,
-        discountPercent: o.discount_percentage || (o.original_price ? Math.round(((Number(o.original_price) - Number(o.price)) / Number(o.original_price)) * 100) : null),
+        discountPercent: o.original_price && Number(o.original_price) > Number(o.price) ? Math.round(((Number(o.original_price) - Number(o.price)) / Number(o.original_price)) * 100) : null,
       }));
     } else {
       offers.value = [];
@@ -246,6 +263,21 @@ onMounted(() => {
           filter: brightness(0.96) contrast(0.88) saturate(0.78);
           opacity: 0.92;
           transition: transform 0.35s ease, filter 0.35s ease;
+        }
+
+        .offer-img-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #ecfdf5 0%, #e0f2fe 100%);
+
+          .placeholder-icon {
+            font-size: 1.8rem;
+            color: var(--unity-primary, #047857);
+            opacity: 0.75;
+          }
         }
 
         /* طبقة تظليل ناعمة تمزج الصورة بأناقة */

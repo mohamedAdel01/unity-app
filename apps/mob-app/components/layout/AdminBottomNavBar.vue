@@ -117,13 +117,13 @@
         </NuxtLink>
 
         <!-- Tab 2: Clinics / عيادات -->
-        <NuxtLink to="/admin/doctors" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/doctors') || route.path.startsWith('/admin/clinics') }">
+        <NuxtLink to="/admin/clinics" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/clinics') || route.path.startsWith('/admin/doctors') }">
           <i class="pi pi-building"></i>
           <span>{{ t('Clinics') }}</span>
         </NuxtLink>
 
         <!-- Tab 3: Services / الخدمات -->
-        <NuxtLink to="/admin/services" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/services') }">
+        <NuxtLink to="/admin/categories" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/services') || route.path.startsWith('/admin/categories') }">
           <svg viewBox="0 0 24 24" class="nav-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 18h8"/>
             <path d="M3 22h18"/>

@@ -83,9 +83,9 @@ const displayOffers = computed(() => {
   return [
     {
       id: 'off-1',
-      name_ar: 'باقة الفحص الطبي الشامل',
+      name_ar: 'باقة الخدمات الطبية الشاملة',
       name_en: 'Comprehensive Health Checkup',
-      desc_ar: 'فحص سريري متكامل يشمل صورة دم كاملة، وظائف كبد وكلى، سكر، ودهون مع استشارة استشاري باطنة.',
+      desc_ar: 'خدمة سريرية متكاملة تشمل صورة دم كاملة، وظائف كبد وكلى، سكر، ودهون مع استشارة استشاري باطنة.',
       desc_en: 'Complete screening with full CBC, liver & kidney panels, and doctor consultation.',
       price: 550,
       original_price: 900,
@@ -101,7 +101,7 @@ const displayOffers = computed(() => {
       price: 350,
       original_price: 600,
       saving: 'وفر 250 ج.م',
-      features: ['كشف وفحص بالأشعة الرقمية', 'تنظيف جير بالموجات الصوتية', 'تلميع الأسنان وإزالة التصبغات'],
+      features: ['كشف وأشعة رقمية متطورة', 'تنظيف جير بالموجات الصوتية', 'تلميع الأسنان وإزالة التصبغات'],
     },
     {
       id: 'off-3',

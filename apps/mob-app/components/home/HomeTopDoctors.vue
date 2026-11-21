@@ -48,9 +48,9 @@
         </div>
 
         <div class="doc-card-footer">
-          <div class="doc-availability">
-            <i class="pi pi-calendar-plus"></i>
-            <span>{{ doctor.availabilityText || t('Available Today') }}</span>
+          <div class="doc-availability" :class="{ 'not-today': !doctor.isAvailableToday }">
+            <i :class="doctor.isAvailableToday ? 'pi pi-calendar-plus' : 'pi pi-calendar'"></i>
+            <span>{{ doctor.availabilityText }}</span>
           </div>
           <button 
             class="book-appointment-btn" 
@@ -132,25 +132,151 @@ const getClinicName = (c: any) => {
   return isRtl.value ? (c.name_ar || c.name || c.name_en) : (c.name_en || c.name || c.name_ar);
 };
 
+const timeToMinutes = (timeStr?: string): number => {
+  if (!timeStr) return 0;
+  const str = String(timeStr).trim().toUpperCase();
+  const isPM = str.includes('PM');
+  const isAM = str.includes('AM');
+  const clean = str.replace(/[^0-9:]/g, '');
+  const parts = clean.split(':');
+  let h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  if (isPM && h < 12) h += 12;
+  if (isAM && h === 12) h = 0;
+  return h * 60 + m;
+};
+
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+const computeDoctorAvailability = (doctor: any): { text: string; isToday: boolean } => {
+  const isDoctorActive = doctor.status !== false && doctor.is_active !== false;
+  if (!isDoctorActive) {
+    return {
+      text: t('Not available currently'),
+      isToday: false,
+    };
+  }
+
+  const rawSchedules = doctor.schedules;
+  const schedules = Array.isArray(rawSchedules) ? rawSchedules.filter((s: any) => s.is_active !== false) : [];
+
+  if (schedules.length === 0) {
+    return {
+      text: t('Not available currently'),
+      isToday: false,
+    };
+  }
+
+  const dayNamesMap: Record<string, string> = {
+    sunday: t('Sunday'),
+    monday: t('Monday'),
+    tuesday: t('Tuesday'),
+    wednesday: t('Wednesday'),
+    thursday: t('Thursday'),
+    friday: t('Friday'),
+    saturday: t('Saturday'),
+  };
+
+  const schedulesByDay = new Map<string, any[]>();
+  schedules.forEach((s: any) => {
+    if (s.day_of_week) {
+      const key = String(s.day_of_week).toLowerCase().trim();
+      if (!schedulesByDay.has(key)) schedulesByDay.set(key, []);
+      schedulesByDay.get(key)!.push(s);
+    }
+  });
+
+  const now = new Date();
+  const currentDayIndex = now.getDay();
+  const todayKey = DAY_NAMES[currentDayIndex];
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  // 1. Check if doctor works today and has an upcoming/active shift
+  if (schedulesByDay.has(todayKey)) {
+    const todayShifts = schedulesByDay.get(todayKey)!;
+    const hasActiveShift = todayShifts.some((s: any) => {
+      const endMins = timeToMinutes(s.end_time);
+      return endMins > 0 ? endMins > currentMinutes : false;
+    });
+
+    if (hasActiveShift) {
+      return {
+        text: t('Available Today'),
+        isToday: true,
+      };
+    }
+  }
+
+  // 2. Find next upcoming day
+  for (let offset = 1; offset <= 7; offset++) {
+    const nextIndex = (currentDayIndex + offset) % 7;
+    const nextKey = DAY_NAMES[nextIndex];
+    if (schedulesByDay.has(nextKey)) {
+      if (offset === 1) {
+        return {
+          text: t('Available Tomorrow'),
+          isToday: false,
+        };
+      }
+      const dayLabel = dayNamesMap[nextKey] || nextKey;
+      return {
+        text: `${t('Available')} ${dayLabel}`,
+        isToday: false,
+      };
+    }
+  }
+
+  return {
+    text: t('Not available currently'),
+    isToday: false,
+  };
+};
+
 const DOCTORS = async () => {
   try {
     const res = await api.apiRequest({ service: 'DOCTORS' });
     if (res && res.status && Array.isArray(res.data)) {
-      doctors.value = res.data.map((d: any) => ({
-        ...d,
-        id: d.id,
-        name: isRtl.value ? (d.name_ar || d.name) : (d.name_en || d.name),
-        clinic: d.clinic,
-        rating: d.rating || null,
-        availabilityText: t('Available Today'),
-        avatar: d.avatar,
-        consultation_fee: d.consultation_fee,
-        slot_duration: d.slot_duration,
-        description: d.description,
-        description_ar: d.description_ar,
-        description_en: d.description_en,
-        bio: d.bio,
-      }));
+      const rawList = res.data;
+      const needsEnrichment = rawList.some((d: any) => !d.schedules || !Array.isArray(d.schedules) || d.schedules.length === 0);
+      let enrichedList = rawList;
+
+      if (needsEnrichment) {
+        enrichedList = await Promise.all(
+          rawList.map(async (doc: any) => {
+            if (doc.schedules && Array.isArray(doc.schedules) && doc.schedules.length > 0) {
+              return doc;
+            }
+            try {
+              const single = await api.apiRequest({ service: 'DOCTOR_BY_ID', filter: { id: doc.id } });
+              return {
+                ...doc,
+                schedules: single?.data?.schedules || [],
+              };
+            } catch {
+              return doc;
+            }
+          })
+        );
+      }
+
+      doctors.value = enrichedList.map((d: any) => {
+        const avail = computeDoctorAvailability(d);
+        return {
+          ...d,
+          id: d.id,
+          name: isRtl.value ? (d.name_ar || d.name) : (d.name_en || d.name),
+          clinic: d.clinic,
+          rating: d.rating || null,
+          isAvailableToday: avail.isToday,
+          availabilityText: avail.text,
+          avatar: d.avatar,
+          consultation_fee: d.consultation_fee,
+          slot_duration: d.slot_duration,
+          description: d.description,
+          description_ar: d.description_ar,
+          description_en: d.description_en,
+        };
+      });
     } else {
       doctors.value = [];
     }
@@ -345,12 +471,21 @@ onMounted(() => {
       align-items: center;
       gap: 6px;
       font-size: 0.76rem;
-      color: var(--unity-text-muted);
-      font-weight: 600;
+      color: var(--unity-primary);
+      font-weight: 700;
 
       i {
         font-size: 0.85rem;
         color: var(--unity-primary);
+      }
+
+      &.not-today {
+        color: var(--unity-text-muted);
+        font-weight: 600;
+
+        i {
+          color: var(--unity-text-dim, #64748b);
+        }
       }
     }
 

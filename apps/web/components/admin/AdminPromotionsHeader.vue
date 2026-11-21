@@ -154,9 +154,9 @@ const { t, isRtl } = useI18n();
   .segmented-control {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    background: var(--unity-bg);
+    background: var(--unity-surface-muted, #f1f5f9);
     border: 1px solid var(--unity-border);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 3px;
     gap: 4px;
 
@@ -164,27 +164,31 @@ const { t, isRtl } = useI18n();
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      height: 38px;
+      gap: 6px;
+      height: 32px;
       border: none;
       background: transparent;
-      border-radius: 11px;
-      font-size: 0.82rem;
+      border-radius: 9px;
+      font-size: 0.78rem;
       font-weight: 700;
       color: var(--unity-text-muted);
       cursor: pointer;
       transition: all 0.2s ease;
 
+      i {
+        font-size: 0.82rem;
+      }
+
       .count-tag {
-        font-size: 0.76rem;
+        font-size: 0.74rem;
         opacity: 0.85;
         font-weight: 600;
       }
 
       &.active {
-        background: var(--unity-surface);
+        background: var(--unity-surface, #ffffff);
         color: var(--unity-primary);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
         .count-tag {
           color: var(--unity-primary);

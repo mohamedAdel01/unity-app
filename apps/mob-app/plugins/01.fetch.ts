@@ -16,11 +16,19 @@ export default defineNuxtPlugin((nuxtApp) => {
     const TOKEN = raw ? String(raw).replace(/['"]+/g, '').trim() : null;
     const { headers = {}, body, ...restOptions } = options;
 
+    let activeLocale = 'ar';
+    if (typeof window !== 'undefined') {
+      try {
+        activeLocale = localStorage.getItem('unity_locale') || 'ar';
+      } catch (_) {}
+    }
+
     const finalHeaders: Record<string, string> = {
       ...(TOKEN && TOKEN !== 'undefined' && TOKEN !== 'null'
         ? { authorization: `Bearer ${TOKEN}` }
         : {}),
       'x-platform': Capacitor.isNativePlatform() ? 'mobile' : 'web',
+      'accept-language': activeLocale,
       ...headers,
     };
     if (!(body instanceof FormData))

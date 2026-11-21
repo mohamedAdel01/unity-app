@@ -64,6 +64,10 @@ describe('Unity Medical Mobile App — Comprehensive E2E Test Suite', () => {
       cy.get('.home-screen', { timeout: 10000 }).should('be.visible');
       cy.get('.app-header').should('be.visible');
       cy.get('.categories-grid').should('be.visible');
+      cy.get('.category-card.clinic-card').should('be.visible');
+      cy.get('.category-card.online-card').should('be.visible');
+      cy.get('.category-card.home-card').should('be.visible');
+      cy.get('.category-card.lab-card').should('be.visible');
       cy.get('.bottom-nav-bar').should('be.visible');
     });
 

@@ -24,7 +24,6 @@
         </div>
 
         <div class="modal-foot">
-          <button type="button" class="btn-cancel" @click="emit('close')">{{ t('Cancel') }}</button>
           <button type="button" class="btn-confirm" :disabled="!isFormValid || submitting" @click="saveClinic">
             <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ props.clinic?.id ? t('Save Changes') : t('Add Clinic') }}</span>
@@ -271,17 +270,18 @@ const saveClinic = async () => {
 
   .modal-foot {
     flex-shrink: 0;
-    padding: 14px 20px 24px;
+    padding: 14px 20px max(24px, env(safe-area-inset-bottom, 24px));
     border-top: 1px solid var(--unity-border-light);
     background: var(--unity-surface);
     display: flex;
-    gap: 10px;
 
-    button {
+    .btn-confirm {
+      width: 100%;
       flex: 1;
+      height: 48px;
       padding: 12px;
       border-radius: 14px;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 700;
       cursor: pointer;
       border: none;
@@ -290,20 +290,6 @@ const saveClinic = async () => {
       justify-content: center;
       gap: 6px;
       transition: all 0.2s;
-    }
-
-    .btn-cancel {
-      background: var(--unity-bg);
-      border: 1px solid var(--unity-border);
-      color: var(--unity-text-muted);
-
-      &:hover {
-        background: var(--unity-border);
-        color: var(--unity-text-main);
-      }
-    }
-
-    .btn-confirm {
       background: var(--unity-primary);
       color: #fff;
       box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);

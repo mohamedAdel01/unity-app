@@ -5,13 +5,13 @@
     </div>
 
     <div class="categories-grid">
-      <!-- 1. Doctor Consultation Checkup Card -->
+      <!-- 1. In-Clinic Doctor Reservation Card -->
       <div 
-        class="category-card doctor-card" 
-        @click="navigateToCategory('doctor')"
+        class="category-card clinic-card" 
+        @click="navigateToCategory('clinic')"
       >
-        <div class="cat-icon-wrap icon-doctor">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="cat-icon-wrap icon-clinic">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
             <path d="M3 3h3"/>
             <path d="M16 3h3"/>
@@ -21,22 +21,22 @@
         </div>
 
         <div class="cat-content">
-          <h5>{{ t('Doctor Consultation Checkup') }}</h5>
+          <h5>{{ t('Clinic Reservation') }}</h5>
           <p>{{ t('In-clinic appointments & specialized consultations') }}</p>
         </div>
 
-        <div class="card-action-pill doctor-pill">
-          <span>{{ t('Book Now') }}</span>
+        <div class="card-action-pill clinic-pill">
+          <span>{{ t('Book Clinic Visit') }}</span>
         </div>
       </div>
 
-      <!-- 2. Lab & Diagnostic Tests Card (Harmonious Teal-Green Medical Palette) -->
+      <!-- 4. Lab & Diagnostic Tests Card (Harmonious Teal-Green Medical Palette) -->
       <div 
         class="category-card lab-card" 
         @click="navigateToCategory('lab')"
       >
         <div class="cat-icon-wrap icon-lab">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10 2v7.31L4.35 18.5A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.72-3.5L14 9.31V2"/>
             <path d="M8.5 2h7"/>
             <path d="M7 16h10"/>
@@ -62,16 +62,20 @@ import { useRouter } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
 const router = useRouter();
-const { t, isRtl } = useI18n();
+const { t } = useI18n();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
 
 // 4. Methods (functions, handlers)
-const navigateToCategory = (type: 'doctor' | 'lab') => {
-  if (type === 'doctor') {
-    router.push('/services?tab=doctors');
+const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
+  if (type === 'clinic') {
+    router.push('/services?tab=doctors&type=clinic');
+  } else if (type === 'online') {
+    router.push('/services?tab=doctors&type=online');
+  } else if (type === 'home') {
+    router.push('/services?tab=doctors&type=home');
   } else {
     router.push('/services?tab=services');
   }
@@ -118,13 +122,13 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
 
   .category-card {
     position: relative;
-    border-radius: 22px;
-    padding: 20px 14px 16px;
-    min-height: 200px;
+    border-radius: 20px;
+    padding: 18px 12px 14px;
+    min-height: 185px;
 
     @media (min-width: 640px) {
-      padding: 24px 20px 20px;
-      min-height: 180px;
+      padding: 22px 18px 18px;
+      min-height: 190px;
     }
     display: flex;
     flex-direction: column;
@@ -134,19 +138,18 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
     overflow: hidden;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    background: var(--unity-surface);
+    border: 1.5px solid var(--unity-border);
 
-    // ─── 1. Doctor Consultation Card (Emerald Green Theme) ───
-    &.doctor-card {
-      background: var(--unity-surface);
-      border: 1.5px solid var(--unity-border);
-
-      .icon-doctor {
+    // ─── 1. Clinic Reservation Card (Emerald Green Theme) ───
+    &.clinic-card {
+      .icon-clinic {
         background: linear-gradient(135deg, #047857 0%, #10b981 100%);
         color: #ffffff;
         box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
       }
 
-      .doctor-pill {
+      .clinic-pill {
         background: rgba(16, 185, 129, 0.10);
         color: #047857;
         border: 1px solid rgba(16, 185, 129, 0.20);
@@ -159,11 +162,50 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
       }
     }
 
-    // ─── 2. Lab & Diagnostic Tests Card (Deep Medical Teal / Sea-Green Theme) ───
-    &.lab-card {
-      background: var(--unity-surface);
-      border: 1.5px solid var(--unity-border);
+    // ─── 2. Online Video Consultation Card (Sky / Cyan Blue Theme) ───
+    &.online-card {
+      .icon-online {
+        background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+      }
 
+      .online-pill {
+        background: rgba(2, 132, 199, 0.10);
+        color: #0284c7;
+        border: 1px solid rgba(2, 132, 199, 0.20);
+
+        &:hover {
+          background: #0284c7;
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+        }
+      }
+    }
+
+    // ─── 3. Home Visit Reservation Card (Warm Amber Theme) ───
+    &.home-card {
+      .icon-home {
+        background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+      }
+
+      .home-pill {
+        background: rgba(217, 119, 6, 0.10);
+        color: #d97706;
+        border: 1px solid rgba(217, 119, 6, 0.20);
+
+        &:hover {
+          background: #d97706;
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+        }
+      }
+    }
+
+    // ─── 4. Lab & Diagnostic Tests Card (Deep Medical Teal / Sea-Green Theme) ───
+    &.lab-card {
       .icon-lab {
         background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
         color: #ffffff;
@@ -197,13 +239,13 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
     }
 
     .cat-icon-wrap {
-      width: 50px;
-      height: 50px;
-      border-radius: 16px;
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       flex-shrink: 0;
       transition: transform 0.25s ease;
     }
@@ -212,19 +254,19 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
       display: flex;
       flex-direction: column;
       flex: 1;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
 
       h5 {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 700;
         color: var(--unity-text-main, #334155);
-        margin: 0 0 5px;
+        margin: 0 0 4px;
         line-height: 1.35;
       }
 
       p {
-        font-size: 0.69rem;
-        line-height: 1.4;
+        font-size: 0.67rem;
+        line-height: 1.35;
         color: var(--unity-text-dim);
         margin: 0;
         display: -webkit-box;
@@ -239,9 +281,9 @@ const navigateToCategory = (type: 'doctor' | 'lab') => {
       align-items: center;
       justify-content: center;
       gap: 5px;
-      padding: 7px 14px;
-      border-radius: 24px;
-      font-size: 0.72rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.70rem;
       font-weight: 700;
       width: 100%;
       margin-top: auto;

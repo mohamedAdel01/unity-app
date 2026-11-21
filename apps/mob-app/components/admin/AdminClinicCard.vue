@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-clinic-card">
+  <div class="admin-clinic-card" :class="{ 'is-inactive': !clinic.is_active }" @click="emit('select', clinic)">
     <div class="card-top">
       <div class="icon-box clinic">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -50,6 +50,11 @@
         </svg>
         <span>{{ clinic.doctors_count }} {{ t('Doctors') }}</span>
       </span>
+
+      <div class="view-doctors-btn">
+        <span>{{ t('View Doctors') }}</span>
+        <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
+      </div>
     </div>
   </div>
 </template>
@@ -75,6 +80,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'toggle-status', clinic: Clinic): void;
   (e: 'edit', clinic: Clinic): void;
+  (e: 'select', clinic: Clinic): void;
 }>();
 
 const { t, isRtl, resolveI18n } = useI18n();
@@ -105,7 +111,28 @@ const primaryName = computed(() => {
   flex-direction: column;
   gap: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.is-inactive {
+    opacity: 0.72;
+
+    &:hover {
+      border-color: var(--unity-border);
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+  }
+
+  &:hover {
+    border-color: var(--unity-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.08);
+
+    .view-doctors-btn {
+      opacity: 0.9;
+    }
+  }
 
   .card-top {
     display: flex;
@@ -139,7 +166,17 @@ const primaryName = computed(() => {
       display: flex;
       flex-direction: column;
       gap: 3px;
-      text-align: right;
+      text-align: start;
+
+      :global(html[dir='ltr']) &,
+      :global([dir='ltr']) & {
+        text-align: left;
+      }
+
+      :global(html[dir='rtl']) &,
+      :global([dir='rtl']) & {
+        text-align: right;
+      }
 
       h4 {
         font-size: 0.95rem;
@@ -240,6 +277,7 @@ const primaryName = computed(() => {
   .card-footer {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     border-top: 1px solid var(--unity-border);
     padding-top: 10px;
 
@@ -254,6 +292,20 @@ const primaryName = computed(() => {
       svg {
         color: var(--unity-primary);
         flex-shrink: 0;
+      }
+    }
+
+    .view-doctors-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--unity-primary);
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 0.70rem;
       }
     }
   }

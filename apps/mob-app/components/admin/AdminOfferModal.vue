@@ -30,7 +30,7 @@
                 type="text" 
                 class="form-input" 
                 dir="rtl"
-                placeholder="مثال: فحص شامل لصحة القلب والضغط" 
+                placeholder="مثال: باقة شاملة لصحة القلب والضغط" 
                 required 
               />
             </div>
@@ -58,7 +58,7 @@
                 class="form-textarea" 
                 dir="rtl"
                 rows="2"
-                placeholder="تفاصيل العرض وما يشمله الفحص..."
+                placeholder="تفاصيل العرض وما تشمله الخدمة..."
               ></textarea>
             </div>
 
@@ -238,6 +238,7 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
 import { useGlobalStore } from '../../stores/global';
+import { compressImageFile } from '@shared/utils/image';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -292,31 +293,36 @@ const triggerFileInput = () => {
 };
 
 const resolvePreview = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
-    return url;
-  }
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return trimmed;
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${url}`;
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
 };
 
 const processImageFile = async (file: File) => {
   if (!file) return;
 
-  if (file.size > 5 * 1024 * 1024) {
-    toast.error(t('Image size exceeds 5MB'));
+  if (file.size > 15 * 1024 * 1024) {
+    toast.error(t('Image size exceeds 15MB'));
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = async (uploadEvent) => {
-    const dataUrl = (uploadEvent.target?.result as string) || '';
+  try {
+    uploadingImage.value = true;
+    const dataUrl = await compressImageFile(file, 800, 0.82);
     form.value.image = dataUrl;
 
     // Immediately upload to server to get permanent WebP path
     try {
-      uploadingImage.value = true;
       const res = await api.apiRequest({
         service: 'ADMIN_UPLOAD_OFFER_IMAGE',
         payload: { image: dataUrl },
@@ -326,11 +332,12 @@ const processImageFile = async (file: File) => {
       }
     } catch (_) {
       // Fallback: keep base64 and server will save it upon form submission
-    } finally {
-      uploadingImage.value = false;
     }
-  };
-  reader.readAsDataURL(file);
+  } catch (_) {
+    toast.error(t('Failed to process image'));
+  } finally {
+    uploadingImage.value = false;
+  }
 };
 
 const handleFileChange = (e: Event) => {

@@ -69,7 +69,7 @@ const displayClinics = computed(() => {
     { id: 'c5', name_ar: 'عيادة الأسنان وجراحة الفم', name_en: 'Dental & Oral Surgery', desc_ar: 'تجميل، زراعة وعلاج جذور الأسنان بأحدث الأجهزة', desc_en: 'Cosmetic dentistry and root canal care', icon: 'pi pi-sparkles' },
     { id: 'c6', name_ar: 'عيادة الجلدية والليزر', name_en: 'Dermatology & Laser', desc_ar: 'علاج الأمراض الجلدية والعناية بالبشرة والليزر', desc_en: 'Advanced skincare and medical laser', icon: 'pi pi-sun' },
     { id: 'c7', name_ar: 'عيادة النساء والتوليد', name_en: 'Obstetrics & Gynecology', desc_ar: 'متابعة الحمل وموجات السونار والصحة الإنجابية', desc_en: 'Maternity and reproductive health', icon: 'pi pi-user' },
-    { id: 'c8', name_ar: 'المختبر والتحاليل الطبية', name_en: 'Laboratory & Diagnostic Services', desc_ar: 'فحوصات شاملة وتحاليل دم بأعلى درجات الدقة', desc_en: 'Comprehensive diagnostic blood testing', icon: 'pi pi-check' },
+    { id: 'c8', name_ar: 'المختبر والتحاليل الطبية', name_en: 'Laboratory & Diagnostic Services', desc_ar: 'خدمات شاملة وتحاليل دم بأعلى درجات الدقة', desc_en: 'Comprehensive diagnostic blood testing', icon: 'pi pi-check' },
   ];
 });
 

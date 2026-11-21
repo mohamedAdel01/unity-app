@@ -928,14 +928,15 @@ onUnmounted(() => {
         .day-nav-tab {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 8px 14px;
-          border-radius: 20px;
+          gap: 4px;
+          height: 28px;
+          padding: 0 11px;
+          border-radius: 9999px;
           background: var(--unity-surface);
           border: 1px solid var(--unity-border);
           color: var(--unity-text-muted);
-          font-size: 0.78rem;
-          font-weight: 700;
+          font-size: 0.74rem;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.2s ease;
           flex-shrink: 0;
@@ -958,7 +959,7 @@ onUnmounted(() => {
             background: var(--unity-primary);
             color: #ffffff;
             border-color: var(--unity-primary);
-            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+            box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
 
             .slots-count-dot {
               background: rgba(255, 255, 255, 0.25);

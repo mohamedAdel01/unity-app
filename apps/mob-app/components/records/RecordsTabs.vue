@@ -64,8 +64,9 @@ const { t } = useI18n();
 .records-tabs {
   display: flex;
   background: var(--unity-surface-muted, #f1f5f9);
-  padding: 4px;
-  border-radius: 14px;
+  padding: 3px;
+  border: 1px solid var(--unity-border);
+  border-radius: 12px;
   gap: 4px;
 
   .tab-btn {
@@ -73,25 +74,27 @@ const { t } = useI18n();
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 8px 10px;
-    border-radius: 10px;
+    gap: 5px;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 8px;
     border: none;
     background: transparent;
     color: var(--unity-text-muted);
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
 
     i {
-      font-size: 0.85rem;
+      font-size: 0.80rem;
     }
 
     &.active {
       background: var(--unity-surface, #ffffff);
       color: var(--unity-primary);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
   }
 }

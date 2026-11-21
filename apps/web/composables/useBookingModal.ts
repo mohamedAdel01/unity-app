@@ -9,6 +9,7 @@ const activeService = ref<any>(null);
 const activeDate = ref<string>('');
 const activeSlot = ref<any>(null);
 const activeType = ref<'consultation' | 'follow_up'>('consultation');
+const activeConsultationType = ref<'clinic' | 'online' | 'home'>('clinic');
 const activeAppointment = ref<any>(null);
 
 export function useBookingModal() {
@@ -27,6 +28,7 @@ export function useBookingModal() {
     date?: string;
     slot?: any;
     type?: 'consultation' | 'follow_up' | 'examination';
+    consultationType?: 'clinic' | 'online' | 'home';
     appointment?: any;
   } = {}) => {
     const isExam = options.type === 'examination' || Boolean(options.examination || options.service);
@@ -35,6 +37,7 @@ export function useBookingModal() {
     activeDate.value = options.date || (options.appointment?.date ? new Date(options.appointment.date).toISOString().split('T')[0] : '');
     activeSlot.value = options.slot || (options.appointment?.start_time ? { start_time: options.appointment.start_time, end_time: options.appointment.end_time } : null);
     activeType.value = (options.type as any) || (isExam ? 'examination' : (options.appointment?.type || 'consultation'));
+    activeConsultationType.value = options.consultationType || (options.appointment?.consultation_type as any) || 'clinic';
     activeAppointment.value = options.appointment || null;
     isBookingFlowOpen.value = true;
   };
@@ -45,6 +48,7 @@ export function useBookingModal() {
     activeService.value = null;
     activeDate.value = '';
     activeSlot.value = null;
+    activeConsultationType.value = 'clinic';
     activeAppointment.value = null;
   };
 
@@ -65,6 +69,7 @@ export function useBookingModal() {
     activeDate,
     activeSlot,
     activeType,
+    activeConsultationType,
     activeAppointment,
     openQuickBook,
     closeQuickBook,

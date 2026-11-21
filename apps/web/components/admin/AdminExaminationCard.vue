@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-examination-card">
+  <div class="admin-examination-card" :class="{ 'is-inactive': !examination.is_active }">
     <div class="card-top">
       <div class="icon-box service">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -140,7 +140,17 @@ const categoryName = computed(() => {
   flex-direction: column;
   gap: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.is-inactive {
+    opacity: 0.72;
+
+    &:hover {
+      border-color: var(--unity-border);
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+  }
 
   .card-top {
     display: flex;
@@ -174,7 +184,17 @@ const categoryName = computed(() => {
       display: flex;
       flex-direction: column;
       gap: 3px;
-      text-align: right;
+      text-align: start;
+
+      :global(html[dir='ltr']) &,
+      :global([dir='ltr']) & {
+        text-align: left;
+      }
+
+      :global(html[dir='rtl']) &,
+      :global([dir='rtl']) & {
+        text-align: right;
+      }
 
       h4 {
         font-size: 0.95rem;

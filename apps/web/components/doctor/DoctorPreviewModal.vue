@@ -159,30 +159,14 @@ const doctorDescription = computed(() => {
   // 1. Direct localized description fields
   if (isAr && d.description_ar?.trim()) return d.description_ar.trim();
   if (!isAr && d.description_en?.trim()) return d.description_en.trim();
-  if (isAr && d.bio_ar?.trim()) return d.bio_ar.trim();
-  if (!isAr && d.bio_en?.trim()) return d.bio_en.trim();
 
   // 2. Generic description field
   if (d.description && typeof d.description === 'string' && d.description.trim()) {
     return d.description.trim();
   }
 
-  // 3. Parse JSON or fallback from bio
-  if (d.bio && typeof d.bio === 'string') {
-    const raw = d.bio.trim();
-    if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (isAr && parsed.ar?.trim()) return parsed.ar.trim();
-        if (!isAr && parsed.en?.trim()) return parsed.en.trim();
-        return (parsed.ar || parsed.en || '').trim();
-      } catch (_) {}
-    }
-    return raw;
-  }
-
-  // 4. English fallback if Arabic was not provided or vice versa
-  return d.description_ar || d.description_en || d.bio_ar || d.bio_en || '';
+  // 3. Fallback
+  return d.description_ar || d.description_en || '';
 });
 
 const consultationFee = computed(() => {

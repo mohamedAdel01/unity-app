@@ -558,13 +558,13 @@ onUnmounted(() => {
         justify-content: center;
         gap: 4px;
         white-space: nowrap;
-        height: 34px;
-        padding: 0 14px;
+        height: 28px;
+        padding: 0 11px;
         border-radius: 9999px;
         background: var(--unity-surface);
         border: 1px solid var(--unity-border);
         color: var(--unity-text-muted);
-        font-size: 0.80rem;
+        font-size: 0.74rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -573,7 +573,7 @@ onUnmounted(() => {
         .slots-count-dot {
           background: transparent;
           color: inherit;
-          font-size: 0.76rem;
+          font-size: 0.72rem;
           font-weight: 500;
           opacity: 0.8;
           padding: 0;
@@ -588,7 +588,7 @@ onUnmounted(() => {
           background: var(--unity-primary);
           color: #ffffff;
           border-color: var(--unity-primary);
-          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+          box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
 
           .slots-count-dot {
             background: rgba(255, 255, 255, 0.25);

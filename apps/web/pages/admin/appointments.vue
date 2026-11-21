@@ -9,7 +9,6 @@
       :total-paid-amount="totalPaidRevenue"
       :active-period="activePeriod"
       @period-change="onPeriodChange"
-      @new-booking="isNewBookingModalOpen = true"
     />
 
     <!-- 2. Modular Bookings Virtual Windowed List (10 by 10 Standard) -->
@@ -62,13 +61,6 @@
       :cancel-text="t('Cancel')"
       :loading="confirmActionLoading"
       @confirm="executeConfirmedAction"
-    />
-
-    <!-- Modal: New Booking (Receptionist & Admin) -->
-    <AdminBookAppointmentModal
-      :is-open="isNewBookingModalOpen"
-      @close="isNewBookingModalOpen = false"
-      @booked="ADMIN_APPOINTMENTS(1)"
     />
 
     <!-- Generous bottom clearance spacer ensuring content completely clears floating navbar -->
@@ -243,6 +235,9 @@ const ADMIN_APPOINTMENTS = async (page = 1) => {
         price: a.invoice?.total || a.examination?.price || a.doctor?.consultation_fee || a.total || 0,
         notes: a.notes || null,
         period: isToday ? 'today' : 'other',
+        meeting_link: a.meeting_link || null,
+        meeting_id: a.meeting_id || null,
+        consultation_type: a.consultation_type || 'clinic',
         raw: a,
       };
     });

@@ -2,7 +2,7 @@
   <section class="section-container">
     <div class="section-header">
       <div class="title-with-count">
-        <h4>{{ t('My Bookings') }}</h4>
+        <h4>{{ t("Today's Appointments") }}</h4>
         <span v-if="appointmentsList.length > 1" class="count-pill">
           {{ appointmentsList.length }}
         </span>
@@ -67,7 +67,19 @@
         </div>
 
         <div class="card-action-icon">
-          <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
+          <a 
+            v-if="apt.meeting_link" 
+            :href="apt.meeting_link" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="home-join-meet-btn"
+            :title="t('Join Google Meet')"
+            @click.stop
+          >
+            <i class="pi pi-video"></i>
+            <span>{{ t('Join Meet') }}</span>
+          </a>
+          <i v-else :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
         </div>
       </div>
     </div>
@@ -113,13 +125,23 @@ const bookingModal = useBookingModal();
 
 // 3. Computed (computed properties)
 const appointmentsList = computed<any[]>(() => {
-  if (Array.isArray(props.appointments) && props.appointments.length > 0) {
-    return props.appointments;
-  }
-  if (props.appointment) {
-    return [props.appointment];
-  }
-  return [];
+  const rawList = Array.isArray(props.appointments) && props.appointments.length > 0
+    ? props.appointments
+    : (props.appointment ? [props.appointment] : []);
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
+
+  // Filter only today's active appointments
+  return rawList.filter((a: any) => {
+    if (a.status !== 'confirmed' && a.status !== 'pending') return false;
+    if (!a.date) return false;
+    const aptDateStr = typeof a.date === 'string' ? a.date.split('T')[0] : new Date(a.date).toISOString().split('T')[0];
+    return aptDateStr === todayStr;
+  });
 });
 
 // 4. Methods (functions, handlers)
@@ -450,15 +472,37 @@ const openDetails = (apt: any) => {
   }
 
   .card-action-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--unity-text-dim);
     font-size: 0.72rem;
     flex-shrink: 0;
+
+    .home-join-meet-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #0284c7;
+      color: #ffffff;
+      border-radius: 12px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #0369a1;
+        transform: translateY(-1px);
+      }
+
+      i {
+        font-size: 0.78rem;
+      }
+    }
   }
 }
 

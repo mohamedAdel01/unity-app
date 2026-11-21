@@ -1065,4 +1065,12 @@ export default {
   "Search by doctor or clinic name...": "Search by doctor or clinic name...",
   "Search doctor or clinic room...": "Search doctor or clinic room...",
   "Try searching for another name or clinic room.": "Try searching for another name or clinic room.",
+  "Clinic Reservation": "Clinic Reservation",
+  "Book Clinic Visit": "Book Clinic Visit",
+  "Online Video Consultation": "Online Video Consultation",
+  "Book Video Call": "Book Video Call",
+  "Virtual consultations via Google Meet": "Virtual consultations via Google Meet",
+  "Home Visit Reservation": "Home Visit Reservation",
+  "Book Home Visit": "Book Home Visit",
+  "Doctor & nursing visits at your doorstep": "Doctor & nursing visits at your doorstep",
 };

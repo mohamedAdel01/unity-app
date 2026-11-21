@@ -11,7 +11,7 @@
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
       </NuxtLink>
 
-      <NuxtLink to="/admin/doctors" class="nav-tile">
+      <NuxtLink to="/admin/clinics" class="nav-tile">
         <div class="tile-icon">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
@@ -28,7 +28,7 @@
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'tile-arrow']"></i>
       </NuxtLink>
 
-      <NuxtLink to="/admin/services" class="nav-tile">
+      <NuxtLink to="/admin/categories" class="nav-tile">
         <div class="tile-icon">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 18h8"/>

@@ -371,6 +371,14 @@ export default {
     });
   },
 
+  async ADMIN_TOGGLE_DOCTOR({ API, payload }: { API: any; payload: { id: string | number; status?: boolean; is_active?: boolean } }) {
+    const statusVal = Boolean(payload.status !== undefined ? payload.status : payload.is_active);
+    return await API(`admin/doctors/${payload.id}/toggle`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: statusVal }),
+    });
+  },
+
   async ADMIN_UPDATE_DOCTOR_SCHEDULES({ API, payload }: { API: any; payload: { id: string | number; schedules: any[] } }) {
     const { id, schedules } = payload;
     return await API(`admin/doctors/${id}/schedules`, {

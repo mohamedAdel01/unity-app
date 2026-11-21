@@ -43,21 +43,7 @@
         </div>
 
         <div class="modal-actions">
-          <button 
-            v-if="props.category?.id" 
-            type="button" 
-            class="btn-delete"
-            :title="t('Delete Category')"
-            :disabled="submitting || deleting"
-            @click="deleteCategory"
-          >
-            <i v-if="deleting" class="pi pi-spin pi-spinner"></i>
-            <i v-else class="pi pi-trash"></i>
-          </button>
-          <button type="button" class="btn-cancel" @click="emit('close')">
-            {{ t('Cancel') }}
-          </button>
-          <button type="submit" class="btn-submit" :disabled="!isFormValid || submitting || deleting">
+          <button type="submit" class="btn-submit" :disabled="!isFormValid || submitting">
             <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ props.category?.id ? t('Save Changes') : t('Create Category') }}</span>
           </button>
@@ -410,14 +396,15 @@ onUnmounted(() => {
       width: 100%;
       box-sizing: border-box;
       display: flex;
-      gap: 12px;
       padding: 14px 20px max(20px, env(safe-area-inset-bottom, 20px));
       border-top: 1px solid var(--unity-border);
       background: var(--unity-surface);
       margin-top: auto;
       z-index: 10;
 
-      button {
+      .btn-submit {
+        width: 100%;
+        flex: 1;
         height: 48px;
         border-radius: 12px;
         font-weight: 700;
@@ -428,40 +415,6 @@ onUnmounted(() => {
         justify-content: center;
         gap: 8px;
         transition: all 0.2s;
-      }
-
-      .btn-delete {
-        width: 48px;
-        flex: 0 0 48px;
-        background: #fee2e2;
-        border: 1.5px solid #fecaca;
-        color: #ef4444;
-        border-radius: 12px;
-
-        &:hover:not(:disabled) {
-          background: #fecaca;
-        }
-
-        &:disabled {
-          opacity: 0.55;
-          cursor: not-allowed;
-        }
-      }
-
-      .btn-cancel {
-        flex: 1;
-        background: var(--unity-bg);
-        border: 1.5px solid var(--unity-border);
-        color: var(--unity-text-muted);
-
-        &:hover {
-          background: var(--unity-border);
-          color: var(--unity-text-main);
-        }
-      }
-
-      .btn-submit {
-        flex: 2;
         background: var(--unity-primary);
         border: none;
         color: #ffffff;

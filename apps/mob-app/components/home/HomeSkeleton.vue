@@ -64,27 +64,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 5. Top Doctors Skeleton -->
-    <div class="skeleton-section">
-      <div class="skeleton-section-header">
-        <div class="skeleton-shimmer skeleton-title-bar-md"></div>
-        <div class="skeleton-shimmer skeleton-link-bar"></div>
-      </div>
-      <div class="skeleton-doctor-card">
-        <div class="skeleton-doc-header">
-          <div class="skeleton-shimmer skeleton-doc-avatar"></div>
-          <div class="skeleton-doc-info">
-            <div class="skeleton-shimmer skeleton-doc-name"></div>
-            <div class="skeleton-shimmer skeleton-doc-spec"></div>
-          </div>
-        </div>
-        <div class="skeleton-doc-footer">
-          <div class="skeleton-shimmer skeleton-doc-avail"></div>
-          <div class="skeleton-shimmer skeleton-doc-btn"></div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

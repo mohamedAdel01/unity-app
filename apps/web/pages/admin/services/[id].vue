@@ -1,7 +1,5 @@
 <template>
-  <div class="admin-clinics-page">
-    <div class="supervisor-top-bar" aria-hidden="true" style="display:none;" />
-  </div>
+  <div class="admin-services-id-redirect" />
 </template>
 
 <script setup lang="ts">
@@ -12,7 +10,13 @@ definePageMeta({
   layout: 'admin',
 });
 
-await navigateTo('/admin/doctors?tab=clinics', { replace: true });
+const route = useRoute();
+const id = String(route.params.id || '');
+if (id === 'all') {
+  await navigateTo('/admin/categories/services', { replace: true });
+} else {
+  await navigateTo(`/admin/categories/${id}/services`, { replace: true });
+}
 
 // 2. Data (refs, reactive state)
 
@@ -28,7 +32,7 @@ await navigateTo('/admin/doctors?tab=clinics', { replace: true });
 </script>
 
 <style scoped lang="scss">
-.admin-clinics-page {
+.admin-services-id-redirect {
   width: 100%;
 }
 </style>

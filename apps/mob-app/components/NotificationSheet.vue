@@ -63,8 +63,8 @@
                 v-for="item in notifications" 
                 :key="item.id"
                 class="notif-item"
-                :class="{ 'unread': !item.is_read }"
-                @click="markRead(item)"
+                :class="{ 'unread': !item.is_read, 'expanded': isExpanded(item.id) }"
+                @click="toggleItem(item)"
               >
                 <div class="item-icon" :class="getIconClass(item.type)">
                   <i :class="getIcon(item.type)"></i>
@@ -72,9 +72,20 @@
                 <div class="item-content">
                   <div class="item-top">
                     <h5>{{ getLocalizedTitle(item) }}</h5>
-                    <span class="item-time">{{ formatTime(item.created_at) }}</span>
+                    <div class="top-meta">
+                      <span class="item-time">{{ formatTime(item.created_at) }}</span>
+                      <i 
+                        v-if="getLocalizedBody(item)" 
+                        class="expand-chevron pi" 
+                        :class="isExpanded(item.id) ? 'pi-chevron-up' : 'pi-chevron-down'"
+                      ></i>
+                    </div>
                   </div>
-                  <p>{{ getLocalizedBody(item) }}</p>
+                  <Transition name="expand">
+                    <p v-if="isExpanded(item.id)" class="item-body">
+                      {{ getLocalizedBody(item) }}
+                    </p>
+                  </Transition>
                 </div>
                 <div v-if="!item.is_read" class="unread-bullet"></div>
               </div>
@@ -88,7 +99,7 @@
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useUnityApi } from '../composables/useUnityApi';
 import { useI18n } from '../composables/useI18n';
 import { useGlobalStore } from '../stores/global';
@@ -122,12 +133,25 @@ const {
 } = useNotifications();
 
 // 2. Data (refs, reactive state)
+const expandedMap = ref<Record<string | number, boolean>>({});
 
 // 3. Computed (computed properties)
 // Use globalStore loading tracker or local fetching state for NOTIFICATIONS service
 const loading = computed(() => globalStore.loading.includes('NOTIFICATIONS') || isFetching.value);
+const isExpanded = (id: string | number) => Boolean(expandedMap.value[id]);
 
 // 4. Methods (functions, handlers)
+const toggleItem = async (item: any) => {
+  const current = Boolean(expandedMap.value[item.id]);
+  expandedMap.value = {
+    ...expandedMap.value,
+    [item.id]: !current,
+  };
+  if (!current && !item.is_read) {
+    await markRead(item);
+  }
+};
+
 const markRead = async (item: any) => {
   await executeMarkRead(item);
   emit('count-changed', unreadCount.value);
@@ -182,37 +206,68 @@ const formatTime = (isoString: string) => {
 
 const getLocalizedTitle = (item: any) => {
   if (!item?.title) return '';
-  return resolveI18n(t(item.title));
+  const resolved = resolveI18n(item.title);
+  return t(resolved);
 };
 
 const getLocalizedBody = (item: any) => {
   if (!item?.body) return '';
-  let body = String(item.body);
+  let body = String(item.body).trim();
 
   // 1. Universal multilingual / embedded JSON resolution
   body = resolveI18n(body);
 
-  // 2. Localize standard system notification messages into Arabic when user is in Arabic mode
-  if (isRtl.value) {
-    // Pattern: Your appointment [(on)] (XYZ) [on] DATE at TIME has been registered. Pending confirmation or payment.
-    const bookRegex = /Your appointment (?:on )?\((.*?)\) (?:on )?(\S+) at (\S+) has been registered\. Pending confirmation or payment\./i;
-    const match = body.match(bookRegex);
-    if (match) {
-      const serviceName = match[1];
-      const date = match[2];
-      const time = match[3];
-      return `تم تسجيل موعدك (${serviceName}) بتاريخ ${date} الساعة ${time} بنجاح. قيد المراجعة أو الدفع.`;
-    }
+  // 2. Fix duplicate "Dr. د/" or "Dr. د." prefix anywhere in the text
+  body = body
+    .replace(/Dr\.\s*د\/\s*/gi, isRtl.value ? 'د/ ' : 'Dr. ')
+    .replace(/Dr\.\s*د\.\s*/gi, isRtl.value ? 'د. ' : 'Dr. ')
+    .replace(/Dr\.\s*Dr\.\s*/gi, 'Dr. ');
 
-    const scheduleRegex = /An appointment (?:on )?\((.*?)\) (?:on )?(\S+) at (\S+) has been scheduled for you\./i;
-    const schedMatch = body.match(scheduleRegex);
-    if (schedMatch) {
-      const serviceName = schedMatch[1];
-      const date = schedMatch[2];
-      const time = schedMatch[3];
+  // 3. Handle legacy booking notification (with or without closing parenthesis)
+  const bookRegex = /Your appointment\s*\(?(.*?)(?:\)\s*|\s+)on\s+(\S+)\s+at\s+(\S+)\s+has been registered\.?\s*Pending confirmation or payment\.?/i;
+  const match = body.match(bookRegex);
+  if (match) {
+    let serviceName = match[1].trim().replace(/^\(+|\)+$/g, '').trim();
+    const date = match[2].trim();
+    let time = match[3].trim();
+    if (time.split(':').length === 3) time = time.slice(0, 5);
+
+    if (isRtl.value) {
+      let serviceAr = serviceName
+        .replace(/Follow-up Consultation with Dr\.?/i, 'متابعة كشف مع د/')
+        .replace(/Consultation with Dr\.?/i, 'كشف مع د/')
+        .replace(/Medical Examination/i, 'خدمة طبية')
+        .replace(/Medical Service/i, 'خدمة طبية')
+        .replace(/Medical Offer/i, 'عرض طبي');
+      return `تم تسجيل موعدك (${serviceAr}) بتاريخ ${date} الساعة ${time} بنجاح. قيد المراجعة أو الدفع.`;
+    } else {
+      let serviceEn = serviceName
+        .replace(/د\/\s*/g, '')
+        .replace(/د\.\s*/g, '')
+        .replace(/احمد مصطفي/g, 'Ahmed Moustafa')
+        .replace(/محمد عادل/g, 'Mohamed Adel')
+        .replace(/السيد مايله/g, 'Elsayed Maila');
+      return `Your appointment (${serviceEn}) on ${date} at ${time} has been registered. Pending confirmation or payment.`;
+    }
+  }
+
+  // 4. Handle scheduled appointment pattern
+  const schedRegex = /An appointment\s*\(?(.*?)(?:\)\s*|\s+)on\s+(\S+)\s+at\s+(\S+)\s+has been scheduled for you\.?/i;
+  const schedMatch = body.match(schedRegex);
+  if (schedMatch) {
+    let serviceName = schedMatch[1].trim().replace(/^\(+|\)+$/g, '').trim();
+    const date = schedMatch[2].trim();
+    let time = schedMatch[3].trim();
+    if (time.split(':').length === 3) time = time.slice(0, 5);
+    if (isRtl.value) {
       return `تم حجز موعد لك (${serviceName}) بتاريخ ${date} الساعة ${time} بنجاح.`;
+    } else {
+      return `An appointment (${serviceName}) on ${date} at ${time} has been scheduled for you.`;
     }
+  }
 
+  // 5. Handle confirmation & cancellation
+  if (isRtl.value) {
     const confirmRegex = /Your appointment (?:on )?(\S+) at (\S+) has been confirmed\./i;
     const confirmMatch = body.match(confirmRegex);
     if (confirmMatch) {
@@ -226,6 +281,12 @@ const getLocalizedBody = (item: any) => {
     if (body.includes('Your consultation has been marked as completed')) {
       return 'تم اكتمال الكشف الطبي بنجاح.';
     }
+  } else {
+    // English mode doctor name cleanups
+    body = body
+      .replace(/احمد مصطفي/g, 'Ahmed Moustafa')
+      .replace(/محمد عادل/g, 'Mohamed Adel')
+      .replace(/السيد مايله/g, 'Elsayed Maila');
   }
 
   return body;
@@ -444,15 +505,21 @@ onMounted(() => {
 
 .notif-item {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px;
-  border-radius: 18px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 16px;
   background: var(--unity-surface);
   border: 1px solid var(--unity-border);
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.expanded {
+    align-items: flex-start;
+    padding: 13px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  }
 
   &.unread {
     background: var(--unity-primary-light);
@@ -464,13 +531,13 @@ onMounted(() => {
   }
 
   .item-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     flex-shrink: 0;
 
     &.icon-green {
@@ -493,29 +560,50 @@ onMounted(() => {
 
   .item-content {
     flex: 1;
+    min-width: 0;
 
     .item-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 4px;
+      gap: 8px;
+      margin-bottom: 0;
 
       h5 {
-        font-size: 0.9rem;
+        font-size: 0.86rem;
         font-weight: 700;
         color: var(--unity-text-main);
+        margin: 0;
+        line-height: 1.3;
       }
 
-      .item-time {
-        font-size: 0.7rem;
-        color: var(--unity-text-muted);
+      .top-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+
+        .item-time {
+          font-size: 0.68rem;
+          color: var(--unity-text-muted);
+          white-space: nowrap;
+        }
+
+        .expand-chevron {
+          font-size: 0.62rem;
+          color: var(--unity-text-dim);
+          transition: transform 0.2s ease;
+        }
       }
     }
 
-    p {
-      font-size: 0.78rem;
+    .item-body {
+      margin-top: 8px;
+      font-size: 0.76rem;
       color: var(--unity-text-muted);
-      line-height: 1.4;
+      line-height: 1.45;
+      padding-top: 6px;
+      border-top: 1px dashed var(--unity-border);
     }
   }
 
@@ -525,7 +613,30 @@ onMounted(() => {
     border-radius: 50%;
     background: var(--unity-primary);
     flex-shrink: 0;
-    margin-top: 6px;
+    margin-top: 2px;
   }
+}
+
+// Expand/Collapse Transition
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  transform: translateY(-4px);
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 250px;
+  transform: translateY(0);
 }
 </style>

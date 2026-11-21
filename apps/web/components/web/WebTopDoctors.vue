@@ -40,7 +40,7 @@
                 <i class="pi pi-building"></i>
                 <span>{{ getLocalizedName(doc.clinic) }}</span>
               </span>
-              <p class="doctor-bio">{{ doc.bio || t('Consultant and specialist with extensive clinical experience in patient care.') }}</p>
+              <p class="doctor-bio">{{ doc.description || doc.description_ar || t('Consultant and specialist with extensive clinical experience in patient care.') }}</p>
             </div>
           </div>
 
@@ -84,10 +84,10 @@ const avatarErrors = ref(new Set<string | number>());
 const displayDoctors = computed(() => {
   if (doctors.value.length > 0) return doctors.value.slice(0, 4);
   return [
-    { id: 'd1', name: 'د. أحمد محمود الشريف', clinic: { name_ar: 'الباطنة العامة والجهاز الهضمي', name_en: 'Internal Medicine' }, consultation_fee: 400, bio: 'استشاري أمراض الجهاز الهضمي والمناظير - زميل الكلية الملكية للأطباء.' },
-    { id: 'd2', name: 'د. سارة عادل عبد المنعم', clinic: { name_ar: 'طب الأطفال وحديثي الولادة', name_en: 'Pediatrics' }, consultation_fee: 350, bio: 'أخصائية طب الأطفال ومتابعة حديثي الولادة والمبتسرين والتغذية العلاجية.' },
-    { id: 'd3', name: 'د. كريم مصطفى النجار', clinic: { name_ar: 'جراحة العظام والمفاصل', name_en: 'Orthopedics' }, consultation_fee: 450, bio: 'استشاري جراحة العظام وعلاج خشونة المفاصل والطب الرياضي.' },
-    { id: 'd4', name: 'د. رانيا نبيل سليمان', clinic: { name_ar: 'الجلدية والليزر والتجميل', name_en: 'Dermatology' }, consultation_fee: 380, bio: 'أخصائية الأمراض الجلدية والعلاج بالليزر وحقن البلازما والميزوثيرابي.' },
+    { id: 'd1', name: 'د. أحمد محمود الشريف', clinic: { name_ar: 'الباطنة العامة والجهاز الهضمي', name_en: 'Internal Medicine' }, consultation_fee: 400, description: 'استشاري أمراض الجهاز الهضمي والمناظير - زميل الكلية الملكية للأطباء.' },
+    { id: 'd2', name: 'د. سارة عادل عبد المنعم', clinic: { name_ar: 'طب الأطفال وحديثي الولادة', name_en: 'Pediatrics' }, consultation_fee: 350, description: 'أخصائية طب الأطفال ومتابعة حديثي الولادة والمبتسرين والتغذية العلاجية.' },
+    { id: 'd3', name: 'د. كريم مصطفى النجار', clinic: { name_ar: 'جراحة العظام والمفاصل', name_en: 'Orthopedics' }, consultation_fee: 450, description: 'استشاري جراحة العظام وعلاج خشونة المفاصل والطب الرياضي.' },
+    { id: 'd4', name: 'د. رانيا نبيل سليمان', clinic: { name_ar: 'الجلدية والليزر والتجميل', name_en: 'Dermatology' }, consultation_fee: 380, description: 'أخصائية الأمراض الجلدية والعلاج بالليزر وحقن البلازما والميزوثيرابي.' },
   ];
 });
 
@@ -297,7 +297,8 @@ onMounted(() => {
       color: var(--unity-primary);
     }
 
-    .doctor-bio {
+    .doctor-bio,
+    .doctor-description {
       font-size: 0.80rem;
       color: var(--unity-text-muted);
       line-height: 1.5;

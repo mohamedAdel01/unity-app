@@ -13,9 +13,9 @@
           </div>
 
           <div class="options">
-            <!-- Doctor Consultation -->
-            <button class="option" @click="chooseDoctor">
-              <div class="option-icon doctor">
+            <!-- 1. Clinic Doctor Reservation -->
+            <button class="option" @click="chooseClinic">
+              <div class="option-icon clinic">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
                   <path d="M3 3h3"/>
@@ -24,11 +24,11 @@
                   <circle cx="17" cy="16" r="2"/>
                 </svg>
               </div>
-              <span class="option-label">{{ t('Doctor Consultation') }}</span>
+              <span class="option-label">{{ t('Clinic Reservation') }}</span>
               <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>
             </button>
 
-            <!-- Medical Service / Lab -->
+            <!-- 4. Medical Service / Lab -->
             <button class="option" @click="chooseService">
               <div class="option-icon service">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -58,6 +58,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void;
   (e: 'select-doctor'): void;
+  (e: 'select-online'): void;
+  (e: 'select-home'): void;
   (e: 'select-service'): void;
 }>();
 
@@ -72,9 +74,19 @@ const close = () => {
   emit('update:modelValue', false);
 };
 
-const chooseDoctor = () => {
+const chooseClinic = () => {
   close();
   emit('select-doctor');
+};
+
+const chooseOnline = () => {
+  close();
+  emit('select-online');
+};
+
+const chooseHome = () => {
+  close();
+  emit('select-home');
 };
 
 const chooseService = () => {
@@ -207,14 +219,25 @@ const chooseService = () => {
   font-size: 1.2rem;
   flex-shrink: 0;
 
+  &.clinic,
   &.doctor {
     background: var(--unity-primary-light);
     color: var(--unity-primary);
   }
 
+  &.online {
+    background: #e0f2fe;
+    color: #0284c7;
+  }
+
+  &.home {
+    background: #fef3c7;
+    color: #d97706;
+  }
+
   &.service {
-    background: #dbeafe;
-    color: #2563eb;
+    background: #f0fdf4;
+    color: #0f766e;
   }
 }
 

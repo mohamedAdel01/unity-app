@@ -50,9 +50,6 @@
                 <div v-else-if="!isExamination && doctor?.rating" class="doc-badge-rating">
                   <span>⭐ {{ doctor.rating }}</span>
                 </div>
-                <div v-else-if="isExamination" class="doc-badge-rating exam-badge">
-                  <span><AppExamIcon :size="12" /> {{ t('Hospital Examination') }}</span>
-                </div>
                 <div class="doc-header">
                   <div class="doc-avatar-wrap">
                     <div class="doc-avatar" :class="{ 'exam-avatar': isExamination, 'offer-avatar': isOffer }">
@@ -86,15 +83,9 @@
                     <span v-if="!isExamination && !isOffer" class="verified-tick"><i class="pi pi-check"></i></span>
                   </div>
                   <div class="doc-info">
-                    <h4>{{ resolveI18n(isOffer ? (service?.name || appointment?.offer?.title_ar || appointment?.offer?.title) : (isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name || ''))) }}</h4>
-                    <p v-if="isOffer && (service?.description || appointment?.offer?.description)" class="doc-spec">
-                      {{ resolveI18n(service?.description || appointment?.offer?.description) }}
-                    </p>
-                    <p v-else-if="isExamination && (service?.description || examination?.description)" class="doc-spec">
-                      {{ resolveI18n(service?.description || examination?.description) }}
-                    </p>
-                    <p v-else-if="doctor?.clinic?.name_ar || doctor?.clinic?.name_en || doctor?.clinic?.name" class="doc-spec">
-                      {{ resolveI18n(doctor?.clinic?.name_ar || doctor?.clinic?.name_en || doctor?.clinic?.name) }}
+                    <h4>{{ bookingItemName }}</h4>
+                    <p v-if="bookingItemDescription" class="doc-spec">
+                      {{ bookingItemDescription }}
                     </p>
                   </div>
                 </div>
@@ -114,6 +105,28 @@
                       <strong class="meta-val">{{ subtotalFee }} {{ t('EGP') }}</strong>
                     </div>
                   </div>
+                </div>
+
+                <!-- Online Consultation Mode Selector (if enabled for doctor) -->
+                <div v-if="!isExamination && hasOnlineConsultation" class="consultation-mode-toggle">
+                  <button 
+                    type="button" 
+                    class="mode-btn" 
+                    :class="{ active: selectedConsultationMode === 'clinic' }"
+                    @click="selectedConsultationMode = 'clinic'"
+                  >
+                    <i class="pi pi-building"></i>
+                    <span>{{ t('In-Clinic Visit') }}</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    class="mode-btn" 
+                    :class="{ active: selectedConsultationMode === 'online' }"
+                    @click="selectedConsultationMode = 'online'"
+                  >
+                    <i class="pi pi-video"></i>
+                    <span>{{ t('Google Meet Online') }}</span>
+                  </button>
                 </div>
               </div>
 
@@ -255,7 +268,7 @@
                     </template>
                   </div>
                   <div class="rev-details">
-                    <h4>{{ isExamination ? (service?.name || examination?.name) : (doctor?.name || service?.name) }}</h4>
+                    <h4>{{ bookingItemName }}</h4>
                     <p class="rev-clinic">
                       <i :class="isExamination ? 'pi pi-clock' : 'pi pi-building'"></i> 
                       {{ isExamination ? ((service?.duration || examination?.duration || 15) + ' ' + t('mins')) : doctorClinicType }}
@@ -445,7 +458,7 @@
                         <i v-else class="pi pi-user"></i> 
                         {{ isOffer ? t('Special Offer') : (isExamination ? t('Examination / Service') : t('Doctor')) }}
                       </span>
-                      <strong class="val">{{ isOffer ? (service?.name || appointment?.offer?.title_ar || appointment?.offer?.title) : (isExamination ? (service?.name || examination?.name || confirmedAppointment?.examination?.name) : (doctor?.name || confirmedAppointment?.doctor?.name)) }}</strong>
+                      <strong class="val">{{ bookingItemName }}</strong>
                     </div>
 
                     <div class="ticket-row">
@@ -582,6 +595,7 @@ const props = defineProps<{
   selectedDate?: string;
   selectedSlot?: any;
   initialType?: 'consultation' | 'follow_up';
+  consultationType?: 'clinic' | 'online' | 'home';
 }>();
 
 const emit = defineEmits<{
@@ -613,6 +627,7 @@ const canBookFollowUp = ref(false);
 const checkingEligibility = ref(false);
 
 const selectedMethod = ref<'paymob' | 'cash'>('cash');
+const selectedConsultationMode = ref<'clinic' | 'online'>('clinic');
 
 const confirmedAppointment = ref<any>(null);
 
@@ -651,12 +666,17 @@ const submitting = computed(() => {
 const resolveOfferImageUrl = (url?: string) => {
   if (!url || typeof url !== 'string') return '';
   const trimmed = url.trim();
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
+  if (trimmed.startsWith('data:image/')) return trimmed;
+  const config = useRuntimeConfig();
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
   }
-  const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${trimmed}`;
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
 };
 
 const cleanDoctorAvatar = computed(() => {
@@ -690,6 +710,68 @@ const isExamination = computed(() => {
   return props.initialType === 'examination' || Boolean(props.service || props.examination);
 });
 
+const bookingItemName = computed(() => {
+  if (isOffer.value) {
+    const o = props.service || props.appointment?.offer;
+    if (!o) return '';
+    if (isRtl.value) {
+      const ar = o.title_ar || o.name_ar || (o.title && t(o.title) !== o.title ? t(o.title) : '') || (o.name && t(o.name) !== o.name ? t(o.name) : '') || o.title || o.name;
+      return ar || o.title_en || o.name_en || '';
+    }
+    return o.title_en || o.name_en || o.title || o.name || o.title_ar || o.name_ar || '';
+  }
+  if (isExamination.value) {
+    const e = props.service || props.examination || props.appointment?.examination;
+    if (!e) return '';
+    if (isRtl.value) {
+      const ar = e.name_ar || (e.name && t(e.name) !== e.name ? t(e.name) : '') || e.name || e.name_en;
+      return ar || '';
+    }
+    return e.name_en || e.name || e.name_ar || '';
+  }
+  const d = detailedDoctor.value || props.doctor || props.service || props.appointment?.doctor;
+  if (!d) return '';
+  if (isRtl.value) {
+    return d.name_ar || d.name || d.user?.name || d.name_en || '';
+  }
+  return d.name_en || d.name || d.user?.name || d.name_ar || '';
+});
+
+const bookingItemDescription = computed(() => {
+  if (isOffer.value) {
+    const o = props.service || props.appointment?.offer;
+    if (!o) return '';
+    if (isRtl.value) {
+      const ar = o.description_ar || o.desc_ar || (o.description && t(o.description) !== o.description ? t(o.description) : '') || o.description || o.description_en;
+      return ar || '';
+    }
+    return o.description_en || o.desc_en || o.description || o.description_ar || '';
+  }
+  if (isExamination.value) {
+    const e = props.service || props.examination || props.appointment?.examination;
+    if (!e) return '';
+    if (isRtl.value) {
+      const ar = e.description_ar || e.desc_ar || (e.description && t(e.description) !== e.description ? t(e.description) : '') || e.description || e.description_en;
+      return ar || '';
+    }
+    return e.description_en || e.desc_en || e.description || e.description_ar || '';
+  }
+  const c = props.doctor?.clinic || detailedDoctor.value?.clinic || props.appointment?.doctor?.clinic;
+  if (c) {
+    if (isRtl.value) {
+      return c.name_ar || c.name || c.name_en || '';
+    }
+    return c.name_en || c.name || c.name_ar || '';
+  }
+  const d = detailedDoctor.value || props.doctor || props.appointment?.doctor;
+  if (d) {
+    return isRtl.value
+      ? (d.description_ar || d.description || '')
+      : (d.description_en || d.description || '');
+  }
+  return '';
+});
+
 const isRescheduling = computed(() => {
   return Boolean(props.appointment?.id);
 });
@@ -709,9 +791,16 @@ const appointmentDateFormatted = computed(() => {
   return d.toLocaleDateString(isRtl.value ? 'ar-EG' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' });
 });
 
+const hasOnlineConsultation = computed(() => {
+  if (props.consultationType === 'online' || selectedConsultationMode.value === 'online') return true;
+  const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
+  return Boolean(doc?.online_consultation_status || doc?.doctor?.online_consultation_status);
+});
+
 const feeLabel = computed(() => {
   if (isOffer.value) return t('Special Offer Price');
   if (isExamination.value || props.service?.price) return t('Medical Examination Fee');
+  if (selectedConsultationMode.value === 'online') return t('Google Meet Consultation');
   return t('Consultation Fee');
 });
 
@@ -721,6 +810,12 @@ const subtotalFee = computed(() => {
   const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
   const apt = props.appointment;
   if (doc) {
+    if (selectedConsultationMode.value === 'online') {
+      const onlineFee = doc.online_consultation_fee ?? doc.doctor?.online_consultation_fee;
+      if (onlineFee !== undefined && onlineFee !== null && !isNaN(Number(onlineFee)) && Number(onlineFee) > 0) {
+        return Number(onlineFee);
+      }
+    }
     const fee = doc.consultation_fee ?? doc.doctor?.consultation_fee ?? apt?.doctor?.doctor?.consultation_fee;
     if (fee !== undefined && fee !== null && !isNaN(Number(fee))) {
       return Number(fee);
@@ -1173,12 +1268,13 @@ const submitBooking = async () => {
       start_time: to24Hour(slot.start_time),
       end_time: slot.end_time ? to24Hour(slot.end_time) : to24Hour(slot.start_time),
       type: isExamination.value ? 'consultation' : selectedType.value,
+      consultation_type: (!isExamination.value && !isOffer.value && hasOnlineConsultation.value) ? selectedConsultationMode.value : 'clinic',
       payment_method: selectedMethod.value === 'cash' ? 'cash' : 'paymob',
       promocode: promoApplied.value ? appliedPromoCode.value : undefined,
       discount: promoDiscount.value,
       notes: isOffer 
-        ? `حجز عرض طبي: ${props.service?.name}` 
-        : (isExamination.value ? `حجز فحص طبي: ${props.service?.name || props.examination?.name}` : 'حجز كشف طبي'),
+        ? `حجز عرض طبي: ${bookingItemName.value}` 
+        : (isExamination.value ? `حجز خدمة طبية: ${bookingItemName.value}` : (selectedConsultationMode.value === 'online' ? 'استشارة طبية أونلاين عبر Google Meet' : 'حجز كشف طبي')),
     };
 
     let appointmentRes: any = null;
@@ -1294,6 +1390,7 @@ watch(
       currentStep.value = 1;
       confirmedAppointment.value = null;
       selectedType.value = props.initialType || props.appointment?.type || 'consultation';
+      selectedConsultationMode.value = props.consultationType === 'online' ? 'online' : 'clinic';
       selectedMethod.value = 'cash';
       removePromo();
       showPaymobModal.value = false;
@@ -1710,6 +1807,49 @@ onUnmounted(() => {
           color: var(--unity-text-main);
           font-weight: 700;
         }
+      }
+    }
+  }
+
+  .consultation-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--unity-border);
+
+    .mode-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--unity-border);
+      background: var(--unity-surface);
+      color: var(--unity-text-muted);
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 0.88rem;
+      }
+
+      &:hover {
+        border-color: var(--unity-primary);
+        color: var(--unity-primary);
+      }
+
+      &.active {
+        border-color: var(--unity-primary);
+        background: rgba(4, 120, 87, 0.08);
+        color: var(--unity-primary);
+        font-weight: 700;
       }
     }
   }

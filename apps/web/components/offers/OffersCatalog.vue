@@ -114,13 +114,19 @@ let debounceTimer: any = null;
 
 // 4. Methods (functions, handlers)
 const resolveImageUrl = (url?: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/')) {
-    return url;
-  }
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:image/')) return trimmed;
   const config = useRuntimeConfig();
-  const baseUrl = config.public?.apiUrl || 'http://localhost:4000';
-  return `${baseUrl}${url}`;
+  const baseUrl = (config.public?.apiUrl || 'http://localhost:4000').replace(/\/+$/, '');
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
 };
 
 const getOfferTitle = (o: any) => {
@@ -138,7 +144,6 @@ const getOfferDesc = (o: any) => {
 };
 
 const getDiscountPercent = (o: any) => {
-  if (o.discount_percentage) return o.discount_percentage;
   if (o.original_price && Number(o.original_price) > Number(o.price)) {
     return Math.round(((Number(o.original_price) - Number(o.price)) / Number(o.original_price)) * 100);
   }

@@ -43,7 +43,11 @@
           <div class="appointment-item-card">
             <!-- Top Floating Badges Bar (Half in, half out of card) -->
             <div class="card-floating-badges-bar">
-              <span v-if="isOfferAppointment(apt)" class="floating-badge pill-offer">
+              <span v-if="apt.consultation_type === 'online' || apt.meeting_link" class="floating-badge pill-online">
+                <i class="pi pi-video"></i>
+                <span>{{ t('Online Video') }}</span>
+              </span>
+              <span v-else-if="isOfferAppointment(apt)" class="floating-badge pill-offer">
                 <i class="pi pi-tag"></i>
                 <span>{{ t('Special Offer') }}</span>
               </span>
@@ -99,6 +103,19 @@
             <i class="pi pi-clock"></i>
             <span>{{ formatSlotRange(apt.start_time, apt.end_time) }}</span>
           </div>
+        </div>
+
+        <!-- Google Meet Video Consultation Action Button -->
+        <div v-if="apt.meeting_link" class="meet-action-strip">
+          <a 
+            :href="apt.meeting_link" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="btn-join-meet"
+          >
+            <i class="pi pi-video"></i>
+            <span>{{ t('Join Google Meet') }}</span>
+          </a>
         </div>
 
         <!-- Actions -->
@@ -333,7 +350,7 @@ const isOfferAppointment = (apt: any) => {
 
 const isExaminationAppointment = (apt: any) => {
   if (isOfferAppointment(apt)) return false;
-  return Boolean(apt.examination || apt.examination_id || apt.notes?.includes('فحص'));
+  return Boolean(apt.examination || apt.examination_id || apt.notes?.includes('فحص') || apt.notes?.includes('خدمة'));
 };
 
 const getAppointmentTitle = (apt: any) => {
@@ -520,12 +537,12 @@ onMounted(() => {
 .status-tabs-nav {
   display: flex;
   align-items: center;
-  background: var(--unity-surface);
-  border: 1.5px solid var(--unity-border);
-  border-radius: 18px;
-  padding: 5px;
-  gap: 6px;
-  margin-bottom: 16px;
+  background: var(--unity-surface-muted, #f1f5f9);
+  border: 1px solid var(--unity-border);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 4px;
+  margin-bottom: 12px;
   overflow-x: auto;
   white-space: nowrap;
   scrollbar-width: none;
@@ -541,13 +558,13 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    height: 34px;
-    padding: 0 14px;
-    border-radius: 9999px;
-    border: 1px solid var(--unity-border);
-    background: var(--unity-surface);
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
     color: var(--unity-text-muted);
-    font-size: 0.80rem;
+    font-size: 0.76rem;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
@@ -557,7 +574,7 @@ onMounted(() => {
       background: transparent;
       color: inherit;
       border: none;
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       font-weight: 500;
       opacity: 0.8;
       padding: 0;
@@ -565,18 +582,17 @@ onMounted(() => {
 
     &:hover:not(.active) {
       color: var(--unity-primary);
-      border-color: var(--unity-primary);
     }
 
     &.active {
-      background: var(--unity-primary-light, #ecfdf5);
+      background: var(--unity-surface, #ffffff);
       color: var(--unity-primary);
-      border: 1.5px solid var(--unity-primary);
-      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.12);
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
       .count-pill {
         color: var(--unity-primary);
-        opacity: 0.9;
+        opacity: 1;
       }
     }
   }
@@ -1024,5 +1040,42 @@ onMounted(() => {
       }
     }
   }
+}
+
+.meet-action-strip {
+  margin-top: 10px;
+  width: 100%;
+
+  .btn-join-meet {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+
+    &:hover {
+      background: #0369a1;
+      transform: translateY(-1px);
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+.pill-online {
+  background: #f0fdf4 !important;
+  color: #15803d !important;
+  border-color: #bbf7d0 !important;
 }
 </style>

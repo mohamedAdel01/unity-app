@@ -118,6 +118,19 @@
         </div>
       </div>
 
+      <!-- Google Meet Consultation Link for Doctor & Admin -->
+      <div v-if="booking.meeting_link" class="meet-admin-strip">
+        <a 
+          :href="booking.meeting_link" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="btn-join-meet-admin"
+        >
+          <i class="pi pi-video"></i>
+          <span>{{ t('Join Google Meet') }}</span>
+        </a>
+      </div>
+
       <!-- Finance & Payment Bar -->
       <div class="finance-bar">
         <div 
@@ -844,6 +857,37 @@ onUnmounted(() => {
           font-weight: 700;
           color: #64748b;
         }
+      }
+    }
+  }
+
+  .meet-admin-strip {
+    margin-top: 10px;
+    width: 100%;
+
+    .btn-join-meet-admin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 14px;
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+
+      &:hover {
+        background: #0369a1;
+        transform: translateY(-1px);
+      }
+
+      i {
+        font-size: 1rem;
       }
     }
   }

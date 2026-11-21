@@ -105,6 +105,21 @@
           </div>
         </div>
 
+        <!-- Doctor Account Details (Phone Number) -->
+        <div class="form-group">
+          <label>{{ t('Phone Number') }}</label>
+          <div class="input-shell">
+            <i class="pi pi-phone"></i>
+            <input 
+              v-model="form.phone" 
+              type="tel" 
+              :placeholder="t('e.g. 01012345678')" 
+              dir="ltr"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
         <!-- Clinic Custom Dropdown (100% inside modal, never overflows screen) -->
         <div class="form-group">
           <label>{{ t('Clinic') }} <span class="required">*</span></label>
@@ -125,7 +140,11 @@
 
             <!-- Dropdown Options List -->
             <transition name="dropdown-fade">
-              <div v-if="isClinicDropdownOpen" class="dropdown-menu-list">
+              <div 
+                v-if="isClinicDropdownOpen" 
+                class="dropdown-menu-list"
+                :class="isRtl ? 'dropdown-rtl' : 'dropdown-ltr'"
+              >
                 <div 
                   v-for="clinic in clinics" 
                   :key="clinic.id" 
@@ -214,7 +233,7 @@
             rows="2"
             dir="ltr"
             class="textarea-shell"
-            :placeholder="t('Write doctor description, qualifications, and clinical experience in English...')"
+            placeholder="Write doctor description, qualifications, and clinical experience in English..."
           ></textarea>
         </div>
 
@@ -222,9 +241,6 @@
 
         <!-- Modal Actions -->
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" @click="close">
-            {{ t('Cancel') }}
-          </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ props.doctor?.id ? t('Save Changes') : t('Register Doctor') }}</span>
@@ -244,21 +260,26 @@ import { useUnityApi } from '../../composables/useUnityApi';
 import { useAppToast } from '../../composables/useAppToast';
 import { useModalState } from '../../composables/useModalState';
 import { useGlobalStore } from '../../stores/global';
+import { compressImageFile } from '@shared/utils/image';
 
 interface Doctor {
   id?: string | number;
   name?: string;
   name_ar?: string;
   name_en?: string;
+  phone?: string;
   user?: any;
   clinic?: any;
   clinic_id?: string | number;
-  status?: string;
+  status?: boolean;
   is_active?: boolean;
   consultation_fee?: number | string | null;
   follow_up_fee?: number | string | null;
+  home_consultation_fee?: number | string | null;
+  home_consultation_status?: boolean;
+  online_consultation_fee?: number | string | null;
+  online_consultation_status?: boolean;
   slot_duration?: number | string | null;
-  bio?: string | null;
 }
 
 const props = withDefaults(
@@ -293,23 +314,25 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 const form = ref<{
   name_ar: string;
   name_en: string;
+  phone: string;
+  password: string;
   avatar: string;
   clinic_id: string | number;
   consultation_fee: number | string;
   follow_up_fee: number | string;
   slot_duration: number | string;
-  bio: string;
   description_ar: string;
   description_en: string;
 }>({
   name_ar: '',
   name_en: '',
+  phone: '',
+  password: '',
   avatar: '',
   clinic_id: '',
   consultation_fee: '',
   follow_up_fee: '',
   slot_duration: '',
-  bio: '',
   description_ar: '',
   description_en: '',
 });
@@ -338,21 +361,22 @@ const triggerFileInput = () => {
   fileInputRef.value?.click();
 };
 
-const handleFileChange = (e: Event) => {
+const handleFileChange = async (e: Event) => {
   const target = e.target as HTMLInputElement;
   const file = target.files?.[0];
   if (!file) return;
 
-  if (file.size > 5 * 1024 * 1024) {
-    toast.error(t('Image size exceeds 5MB'));
+  if (file.size > 15 * 1024 * 1024) {
+    toast.error(t('Image size exceeds 15MB'));
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = (uploadEvent) => {
-    form.value.avatar = (uploadEvent.target?.result as string) || '';
-  };
-  reader.readAsDataURL(file);
+  try {
+    const compressed = await compressImageFile(file, 480, 0.82);
+    form.value.avatar = compressed;
+  } catch {
+    toast.error(t('Failed to process image'));
+  }
 };
 
 const removeAvatar = () => {
@@ -382,12 +406,13 @@ const close = () => {
   form.value = {
     name_ar: '',
     name_en: '',
+    phone: '',
+    password: '',
     avatar: '',
     clinic_id: '',
     consultation_fee: '',
     follow_up_fee: '',
     slot_duration: '',
-    bio: '',
     description_ar: '',
     description_en: '',
   };
@@ -446,11 +471,10 @@ const handleSubmit = async () => {
     const numSlotDuration = form.value.slot_duration !== '' && form.value.slot_duration !== null ? Number(form.value.slot_duration) : 15;
     const cleanDescAr = form.value.description_ar?.trim() || '';
     const cleanDescEn = form.value.description_en?.trim() || '';
-    const cleanBio = cleanDescAr || cleanDescEn ? (cleanDescAr || cleanDescEn) : (form.value.bio?.trim() || null);
     const arName = form.value.name_ar.trim();
     const enName = form.value.name_en.trim();
 
-    const payload = {
+    const payload: any = {
       name_ar: arName,
       name_en: enName || null,
       avatar: form.value.avatar || null,
@@ -458,10 +482,16 @@ const handleSubmit = async () => {
       consultation_fee: numConsultation,
       follow_up_fee: numFollowUp,
       slot_duration: numSlotDuration,
-      bio: cleanBio,
       description_ar: cleanDescAr || null,
       description_en: cleanDescEn || null,
     };
+
+    if (form.value.phone?.trim()) {
+      payload.phone = form.value.phone.trim();
+    }
+    if (!props.doctor?.id) {
+      payload.password = '123456';
+    }
 
     const res = await api.apiRequest({
       service: props.doctor?.id ? 'ADMIN_UPDATE_DOCTOR' : 'ADMIN_CREATE_DOCTOR',
@@ -471,18 +501,21 @@ const handleSubmit = async () => {
     if (res?.status || res?.data) {
       const resultData = res?.data || {};
       const doctorItem = {
-        ...(props.doctor?.id ? props.doctor : { status: 'active', is_active: true, schedules: [] }),
+        ...(props.doctor?.id ? props.doctor : { status: true, is_active: true, schedules: [] }),
         ...resultData,
         name_ar: arName,
         name_en: enName,
         name: isRtl.value ? arName : enName,
+        phone: form.value.phone?.trim() || resultData.phone || resultData.user?.phone || null,
+        user: resultData.user || null,
         avatar: resultData.avatar || form.value.avatar || null,
         clinic: matchedClinic || resultData.clinic,
         clinic_id: form.value.clinic_id,
         consultation_fee: numConsultation,
         follow_up_fee: numFollowUp,
         slot_duration: numSlotDuration,
-        bio: cleanBio,
+        description_ar: cleanDescAr,
+        description_en: cleanDescEn,
       };
 
       emit(props.doctor?.id ? 'updated' : 'created', doctorItem);
@@ -512,45 +545,30 @@ watch(
   () => props.doctor,
   (val) => {
     if (val) {
-      let dAr = val.description_ar || val.bio_ar || '';
-      let dEn = val.description_en || val.bio_en || '';
-      if (!dAr && !dEn && val.bio) {
-        const raw = String(val.bio).trim();
-        if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
-          try {
-            const p = JSON.parse(raw);
-            dAr = p.ar || '';
-            dEn = p.en || '';
-          } catch (_) {
-            dAr = raw;
-          }
-        } else {
-          dAr = raw;
-        }
-      }
-
       form.value = {
         name_ar: val.name_ar || val.name || '',
         name_en: val.name_en || '',
+        phone: val.user?.phone || val.phone || '',
+        password: '',
         avatar: val.avatar || '',
         clinic_id: val.clinic?.id || val.clinic_id || '',
         consultation_fee: val.consultation_fee !== undefined && val.consultation_fee !== null ? Number(val.consultation_fee) : '',
         follow_up_fee: val.follow_up_fee !== undefined && val.follow_up_fee !== null ? Number(val.follow_up_fee) : '',
         slot_duration: val.slot_duration !== undefined && val.slot_duration !== null ? Number(val.slot_duration) : '',
-        bio: val.bio || '',
-        description_ar: dAr,
-        description_en: dEn,
+        description_ar: val.description_ar || '',
+        description_en: val.description_en || '',
       };
     } else {
       form.value = {
         name_ar: '',
         name_en: '',
+        phone: '',
+        password: '',
         avatar: '',
         clinic_id: clinics.value[0]?.id || '',
         consultation_fee: '',
         follow_up_fee: '',
         slot_duration: '',
-        bio: '',
         description_ar: '',
         description_en: '',
       };
@@ -579,23 +597,6 @@ watch(
 
       // 3. Populate Form
       if (props.doctor) {
-        let dAr = props.doctor.description_ar || props.doctor.bio_ar || '';
-        let dEn = props.doctor.description_en || props.doctor.bio_en || '';
-        if (!dAr && !dEn && props.doctor.bio) {
-          const raw = String(props.doctor.bio).trim();
-          if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
-            try {
-              const p = JSON.parse(raw);
-              dAr = p.ar || '';
-              dEn = p.en || '';
-            } catch (_) {
-              dAr = raw;
-            }
-          } else {
-            dAr = raw;
-          }
-        }
-
         form.value = {
           name_ar: props.doctor.name_ar || props.doctor.name || '',
           name_en: props.doctor.name_en || '',
@@ -604,9 +605,8 @@ watch(
           consultation_fee: props.doctor.consultation_fee !== undefined && props.doctor.consultation_fee !== null ? Number(props.doctor.consultation_fee) : '',
           follow_up_fee: props.doctor.follow_up_fee !== undefined && props.doctor.follow_up_fee !== null ? Number(props.doctor.follow_up_fee) : '',
           slot_duration: props.doctor.slot_duration !== undefined && props.doctor.slot_duration !== null ? Number(props.doctor.slot_duration) : '',
-          bio: props.doctor.bio || '',
-          description_ar: dAr,
-          description_en: dEn,
+          description_ar: props.doctor.description_ar || '',
+          description_en: props.doctor.description_en || '',
         };
       } else {
         const defaultClinicId = (props.clinics && props.clinics[0]?.id) || clinics.value[0]?.id || '';
@@ -618,7 +618,6 @@ watch(
           consultation_fee: '',
           follow_up_fee: '',
           slot_duration: '',
-          bio: '',
           description_ar: '',
           description_en: '',
         };
@@ -1019,7 +1018,8 @@ onUnmounted(() => {
         .dropdown-menu-list {
           position: absolute;
           top: calc(100% + 6px);
-          inset-inline-start: 0;
+          left: 0;
+          right: 0;
           width: 100%;
           max-height: 190px;
           overflow-y: auto;
@@ -1030,6 +1030,16 @@ onUnmounted(() => {
           z-index: 50;
           padding: 6px;
           box-sizing: border-box;
+
+          &.dropdown-rtl {
+            direction: rtl;
+            text-align: right;
+          }
+
+          &.dropdown-ltr {
+            direction: ltr;
+            text-align: left;
+          }
 
           .dropdown-option-item {
             display: flex;
@@ -1121,20 +1131,9 @@ onUnmounted(() => {
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .btn-cancel {
-      flex: 1;
-      background: var(--unity-bg);
-      border: 1.5px solid var(--unity-border);
-      color: var(--unity-text-muted);
-
-      &:hover {
-        background: var(--unity-border);
-        color: var(--unity-text-main);
-      }
-    }
-
     .btn-submit {
-      flex: 2;
+      flex: 1;
+      width: 100%;
       background: var(--unity-primary);
       color: #fff;
       box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);

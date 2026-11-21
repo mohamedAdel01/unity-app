@@ -1,5 +1,9 @@
 <template>
-  <div class="admin-doctor-card">
+  <div 
+    class="admin-doctor-card" 
+    :dir="isRtl ? 'rtl' : 'ltr'" 
+    :class="[isRtl ? 'card-rtl' : 'card-ltr', { 'is-inactive': !isDoctorActive }]"
+  >
     <!-- 1. Doctor Profile Header -->
     <div class="doctor-profile-row">
       <!-- Right Side: Doctor Avatar + Status Dot + Titles -->
@@ -19,13 +23,17 @@
         </div>
 
         <!-- Details -->
-        <div class="doctor-details">
+        <div class="doctor-details" :class="isRtl ? 'details-rtl' : 'details-ltr'">
           <div class="name-status-line">
             <h4 class="doctor-name">{{ doctorDisplayName }}</h4>
             <span class="inline-status-dot" :class="isDoctorActive ? 'online' : 'offline'"></span>
           </div>
           <p class="clinic-line">
             <span>{{ doctorDisplayClinic }}</span>
+            <template v-if="doctorPhone">
+              <span class="dot-separator">•</span>
+              <span class="doctor-phone-tag"><i class="pi pi-phone"></i> {{ doctorPhone }}</span>
+            </template>
             <template v-if="doctorRoom">
               <span class="dot-separator">•</span>
               <span>{{ t('Clinic Room') }} {{ doctorRoom }}</span>
@@ -65,7 +73,12 @@
 
           <!-- Dropdown Menu -->
           <transition name="dropdown-anim">
-            <div v-if="isGearMenuOpen" class="gear-dropdown-menu" @click.stop>
+            <div 
+              v-if="isGearMenuOpen" 
+              class="gear-dropdown-menu" 
+              :class="isRtl ? 'dropdown-rtl' : 'dropdown-ltr'" 
+              @click.stop
+            >
               <!-- 1. Doctor Bookings / Cases -->
               <button 
                 type="button" 
@@ -152,7 +165,8 @@ const isGearMenuOpen = ref(false);
 
 // 3. Computed (computed properties)
 const isDoctorActive = computed(() => {
-  return Boolean(props.doctor?.is_active ?? (props.doctor?.status === 'active'));
+  if (props.doctor?.status !== undefined) return Boolean(props.doctor.status);
+  return Boolean(props.doctor?.is_active ?? true);
 });
 
 const doctorDisplayName = computed(() => {
@@ -190,48 +204,23 @@ const doctorDisplayDescription = computed(() => {
   if (!isAr && d.description_en && typeof d.description_en === 'string' && d.description_en.trim()) {
     return d.description_en.trim();
   }
-  if (isAr && d.bio_ar && typeof d.bio_ar === 'string' && d.bio_ar.trim()) {
-    return d.bio_ar.trim();
-  }
-  if (!isAr && d.bio_en && typeof d.bio_en === 'string' && d.bio_en.trim()) {
-    return d.bio_en.trim();
-  }
 
   // 2. Generic description field
   if (d.description && typeof d.description === 'string' && d.description.trim()) {
-    const raw = d.description.trim();
-    if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
-      try {
-        const p = JSON.parse(raw);
-        const resolved = isAr ? (p.ar || p.en || '') : (p.en || p.ar || '');
-        if (resolved) return resolved.trim();
-      } catch (_) {}
-    }
-    return raw;
+    return d.description.trim();
   }
 
-  // 3. Fallback from bio field
-  if (d.bio && typeof d.bio === 'string' && d.bio.trim()) {
-    const raw = d.bio.trim();
-    if (raw.startsWith('{') && raw.endsWith('}') && (raw.includes('"ar"') || raw.includes('"en"'))) {
-      try {
-        const p = JSON.parse(raw);
-        const resolved = isAr ? (p.ar || p.en || '') : (p.en || p.ar || '');
-        if (resolved) return resolved.trim();
-      } catch (_) {}
-    }
-    return raw;
-  }
-
-  // 4. Cross-language fallback if one language was omitted
-  const fallback = isAr
-    ? (d.description_en || d.bio_en || '')
-    : (d.description_ar || d.bio_ar || '');
+  // 3. Cross-language fallback if one language was omitted
+  const fallback = isAr ? (d.description_en || '') : (d.description_ar || '');
   return typeof fallback === 'string' ? fallback.trim() : '';
 });
 
 const doctorRoom = computed(() => {
   return props.doctor?.room || props.doctor?.room_number || '';
+});
+
+const doctorPhone = computed(() => {
+  return props.doctor?.user?.phone || props.doctor?.phone || '';
 });
 
 const scheduleTime = computed(() => {
@@ -314,12 +303,48 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 12px;
   direction: inherit;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &[dir='ltr'] {
-    direction: ltr;
+  &.is-inactive {
+    opacity: 0.72;
+
+    &:hover {
+      border-color: var(--unity-border);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+  }
+
+  &[dir='ltr'],
+  &.card-ltr {
+    direction: ltr !important;
 
     .doctor-profile-row .doctor-identity-cell .doctor-details {
-      text-align: left;
+      text-align: left !important;
+      align-items: flex-start !important;
+
+      .doctor-description-line {
+        text-align: left !important;
+        direction: ltr !important;
+        align-self: flex-start !important;
+        width: 100%;
+      }
+    }
+  }
+
+  &[dir='rtl'],
+  &.card-rtl {
+    direction: rtl !important;
+
+    .doctor-profile-row .doctor-identity-cell .doctor-details {
+      text-align: right !important;
+      align-items: flex-start !important;
+
+      .doctor-description-line {
+        text-align: right !important;
+        direction: rtl !important;
+        align-self: flex-start !important;
+        width: 100%;
+      }
     }
   }
 
@@ -386,9 +411,27 @@ onUnmounted(() => {
       .doctor-details {
         display: flex;
         flex-direction: column;
-        text-align: right;
+        text-align: start;
         min-width: 0;
         flex: 1;
+
+        &.details-ltr {
+          text-align: left !important;
+
+          .doctor-description-line {
+            text-align: left !important;
+            direction: ltr !important;
+          }
+        }
+
+        &.details-rtl {
+          text-align: right !important;
+
+          .doctor-description-line {
+            text-align: right !important;
+            direction: rtl !important;
+          }
+        }
 
         .name-status-line {
           display: flex;
@@ -427,6 +470,18 @@ onUnmounted(() => {
           .dot-separator {
             opacity: 0.5;
           }
+
+          .doctor-phone-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--unity-primary, #047857);
+            font-weight: 600;
+
+            i {
+              font-size: 0.68rem;
+            }
+          }
         }
 
         .doctor-description-line {
@@ -439,6 +494,8 @@ onUnmounted(() => {
           -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
+          text-align: left;
+          unicode-bidi: plaintext;
         }
       }
     }
@@ -547,7 +604,6 @@ onUnmounted(() => {
   .gear-dropdown-menu {
     position: absolute;
     top: calc(100% + 8px);
-    left: 0;
     min-width: 220px;
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(16px);
@@ -563,10 +619,30 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 3px;
 
-    :global([dir='ltr']) &,
-    :global(html[dir='ltr']) & {
-      left: auto;
-      right: 0;
+    // RTL mode (Arabic): button is on the left, so dropdown opens inward to the right
+    &.dropdown-rtl {
+      left: 0 !important;
+      right: auto !important;
+      direction: rtl !important;
+      text-align: right !important;
+      transform-origin: top left;
+
+      .dropdown-menu-item {
+        text-align: right !important;
+      }
+    }
+
+    // LTR mode (English): button is on the right, so dropdown opens inward to the left
+    &.dropdown-ltr {
+      right: 0 !important;
+      left: auto !important;
+      direction: ltr !important;
+      text-align: left !important;
+      transform-origin: top right;
+
+      .dropdown-menu-item {
+        text-align: left !important;
+      }
     }
 
     .dropdown-menu-item {
@@ -580,13 +656,8 @@ onUnmounted(() => {
       color: var(--unity-text-main, #0f172a);
       cursor: pointer;
       width: 100%;
-      text-align: right;
+      text-align: inherit;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-      :global([dir='ltr']) &,
-      :global(html[dir='ltr']) & {
-        text-align: left;
-      }
 
       .item-icon-pill {
         width: 34px;
