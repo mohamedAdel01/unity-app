@@ -556,6 +556,7 @@ const saveExamination = async () => {
     const payload = {
       name_ar: arName,
       name_en: enName || null,
+      examination_category_id: catId,
       category_id: catId,
       price: numPrice,
       duration: numDuration,
@@ -634,7 +635,7 @@ watch(
       form.value = {
         name_ar: loc.name_ar,
         name_en: loc.name_en,
-        category_id: (val as any).category_id || (val as any).category?.id || '',
+        category_id: (val as any).examination_category_id || (val as any).category_id || (val as any).examination_category?.id || (val as any).category?.id || '',
         price: val.price !== undefined && val.price !== null ? Number(val.price) : '',
         duration: val.duration !== undefined && val.duration !== null ? Number(val.duration) : 15,
         description_ar: loc.desc_ar,

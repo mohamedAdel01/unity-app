@@ -111,7 +111,7 @@ const handleSubmit = async () => {
       router.push(target);
     }
   } catch (err: any) {
-    toast.error(err.message || 'فشل تسجيل الدخول');
+    toast.error(err.message ? t(err.message) : t('Login failed'));
   }
 };
 

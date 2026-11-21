@@ -108,7 +108,7 @@ const displayDescription = computed(() => {
 });
 
 const categoryName = computed(() => {
-  const cat = (props.examination as any)?.category;
+  const cat = (props.examination as any)?.examination_category || (props.examination as any)?.category;
   if (!cat) return '';
   if (isRtl.value) {
     if (cat.name_ar && cat.name_ar.trim()) return cat.name_ar.trim();

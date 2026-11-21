@@ -1,5 +1,7 @@
 import services from '@/services';
 import { resolveI18nText } from '@/composables/useI18n';
+import { useGlobalStore } from '@/stores/global';
+import { useAuthStore } from '@/stores/auth';
 
 function sanitizeLocalizedData(obj: any): any {
   if (obj === null || obj === undefined) return obj;
@@ -33,12 +35,9 @@ function sanitizeLocalizedData(obj: any): any {
   return obj;
 }
 
-const storeMap: Record<string, () => Promise<any>> = {
-  global: () => import('@/stores/global').then((m) => m.useGlobalStore),
-  auth: () => import('@/stores/auth').then((m) => m.useAuthStore),
-  // advertisement: () => import('@/stores/advertisement').then((m) => m.useAdvertisementStore),
-  // setting: () => import('@/stores/setting').then((m) => m.useSettingStore),
-  // account: () => import('@/stores/account').then((m) => m.useAccountStore),
+const storeMap: Record<string, () => any> = {
+  global: useGlobalStore,
+  auth: useAuthStore,
 };
 
 export interface ApiRequestOptions {
@@ -59,7 +58,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     filter,
     pinia,
   }: ApiRequestOptions) => {
-    const globalStore = (await storeMap.global())();
+    const globalStore = useGlobalStore();
 
     if (!services[service]) {
       throw new Error(`[ApiRequest] Service "${service}" does not exist in services registry.`);
@@ -76,7 +75,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       if (pinia && storeMap[module]) {
         const storeGetter = storeMap[module];
         if (storeGetter) {
-          const store = (await storeGetter())();
+          const store = storeGetter();
           if (typeof store?.MAIN === 'function') {
             await store.MAIN({
               service,

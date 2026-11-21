@@ -25,6 +25,9 @@ export default defineNuxtConfig({
     '/v1/**': {
       proxy: 'http://localhost:4000/v1/**',
     },
+    '/terms-and-conditions': { redirect: '/terms' },
+    '/admin/promotion': { redirect: '/admin/promotions' },
+    '/help': { redirect: '/support' },
   },
 
   vite: {
@@ -54,7 +57,7 @@ export default defineNuxtConfig({
   ],
 
   css: [
-    'primeicons/primeicons.css',
+    '../../shared/assets/styles/primeicons-woff2.scss',
     '../../shared/assets/styles/main.scss',
     '../../shared/assets/styles/rtl.scss',
   ],
