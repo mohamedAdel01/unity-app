@@ -82,7 +82,6 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" @click="close">{{ t('Cancel') }}</button>
           <button 
             type="button" 
             class="btn-submit" 
@@ -275,6 +274,13 @@ onUnmounted(() => {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: rgba(59, 130, 246, 0.16) !important;
+        border: 1px solid rgba(59, 130, 246, 0.28) !important;
+        color: #60a5fa !important;
+      }
 
       i {
         font-size: 1.15rem;
@@ -481,6 +487,50 @@ onUnmounted(() => {
       background: var(--unity-bg, #f8fafc);
       transform: translateY(-1px);
     }
+
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      border-color: #1f2937 !important;
+      background: #111827 !important;
+
+      &:hover:not(.is-active) {
+        border-color: #374151 !important;
+        background: #1a2333 !important;
+      }
+
+      &.opt-paid {
+        .option-icon-wrap { background: rgba(16, 185, 129, 0.16) !important; color: #34d399 !important; }
+        &.is-active {
+          border-color: #10b981 !important;
+          background: rgba(16, 185, 129, 0.14) !important;
+          .active-check { color: #34d399 !important; }
+        }
+      }
+      &.opt-pending {
+        .option-icon-wrap { background: rgba(245, 158, 11, 0.16) !important; color: #fbbf24 !important; }
+        &.is-active {
+          border-color: #f59e0b !important;
+          background: rgba(245, 158, 11, 0.14) !important;
+          .active-check { color: #fbbf24 !important; }
+        }
+      }
+      &.opt-refunded {
+        .option-icon-wrap { background: rgba(124, 58, 237, 0.16) !important; color: #a78bfa !important; }
+        &.is-active {
+          border-color: #7c3aed !important;
+          background: rgba(124, 58, 237, 0.14) !important;
+          .active-check { color: #a78bfa !important; }
+        }
+      }
+      &.opt-cancelled {
+        .option-icon-wrap { background: rgba(239, 68, 68, 0.16) !important; color: #f87171 !important; }
+        &.is-active {
+          border-color: #ef4444 !important;
+          background: rgba(239, 68, 68, 0.14) !important;
+          .active-check { color: #f87171 !important; }
+        }
+      }
+    }
   }
 
   .method-options-row {
@@ -519,6 +569,24 @@ onUnmounted(() => {
         border-color: #cbd5e1;
         background: var(--unity-bg, #f8fafc);
       }
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #111827;
+        border-color: #1f2937;
+        color: #9ca3af;
+
+        &:hover:not(.is-active) {
+          border-color: #374151;
+          background: #1a2333;
+        }
+
+        &.is-active {
+          border-color: #10b981 !important;
+          background: rgba(16, 185, 129, 0.16) !important;
+          color: #34d399 !important;
+        }
+      }
     }
   }
 }
@@ -526,29 +594,12 @@ onUnmounted(() => {
 .modal-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  width: 100%;
   margin-top: 0.25rem;
 
-  .btn-cancel {
-    flex: 1;
-    height: 44px;
-    border-radius: 12px;
-    background: var(--unity-bg, #f1f5f9);
-    border: 1px solid var(--unity-border, #e2e8f0);
-    color: var(--unity-text-main, #334155);
-    font-size: 0.86rem;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s ease;
-
-    &:hover {
-      background: #e2e8f0;
-    }
-  }
-
   .btn-submit {
-    flex: 2;
+    width: 100%;
+    flex: 1;
     height: 44px;
     border-radius: 12px;
     background: var(--unity-primary, #047857);

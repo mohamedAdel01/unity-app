@@ -168,9 +168,16 @@ const categoryIcon = computed(() => {
       }
 
       &.category {
-        background: #ecfdf5;
-        color: #047857;
-        border: 1px solid #a7f3d0;
+        background: var(--unity-primary-light, #ecfdf5);
+        color: var(--unity-primary, #047857);
+        border: 1px solid var(--unity-primary-tint, #a7f3d0);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.14);
+          border-color: rgba(16, 185, 129, 0.28);
+          color: #34d399;
+        }
       }
     }
 
@@ -248,9 +255,9 @@ const categoryIcon = computed(() => {
         width: 38px;
         height: 38px;
         border-radius: 12px;
-        background: #ecfdf5;
-        border: 1.5px solid #a7f3d0;
-        color: #047857;
+        background: var(--unity-primary-light, #ecfdf5);
+        border: 1.5px solid var(--unity-primary-tint, #a7f3d0);
+        color: var(--unity-primary, #047857);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -261,7 +268,7 @@ const categoryIcon = computed(() => {
 
         i {
           font-size: 1.05rem;
-          color: #047857;
+          color: var(--unity-primary, #047857);
         }
 
         &:hover {
@@ -272,6 +279,27 @@ const categoryIcon = computed(() => {
 
           i {
             color: #065f46;
+          }
+        }
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.14);
+          border-color: rgba(16, 185, 129, 0.28);
+          color: #34d399;
+
+          i {
+            color: #34d399;
+          }
+
+          &:hover {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+
+            i {
+              color: #6ee7b7;
+            }
           }
         }
 

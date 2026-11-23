@@ -45,6 +45,27 @@ export default defineNuxtConfig({
     },
     build: {
       reportCompressedSize: false,
+      chunkSizeWarningLimit: 1000,
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            const normalizedId = id.replace(/\\/g, '/');
+            // فصل كود المشرف ولوحات الإدارة عن كود المرضى الأساسي
+            if (normalizedId.includes('pages/admin') || normalizedId.includes('components/admin')) {
+              return 'admin-portal';
+            }
+            // فصل مكتبة أرقام الهواتف
+            if (normalizedId.includes('node_modules/libphonenumber-js')) {
+              return 'libphonenumber';
+            }
+            // فصل مكتبات Capacitor
+            if (normalizedId.includes('node_modules/@capacitor')) {
+              return 'capacitor-vendor';
+            }
+          },
+        },
+      },
     },
   },
 

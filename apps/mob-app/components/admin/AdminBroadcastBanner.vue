@@ -64,9 +64,6 @@
           </div>
 
           <div class="modal-foot">
-            <button type="button" class="btn-cancel" @click="closeModal">
-              {{ t('Cancel') }}
-            </button>
             <button 
               type="button" 
               class="btn-send" 
@@ -430,7 +427,10 @@ onUnmounted(() => {
     border-top: 1px solid var(--unity-border);
     background: var(--unity-surface);
 
-    button {
+    .btn-send {
+      width: 100%;
+      flex: 1;
+      height: 44px;
       padding: 10px 20px;
       border-radius: 12px;
       font-size: 0.85rem;
@@ -438,25 +438,13 @@ onUnmounted(() => {
       cursor: pointer;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       transition: all 0.2s;
-
-      &.btn-cancel {
-        background: var(--unity-bg);
-        border: 1.5px solid var(--unity-border);
-        color: var(--unity-text-muted);
-
-        &:hover {
-          background: var(--unity-border-light);
-          color: var(--unity-text-main);
-        }
-      }
-
-      &.btn-send {
-        background: var(--unity-primary-gradient, linear-gradient(135deg, #047857 0%, #064e3b 100%));
-        border: none;
-        color: #fff;
-        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+      background: var(--unity-primary-gradient, linear-gradient(135deg, #047857 0%, #064e3b 100%));
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
 
         &:hover:not(:disabled) {
           opacity: 0.95;
@@ -471,7 +459,6 @@ onUnmounted(() => {
       }
     }
   }
-}
 
 @keyframes slideUp {
   from {

@@ -285,6 +285,12 @@ onMounted(() => {
       color: #64748b;
       cursor: pointer;
 
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #1f2937;
+        color: #9ca3af;
+      }
+
       :global([dir='ltr']) &,
       :global(html[dir='ltr']) & {
         left: auto;
@@ -321,6 +327,11 @@ onMounted(() => {
       overflow: hidden;
       background: #f8fafc;
 
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #090d16;
+      }
+
       .offer-img {
         width: 100%;
         height: 100%;
@@ -341,6 +352,17 @@ onMounted(() => {
           color: var(--unity-primary, #047857);
           opacity: 0.7;
         }
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(2, 132, 199, 0.15) 100%);
+          border-bottom: 1px solid #1f2937;
+
+          .placeholder-icon {
+            color: #34d399;
+            opacity: 0.85;
+          }
+        }
       }
 
       .image-soft-veil {
@@ -348,6 +370,11 @@ onMounted(() => {
         inset: 0;
         background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.45) 100%);
         pointer-events: none;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(9, 13, 22, 0.5) 100%);
+        }
       }
 
       .discount-tag {
@@ -499,6 +526,12 @@ onMounted(() => {
       justify-content: center;
       color: #94a3b8;
       font-size: 1.8rem;
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #1f2937;
+        color: #9ca3af;
+      }
     }
 
     h4 {

@@ -11,13 +11,15 @@
         <!-- Avatar Holder -->
         <div class="avatar-holder">
           <img 
-            v-if="doctorAvatarUrl"
+            v-if="doctorAvatarUrl && !avatarLoadError"
             :src="doctorAvatarUrl" 
             :alt="doctorDisplayName" 
             class="avatar-photo" 
+            @error="avatarLoadError = true"
           />
           <div v-else class="avatar-placeholder">
-            <i class="pi pi-user"></i>
+            <span v-if="doctorInitial" class="avatar-initial">{{ doctorInitial }}</span>
+            <i v-else class="pi pi-user"></i>
           </div>
           <span class="status-dot" :class="isDoctorActive ? 'online' : 'offline'"></span>
         </div>
@@ -162,6 +164,7 @@ const baseUrl = config?.public?.API_URL || config?.public?.apiUrl || 'http://loc
 
 // 2. Data (refs, reactive state)
 const isGearMenuOpen = ref(false);
+const avatarLoadError = ref(false);
 
 // 3. Computed (computed properties)
 const isDoctorActive = computed(() => {
@@ -237,13 +240,25 @@ const casesCountText = computed(() => {
 });
 
 const doctorAvatarUrl = computed(() => {
-  const raw = props.doctor?.avatar || props.doctor?.avatar_url;
+  const raw = props.doctor?.avatar || props.doctor?.avatar_url || props.doctor?.user?.avatar;
   if (!raw || typeof raw !== 'string') return '';
   const trimmed = raw.trim();
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:image/')) {
+  if (trimmed.startsWith('data:image/')) return trimmed;
+  if (trimmed.includes('localhost:4000')) {
+    const path = trimmed.split('localhost:4000')[1];
+    return `${baseUrl}${path}`;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
   }
-  return `${baseUrl}${trimmed}`;
+  return `${baseUrl}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+});
+
+const doctorInitial = computed(() => {
+  const name = doctorDisplayName.value;
+  if (!name) return '';
+  const clean = name.replace(/^د[\/.]\s*/, '').trim();
+  return clean ? clean.charAt(0).toUpperCase() : '';
 });
 
 // 4. Methods (functions, handlers)
@@ -271,6 +286,12 @@ const onSelectEdit = () => {
 };
 
 // 5. Watches (watch, watchEffect)
+watch(
+  () => [props.doctor?.avatar, props.doctor?.avatar_url, props.doctor?.user?.avatar],
+  () => {
+    avatarLoadError.value = false;
+  }
+);
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 const onWindowClick = () => {
@@ -380,13 +401,19 @@ onUnmounted(() => {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background: #f1f5f9;
-          border: 1.5px solid #e2e8f0;
+          background: var(--unity-surface-soft, #f1f5f9);
+          border: 1.5px solid var(--unity-border, #e2e8f0);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #94a3b8;
+          color: var(--unity-text-dim, #94a3b8);
           font-size: 1.25rem;
+
+          .avatar-initial {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--unity-primary, #047857);
+          }
         }
 
         .status-dot {
@@ -396,7 +423,7 @@ onUnmounted(() => {
           width: 12px;
           height: 12px;
           border-radius: 50%;
-          border: 2px solid #ffffff;
+          border: 2px solid var(--unity-surface, #ffffff);
 
           &.online {
             background: #10b981;
@@ -531,9 +558,16 @@ onUnmounted(() => {
 
         &:hover,
         &.is-active {
-          background: #ecfdf5;
+          background: var(--unity-primary-light, #ecfdf5);
           border-color: var(--unity-primary, #047857);
           color: var(--unity-primary, #047857);
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: rgba(16, 185, 129, 0.14);
+            border-color: #10b981;
+            color: #34d399;
+          }
 
           i {
             transform: rotate(60deg);
@@ -605,10 +639,10 @@ onUnmounted(() => {
     position: absolute;
     top: calc(100% + 8px);
     min-width: 220px;
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--unity-surface, #ffffff);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(226, 232, 240, 0.95);
+    border: 1px solid var(--unity-border, rgba(226, 232, 240, 0.95));
     border-radius: 18px;
     box-shadow: 
       0 16px 36px -4px rgba(15, 23, 42, 0.12),
@@ -618,6 +652,13 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     gap: 3px;
+
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      background: #111827;
+      border-color: #374151;
+      box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 6px 14px -2px rgba(0, 0, 0, 0.4);
+    }
 
     // RTL mode (Arabic): button is on the left, so dropdown opens inward to the right
     &.dropdown-rtl {
@@ -674,21 +715,42 @@ onUnmounted(() => {
         }
 
         &.icon-cases {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
+          background: var(--unity-primary-light, #ecfdf5);
+          color: var(--unity-primary, #047857);
+          border: 1px solid var(--unity-primary-tint, #a7f3d0);
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: rgba(16, 185, 129, 0.14);
+            border-color: rgba(16, 185, 129, 0.28);
+            color: #34d399;
+          }
         }
 
         &.icon-schedule {
           background: #f0f9ff;
           color: #0284c7;
           border: 1px solid #bae6fd;
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: rgba(2, 132, 199, 0.14);
+            border-color: rgba(2, 132, 199, 0.28);
+            color: #38bdf8;
+          }
         }
 
         &.icon-edit {
           background: #fffbeb;
           color: #d97706;
           border: 1px solid #fde68a;
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: rgba(217, 119, 6, 0.14);
+            border-color: rgba(217, 119, 6, 0.28);
+            color: #fbbf24;
+          }
         }
       }
 
@@ -709,7 +771,12 @@ onUnmounted(() => {
 
       &:hover,
       &:active {
-        background: var(--unity-bg, #f8fafc);
+        background: var(--unity-surface-soft, rgba(241, 245, 249, 0.8));
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(31, 41, 55, 0.8);
+        }
 
         .item-icon-pill {
           transform: scale(1.06);
@@ -728,8 +795,13 @@ onUnmounted(() => {
 
     .dropdown-menu-divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(226, 232, 240, 0.8), transparent);
+      background: linear-gradient(90deg, transparent, var(--unity-border, rgba(226, 232, 240, 0.8)), transparent);
       margin: 2px 8px;
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #374151;
+      }
     }
   }
 }

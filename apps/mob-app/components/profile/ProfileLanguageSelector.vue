@@ -15,7 +15,7 @@
         @click="setLocale('ar')"
       >
         <img src="/flags/sa.svg" alt="SA" class="flag-svg" />
-        <span>{{ t('profile.langArabic', 'العربية (Arabic)') }}</span>
+        <span>{{ t('العربية (Arabic)') }}</span>
         <i v-if="locale === 'ar'" class="pi pi-check check-mark"></i>
       </button>
 
@@ -25,7 +25,7 @@
         @click="setLocale('en')"
       >
         <img src="/flags/gb.svg" alt="GB" class="flag-svg" />
-        <span>{{ t('profile.langEnglish', 'English (English)') }}</span>
+        <span>{{ t('English (English)') }}</span>
         <i v-if="locale === 'en'" class="pi pi-check check-mark"></i>
       </button>
     </div>

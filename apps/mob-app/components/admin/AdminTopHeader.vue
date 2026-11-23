@@ -107,14 +107,21 @@ const { t, isRtl } = useI18n();
       width: 42px;
       height: 42px;
       border-radius: 14px;
-      background: #ecfdf5;
-      border: 1.5px solid #a7f3d0;
-      color: #047857;
+      background: var(--unity-primary-light, #ecfdf5);
+      border: 1.5px solid var(--unity-primary-tint, #a7f3d0);
+      color: var(--unity-primary, #047857);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.15rem;
       flex-shrink: 0;
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: rgba(16, 185, 129, 0.14);
+        border-color: rgba(16, 185, 129, 0.28);
+        color: #34d399;
+      }
     }
 
     .admin-meta {

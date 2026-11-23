@@ -154,6 +154,13 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
         color: #047857;
         border: 1px solid rgba(16, 185, 129, 0.20);
 
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.16);
+          color: #34d399;
+          border-color: rgba(16, 185, 129, 0.32);
+        }
+
         &:hover {
           background: #047857;
           color: #ffffff;
@@ -174,6 +181,13 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
         background: rgba(2, 132, 199, 0.10);
         color: #0284c7;
         border: 1px solid rgba(2, 132, 199, 0.20);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(2, 132, 199, 0.16);
+          color: #38bdf8;
+          border-color: rgba(2, 132, 199, 0.32);
+        }
 
         &:hover {
           background: #0284c7;
@@ -196,6 +210,13 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
         color: #d97706;
         border: 1px solid rgba(217, 119, 6, 0.20);
 
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(245, 158, 11, 0.16);
+          color: #fbbf24;
+          border-color: rgba(245, 158, 11, 0.32);
+        }
+
         &:hover {
           background: #d97706;
           color: #ffffff;
@@ -216,6 +237,13 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
         background: rgba(13, 148, 136, 0.10);
         color: #0f766e;
         border: 1px solid rgba(13, 148, 136, 0.20);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(20, 184, 166, 0.16);
+          color: #2dd4bf;
+          border-color: rgba(20, 184, 166, 0.32);
+        }
 
         &:hover {
           background: #0f766e;

@@ -45,7 +45,6 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" @click="close">{{ t('Cancel') }}</button>
           <button 
             type="button" 
             class="btn-submit" 
@@ -104,7 +103,7 @@ const statusOptions = computed(() => [
     value: 'confirmed',
     label: t('Confirmed / Awaiting Arrival'),
     desc: t('Booking is confirmed and awaiting patient arrival'),
-    icon: 'pi pi-calendar-check',
+    icon: 'pi pi-calendar-clock',
     colorClass: 'opt-confirmed',
   },
   {
@@ -219,11 +218,17 @@ onUnmounted(() => {
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      background: #ecfdf5;
-      color: #047857;
+      background: var(--unity-primary-light, #ecfdf5);
+      color: var(--unity-primary, #047857);
       display: inline-flex;
       align-items: center;
       justify-content: center;
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: rgba(16, 185, 129, 0.14);
+        color: #34d399;
+      }
 
       i {
         font-size: 1.15rem;
@@ -403,35 +408,62 @@ onUnmounted(() => {
       background: var(--unity-bg, #f8fafc);
       transform: translateY(-1px);
     }
+
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      border-color: #1f2937 !important;
+      background: #111827 !important;
+
+      &:hover:not(.is-active) {
+        border-color: #374151 !important;
+        background: #1a2333 !important;
+      }
+
+      &.opt-completed {
+        .option-icon-wrap { background: rgba(59, 130, 246, 0.16) !important; color: #60a5fa !important; }
+        &.is-active {
+          border-color: #3b82f6 !important;
+          background: rgba(59, 130, 246, 0.14) !important;
+          .active-check { color: #60a5fa !important; }
+        }
+      }
+      &.opt-cancelled {
+        .option-icon-wrap { background: rgba(239, 68, 68, 0.16) !important; color: #f87171 !important; }
+        &.is-active {
+          border-color: #ef4444 !important;
+          background: rgba(239, 68, 68, 0.14) !important;
+          .active-check { color: #f87171 !important; }
+        }
+      }
+      &.opt-confirmed {
+        .option-icon-wrap { background: rgba(16, 185, 129, 0.16) !important; color: #34d399 !important; }
+        &.is-active {
+          border-color: #10b981 !important;
+          background: rgba(16, 185, 129, 0.14) !important;
+          .active-check { color: #34d399 !important; }
+        }
+      }
+      &.opt-pending {
+        .option-icon-wrap { background: rgba(245, 158, 11, 0.16) !important; color: #fbbf24 !important; }
+        &.is-active {
+          border-color: #f59e0b !important;
+          background: rgba(245, 158, 11, 0.14) !important;
+          .active-check { color: #fbbf24 !important; }
+        }
+      }
+    }
   }
 }
 
 .modal-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  width: 100%;
   margin-top: 0.25rem;
 
-  .btn-cancel {
-    flex: 1;
-    height: 44px;
-    border-radius: 12px;
-    background: var(--unity-bg, #f1f5f9);
-    border: 1px solid var(--unity-border, #e2e8f0);
-    color: var(--unity-text-main, #334155);
-    font-size: 0.86rem;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s ease;
-
-    &:hover {
-      background: #e2e8f0;
-    }
-  }
-
   .btn-submit {
-    flex: 2;
+    width: 100%;
+    flex: 1;
     height: 44px;
     border-radius: 12px;
     background: var(--unity-primary, #047857);

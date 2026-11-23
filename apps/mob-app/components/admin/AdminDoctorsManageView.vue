@@ -98,6 +98,7 @@ const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
+const selectedClinicFilter = ref(String(props.clinicId || 'all'));
 const doctors = ref<any[]>([]);
 const totalDoctorsCount = ref(0);
 const doctorsPage = ref(1);
@@ -123,7 +124,7 @@ const doctorOriginalStates: Record<string | number, boolean> = {};
 
 // 3. Computed (computed properties)
 const effectiveClinicId = computed(() => {
-  return String(props.clinicId || 'all');
+  return String(selectedClinicFilter.value || props.clinicId || 'all');
 });
 
 const activeClinicDisplayName = computed(() => {
@@ -172,11 +173,17 @@ const onSearch = (q: string) => {
 };
 
 const onFilterPill = (key: string) => {
-  emit('select-clinic', key);
+  const strKey = String(key || 'all');
+  selectedClinicFilter.value = strKey;
+  emit('select-clinic', strKey);
+  ADMIN_DOCTORS(1);
 };
 
 const resetFilters = () => {
   searchQuery.value = '';
+  selectedClinicFilter.value = 'all';
+  emit('select-clinic', 'all');
+  ADMIN_DOCTORS(1);
 };
 
 const openNewDoctorModal = () => {
@@ -254,11 +261,15 @@ const ADMIN_DOCTORS = async (page: any = 1) => {
       const arName = d.name_ar;
       const enName = d.name_en;
       const cName = isRtl.value ? d.clinic?.name_ar : d.clinic?.name_en;
+      const docAvatar = d.avatar || d.user?.avatar || d.avatar_url || null;
       return {
         id: d.id,
         name_ar: arName,
         name_en: enName,
         name: isRtl.value ? (arName || d.name) : (enName || d.name),
+        avatar: docAvatar,
+        avatar_url: docAvatar,
+        phone: d.phone || d.user?.phone || null,
         title: isRtl.value ? d.title_ar : d.title_en,
         title_ar: d.title_ar,
         title_en: d.title_en,
@@ -346,7 +357,8 @@ const onToggleDoctorStatus = (doctor: any) => {
 };
 
 // 5. Watches (watch, watchEffect)
-watch(() => props.clinicId, () => {
+watch(() => props.clinicId, (newVal) => {
+  selectedClinicFilter.value = String(newVal || 'all');
   ADMIN_DOCTORS(1);
 });
 

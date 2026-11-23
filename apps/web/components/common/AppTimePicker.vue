@@ -109,9 +109,6 @@
 
             <!-- Dialog Actions -->
             <div class="dialog-actions">
-              <button type="button" class="btn-cancel" @click="closePicker">
-                {{ t('Cancel') }}
-              </button>
               <button type="button" class="btn-confirm" @click="confirmTime">
                 <i class="pi pi-check"></i>
                 <span>{{ t('Confirm Time') }}</span>
@@ -286,6 +283,20 @@ watch(
     box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
   }
 
+  :global([data-theme='dark']) &,
+  :global(html.dark) & {
+    background: #090d16;
+    border-color: #243044;
+
+    &:hover,
+    &.is-open,
+    &:focus {
+      background: #111827;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+  }
+
   .trigger-content {
     display: inline-flex;
     align-items: center;
@@ -294,6 +305,11 @@ watch(
     .trigger-icon {
       color: var(--unity-primary, #047857);
       font-size: 0.85rem;
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        color: #10b981;
+      }
     }
 
     .time-display-text {
@@ -332,7 +348,7 @@ watch(
 .time-picker-dialog {
   width: 100%;
   max-width: 330px;
-  background: #ffffff;
+  background: var(--unity-surface, #ffffff);
   border-radius: 22px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.08);
   display: flex;
@@ -340,12 +356,24 @@ watch(
   overflow: hidden;
   animation: dialogScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
+  :global([data-theme='dark']) &,
+  :global(html.dark) & {
+    background: #111827;
+    border: 1px solid #1f2937;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  }
+
   .dialog-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px 10px;
     border-bottom: 1px solid var(--unity-border, #f1f5f9);
+
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      border-bottom-color: #1f2937;
+    }
 
     .header-info {
       display: flex;
@@ -358,6 +386,12 @@ watch(
         background: #ecfdf5;
         padding: 8px;
         border-radius: 10px;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.14);
+          color: #34d399;
+        }
       }
 
       h5 {
@@ -365,11 +399,21 @@ watch(
         font-size: 0.92rem;
         font-weight: 800;
         color: var(--unity-text-main, #0f172a);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          color: #f9fafb;
+        }
       }
 
       small {
         font-size: 0.7rem;
         color: var(--unity-text-muted, #64748b);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          color: #9ca3af;
+        }
       }
     }
 
@@ -390,6 +434,16 @@ watch(
         background: #f1f5f9;
         color: var(--unity-text-main, #0f172a);
       }
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        color: #9ca3af;
+
+        &:hover {
+          background: #1f2937;
+          color: #f9fafb;
+        }
+      }
     }
   }
 
@@ -404,6 +458,12 @@ watch(
     align-items: center;
     justify-content: space-between;
 
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
     .preview-digits {
       display: flex;
       align-items: center;
@@ -415,6 +475,11 @@ watch(
         color: #047857;
         font-variant-numeric: tabular-nums;
         line-height: 1;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          color: #34d399;
+        }
       }
 
       .digit-separator {
@@ -423,6 +488,11 @@ watch(
         color: #059669;
         line-height: 1;
         animation: pulseColon 1.5s infinite;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          color: #10b981;
+        }
       }
     }
 
@@ -478,6 +548,13 @@ watch(
           border-radius: 3px;
         }
 
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          &::-webkit-scrollbar-thumb {
+            background: #374151;
+          }
+        }
+
         .col-item-btn {
           width: 100%;
           height: 34px;
@@ -507,6 +584,26 @@ watch(
             box-shadow: 0 3px 8px rgba(4, 120, 87, 0.28);
             font-weight: 800;
             transform: scale(1.02);
+          }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: #1f2937;
+            border-color: #374151;
+            color: #e2e8f0;
+
+            &:hover {
+              background: rgba(16, 185, 129, 0.16);
+              border-color: #10b981;
+              color: #34d399;
+            }
+
+            &.active {
+              background: #10b981;
+              color: #ffffff;
+              border-color: #10b981;
+              box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35);
+            }
           }
         }
 
@@ -539,7 +636,13 @@ watch(
     padding: 12px 18px 16px;
     border-top: 1px solid var(--unity-border, #f1f5f9);
 
-    button {
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      border-top-color: #1f2937;
+    }
+
+    .btn-confirm {
+      width: 100%;
       flex: 1;
       height: 40px;
       border-radius: 12px;
@@ -551,20 +654,6 @@ watch(
       justify-content: center;
       gap: 6px;
       transition: all 0.2s;
-    }
-
-    .btn-cancel {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      color: #64748b;
-
-      &:hover {
-        background: #f1f5f9;
-        color: #0f172a;
-      }
-    }
-
-    .btn-confirm {
       background: var(--unity-primary, #047857);
       border: none;
       color: #ffffff;

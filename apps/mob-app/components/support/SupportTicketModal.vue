@@ -117,9 +117,6 @@
 
         <!-- Actions -->
         <div class="form-actions">
-          <button type="button" class="cancel-btn" @click="emit('close')">
-            {{ t('Cancel') }}
-          </button>
           <button type="submit" class="submit-btn" :disabled="isSubmitting">
             <i v-if="isSubmitting" class="pi pi-spin pi-spinner"></i>
             <i v-else class="pi pi-send"></i>
@@ -453,29 +450,9 @@ onUnmounted(() => {
     gap: 12px;
     margin-top: 0;
 
-    .cancel-btn {
-      flex: 1;
-      height: 48px;
-      border-radius: 12px;
-      background: var(--unity-surface-muted, #f8fafc);
-      border: 1.5px solid var(--unity-border, #e2e8f0);
-      color: var(--unity-text-secondary, #64748b);
-      font-size: 0.90rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: var(--unity-border, #e2e8f0);
-        color: var(--unity-text-main, #0f172a);
-      }
-    }
-
     .submit-btn {
-      flex: 2;
+      width: 100%;
+      flex: 1;
       height: 48px;
       border-radius: 12px;
       background: var(--unity-primary, #059669);

@@ -552,6 +552,12 @@ onMounted(() => {
     display: none;
   }
 
+  :global([data-theme='dark']) &,
+  :global(html.dark) & {
+    background: #090d16;
+    border-color: #1f2937;
+  }
+
   .tab-btn {
     flex: 0 0 auto;
     display: inline-flex;
@@ -593,6 +599,17 @@ onMounted(() => {
       .count-pill {
         color: var(--unity-primary);
         opacity: 1;
+      }
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #111827;
+        color: #34d399;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+
+        .count-pill {
+          color: #34d399;
+        }
       }
     }
   }
@@ -728,6 +745,71 @@ onMounted(() => {
           border: 1px solid #fed7aa;
         }
       }
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        &.pill-consult {
+          background: rgba(16, 185, 129, 0.16);
+          color: #34d399;
+          border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        &.pill-exam {
+          background: rgba(2, 132, 199, 0.16);
+          color: #38bdf8;
+          border-color: rgba(2, 132, 199, 0.35);
+        }
+
+        &.pill-offer {
+          background: rgba(245, 158, 11, 0.16);
+          color: #fbbf24;
+          border-color: rgba(245, 158, 11, 0.35);
+        }
+
+        &.status-badge {
+          &.status-confirmed {
+            background: rgba(16, 185, 129, 0.16);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.35);
+            .dot { background: #34d399; }
+          }
+
+          &.status-completed {
+            background: rgba(34, 197, 94, 0.16);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.35);
+            .dot { background: #4ade80; }
+          }
+
+          &.status-cancelled {
+            background: rgba(239, 68, 68, 0.16);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.35);
+            .dot { background: #f87171; }
+          }
+
+          &.status-pending {
+            background: rgba(124, 58, 237, 0.18);
+            color: #a78bfa;
+            border-color: rgba(124, 58, 237, 0.35);
+            .dot { background: #a78bfa; }
+          }
+        }
+
+        &.payment-tag {
+          &.is-paid {
+            background: rgba(16, 185, 129, 0.16);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.35);
+          }
+
+          &.is-unpaid {
+            background: rgba(245, 158, 11, 0.16);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.35);
+          }
+        }
+      }
     }
   }
 
@@ -824,6 +906,12 @@ onMounted(() => {
     margin-bottom: 14px;
     border: 1px solid var(--unity-border-light, #f1f5f9);
 
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      background: #090d16;
+      border-color: #1f2937;
+    }
+
     .dt-item {
       display: flex;
       align-items: center;
@@ -873,6 +961,17 @@ onMounted(() => {
       &:hover {
         background: #fee2e2;
       }
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: rgba(239, 68, 68, 0.14);
+        color: #f87171;
+        border-color: rgba(239, 68, 68, 0.28);
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.22);
+        }
+      }
     }
 
     .btn-reschedule {
@@ -919,6 +1018,17 @@ onMounted(() => {
       i {
         font-size: 0.9rem;
         color: #10b981;
+      }
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: rgba(16, 185, 129, 0.12);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.25);
+
+        i {
+          color: #34d399;
+        }
       }
     }
   }
@@ -983,6 +1093,36 @@ onMounted(() => {
   flex-direction: column;
   gap: 10px;
   text-align: start;
+
+  :global([data-theme='dark']) &,
+  :global(html.dark) & {
+    background: #090d16;
+    border-color: #1f2937;
+
+    .summary-doctor-row {
+      .summary-doc-info {
+        h6 {
+          color: #f3f4f6;
+        }
+
+        small {
+          color: #9ca3af;
+        }
+      }
+    }
+
+    .summary-details-grid {
+      border-top-color: #1f2937;
+
+      .summary-item {
+        color: #e5e7eb;
+
+        i {
+          color: #34d399;
+        }
+      }
+    }
+  }
 
   .summary-doctor-row {
     display: flex;
@@ -1077,5 +1217,12 @@ onMounted(() => {
   background: #f0fdf4 !important;
   color: #15803d !important;
   border-color: #bbf7d0 !important;
+
+  :global([data-theme='dark']) &,
+  :global(html.dark) & {
+    background: rgba(34, 197, 94, 0.16) !important;
+    color: #4ade80 !important;
+    border-color: rgba(34, 197, 94, 0.35) !important;
+  }
 }
 </style>

@@ -1457,6 +1457,7 @@ export default {
   "Under Review / Pending": "قيد المراجعة / الانتظار",
   "New booking awaiting reception confirmation": "حجز جديد بانتظار المراجعة والتأكيد من الاستقبال",
   "Save Status": "حفظ الحالة",
+  "Payment Status": "حالة الدفع",
   "Update Payment Status": "تعديل حالة الدفع",
   "Total Required Amount": "المبلغ الإجمالي المطلوب",
   "Full consultation fee has been collected": "تم تحصيل قيمة الحجز كاملة بنجاح",

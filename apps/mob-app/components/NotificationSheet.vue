@@ -398,6 +398,11 @@ onMounted(() => {
         border-radius: 50%;
         background: #ef4444;
         border: 2px solid #fff;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          border-color: #111827;
+        }
       }
     }
 
@@ -555,6 +560,26 @@ onMounted(() => {
     &.icon-slate {
       background: #f1f5f9;
       color: #475569;
+    }
+
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      &.icon-green {
+        background: rgba(16, 185, 129, 0.18);
+        color: #34d399;
+      }
+      &.icon-blue {
+        background: rgba(2, 132, 199, 0.18);
+        color: #38bdf8;
+      }
+      &.icon-amber {
+        background: rgba(245, 158, 11, 0.18);
+        color: #fbbf24;
+      }
+      &.icon-slate {
+        background: rgba(148, 163, 184, 0.16);
+        color: #cbd5e1;
+      }
     }
   }
 

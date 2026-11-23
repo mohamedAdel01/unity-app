@@ -239,6 +239,30 @@ const chooseService = () => {
     background: #f0fdf4;
     color: #0f766e;
   }
+
+  :global([data-theme='dark']) &,
+  :global(html.dark) & {
+    &.clinic,
+    &.doctor {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+    }
+
+    &.service {
+      background: rgba(20, 184, 166, 0.2);
+      color: #2dd4bf;
+    }
+
+    &.online {
+      background: rgba(2, 132, 199, 0.18);
+      color: #38bdf8;
+    }
+
+    &.home {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+    }
+  }
 }
 
 .option-label {

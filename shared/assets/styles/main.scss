@@ -87,6 +87,103 @@
 }
 
 // ==========================================
+// Dark Mode Icon & Action Container Overrides (No harsh/glaring light boxes)
+// ==========================================
+[data-theme='dark'], html.dark, body.dark {
+  .admin-avatar-ring,
+  .icon-box.clinic,
+  .icon-box.category,
+  .option-icon.clinic,
+  .option-icon.doctor,
+  .item-icon.icon-green,
+  .btn-card-edit,
+  .modal-icon-badge,
+  .header-icon-wrap,
+  .btn-add-slot-header,
+  .initial-avatar,
+  .icon-bubble.primary,
+  .icon-bubble.success {
+    background: rgba(16, 185, 129, 0.14) !important;
+    border-color: rgba(16, 185, 129, 0.28) !important;
+    color: #34d399 !important;
+
+    i, svg {
+      color: #34d399 !important;
+    }
+  }
+
+  .icon-box.service,
+  .option-icon.service {
+    background: rgba(20, 184, 166, 0.18) !important;
+    border-color: rgba(20, 184, 166, 0.28) !important;
+    color: #2dd4bf !important;
+
+    i, svg {
+      color: #2dd4bf !important;
+    }
+  }
+
+  .item-icon.icon-slate {
+    background: rgba(148, 163, 184, 0.16) !important;
+    border-color: rgba(148, 163, 184, 0.25) !important;
+    color: #cbd5e1 !important;
+
+    i, svg {
+      color: #cbd5e1 !important;
+    }
+  }
+
+  .item-icon.icon-blue {
+    background: rgba(2, 132, 199, 0.18) !important;
+    border-color: rgba(2, 132, 199, 0.28) !important;
+    color: #38bdf8 !important;
+
+    i, svg {
+      color: #38bdf8 !important;
+    }
+  }
+
+  .item-icon.icon-amber {
+    background: rgba(245, 158, 11, 0.18) !important;
+    border-color: rgba(245, 158, 11, 0.28) !important;
+    color: #fbbf24 !important;
+
+    i, svg {
+      color: #fbbf24 !important;
+    }
+  }
+
+  // Offer cards image placeholder in dark mode
+  .offer-image-box {
+    background: #090d16 !important;
+  }
+
+  .offer-img-placeholder {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(2, 132, 199, 0.15) 100%) !important;
+    border-bottom: 1px solid #1f2937 !important;
+
+    .placeholder-icon {
+      color: #34d399 !important;
+      opacity: 0.85 !important;
+    }
+  }
+
+  // Dropdown floating menus in dark mode
+  .gear-dropdown-menu,
+  .dropdown-menu-list,
+  .dropdown-menu {
+    background: #111827 !important;
+    border-color: #374151 !important;
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6), 0 6px 14px -2px rgba(0, 0, 0, 0.4) !important;
+
+    .item-title,
+    .dropdown-option-item {
+      color: #f9fafb !important;
+    }
+  }
+}
+
+// ==========================================
 // Global Typography & Reset (Unified Font: Cairo)
 // ==========================================
 *, *::before, *::after {

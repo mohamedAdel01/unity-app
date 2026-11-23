@@ -230,6 +230,21 @@ watch(
             color: #16a34a;
             border: 1px solid #bbf7d0;
           }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            &.primary {
+              background: rgba(16, 185, 129, 0.14);
+              border-color: rgba(16, 185, 129, 0.28);
+              color: #34d399;
+            }
+
+            &.success {
+              background: rgba(16, 185, 129, 0.14);
+              border-color: rgba(16, 185, 129, 0.28);
+              color: #34d399;
+            }
+          }
         }
       }
 
@@ -260,6 +275,11 @@ watch(
         gap: 4px;
         border-top: 1px dashed var(--unity-border-light, #f1f5f9);
         padding-top: 4px;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          border-top-color: #1f2937;
+        }
 
         strong {
           color: var(--unity-text-main);

@@ -576,6 +576,13 @@ const openDetails = (apt: any) => {
     box-shadow: none;
     transition: all 0.2s ease;
 
+    :global([data-theme='dark']) &,
+    :global(html.dark) & {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
     &:hover {
       background: rgba(4, 120, 87, 0.12);
       border-color: rgba(4, 120, 87, 0.35);

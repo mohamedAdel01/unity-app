@@ -233,9 +233,6 @@
 
         <!-- Footer Actions -->
         <div class="modal-foot">
-          <button type="button" class="btn-cancel" @click="emit('close')">
-            {{ t('Cancel') }}
-          </button>
           <button type="submit" class="btn-confirm" :disabled="!isFormValid || submitting">
             <i v-if="submitting" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ props.examination?.id ? t('Save Changes') : t('Add Examination') }}</span>
@@ -1262,20 +1259,9 @@ onUnmounted(() => {
       transition: all 0.2s;
     }
 
-    .btn-cancel {
-      flex: 1;
-      background: var(--unity-bg);
-      border: 1.5px solid var(--unity-border);
-      color: var(--unity-text-muted);
-
-      &:hover {
-        background: var(--unity-border);
-        color: var(--unity-text-main);
-      }
-    }
-
     .btn-confirm {
-      flex: 2;
+      width: 100%;
+      flex: 1;
       background: var(--unity-primary);
       color: #fff;
       box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);

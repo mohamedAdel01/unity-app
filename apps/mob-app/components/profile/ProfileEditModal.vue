@@ -122,9 +122,6 @@
 
         <!-- Action Buttons -->
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" @click="close">
-            {{ t('Cancel') }}
-          </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ t('Save Changes') }}</span>
@@ -654,7 +651,8 @@ onUnmounted(() => {
       gap: 12px;
       margin-top: 0;
 
-      button {
+      .btn-submit {
+        width: 100%;
         flex: 1;
         height: 48px;
         border-radius: 14px;
@@ -666,33 +664,19 @@ onUnmounted(() => {
         justify-content: center;
         gap: 8px;
         transition: all 0.2s;
+        background: var(--unity-primary);
+        border: none;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
 
-        &.btn-cancel {
-          background: var(--unity-bg);
-          border: 1px solid var(--unity-border);
-          color: var(--unity-text-muted);
-
-          &:hover {
-            background: var(--unity-border);
-            color: var(--unity-text-main);
-          }
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
-        &.btn-submit {
-          background: var(--unity-primary);
-          border: none;
-          color: #ffffff;
-          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
-
-          &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-
-          &:not(:disabled):hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-          }
+        &:not(:disabled):hover {
+          opacity: 0.92;
+          transform: translateY(-1px);
         }
       }
     }

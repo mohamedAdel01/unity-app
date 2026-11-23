@@ -550,7 +550,7 @@ watch(
         name_en: val.name_en || '',
         phone: val.user?.phone || val.phone || '',
         password: '',
-        avatar: val.avatar || '',
+        avatar: val.avatar || val.user?.avatar || val.avatar_url || '',
         clinic_id: val.clinic?.id || val.clinic_id || '',
         consultation_fee: val.consultation_fee !== undefined && val.consultation_fee !== null ? Number(val.consultation_fee) : '',
         follow_up_fee: val.follow_up_fee !== undefined && val.follow_up_fee !== null ? Number(val.follow_up_fee) : '',
@@ -600,7 +600,7 @@ watch(
         form.value = {
           name_ar: props.doctor.name_ar || props.doctor.name || '',
           name_en: props.doctor.name_en || '',
-          avatar: props.doctor.avatar || '',
+          avatar: props.doctor.avatar || props.doctor.user?.avatar || props.doctor.avatar_url || '',
           clinic_id: props.doctor.clinic?.id || props.doctor.clinic_id || '',
           consultation_fee: props.doctor.consultation_fee !== undefined && props.doctor.consultation_fee !== null ? Number(props.doctor.consultation_fee) : '',
           follow_up_fee: props.doctor.follow_up_fee !== undefined && props.doctor.follow_up_fee !== null ? Number(props.doctor.follow_up_fee) : '',

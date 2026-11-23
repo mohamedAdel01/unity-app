@@ -93,9 +93,6 @@
                 <i class="pi pi-check"></i>
                 <span>{{ t('Confirm Date') }}</span>
               </button>
-              <button type="button" class="cancel-btn" @click="closePicker">
-                <span>{{ t('Cancel') }}</span>
-              </button>
             </div>
           </div>
         </div>
@@ -501,7 +498,8 @@ watch(() => props.modelValue, (newVal) => {
     gap: 10px;
     margin-top: 4px;
 
-    button {
+    .confirm-btn {
+      width: 100%;
       flex: 1;
       height: 48px;
       border-radius: 14px;
@@ -514,24 +512,12 @@ watch(() => props.modelValue, (newVal) => {
       align-items: center;
       justify-content: center;
       gap: 8px;
-    }
-
-    .confirm-btn {
       background: #047857;
       color: #ffffff;
       box-shadow: 0 6px 18px rgba(4, 120, 87, 0.28);
 
       &:hover {
         background: #065f46;
-      }
-    }
-
-    .cancel-btn {
-      background: #f1f5f9;
-      color: #475569;
-
-      &:hover {
-        background: #e2e8f0;
       }
     }
   }

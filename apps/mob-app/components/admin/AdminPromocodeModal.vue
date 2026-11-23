@@ -124,9 +124,6 @@
 
         <!-- Submit Button -->
         <div class="modal-footer">
-          <button type="button" class="btn-cancel" @click="close">
-            {{ t('Cancel') }}
-          </button>
           <button type="submit" class="btn-submit" :disabled="loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ props.promocode?.id ? t('Save Changes') : t('Create Promocode') }}</span>
@@ -548,7 +545,8 @@ onUnmounted(() => {
       margin-top: auto;
       z-index: 10;
 
-      button {
+      .btn-submit {
+        width: 100%;
         flex: 1;
         height: 48px;
         border-radius: 12px;
@@ -560,20 +558,6 @@ onUnmounted(() => {
         justify-content: center;
         gap: 6px;
         transition: all 0.2s;
-      }
-
-      .btn-cancel {
-        background: var(--unity-bg);
-        border: 1.5px solid var(--unity-border);
-        color: var(--unity-text-muted);
-
-        &:hover {
-          background: var(--unity-surface-muted, #f1f5f9);
-          color: var(--unity-text-main);
-        }
-      }
-
-      .btn-submit {
         background: var(--unity-primary);
         color: #fff;
         border: none;

@@ -136,9 +136,6 @@
 
         <!-- Modal Footer Actions -->
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" @click="close">
-            {{ t('Cancel') }}
-          </button>
           <button type="submit" class="btn-submit" :disabled="loading || hasAnyScheduleOverlap">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ t('Save Changes') }}</span>
@@ -489,13 +486,20 @@ onUnmounted(() => {
         width: 42px;
         height: 42px;
         border-radius: 14px;
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
-        color: #047857;
+        background: var(--unity-primary-light, #ecfdf5);
+        border: 1px solid var(--unity-primary-tint, #a7f3d0);
+        color: var(--unity-primary, #047857);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.15rem;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.14);
+          border-color: rgba(16, 185, 129, 0.28);
+          color: #34d399;
+        }
       }
 
       .header-texts {
@@ -646,16 +650,27 @@ onUnmounted(() => {
           gap: 4px;
           padding: 5px 10px;
           border-radius: 12px;
-          background: #ecfdf5;
-          border: 1px solid #a7f3d0;
-          color: #047857;
+          background: var(--unity-primary-light, #ecfdf5);
+          border: 1px solid var(--unity-primary-tint, #a7f3d0);
+          color: var(--unity-primary, #047857);
           font-size: 0.74rem;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
 
           &:hover {
-            background: #d1fae5;
+            background: var(--unity-primary-tint, #d1fae5);
+          }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: rgba(16, 185, 129, 0.14);
+            border-color: rgba(16, 185, 129, 0.28);
+            color: #34d399;
+
+            &:hover {
+              background: rgba(16, 185, 129, 0.22);
+            }
           }
         }
       }
@@ -672,6 +687,12 @@ onUnmounted(() => {
         border: 1.5px dashed var(--unity-border);
         border-radius: 20px;
         gap: 6px;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(255, 255, 255, 0.02);
+          border-color: rgba(255, 255, 255, 0.12);
+        }
 
         i {
           font-size: 1.8rem;
@@ -700,8 +721,8 @@ onUnmounted(() => {
         gap: 10px;
 
         .slot-card {
-          background: #ffffff;
-          border: 1px solid var(--unity-border);
+          background: var(--unity-surface, #ffffff);
+          border: 1px solid var(--unity-border, #e2e8f0);
           border-radius: 18px;
           padding: 12px 14px;
           display: flex;
@@ -710,15 +731,34 @@ onUnmounted(() => {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
           transition: all 0.2s;
 
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: #161f30;
+            border-color: #243044;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          }
+
           &.is-disabled {
             opacity: 0.65;
             background: #f8fafc;
+
+            :global([data-theme='dark']) &,
+            :global(html.dark) & {
+              background: #0f172a;
+              border-color: #1e293b;
+            }
           }
 
           &.slot-overlap-error {
             border: 1.5px solid #ef4444 !important;
             background: rgba(239, 68, 68, 0.03);
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+
+            :global([data-theme='dark']) &,
+            :global(html.dark) & {
+              background: rgba(239, 68, 68, 0.08) !important;
+              box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+            }
           }
 
           .overlap-warning-box {
@@ -777,6 +817,11 @@ onUnmounted(() => {
                 flex-shrink: 0;
                 direction: ltr; // Crucial for reliable translation in RTL
 
+                :global([data-theme='dark']) &,
+                :global(html.dark) & {
+                  background: #334155;
+                }
+
                 .switch-slider {
                   width: 20px;
                   height: 20px;
@@ -812,6 +857,15 @@ onUnmounted(() => {
 
               &:hover {
                 background: #fee2e2;
+              }
+
+              :global([data-theme='dark']) &,
+              :global(html.dark) & {
+                color: #f87171;
+
+                &:hover {
+                  background: rgba(239, 68, 68, 0.16);
+                }
               }
 
               &:active {
@@ -882,8 +936,10 @@ onUnmounted(() => {
       border-top: 1px solid var(--unity-border-light);
       background: var(--unity-surface);
       flex-shrink: 0;
+      width: 100%;
 
-      button {
+      .btn-submit {
+        width: 100%;
         flex: 1;
         height: 44px;
         border-radius: 16px;
@@ -891,32 +947,18 @@ onUnmounted(() => {
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s;
+        background: var(--unity-primary);
+        border: none;
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
 
-        &.btn-cancel {
-          background: var(--unity-bg);
-          border: 1px solid var(--unity-border);
-          color: var(--unity-text-muted);
-
-          &:hover {
-            color: var(--unity-text-main);
-            background: #f1f5f9;
-          }
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
-        &.btn-submit {
-          background: var(--unity-primary);
-          border: none;
-          color: #ffffff;
-          box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
-
-          &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-          }
-
-          &:hover:not(:disabled) {
-            background: var(--unity-primary-dark);
-          }
+        &:hover:not(:disabled) {
+          background: var(--unity-primary-dark);
         }
       }
     }

@@ -459,6 +459,21 @@ onUnmounted(() => {
             color: #0284c7;
             border: 1.5px solid #bae6fd;
           }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            &.type-consult {
+              background: rgba(16, 185, 129, 0.16);
+              color: #34d399;
+              border-color: rgba(16, 185, 129, 0.35);
+            }
+
+            &.type-exam {
+              background: rgba(2, 132, 199, 0.16);
+              color: #38bdf8;
+              border-color: rgba(2, 132, 199, 0.35);
+            }
+          }
         }
 
         // 2. Booking Status Badges
@@ -506,6 +521,53 @@ onUnmounted(() => {
               box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
             }
           }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            &.status-pending {
+              background: rgba(124, 58, 237, 0.18);
+              color: #a78bfa;
+              border-color: rgba(124, 58, 237, 0.35);
+
+              .dot {
+                background: #a78bfa;
+                box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.25);
+              }
+            }
+
+            &.status-confirmed {
+              background: rgba(16, 185, 129, 0.16);
+              color: #34d399;
+              border-color: rgba(16, 185, 129, 0.35);
+
+              .dot {
+                background: #34d399;
+                box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25);
+              }
+            }
+
+            &.status-completed {
+              background: rgba(34, 197, 94, 0.16);
+              color: #4ade80;
+              border-color: rgba(34, 197, 94, 0.35);
+
+              .dot {
+                background: #4ade80;
+                box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.25);
+              }
+            }
+
+            &.status-cancelled {
+              background: rgba(239, 68, 68, 0.16);
+              color: #f87171;
+              border-color: rgba(239, 68, 68, 0.35);
+
+              .dot {
+                background: #f87171;
+                box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25);
+              }
+            }
+          }
         }
 
         // 3. Payment Status Badges
@@ -533,6 +595,33 @@ onUnmounted(() => {
             color: #b91c1c;
             border: 1.5px solid #fca5a5;
           }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            &.paid {
+              background: rgba(16, 185, 129, 0.16);
+              color: #34d399;
+              border-color: rgba(16, 185, 129, 0.35);
+            }
+
+            &.pending {
+              background: rgba(245, 158, 11, 0.16);
+              color: #fbbf24;
+              border-color: rgba(245, 158, 11, 0.35);
+            }
+
+            &.refunded {
+              background: rgba(59, 130, 246, 0.16);
+              color: #60a5fa;
+              border-color: rgba(59, 130, 246, 0.35);
+            }
+
+            &.failed {
+              background: rgba(239, 68, 68, 0.16);
+              color: #f87171;
+              border-color: rgba(239, 68, 68, 0.35);
+            }
+          }
         }
       }
     }
@@ -540,6 +629,12 @@ onUnmounted(() => {
     &.is-expanded {
       border-color: #cbd5e1;
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        border-color: #374151;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+      }
     }
 
     // 1. Header Row
@@ -583,6 +678,13 @@ onUnmounted(() => {
             justify-content: center;
             font-size: 1.15rem;
             font-weight: 800;
+
+            :global([data-theme='dark']) &,
+            :global(html.dark) & {
+              background: rgba(16, 185, 129, 0.14);
+              border-color: rgba(16, 185, 129, 0.28);
+              color: #34d399;
+            }
           }
         }
 
@@ -626,6 +728,11 @@ onUnmounted(() => {
               font-weight: 700;
               color: var(--unity-text-muted, #475569);
               letter-spacing: 0.3px;
+
+              :global([data-theme='dark']) &,
+              :global(html.dark) & {
+                color: #9ca3af;
+              }
             }
 
             .phone-number-empty {
@@ -657,6 +764,24 @@ onUnmounted(() => {
                 background: #ecfdf5;
                 color: #047857;
                 border-color: #a7f3d0;
+              }
+
+              :global([data-theme='dark']) &,
+              :global(html.dark) & {
+                background: #1f2937;
+                border-color: #374151;
+                color: #9ca3af;
+
+                &:hover {
+                  background: #374151;
+                  color: #f9fafb;
+                }
+
+                &.copied {
+                  background: rgba(16, 185, 129, 0.16);
+                  color: #34d399;
+                  border-color: rgba(16, 185, 129, 0.35);
+                }
               }
             }
           }
@@ -706,13 +831,19 @@ onUnmounted(() => {
     gap: 12px;
 
     .details-info-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
+      background: var(--unity-bg, #f8fafc);
+      border: 1px solid var(--unity-border, #e2e8f0);
       border-radius: 14px;
       padding: 10px 14px;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
+
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #090d16;
+        border-color: #1f2937;
+      }
 
       .info-item {
         display: flex;
@@ -730,6 +861,12 @@ onUnmounted(() => {
           justify-content: center;
           font-size: 0.85rem;
           flex-shrink: 0;
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: #1f2937;
+            color: #9ca3af;
+          }
         }
 
         .info-content {
@@ -739,23 +876,38 @@ onUnmounted(() => {
 
           .info-label {
             font-size: 0.68rem;
-            color: #64748b;
+            color: var(--unity-text-dim, #64748b);
             font-weight: 600;
+
+            :global([data-theme='dark']) &,
+            :global(html.dark) & {
+              color: #9ca3af;
+            }
           }
 
           .info-val {
             font-size: 0.84rem;
-            color: #0f172a;
+            color: var(--unity-text-main, #0f172a);
             font-weight: 800;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+
+            :global([data-theme='dark']) &,
+            :global(html.dark) & {
+              color: #f9fafb;
+            }
           }
 
           .info-subval {
             font-size: 0.70rem;
-            color: #64748b;
+            color: var(--unity-text-dim, #64748b);
             font-weight: 600;
+
+            :global([data-theme='dark']) &,
+            :global(html.dark) & {
+              color: #9ca3af;
+            }
           }
         }
       }
@@ -770,13 +922,24 @@ onUnmounted(() => {
       border: 1px solid var(--unity-border);
       border-radius: 12px;
 
+      :global([data-theme='dark']) &,
+      :global(html.dark) & {
+        background: #111827;
+        border-color: #1f2937;
+      }
+
       .payment-method-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         font-size: 0.8rem;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--unity-text-main, #0f172a);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          color: #f9fafb;
+        }
 
         &.is-clickable {
           cursor: pointer;
@@ -788,9 +951,20 @@ onUnmounted(() => {
             background: var(--unity-bg, #f1f5f9);
             color: var(--unity-primary, #047857);
 
+            :global([data-theme='dark']) &,
+            :global(html.dark) & {
+              background: #1f2937;
+              color: #34d399;
+            }
+
             .edit-icon-subtle {
               opacity: 1;
               color: var(--unity-primary, #047857);
+
+              :global([data-theme='dark']) &,
+              :global(html.dark) & {
+                color: #34d399;
+              }
             }
           }
         }
@@ -838,6 +1012,14 @@ onUnmounted(() => {
             color: #b91c1c;
             border: 1px solid #fecaca;
           }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            &.paid { background: rgba(16, 185, 129, 0.16); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
+            &.pending { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); }
+            &.refunded { background: rgba(59, 130, 246, 0.16); color: #60a5fa; border-color: rgba(59, 130, 246, 0.35); }
+            &.failed { background: rgba(239, 68, 68, 0.16); color: #f87171; border-color: rgba(239, 68, 68, 0.35); }
+          }
         }
       }
 
@@ -855,7 +1037,7 @@ onUnmounted(() => {
         .currency {
           font-size: 0.72rem;
           font-weight: 700;
-          color: #64748b;
+          color: var(--unity-text-dim, #64748b);
         }
       }
     }

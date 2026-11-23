@@ -43,7 +43,6 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" @click="close">{{ t('Cancel') }}</button>
           <button type="submit" class="btn-submit">{{ t('Confirm New Slot') }}</button>
         </div>
       </form>
@@ -274,10 +273,11 @@ onUnmounted(() => {
       border-top: 1px solid var(--unity-border-light);
       background: var(--unity-surface);
       display: flex;
-      gap: 10px;
+      width: 100%;
       margin-top: 0;
 
-      button {
+      .btn-submit {
+        width: 100%;
         flex: 1;
         padding: 12px;
         border-radius: 14px;
@@ -285,15 +285,6 @@ onUnmounted(() => {
         font-weight: 700;
         cursor: pointer;
         border: none;
-      }
-
-      .btn-cancel {
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
-        color: var(--unity-text-muted);
-      }
-
-      .btn-submit {
         background: var(--unity-primary);
         color: #fff;
       }

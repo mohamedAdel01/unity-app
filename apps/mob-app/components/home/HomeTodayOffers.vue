@@ -255,6 +255,11 @@ onMounted(() => {
         background: #f1f5f9;
         overflow: hidden;
 
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: #090d16;
+        }
+
         .offer-img {
           width: 100%;
           height: 100%;
@@ -263,6 +268,11 @@ onMounted(() => {
           filter: brightness(0.96) contrast(0.88) saturate(0.78);
           opacity: 0.92;
           transition: transform 0.35s ease, filter 0.35s ease;
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            filter: brightness(0.85) contrast(0.95);
+          }
         }
 
         .offer-img-placeholder {
@@ -278,6 +288,17 @@ onMounted(() => {
             color: var(--unity-primary, #047857);
             opacity: 0.75;
           }
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(2, 132, 199, 0.15) 100%);
+            border-bottom: 1px solid #1f2937;
+
+            .placeholder-icon {
+              color: #34d399;
+              opacity: 0.85;
+            }
+          }
         }
 
         /* طبقة تظليل ناعمة تمزج الصورة بأناقة */
@@ -286,6 +307,11 @@ onMounted(() => {
           inset: 0;
           background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 23, 42, 0.14) 100%);
           pointer-events: none;
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(9, 13, 22, 0.5) 100%);
+          }
         }
 
         .discount-tag {

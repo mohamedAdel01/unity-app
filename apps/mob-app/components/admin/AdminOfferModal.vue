@@ -216,9 +216,6 @@
 
           <!-- Fixed Modal Footer -->
           <div class="modal-footer">
-            <button type="button" class="btn-cancel" @click="close">
-              {{ t('Cancel') }}
-            </button>
             <button type="submit" class="btn-submit" :disabled="loading || uploadingImage">
               <i v-if="loading" class="pi pi-spin pi-spinner"></i>
               <span v-else>{{ props.offer?.id ? t('Save Changes') : t('Create Offer') }}</span>
@@ -876,26 +873,9 @@ onUnmounted(() => {
       margin-top: auto;
       z-index: 10;
 
-      .btn-cancel {
-        flex: 1;
-        height: 48px;
-        background: var(--unity-bg);
-        border: 1.5px solid var(--unity-border);
-        border-radius: 12px;
-        color: var(--unity-text-muted);
-        font-size: 0.90rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background: var(--unity-surface-muted, #f1f5f9);
-          color: var(--unity-text-main);
-        }
-      }
-
       .btn-submit {
-        flex: 2;
+        width: 100%;
+        flex: 1;
         height: 48px;
         background: var(--unity-primary);
         border: none;

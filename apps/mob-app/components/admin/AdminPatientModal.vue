@@ -70,9 +70,6 @@
 
         <!-- Submit Button -->
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" @click="close">
-            {{ t('Cancel') }}
-          </button>
           <button type="submit" class="btn-submit" :disabled="!isFormValid || loading">
             <i v-if="loading" class="pi pi-spin pi-spinner"></i>
             <span v-else>{{ props.patient?.id ? t('Save Changes') : t('Save Patient') }}</span>
@@ -440,18 +437,9 @@ onUnmounted(() => {
         transition: all 0.2s;
       }
 
-      .btn-cancel {
-        background: var(--unity-bg);
-        border: 1px solid var(--unity-border);
-        color: var(--unity-text-muted);
-
-        &:hover {
-          background: var(--unity-border);
-          color: var(--unity-text-main);
-        }
-      }
-
       .btn-submit {
+        width: 100%;
+        flex: 1;
         background: var(--unity-primary);
         color: #fff;
         box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);

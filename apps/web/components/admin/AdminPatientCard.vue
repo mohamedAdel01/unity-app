@@ -605,9 +605,16 @@ const resolveAvatar = (url?: string) => {
         }
 
         &.btn-book {
-          background: #ecfdf5;
-          border: 1.5px solid #a7f3d0;
-          color: #047857;
+          background: var(--unity-primary-light, #ecfdf5);
+          border: 1.5px solid var(--unity-primary-tint, #a7f3d0);
+          color: var(--unity-primary, #047857);
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            background: rgba(16, 185, 129, 0.14);
+            border-color: rgba(16, 185, 129, 0.28);
+            color: #34d399;
+          }
 
           &:hover {
             background: #d1fae5;

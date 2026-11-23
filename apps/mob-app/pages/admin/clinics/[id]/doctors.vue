@@ -33,9 +33,9 @@ const onBackToClinics = () => {
 
 const onSelectClinic = (id: string | number) => {
   if (!id || id === 'all') {
-    router.push('/admin/clinics/doctors');
+    router.replace('/admin/clinics/doctors');
   } else {
-    router.push(`/admin/clinics/${id}/doctors`);
+    router.replace(`/admin/clinics/${id}/doctors`);
   }
 };
 

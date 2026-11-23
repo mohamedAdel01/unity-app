@@ -176,6 +176,13 @@ const categoryName = computed(() => {
         background: #e0f2fe;
         color: #0284c7;
         border: 1px solid #bae6fd;
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(2, 132, 199, 0.14);
+          border-color: rgba(2, 132, 199, 0.28);
+          color: #38bdf8;
+        }
       }
     }
 
@@ -274,9 +281,9 @@ const categoryName = computed(() => {
         width: 38px;
         height: 38px;
         border-radius: 12px;
-        background: #ecfdf5;
-        border: 1.5px solid #a7f3d0;
-        color: #047857;
+        background: var(--unity-primary-light, #ecfdf5);
+        border: 1.5px solid var(--unity-primary-tint, #a7f3d0);
+        color: var(--unity-primary, #047857);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -286,7 +293,7 @@ const categoryName = computed(() => {
 
         i {
           font-size: 1.05rem;
-          color: #047857;
+          color: var(--unity-primary, #047857);
         }
 
         &:hover {
@@ -297,6 +304,27 @@ const categoryName = computed(() => {
 
           i {
             color: #065f46;
+          }
+        }
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.14);
+          border-color: rgba(16, 185, 129, 0.28);
+          color: #34d399;
+
+          i {
+            color: #34d399;
+          }
+
+          &:hover {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+
+            i {
+              color: #6ee7b7;
+            }
           }
         }
 

@@ -34,7 +34,7 @@
           :key="pill.key"
           type="button"
           class="filter-pill"
-          :class="{ 'active': activeClinic === pill.key }"
+          :class="{ 'active': currentActiveClinic === String(pill.key) }"
           @click="selectClinic(pill.key)"
         >
           <span>{{ pill.label }}</span>
@@ -93,10 +93,14 @@ const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 const searchQuery = ref('');
-const activeClinic = ref('all');
+const activeClinic = ref(String(props.activeFilter || 'all'));
 let debounceTimer: any = null;
 
 // 3. Computed (computed properties)
+const currentActiveClinic = computed(() => {
+  return String(props.activeFilter || activeClinic.value || 'all');
+});
+
 const clinicFilters = computed(() => {
   const list = [
     { key: 'all', label: `${t('All')} (${props.doctorsCount})` },
@@ -138,14 +142,15 @@ const clearSearch = () => {
 };
 
 const selectClinic = (key: string) => {
-  activeClinic.value = key;
-  emit('filter', key);
+  const strKey = String(key);
+  activeClinic.value = strKey;
+  emit('filter', strKey);
 };
 
 // 5. Watches (watch, watchEffect)
 watch(() => props.activeFilter, (newVal) => {
-  activeClinic.value = newVal || 'all';
-});
+  activeClinic.value = newVal ? String(newVal) : 'all';
+}, { immediate: true });
 
 // 6. Hooks (onMounted, onUnmounted, etc.)
 
