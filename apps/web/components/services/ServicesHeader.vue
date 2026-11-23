@@ -1,27 +1,42 @@
 <template>
   <div class="page-top-header">
-    <button class="back-btn" @click="router.back()">
+    <button class="back-btn" :aria-label="t('Back')" @click="handleBack">
       <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
     </button>
-    <h3 class="page-title">{{ t('Medical Services & Clinics') }}</h3>
+    <h3 class="page-title">{{ pageTitle }}</h3>
     <div class="placeholder-spacer" aria-hidden="true" />
   </div>
 </template>
 
 <script setup lang="ts">
 // 1. Setup & Imports (Imports, defineProps, defineEmits, definePageMeta, Composables, Stores)
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from '../../composables/useI18n';
 
 const router = useRouter();
+const route = useRoute();
 
 const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
 
 // 3. Computed (computed properties)
+const pageTitle = computed(() => {
+  if (route.query.tab === 'services') {
+    return t('Medical Services');
+  }
+  return t('Clinics & Doctors');
+});
 
 // 4. Methods (functions, handlers)
+const handleBack = () => {
+  if (route.query.clinic_id || route.query.category_id) {
+    router.replace({ query: { ...route.query, clinic_id: undefined, category_id: undefined } });
+  } else {
+    router.back();
+  }
+};
 
 // 5. Watches (watch, watchEffect)
 

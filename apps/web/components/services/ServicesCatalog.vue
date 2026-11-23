@@ -1,30 +1,5 @@
 <template>
   <div class="catalog-container">
-    <!-- Switcher Tabs (عيادات وأطباء / خدمات طبية) -->
-    <div class="view-tabs-switch">
-      <button 
-        class="tab-btn" 
-        :class="{ 'active': activeTab === 'doctors' }"
-        @click="switchTab('doctors')"
-      >
-        <i class="pi pi-building"></i>
-        <span>{{ t('Clinics & Doctors') }}</span>
-      </button>
-
-      <button 
-        class="tab-btn" 
-        :class="{ 'active': activeTab === 'services' }"
-        @click="switchTab('services')"
-      >
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon-svg">
-          <path d="M10 2v7.31L4.35 18.5A2 2 0 0 0 6.07 22h11.86a2 2 0 0 0 1.72-3.5L14 9.31V2"/>
-          <path d="M8.5 2h7"/>
-          <path d="M7 16h10"/>
-        </svg>
-        <span>{{ t('Services') }}</span>
-      </button>
-    </div>
-
     <!-- Search Bar -->
     <div class="search-box">
       <i class="pi pi-search"></i>
@@ -42,117 +17,114 @@
 
     <!-- Content: Services Tab -->
     <div v-if="activeTab === 'services'" class="tab-content-area">
-      <!-- Search Active Info Bar -->
-      <div v-if="searchQuery" class="search-results-bar">
-        <div class="results-meta">
-          <i class="pi pi-search"></i>
-          <span>{{ filteredServices.length }} {{ t('Services found') }}</span>
-        </div>
-        <button type="button" class="reset-search-btn" @click="searchQuery = ''">
-          <i class="pi pi-times"></i>
-          <span>{{ t('Clear search') }}</span>
-        </button>
-      </div>
-
-      <!-- 1. Categories Section (Stacked Cards under each other) -->
-      <div v-if="!searchQuery" class="categories-selection-view">
+      <!-- 1. Categories Grid/Stack View (Displayed first when no category selected) -->
+      <div v-if="!selectedCategoryId" class="categories-selection-view">
         <div class="categories-section-head">
           <div class="section-title-wrap">
             <h4>{{ t('Select Category') }}</h4>
-            <p>{{ t('Browse by department') }}</p>
           </div>
-          <span v-if="effectiveCategories.length > 0" class="categories-count-badge">
-            {{ effectiveCategories.length }} {{ t('Categories') }}
+          <span v-if="filteredCategories.length > 0" class="categories-count-badge">
+            {{ filteredCategories.length }} {{ t('Categories') }}
           </span>
         </div>
 
-        <!-- Vertical Stack of Category Cards -->
-        <div class="categories-cards-stack">
-          <!-- All Categories Card -->
+        <!-- Vertical Stack of Category Cards (Matching Admin Design) -->
+        <div v-if="filteredCategories.length > 0" class="categories-cards-stack">
           <div 
-            class="category-stack-card"
-            :class="{ 'is-selected': !selectedCategoryId }"
-            @click="clearCategory"
-          >
-            <div class="cat-card-left">
-              <div class="cat-icon-bubble">
-                <i class="pi pi-th-large"></i>
-              </div>
-              <div class="cat-card-info">
-                <h5 class="cat-name">{{ t('All Services') }}</h5>
-                <div class="cat-meta-sub">
-                  <span class="cat-count-pill">{{ allAvailableServices.length }} {{ t('Services') }}</span>
-                  <span class="cat-desc-hint">{{ t('Browse all available medical tests and examinations') }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="cat-card-right">
-              <div v-if="!selectedCategoryId" class="selected-check-badge">
-                <i class="pi pi-check"></i>
-              </div>
-              <i v-else :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="cat-card-arrow"></i>
-            </div>
-          </div>
-
-          <!-- Individual Category Cards -->
-          <div 
-            v-for="cat in effectiveCategories" 
+            v-for="cat in filteredCategories" 
             :key="cat.id" 
-            class="category-stack-card"
-            :class="{ 'is-selected': selectedCategoryId === cat.id }"
+            class="entity-stack-card category-stack-card"
             @click="selectCategory(cat.id)"
           >
-            <div class="cat-card-left">
-              <div class="cat-icon-bubble">
-                <i :class="cat.icon || 'pi pi-heart'"></i>
+            <div class="card-top">
+              <div class="icon-box category">
+                <i :class="getCategoryIcon(cat)"></i>
               </div>
-              <div class="cat-card-info">
-                <h5 class="cat-name">{{ getLocalizedName(cat) }}</h5>
-                <div class="cat-meta-sub">
-                  <span class="cat-count-pill">{{ getCategoryCount(cat) }} {{ t('Services') }}</span>
-                  <span class="cat-desc-hint">{{ t('Browse specialized services') }}</span>
-                </div>
+              <div class="entity-info">
+                <h4>{{ getLocalizedName(cat) }}</h4>
+                <p v-if="getLocalizedDesc(cat)" class="entity-desc">{{ getLocalizedDesc(cat) }}</p>
+              </div>
+              <div class="card-arrow-wrap">
+                <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
               </div>
             </div>
-            <div class="cat-card-right">
-              <div v-if="selectedCategoryId === cat.id" class="selected-check-badge">
-                <i class="pi pi-check"></i>
+
+            <div class="card-footer">
+              <span class="capacity-text">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="service-icon">
+                  <path d="M6 18h8"/>
+                  <path d="M3 22h18"/>
+                  <path d="M14 22a7 7 0 1 0 0-14h-1"/>
+                  <path d="M9 14h2"/>
+                  <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/>
+                  <path d="M12 6V3a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/>
+                </svg>
+                <span>{{ getCategoryCount(cat) }} {{ t('Services') }}</span>
+              </span>
+
+              <div class="view-action-btn">
+                <span>{{ t('View Services') }}</span>
+                <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
               </div>
-              <i v-else :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="cat-card-arrow"></i>
             </div>
           </div>
+        </div>
+
+        <div v-else-if="isServicesLoading" class="loading-state">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>{{ t('Loading...') }}</span>
+        </div>
+
+        <div v-else class="empty-catalog-state">
+          <i :class="searchQuery ? 'pi pi-search' : 'pi pi-folder-open'"></i>
+          <h5>{{ searchQuery ? t('No categories found matching your search') : t('No categories available') }}</h5>
         </div>
       </div>
 
-      <!-- 2. Services List View (ALWAYS displayed directly below categories!) -->
-      <div class="services-list-section">
-        <!-- Section Header for Services -->
-        <div class="services-section-head">
-          <div class="section-title-wrap">
-            <h4>{{ selectedCategoryId ? selectedCategoryName : t('Available Services') }}</h4>
-            <p>{{ selectedCategoryId ? t('Filtered by selected category') : t('Browse all available medical tests and examinations') }}</p>
+      <!-- 2. Services Drilldown View (When category chosen) -->
+      <div v-else class="services-drilldown-view">
+        <!-- Search Active Info Bar -->
+        <div v-if="searchQuery" class="search-results-bar">
+          <div class="results-meta">
+            <i class="pi pi-search"></i>
+            <span v-if="isServicesLoading">{{ t('Searching...') }}</span>
+            <span v-else>{{ filteredServices.length }} {{ t('Services found') }}</span>
           </div>
-          <div class="head-actions">
-            <button 
-              v-if="selectedCategoryId" 
-              type="button" 
-              class="clear-filter-btn" 
-              @click="clearCategory"
-            >
-              <i class="pi pi-times"></i>
-              <span>{{ t('Clear Filter') }}</span>
-            </button>
-            <span class="services-count-pill">
-              {{ filteredServices.length }} {{ t('Services') }}
-            </span>
-          </div>
+          <button type="button" class="reset-search-btn" @click="searchQuery = ''">
+            <i class="pi pi-times"></i>
+            <span>{{ t('Clear search') }}</span>
+          </button>
         </div>
 
-        <!-- Services List with Virtual Windowing -->
+        <!-- Categories Filter Pills (Matching Admin Services Pills) -->
+        <div class="categories-chips-scroll category-pills-bar">
+          <button 
+            type="button" 
+            class="cat-chip" 
+            :class="{ 'active': !selectedCategoryId || selectedCategoryId === 'all' }"
+            @click="selectCategory('all')"
+          >
+            <span>{{ t('All') }} ({{ allAvailableServices.length }})</span>
+          </button>
+
+          <button 
+            v-for="cat in effectiveCategories" 
+            :key="cat.id" 
+            type="button" 
+            class="cat-chip" 
+            :class="{ 'active': String(selectedCategoryId) === String(cat.id) }"
+            @click="selectCategory(cat.id)"
+          >
+            <span>{{ getLocalizedName(cat) }}</span>
+            <span v-if="getCategoryCount(cat) !== undefined" class="chip-count">({{ getCategoryCount(cat) }})</span>
+          </button>
+        </div>
+
+        <!-- Services Virtual List with Virtual Windowing -->
         <AppVirtualList
           :items="filteredServices"
           :has-more="servicesHasMore"
-          :loading="servicesLoading || globalStore.loading.includes('services')"
+          :loading="isServicesLoading"
           :page-size="10"
           @load-more="loadMoreServices"
         >
@@ -167,15 +139,7 @@
                     <h5>{{ getLocalizedName(service) }}</h5>
                     <span class="price-tag">{{ service.price }} <small>{{ t('EGP') }}</small></span>
                   </div>
-                  <span v-if="service.category" class="service-cat-pill">
-                    <i :class="service.category?.icon || 'pi pi-folder'"></i>
-                    {{ isRtl ? (service.category?.name_ar || service.category?.name || service.category?.name_en) : (service.category?.name_en || service.category?.name || service.category?.name_ar) }}
-                  </span>
                   <p v-if="getLocalizedDesc(service)">{{ getLocalizedDesc(service) }}</p>
-                  <div class="card-meta">
-                    <span v-if="service.duration"><i class="pi pi-clock"></i> {{ service.duration }} {{ t('mins') }}</span>
-                    <span><i class="pi pi-check"></i> {{ t('Available now') }}</span>
-                  </div>
                 </div>
               </div>
               <button class="book-service-btn" @click="bookService(service)">
@@ -188,7 +152,7 @@
           <template #empty>
             <div class="empty-catalog-state">
               <i class="pi pi-inbox"></i>
-              <h5>{{ selectedCategoryId ? t('No services in this category') : t('No services available') }}</h5>
+              <h5>{{ searchQuery ? t('No services found matching your search') : (selectedCategoryId ? t('No services in this category') : t('No services available')) }}</h5>
             </div>
           </template>
         </AppVirtualList>
@@ -197,61 +161,81 @@
 
     <!-- Content: Doctors Tab -->
     <div v-else class="tab-content-area">
-      <!-- 1. Clinics Grid View (Displayed first when no clinic selected and no search) -->
-      <div v-if="!selectedClinicId && !searchQuery" class="categories-selection-view">
+      <!-- 1. Clinics Grid View (Displayed first when no clinic selected) -->
+      <div v-if="!selectedClinicId" class="categories-selection-view">
         <div class="categories-section-head">
           <div class="section-title-wrap">
             <h4>{{ t('Select Clinic') }}</h4>
-            <p>{{ t('Browse our specialized clinics & departments') }}</p>
           </div>
-          <span v-if="clinics.length > 0" class="categories-count-badge">
-            {{ clinics.length }} {{ t('Clinics') }}
+          <span v-if="filteredClinics.length > 0" class="categories-count-badge">
+            {{ filteredClinics.length }} {{ t('Clinics') }}
           </span>
         </div>
 
-        <div v-if="clinics.length > 0" class="categories-cards-stack">
+        <div v-if="filteredClinics.length > 0" class="categories-cards-stack">
           <div 
-            v-for="clinic in clinics" 
+            v-for="clinic in filteredClinics" 
             :key="clinic.id" 
-            class="category-stack-card clinic-stack-card"
+            class="entity-stack-card clinic-stack-card"
             @click="selectClinic(clinic.id)"
           >
-            <div class="cat-card-left">
-              <div class="cat-icon-bubble clinic-icon-bubble">
-                <i class="pi pi-building"></i>
+            <div class="card-top">
+              <div class="icon-box clinic">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"/>
+                  <path d="M9 21v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>
+                  <path d="M10 8h4"/>
+                  <path d="M12 6v4"/>
+                </svg>
               </div>
-              <div class="cat-card-info">
-                <h5 class="cat-name">{{ getLocalizedName(clinic) }}</h5>
-                <div class="cat-meta-sub">
-                  <span class="cat-count-pill">{{ getClinicDoctorsCount(clinic) }} {{ t('Doctors') }}</span>
-                  <span class="cat-desc-hint">{{ t('Browse specialized doctors & appointments') }}</span>
-                </div>
+              <div class="entity-info">
+                <h4>{{ getLocalizedName(clinic) }}</h4>
+                <p v-if="getLocalizedDesc(clinic)" class="entity-desc">{{ getLocalizedDesc(clinic) }}</p>
+              </div>
+              <div class="card-arrow-wrap">
+                <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
               </div>
             </div>
-            <div class="cat-card-right">
-              <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" class="cat-card-arrow"></i>
+
+            <div class="card-footer">
+              <span class="capacity-text">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stethoscope-icon">
+                  <path d="M4.5 3v5a6.5 6.5 0 0 0 13 0V3"/>
+                  <path d="M3 3h3"/>
+                  <path d="M16 3h3"/>
+                  <path d="M11 14.5V18a3 3 0 0 0 6 0v-2"/>
+                  <circle cx="17" cy="16" r="2"/>
+                </svg>
+                <span>{{ getClinicDoctorsCount(clinic) }} {{ t('Doctors') }}</span>
+              </span>
+
+              <div class="view-action-btn">
+                <span>{{ t('View Doctors') }}</span>
+                <i :class="isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
+              </div>
             </div>
           </div>
         </div>
 
-        <div v-else-if="clinicsLoading || globalStore.loading.includes('clinics')" class="loading-state">
+        <div v-else-if="isClinicsLoading" class="loading-state">
           <i class="pi pi-spin pi-spinner"></i>
           <span>{{ t('Loading...') }}</span>
         </div>
 
         <div v-else class="empty-catalog-state">
-          <i class="pi pi-building"></i>
-          <h5>{{ t('No clinics available') }}</h5>
+          <i :class="searchQuery ? 'pi pi-search' : 'pi pi-building'"></i>
+          <h5>{{ searchQuery ? t('No clinics found matching your search') : t('No clinics available') }}</h5>
         </div>
       </div>
 
-      <!-- 2. Doctors Drilldown View (When clinic chosen or search query active) -->
+      <!-- 2. Doctors Drilldown View (When clinic chosen) -->
       <div v-else class="services-drilldown-view">
         <!-- Search Active Info Bar -->
         <div v-if="searchQuery" class="search-results-bar">
           <div class="results-meta">
             <i class="pi pi-search"></i>
-            <span>{{ filteredDoctors.length }} {{ t('Doctors found') }}</span>
+            <span v-if="isDoctorsLoading">{{ t('Searching...') }}</span>
+            <span v-else>{{ filteredDoctors.length }} {{ t('Doctors found') }}</span>
           </div>
           <button type="button" class="reset-search-btn" @click="searchQuery = ''">
             <i class="pi pi-times"></i>
@@ -259,58 +243,27 @@
           </button>
         </div>
 
-        <!-- Active Clinic Header Bar (With Back to Clinics button) -->
-        <div v-else class="category-active-bar">
-          <button type="button" class="back-to-cats-btn" @click="clearClinic">
-            <i :class="isRtl ? 'pi pi-arrow-right' : 'pi pi-arrow-left'"></i>
-            <span>{{ t('Back to Clinics') }}</span>
-          </button>
-          <div class="active-cat-meta">
-            <h4>{{ activeClinicName }}</h4>
-            <span class="cat-badge-count">{{ filteredDoctors.length }} {{ t('Doctors') }}</span>
-          </div>
-        </div>
-
-        <!-- Consultation Type Filter Chips (In drilldown view) -->
-        <div class="categories-chips-scroll consultation-chips-bar">
+        <!-- Clinics Filter Pills (Matching Admin Doctors Pills) -->
+        <div class="categories-chips-scroll clinic-pills-bar">
           <button 
             type="button" 
             class="cat-chip" 
-            :class="{ 'active': !selectedConsultationType || selectedConsultationType === 'all' }"
-            @click="selectConsultationType('all')"
+            :class="{ 'active': !selectedClinicId || selectedClinicId === 'all' }"
+            @click="selectClinic('all')"
           >
-            <i class="pi pi-users"></i>
-            <span>{{ t('All Doctors') }}</span>
+            <span>{{ t('All') }} ({{ totalDoctorsCount || doctors.length }})</span>
           </button>
 
           <button 
+            v-for="c in clinics" 
+            :key="c.id" 
             type="button" 
             class="cat-chip" 
-            :class="{ 'active': selectedConsultationType === 'clinic' }"
-            @click="selectConsultationType('clinic')"
+            :class="{ 'active': String(selectedClinicId) === String(c.id) }"
+            @click="selectClinic(c.id)"
           >
-            <i class="pi pi-building"></i>
-            <span>{{ t('In-Clinic Visit') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="cat-chip" 
-            :class="{ 'active': selectedConsultationType === 'online' }"
-            @click="selectConsultationType('online')"
-          >
-            <i class="pi pi-video"></i>
-            <span>{{ t('Online Video') }}</span>
-          </button>
-
-          <button 
-            type="button" 
-            class="cat-chip" 
-            :class="{ 'active': selectedConsultationType === 'home' }"
-            @click="selectConsultationType('home')"
-          >
-            <i class="pi pi-home"></i>
-            <span>{{ t('Home Visit') }}</span>
+            <span>{{ getLocalizedName(c) }}</span>
+            <span v-if="getClinicDoctorsCount(c) !== undefined" class="chip-count">({{ getClinicDoctorsCount(c) }})</span>
           </button>
         </div>
 
@@ -318,7 +271,7 @@
         <AppVirtualList
           :items="filteredDoctors"
           :has-more="doctorsHasMore"
-          :loading="doctorsLoading || globalStore.loading.includes('doctors')"
+          :loading="isDoctorsLoading"
           :page-size="10"
           @load-more="loadMoreDoctors"
         >
@@ -407,8 +360,9 @@ const bookingModal = useBookingModal();
 const globalStore = useGlobalStore();
 
 // 2. Data (refs, reactive state)
-const activeTab = ref<'services' | 'doctors'>('doctors');
+const activeTab = ref<'services' | 'doctors'>((route.query.tab as string) === 'services' ? 'services' : 'doctors');
 const searchQuery = ref('');
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 const clinics = ref<any[]>([]);
 const selectedClinicId = ref<string | null>((route.query.clinic_id as string) || null);
@@ -466,6 +420,18 @@ const getLocalizedDesc = (item: any): string => {
     : (item.description_en || item.description || item.description_ar || '');
 };
 
+const getCategoryIcon = (cat: any): string => {
+  if (cat?.icon) return cat.icon;
+  const name = ((cat?.name_ar || cat?.name || cat?.name_en || '') + '').toLowerCase();
+  if (name.includes('دم') || name.includes('تحاليل') || name.includes('blood') || name.includes('lab')) return 'pi pi-chart-line';
+  if (name.includes('جلد') || name.includes('derma') || name.includes('بشرة')) return 'pi pi-heart';
+  if (name.includes('قلب') || name.includes('cardio')) return 'pi pi-heart-fill';
+  if (name.includes('أشعة') || name.includes('x-ray') || name.includes('scan')) return 'pi pi-camera';
+  if (name.includes('أسنان') || name.includes('dental')) return 'pi pi-shield';
+  if (name.includes('أطفال') || name.includes('pediatric')) return 'pi pi-user';
+  return 'pi pi-folder';
+};
+
 const activeClinicName = computed(() => {
   if (!selectedClinicId.value) return '';
   const c = clinics.value.find(cl => String(cl.id) === String(selectedClinicId.value));
@@ -482,92 +448,12 @@ const getClinicDoctorsCount = (clinic: any) => {
   return doctors.value.filter((d: any) => String(d.clinic_id || d.clinic?.id) === String(clinic.id)).length;
 };
 
-const defaultSampleServices = [
-  {
-    id: 'srv-cbc',
-    name_ar: 'تحليل صورة دم كاملة (CBC)',
-    name_en: 'Complete Blood Count (CBC)',
-    price: 150,
-    duration: 15,
-    description_ar: 'فحص شامل لخلايا الدم ومستوى الهيموجلوبين ومكونات الدم',
-    description_en: 'Comprehensive blood cell count and hemoglobin evaluation',
-    category_id: 'cmwl2k0rt000boy1cnqwob03f',
-    category: { id: 'cmwl2k0rt000boy1cnqwob03f', name_ar: 'تحاليل الدم', name_en: 'Blood tests', icon: 'pi pi-chart-line' },
-  },
-  {
-    id: 'srv-derma-1',
-    name_ar: 'جلسة تنظيف وتقشير البشرة الطبي',
-    name_en: 'Medical Skin Cleansing & Peeling',
-    price: 350,
-    duration: 30,
-    description_ar: 'جلسة عناية طبية متخصصة بالبشرة وإزالة الرؤوس السوداء والشوائب',
-    description_en: 'Specialized medical skincare and impurity removal',
-    category_id: 'cmwif5sr70002o21cfzslo896',
-    category: { id: 'cmwif5sr70002o21cfzslo896', name_ar: 'خدمات الجلدية', name_en: 'Dermatology Services', icon: 'pi pi-heart' },
-  },
-  {
-    id: 'srv-derma-2',
-    name_ar: 'جلسة ليزر كربوني للوجه',
-    name_en: 'Carbon Laser Facial Session',
-    price: 450,
-    duration: 25,
-    description_ar: 'جلسة ليزر كربوني لنضارة وتفتيح البشرة وتقليص المسام',
-    description_en: 'Carbon laser rejuvenation for glowing skin and pore tightening',
-    category_id: 'cmwif5sr70002o21cfzslo896',
-    category: { id: 'cmwif5sr70002o21cfzslo896', name_ar: 'خدمات الجلدية', name_en: 'Dermatology Services', icon: 'pi pi-heart' },
-  },
-  {
-    id: 'srv-xray',
-    name_ar: 'أشعة سينية عادية على الصدر (Chest X-Ray)',
-    name_en: 'Chest X-Ray',
-    price: 250,
-    duration: 20,
-    description_ar: 'تصوير إشعاعي تشخيصي دقيق لمنطقة الصدر والرئتين',
-    description_en: 'Accurate radiographic chest and lungs diagnostic imaging',
-    category_id: 'cmwl2k0rt000boy1cnqwob03f',
-    category: { id: 'cmwl2k0rt000boy1cnqwob03f', name_ar: 'تحاليل وأشعة', name_en: 'Radiology & Labs', icon: 'pi pi-chart-line' },
-  },
-  {
-    id: 'srv-ecg',
-    name_ar: 'تخطيط كهربية القلب (ECG)',
-    name_en: 'Electrocardiogram (ECG)',
-    price: 200,
-    duration: 15,
-    description_ar: 'رسم وتخطيط لنبضات القلب وفحص النشاط الكهربائي بدقة',
-    description_en: 'Heart rhythm and electrical activity recording',
-    category_id: 'cmwl2k0rt000boy1cnqwob03f',
-    category: { id: 'cmwl2k0rt000boy1cnqwob03f', name_ar: 'تحاليل وفحوصات', name_en: 'Tests & Labs', icon: 'pi pi-chart-line' },
-  },
-];
-
 const allAvailableServices = computed(() => {
-  return services.value.length > 0 ? services.value : defaultSampleServices;
+  return services.value;
 });
 
 const effectiveCategories = computed(() => {
-  if (categories.value.length > 0) return categories.value;
-  // Fallback: extract categories from loaded services
-  const map = new Map<string, any>();
-  for (const s of allAvailableServices.value) {
-    const cat = s.category;
-    if (cat && cat.id && !map.has(cat.id)) {
-      map.set(cat.id, cat);
-    } else if (s.category_id && !map.has(s.category_id)) {
-      map.set(s.category_id, {
-        id: s.category_id,
-        name_ar: s.category_name_ar || s.category_name || s.name_ar || 'خدمات عامة',
-        name_en: s.category_name_en || s.category_name || s.name_en || 'General Services',
-        icon: 'pi pi-folder',
-      });
-    }
-  }
-  if (map.size === 0) {
-    return [
-      { id: 'cmwif5sr70002o21cfzslo896', name_ar: 'خدمات الجلدية', name_en: 'Dermatology Services', icon: 'pi pi-heart' },
-      { id: 'cmwl2k0rt000boy1cnqwob03f', name_ar: 'تحاليل الدم', name_en: 'Blood tests', icon: 'pi pi-chart-line' },
-    ];
-  }
-  return Array.from(map.values());
+  return categories.value;
 });
 
 const selectedCategory = computed(() => {
@@ -582,48 +468,53 @@ const selectedCategoryName = computed(() => {
 
 const getCategoryCount = (cat: any) => {
   if (Array.isArray(cat?.examinations) && cat.examinations.length > 0) return cat.examinations.length;
-  if (typeof cat?.examinations_count === 'number' && cat.examinations_count > 0) return cat.examinations_count;
-  const directMatch = allAvailableServices.value.filter((s: any) => String(s.category_id || s.category?.id) === String(cat?.id)).length;
-  if (directMatch > 0) return directMatch;
-  const catName = ((cat.name_ar || cat.name || cat.name_en || '') + '').toLowerCase();
-  return allAvailableServices.value.filter((s: any) => {
-    const sName = ((s.name_ar || s.name || s.name_en || '') + '').toLowerCase();
-    const sDesc = ((s.description_ar || s.description || s.description_en || '') + '').toLowerCase();
-    if (catName.includes('دم') || catName.includes('تحاليل') || catName.includes('blood')) {
-      return sName.includes('دم') || sName.includes('cbc') || sDesc.includes('دم') || sName.includes('أشعة') || sName.includes('قلب');
-    }
-    if (catName.includes('جلد') || catName.includes('derma')) {
-      return sName.includes('جلد') || sDesc.includes('جلد') || sName.includes('بشرة') || sName.includes('ليزر');
-    }
-    return false;
-  }).length;
+  if (typeof cat?.examinations_count === 'number') return cat.examinations_count;
+  return services.value.filter((s: any) => String(s.category_id || s.examination_category_id || s.category?.id) === String(cat?.id)).length;
 };
 
 const filteredServices = computed(() => {
-  let list = allAvailableServices.value;
-  if (selectedCategoryId.value) {
-    const cat = effectiveCategories.value.find(c => String(c.id) === String(selectedCategoryId.value));
-    const catName = ((cat?.name_ar || cat?.name || cat?.name_en || '') + '').toLowerCase();
-    list = list.filter((s: any) => {
-      if (String(s.category_id || s.category?.id) === String(selectedCategoryId.value)) return true;
-      if (Array.isArray(cat?.examinations) && cat.examinations.some((e: any) => String(e.id) === String(s.id))) return true;
-      const sName = ((s.name_ar || s.name || s.name_en || '') + '').toLowerCase();
-      const sDesc = ((s.description_ar || s.description || s.description_en || '') + '').toLowerCase();
-      if (catName.includes('دم') || catName.includes('تحاليل') || catName.includes('blood')) {
-        return sName.includes('دم') || sName.includes('cbc') || sDesc.includes('دم') || sName.includes('أشعة') || sName.includes('قلب');
-      }
-      if (catName.includes('جلد') || catName.includes('derma')) {
-        return sName.includes('جلد') || sDesc.includes('جلد') || sName.includes('بشرة') || sName.includes('ليزر');
-      }
-      return false;
-    });
+  let list = services.value;
+  if (selectedCategoryId.value && selectedCategoryId.value !== 'all') {
+    list = list.filter((s: any) => String(s.category_id || s.examination_category_id || s.category?.id) === String(selectedCategoryId.value));
   }
-  if (!searchQuery.value) return list;
+  return list;
+});
+
+const isDoctorsLoading = computed(() => {
+  return doctorsLoading.value || globalStore.loading.includes('DOCTORS') || globalStore.loading.includes('doctors');
+});
+
+const isClinicsLoading = computed(() => {
+  return clinicsLoading.value || globalStore.loading.includes('CLINICS') || globalStore.loading.includes('clinics');
+});
+
+const isServicesLoading = computed(() => {
+  return servicesLoading.value || globalStore.loading.includes('SERVICES') || globalStore.loading.includes('services') || globalStore.loading.includes('EXAMINATION_CATEGORIES');
+});
+
+const filteredClinics = computed(() => {
+  if (!searchQuery.value) return clinics.value;
   const q = searchQuery.value.toLowerCase().trim();
-  return list.filter((s: any) => {
-    const name = (getLocalizedName(s) || s.name || '').toLowerCase();
-    const desc = (getLocalizedDesc(s) || s.description || '').toLowerCase();
-    return name.includes(q) || desc.includes(q);
+  return clinics.value.filter(c => {
+    const name = (c.name || '').toLowerCase();
+    const nameAr = (c.name_ar || '').toLowerCase();
+    const nameEn = (c.name_en || '').toLowerCase();
+    const descAr = (c.description_ar || '').toLowerCase();
+    const descEn = (c.description_en || '').toLowerCase();
+    return name.includes(q) || nameAr.includes(q) || nameEn.includes(q) || descAr.includes(q) || descEn.includes(q);
+  });
+});
+
+const filteredCategories = computed(() => {
+  if (!searchQuery.value) return effectiveCategories.value;
+  const q = searchQuery.value.toLowerCase().trim();
+  return effectiveCategories.value.filter(cat => {
+    const name = (cat.name || '').toLowerCase();
+    const nameAr = (cat.name_ar || '').toLowerCase();
+    const nameEn = (cat.name_en || '').toLowerCase();
+    const descAr = (cat.description_ar || '').toLowerCase();
+    const descEn = (cat.description_en || '').toLowerCase();
+    return name.includes(q) || nameAr.includes(q) || nameEn.includes(q) || descAr.includes(q) || descEn.includes(q);
   });
 });
 
@@ -637,14 +528,7 @@ const filteredDoctors = computed(() => {
   if (selectedClinicId.value && selectedClinicId.value !== 'all') {
     list = list.filter(d => String(d.clinic_id || d.clinic?.id) === String(selectedClinicId.value));
   }
-  if (!searchQuery.value) return list;
-  const q = searchQuery.value.toLowerCase().trim();
-  return list.filter(d => 
-    (d.name || '').toLowerCase().includes(q) || 
-    (d.clinic?.name || '').toLowerCase().includes(q) ||
-    (d.clinic?.name_ar || '').toLowerCase().includes(q) ||
-    (d.clinic?.name_en || '').toLowerCase().includes(q)
-  );
+  return list;
 });
 
 // 4. Methods (functions, handlers)
@@ -653,15 +537,10 @@ const selectConsultationType = (type: string) => {
   router.replace({ query: { ...route.query, type: type === 'all' ? undefined : type } });
 };
 
-const switchTab = (tab: 'services' | 'doctors') => {
-  activeTab.value = tab;
-  router.replace({ query: { ...route.query, tab } });
-};
-
 const selectClinic = (clinicId: string | null) => {
   selectedClinicId.value = clinicId;
   searchQuery.value = '';
-  router.replace({ query: { ...route.query, clinic_id: clinicId || undefined } });
+  router.replace({ query: { ...route.query, clinic_id: clinicId && clinicId !== 'all' ? clinicId : undefined } });
   DOCTORS(1);
 };
 
@@ -672,13 +551,13 @@ const clearClinic = () => {
   DOCTORS(1);
 };
 
-const selectCategory = (categoryId: string) => {
-  if (selectedCategoryId.value === categoryId) {
-    selectedCategoryId.value = null;
-  } else {
-    selectedCategoryId.value = categoryId;
-  }
+const selectCategory = (categoryId: string | null) => {
+  selectedCategoryId.value = categoryId;
   searchQuery.value = '';
+  router.replace({ query: { ...route.query, category_id: categoryId && categoryId !== 'all' ? categoryId : undefined } });
+  if (categoryId) {
+    SERVICES(1);
+  }
 };
 
 const clearCategory = () => {
@@ -703,13 +582,21 @@ const CLINICS = async () => {
 const SERVICES = async (page = 1) => {
   try {
     servicesLoading.value = true;
+    globalStore.setLoading(['SERVICES', true]);
+    globalStore.setLoading(['services', true]);
+
     const filter: any = { page, limit: 10 };
-    if (selectedCategoryId.value) {
+    if (selectedCategoryId.value && selectedCategoryId.value !== 'all') {
       filter.category_id = selectedCategoryId.value;
+    }
+    const search = searchQuery.value.trim();
+    if (search) {
+      filter.search = search;
     }
     const res = await api.apiRequest({ 
       service: 'SERVICES',
       filter,
+      bypassCache: !!search,
     });
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     if (page === 1) {
@@ -723,6 +610,8 @@ const SERVICES = async (page = 1) => {
     if (page === 1) services.value = [];
   } finally {
     servicesLoading.value = false;
+    globalStore.setLoading(['SERVICES', false]);
+    globalStore.setLoading(['services', false]);
   }
 };
 
@@ -833,13 +722,22 @@ const computeDoctorAvailability = (doctor: any): { text: string; isToday: boolea
 const DOCTORS = async (page = 1) => {
   try {
     doctorsLoading.value = true;
+    globalStore.setLoading(['DOCTORS', true]);
+    globalStore.setLoading(['doctors', true]);
+
     const filter: any = { page, limit: 10 };
     if (selectedClinicId.value && selectedClinicId.value !== 'all') {
       filter.clinic_id = selectedClinicId.value;
     }
+    const search = searchQuery.value.trim();
+    if (search) {
+      filter.search = search;
+    }
+
     const res = await api.apiRequest({ 
       service: 'DOCTORS',
       filter,
+      bypassCache: !!search,
     });
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
 
@@ -883,7 +781,7 @@ const DOCTORS = async (page = 1) => {
 
     if (page === 1) {
       doctors.value = items;
-      totalDoctorsCount.value = res?.pagination?.total || items.length;
+      totalDoctorsCount.value = res?.pagination?.total ?? res?.total ?? items.length;
     } else {
       doctors.value.push(...items);
     }
@@ -894,6 +792,8 @@ const DOCTORS = async (page = 1) => {
     if (page === 1) doctors.value = [];
   } finally {
     doctorsLoading.value = false;
+    globalStore.setLoading(['DOCTORS', false]);
+    globalStore.setLoading(['doctors', false]);
   }
 };
 
@@ -915,7 +815,7 @@ const bookDoctor = (doctor: any) => {
   bookingModal.openBookingFlow({ 
     doctor, 
     type: 'consultation',
-    consultationType: selectedDoctorType.value === 'online' ? 'online' : (selectedDoctorType.value === 'home' ? 'home' : 'clinic')
+    consultationType: selectedConsultationType.value === 'online' ? 'online' : (selectedConsultationType.value === 'home' ? 'home' : 'clinic')
   });
 };
 
@@ -939,8 +839,23 @@ const EXAMINATION_CATEGORIES = async () => {
 watch(() => route.query.tab, (newTab) => {
   if (newTab === 'doctors' || newTab === 'services') {
     activeTab.value = newTab;
+    if (newTab === 'doctors') {
+      if (clinics.value.length === 0) {
+        CLINICS();
+      }
+      if (selectedClinicId.value && doctors.value.length === 0) {
+        DOCTORS(1);
+      }
+    } else if (newTab === 'services') {
+      if (categories.value.length === 0) {
+        EXAMINATION_CATEGORIES();
+      }
+      if (selectedCategoryId.value && services.value.length === 0) {
+        SERVICES(1);
+      }
+    }
   }
-}, { immediate: true });
+});
 
 watch(() => [route.query.type, route.query.consultation], ([newType, newConsultation]) => {
   const target = (newType as string) || (newConsultation as string);
@@ -949,12 +864,55 @@ watch(() => [route.query.type, route.query.consultation], ([newType, newConsulta
   }
 }, { immediate: true });
 
+watch(() => route.query.clinic_id, (newClinicId) => {
+  selectedClinicId.value = (newClinicId as string) || null;
+});
+
+watch(() => route.query.category_id, (newCategoryId) => {
+  selectedCategoryId.value = (newCategoryId as string) || null;
+});
+
+watch(searchQuery, () => {
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+  }
+
+  // 1. Doctors Tab Drilldown (When viewing doctors in a clinic)
+  if (activeTab.value === 'doctors' && selectedClinicId.value) {
+    globalStore.setLoading(['DOCTORS', true]);
+    globalStore.setLoading(['doctors', true]);
+    doctorsLoading.value = true;
+
+    searchDebounceTimer = setTimeout(() => {
+      DOCTORS(1);
+    }, 500);
+  }
+
+  // 2. Services Tab Drilldown (When viewing examinations in a category)
+  if (activeTab.value === 'services' && selectedCategoryId.value) {
+    globalStore.setLoading(['SERVICES', true]);
+    globalStore.setLoading(['services', true]);
+    servicesLoading.value = true;
+
+    searchDebounceTimer = setTimeout(() => {
+      SERVICES(1);
+    }, 500);
+  }
+});
+
 // 6. Hooks (onMounted, onUnmounted, etc.)
 onMounted(() => {
-  CLINICS();
-  SERVICES(1);
-  EXAMINATION_CATEGORIES();
-  DOCTORS(1);
+  if (activeTab.value === 'doctors') {
+    CLINICS();
+    if (selectedClinicId.value) {
+      DOCTORS(1);
+    }
+  } else if (activeTab.value === 'services') {
+    EXAMINATION_CATEGORIES();
+    if (selectedCategoryId.value) {
+      SERVICES(1);
+    }
+  }
 });
 
 // 7. Meta (useHead, useSeoMeta)
@@ -965,54 +923,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.view-tabs-switch {
-  display: flex;
-  background: var(--unity-surface-muted, #f1f5f9);
-  border: 1px solid var(--unity-border);
-  border-radius: 12px;
-  padding: 3px;
-  gap: 4px;
-
-  .tab-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    height: 32px;
-    padding: 0 12px;
-    border-radius: 9px;
-    border: none;
-    background: transparent;
-    color: var(--unity-text-muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    .tab-icon-svg {
-      width: 15px;
-      height: 15px;
-      transition: all 0.2s;
-    }
-
-    i {
-      font-size: 0.82rem;
-    }
-
-    &.active {
-      background: var(--unity-surface, #ffffff);
-      color: var(--unity-primary);
-      font-weight: 700;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-
-      .tab-icon-svg {
-        color: var(--unity-primary);
-      }
-    }
-  }
 }
 
 .search-box {
@@ -1089,10 +999,15 @@ onMounted(() => {
     border: 1px solid var(--unity-border);
     background: var(--unity-surface);
     color: var(--unity-text-muted);
-    font-size: 0.80rem;
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    .chip-count {
+      font-size: 0.72rem;
+      opacity: 0.88;
+    }
 
     i {
       font-size: 0.85rem;
@@ -1104,10 +1019,15 @@ onMounted(() => {
     }
 
     &.active {
-      background: var(--unity-primary-light, #ecfdf5);
-      border: 1.5px solid var(--unity-primary);
-      color: var(--unity-primary);
+      background: var(--unity-primary);
+      border-color: var(--unity-primary);
+      color: #ffffff;
       font-weight: 700;
+      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.22);
+
+      .chip-count {
+        color: #ffffff;
+      }
     }
   }
 }
@@ -1125,150 +1045,168 @@ onMounted(() => {
   gap: 14px;
 }
 
-// Categories Vertical Cards Stack (Stacked under each other)
+// Entity Vertical Cards Stack (Categories & Clinics - Exactly matching Admin card design)
 .categories-cards-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-.category-stack-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
+.entity-stack-card {
   background: var(--unity-surface);
-  border: 1.5px solid var(--unity-border);
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--unity-border);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     border-color: var(--unity-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(4, 120, 87, 0.09);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.08);
+
+    .view-action-btn {
+      opacity: 0.9;
+    }
+
+    .card-arrow-wrap {
+      color: var(--unity-primary);
+    }
   }
 
   &:active {
     transform: scale(0.99);
   }
 
-  &.is-selected {
-    border-color: var(--unity-primary);
-    background: var(--unity-primary-light, #ecfdf5);
-    box-shadow: 0 4px 16px rgba(4, 120, 87, 0.12);
-
-    .cat-icon-bubble {
-      background: var(--unity-primary);
-      color: #ffffff;
-      box-shadow: 0 4px 10px rgba(4, 120, 87, 0.25);
-    }
-
-    .cat-name {
-      color: var(--unity-primary);
-    }
-
-    .cat-card-arrow {
-      color: var(--unity-primary);
-    }
-  }
-
-  .cat-card-left {
+  .card-top {
     display: flex;
     align-items: center;
-    gap: 14px;
-    flex: 1;
-    min-width: 0;
-  }
+    gap: 12px;
 
-  .cat-icon-bubble {
-    width: 46px;
-    height: 46px;
-    border-radius: 13px;
-    background: var(--unity-primary-light, #ecfdf5);
-    color: var(--unity-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    flex-shrink: 0;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .cat-card-info {
-    flex: 1;
-    min-width: 0;
-
-    .cat-name {
-      margin: 0;
-      font-size: 0.94rem;
-      font-weight: 700;
-      color: var(--unity-text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: color 0.2s;
-    }
-
-    .cat-meta-sub {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 3px;
-
-      .cat-count-pill {
-        display: inline-flex;
-        align-items: center;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        background: rgba(4, 120, 87, 0.08);
-        color: var(--unity-primary);
-        font-size: 0.72rem;
-        font-weight: 600;
-      }
-
-      .cat-desc-hint {
-        font-size: 0.76rem;
-        color: var(--unity-text-dim);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    }
-  }
-
-  .cat-card-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-
-    .selected-check-badge {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--unity-primary);
-      color: #fff;
+    .icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+
+      i {
+        font-size: 1.2rem;
+      }
+
+      &.category {
+        background: var(--unity-primary-light, #ecfdf5);
+        color: var(--unity-primary, #047857);
+        border: 1px solid var(--unity-primary-tint, #a7f3d0);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.14);
+          border-color: rgba(16, 185, 129, 0.28);
+          color: #34d399;
+        }
+      }
+
+      &.clinic {
+        background: var(--unity-primary-light, #ecfdf5);
+        color: var(--unity-primary, #047857);
+        border: 1px solid var(--unity-primary-tint, #a7f3d0);
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.14);
+          border-color: rgba(16, 185, 129, 0.28);
+          color: #34d399;
+        }
+
+        svg {
+          width: 22px;
+          height: 22px;
+          color: var(--unity-primary, #047857);
+
+          :global([data-theme='dark']) &,
+          :global(html.dark) & {
+            color: #34d399;
+          }
+        }
+      }
     }
 
-    .cat-card-arrow {
+    .entity-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      text-align: start;
+
+      h4 {
+        font-size: 0.96rem;
+        font-weight: 700;
+        color: var(--unity-text-main);
+        margin: 0;
+      }
+
+      .entity-desc {
+        font-size: 0.78rem;
+        color: var(--unity-text-dim);
+        margin: 0;
+        line-height: 1.35;
+      }
+    }
+
+    .card-arrow-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: var(--unity-text-dim);
       font-size: 0.82rem;
-      transition: color 0.2s, transform 0.2s;
+      flex-shrink: 0;
+      transition: color 0.2s ease, transform 0.2s ease;
     }
   }
-}
 
-.services-list-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--unity-border);
+    padding-top: 10px;
+
+    .capacity-text {
+      font-size: 0.76rem;
+      color: var(--unity-text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      svg,
+      i {
+        color: var(--unity-primary);
+        flex-shrink: 0;
+      }
+    }
+
+    .view-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--unity-primary);
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 0.70rem;
+      }
+    }
+  }
 }
 
 .services-section-head {

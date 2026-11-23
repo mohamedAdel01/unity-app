@@ -119,20 +119,29 @@
         </div>
 
         <!-- Actions -->
-        <div class="card-actions-row">
+        <div class="card-actions-row" :class="{ 'is-pending-row': apt.status === 'pending' }">
           <!-- Pending appointments: Patient can Cancel OR Modify Slot before clinic approval -->
           <template v-if="apt.status === 'pending'">
-            <button 
-              class="btn-cancel" 
-              :disabled="cancellingId === apt.id"
-              @click="promptCancelApt(apt)"
-            >
-              <i v-if="cancellingId === apt.id" class="pi pi-spin pi-spinner"></i>
-              <span v-else>{{ t('Cancel Appointment') }}</span>
-            </button>
-            <button class="btn-reschedule" @click="rebook(apt)">
-              {{ t('Modify Slot') }}
-            </button>
+            <div class="pending-icon-group">
+              <button 
+                class="btn-icon btn-cancel" 
+                :disabled="cancellingId === apt.id"
+                :title="t('Cancel Appointment')"
+                :aria-label="t('Cancel Appointment')"
+                @click="promptCancelApt(apt)"
+              >
+                <i v-if="cancellingId === apt.id" class="pi pi-spin pi-spinner"></i>
+                <i v-else class="pi pi-times"></i>
+              </button>
+              <button 
+                class="btn-icon btn-reschedule" 
+                :title="t('Modify Slot')"
+                :aria-label="t('Modify Slot')"
+                @click="rebook(apt)"
+              >
+                <i class="pi pi-pencil"></i>
+              </button>
+            </div>
           </template>
 
           <!-- Confirmed appointments: Already approved by clinic, cannot be cancelled directly -->
@@ -144,13 +153,9 @@
           </template>
 
           <template v-else-if="apt.status === 'completed'">
-            <button class="btn-report" @click="viewReport(apt)">
-              <i class="pi pi-file"></i>
-              <span>{{ t('View Medical Report') }}</span>
-            </button>
-            <button class="btn-followup" @click="bookFollowUp(apt)">
+            <button class="btn-followup full-width" @click="handleCompletedAction(apt)">
               <i class="pi pi-calendar-plus"></i>
-              <span>{{ t('Book Follow-up') }}</span>
+              <span>{{ isExaminationAppointment(apt) ? t('Book Service Again') : t('Book Follow-up') }}</span>
             </button>
           </template>
 
@@ -514,8 +519,17 @@ const getPaymentIcon = (apt: any) => {
   return 'pi pi-wallet';
 };
 
-const viewReport = (apt: any) => {
-  toast.info(t('Medical Report: Health vitals optimal. Follow-up in 2 weeks.'), t('Medical File'));
+const handleCompletedAction = (apt: any) => {
+  if (isExaminationAppointment(apt) || isOfferAppointment(apt)) {
+    bookingModal.openBookingFlow({
+      doctor: apt.doctor,
+      service: apt.examination || apt.offer || null,
+      examination: apt.examination || null,
+      type: 'examination',
+    });
+    return;
+  }
+  bookingModal.openBookingFlow({ doctor: apt.doctor, type: 'follow_up' });
 };
 
 defineExpose({
@@ -646,19 +660,15 @@ onMounted(() => {
   .card-floating-badges-bar {
     position: absolute;
     top: 0;
-    transform: translateY(-50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     z-index: 5;
-    left: 14px;
-    right: auto;
-
-    :global([dir='ltr']) &,
-    :global(html[dir='ltr']) & {
-      right: 14px;
-      left: auto;
-    }
+    max-width: calc(100% - 24px);
+    white-space: nowrap;
 
     .floating-badge {
       display: inline-flex;
@@ -937,9 +947,82 @@ onMounted(() => {
 
   .card-actions-row {
     display: flex;
+    align-items: center;
     gap: 10px;
 
-    button {
+    &.is-pending-row {
+      justify-content: flex-end;
+
+      :global([dir='ltr']) &,
+      :global(html:not([dir='rtl'])) & {
+        justify-content: flex-start;
+      }
+    }
+
+    .pending-icon-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      padding: 0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      &.btn-cancel {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1.5px solid #fee2e2;
+
+        &:hover:not(:disabled) {
+          background: #fee2e2;
+          border-color: #fca5a5;
+          transform: translateY(-1px);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(239, 68, 68, 0.16);
+          color: #f87171;
+          border-color: rgba(239, 68, 68, 0.32);
+        }
+      }
+
+      &.btn-reschedule {
+        background: rgba(4, 120, 87, 0.08);
+        color: var(--unity-primary);
+        border: 1.5px solid rgba(4, 120, 87, 0.25);
+
+        &:hover {
+          background: var(--unity-primary);
+          color: #ffffff;
+          transform: translateY(-1px);
+        }
+
+        :global([data-theme='dark']) &,
+        :global(html.dark) & {
+          background: rgba(16, 185, 129, 0.16);
+          color: #34d399;
+          border-color: rgba(16, 185, 129, 0.35);
+        }
+      }
+    }
+
+    button:not(.btn-icon) {
       flex: 1;
       padding: 9px;
       border-radius: 12px;
@@ -951,37 +1034,6 @@ onMounted(() => {
       justify-content: center;
       gap: 6px;
       transition: all 0.2s;
-    }
-
-    .btn-cancel {
-      background: #fef2f2;
-      color: #dc2626;
-      border: 1px solid #fee2e2;
-
-      &:hover {
-        background: #fee2e2;
-      }
-
-      :global([data-theme='dark']) &,
-      :global(html.dark) & {
-        background: rgba(239, 68, 68, 0.14);
-        color: #f87171;
-        border-color: rgba(239, 68, 68, 0.28);
-
-        &:hover {
-          background: rgba(239, 68, 68, 0.22);
-        }
-      }
-    }
-
-    .btn-reschedule {
-      background: var(--unity-primary-dark);
-      color: #fff;
-      border: none;
-
-      &:hover {
-        background: #022c22;
-      }
     }
 
     .btn-report {

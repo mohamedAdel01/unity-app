@@ -928,6 +928,7 @@ export default {
   "Medical Consultation": "Medical Consultation",
   "Book Examination": "Book Examination",
   "Book Follow-up": "Book Follow-up",
+  "Book Service Again": "Book Service Again",
   "Examination": "Examination",
   "Follow-up Consultation": "Follow-up Consultation",
   "Appointment Type": "Appointment Type",

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-phone-input-wrapper" dir="ltr">
+  <div class="app-phone-input-wrapper">
     <div class="phone-input-shell" :class="{ 'is-focused': isFocused, 'is-valid': isValid && phoneDigits, 'is-invalid': hasError }" dir="ltr">
       <!-- Country Code Picker Trigger (Pinned on the LEFT: Flag + DialCode + Chevron) -->
       <button 
@@ -307,8 +307,9 @@ onMounted(() => {
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   position: relative;
-  direction: ltr !important;
 }
 
 .phone-input-shell {
@@ -316,39 +317,44 @@ onMounted(() => {
   align-items: center;
   direction: ltr !important;
   flex-direction: row !important;
-  background: var(--unity-surface-muted, #f8fafc);
-  border: 1px solid var(--unity-border);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  background: var(--unity-bg);
+  border: 1.5px solid var(--unity-border);
   border-radius: 14px;
-  padding: 0 14px;
+  padding: 0 12px;
   height: 48px;
   min-height: 48px;
+  max-height: 48px;
   box-sizing: border-box;
   transition: all 0.2s ease;
+  overflow: hidden;
 
   &:focus-within,
   &.is-focused {
     border-color: var(--unity-primary);
     background: var(--unity-surface);
-    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.1);
+    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
   }
 
   &.is-invalid {
     border-color: #ef4444;
-    background: #fef2f2;
+    background: rgba(239, 68, 68, 0.06);
   }
 }
 
 .country-picker-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 0;
   color: var(--unity-text-main);
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   border-radius: 8px;
   transition: background 0.15s ease;
   flex-shrink: 0;
@@ -380,14 +386,16 @@ onMounted(() => {
     font-family: inherit;
     font-weight: 700;
     color: var(--unity-text-main);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     direction: ltr;
+    flex-shrink: 0;
   }
 
   .arrow-icon {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--unity-text-muted);
     transition: transform 0.2s ease;
+    flex-shrink: 0;
 
     &.open {
       transform: rotate(180deg);
@@ -399,31 +407,35 @@ onMounted(() => {
   width: 1px;
   height: 20px;
   background: var(--unity-border);
-  margin: 0 10px;
+  margin: 0 8px;
   flex-shrink: 0;
 }
 
 .field-input-box {
-  flex: 1;
+  flex: 1 1 0%;
+  min-width: 0;
   display: flex;
   align-items: center;
+  overflow: hidden;
 
   input {
     width: 100%;
+    min-width: 0;
     border: none;
     background: transparent;
     outline: none;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     font-weight: 500;
     color: var(--unity-text-main);
     letter-spacing: 0.3px;
     padding: 0;
     direction: ltr;
     text-align: left;
+    box-sizing: border-box;
 
     &::placeholder {
       color: var(--unity-text-dim, #94a3b8);
-      font-size: 0.9rem;
+      font-size: 0.84rem;
       font-weight: 400;
       letter-spacing: normal;
     }
@@ -445,7 +457,7 @@ onMounted(() => {
   }
 
   .phone-icon-placeholder {
-    color: var(--unity-text-muted, #94a3b8);
+    color: var(--unity-text-dim, #94a3b8);
     font-size: 0.95rem;
   }
 }
@@ -556,11 +568,11 @@ onMounted(() => {
     }
 
     &.selected {
-      background: #ecfdf5;
-      color: #065f46;
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--unity-primary);
 
       .country-dial-code {
-        color: #047857;
+        color: var(--unity-primary);
         font-weight: 700;
       }
     }
@@ -596,8 +608,8 @@ onMounted(() => {
 
       .default-badge {
         font-size: 0.72rem;
-        background: #d1fae5;
-        color: #065f46;
+        background: rgba(16, 185, 129, 0.16);
+        color: var(--unity-primary);
         padding: 2px 6px;
         border-radius: 6px;
         font-weight: 600;

@@ -111,7 +111,7 @@ const handleSubmit = async () => {
       router.push(target);
     }
   } catch (err: any) {
-    toast.error(err.message || 'فشل تسجيل الدخول');
+    toast.error(err.message ? t(err.message) : t('Login failed'));
   }
 };
 
@@ -132,12 +132,19 @@ const handleSubmit = async () => {
   border-radius: 22px;
   padding: 20px 18px;
   box-shadow: var(--unity-shadow-subtle);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .input-field-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 
   .field-label {
     font-size: 0.86rem;
@@ -150,6 +157,9 @@ const handleSubmit = async () => {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     background: var(--unity-bg);
     border: 1.5px solid var(--unity-border);
     border-radius: 14px;
