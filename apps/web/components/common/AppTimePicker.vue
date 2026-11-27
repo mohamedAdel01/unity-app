@@ -272,15 +272,15 @@ watch(
   user-select: none;
 
   &:hover {
-    border-color: var(--unity-primary, #047857);
+    border-color: var(--unity-primary, #415b2e);
     background: #ffffff;
   }
 
   &.is-open,
   &:focus {
-    border-color: var(--unity-primary, #047857);
+    border-color: var(--unity-primary, #415b2e);
     background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+    box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
   }
 
   :global([data-theme='dark']) &,
@@ -292,8 +292,8 @@ watch(
     &.is-open,
     &:focus {
       background: #111827;
-      border-color: #10b981;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+      border-color: #5c8042;
+      box-shadow: 0 0 0 3px rgba(92, 128, 66, 0.15);
     }
   }
 
@@ -303,12 +303,12 @@ watch(
     gap: 8px;
 
     .trigger-icon {
-      color: var(--unity-primary, #047857);
+      color: var(--unity-primary, #415b2e);
       font-size: 0.85rem;
 
       :global([data-theme='dark']) &,
       :global(html.dark) & {
-        color: #10b981;
+        color: #5c8042;
       }
     }
 
@@ -381,16 +381,16 @@ watch(
       gap: 10px;
 
       .header-icon {
-        color: var(--unity-primary, #047857);
+        color: var(--unity-primary, #415b2e);
         font-size: 1.1rem;
-        background: #ecfdf5;
+        background: #f2f6ee;
         padding: 8px;
         border-radius: 10px;
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(16, 185, 129, 0.14);
-          color: #34d399;
+          background: rgba(92, 128, 66, 0.14);
+          color: #8ab36b;
         }
       }
 
@@ -460,8 +460,8 @@ watch(
 
     :global([data-theme='dark']) &,
     :global(html.dark) & {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.25);
+      background: rgba(92, 128, 66, 0.12);
+      border-color: rgba(92, 128, 66, 0.25);
     }
 
     .preview-digits {
@@ -472,26 +472,26 @@ watch(
       .digit-box {
         font-size: 1.5rem;
         font-weight: 900;
-        color: #047857;
+        color: #415b2e;
         font-variant-numeric: tabular-nums;
         line-height: 1;
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          color: #34d399;
+          color: #8ab36b;
         }
       }
 
       .digit-separator {
         font-size: 1.3rem;
         font-weight: 900;
-        color: #059669;
+        color: #364c26;
         line-height: 1;
         animation: pulseColon 1.5s infinite;
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          color: #10b981;
+          color: #5c8042;
         }
       }
     }
@@ -501,12 +501,12 @@ watch(
       font-weight: 800;
       padding: 4px 10px;
       border-radius: 8px;
-      background: #047857;
+      background: #415b2e;
       color: #ffffff;
       letter-spacing: 0.4px;
 
       &.pm {
-        background: #0f766e;
+        background: #415b2e;
       }
     }
   }
@@ -572,16 +572,16 @@ watch(
           flex-shrink: 0;
 
           &:hover {
-            border-color: #047857;
-            color: #047857;
+            border-color: #415b2e;
+            color: #415b2e;
             background: #f0fdf4;
           }
 
           &.active {
-            background: #047857;
+            background: #415b2e;
             color: #ffffff;
-            border-color: #047857;
-            box-shadow: 0 3px 8px rgba(4, 120, 87, 0.28);
+            border-color: #415b2e;
+            box-shadow: 0 3px 8px rgba(65, 91, 46, 0.28);
             font-weight: 800;
             transform: scale(1.02);
           }
@@ -593,16 +593,16 @@ watch(
             color: #e2e8f0;
 
             &:hover {
-              background: rgba(16, 185, 129, 0.16);
-              border-color: #10b981;
-              color: #34d399;
+              background: rgba(92, 128, 66, 0.16);
+              border-color: #5c8042;
+              color: #8ab36b;
             }
 
             &.active {
-              background: #10b981;
+              background: #5c8042;
               color: #ffffff;
-              border-color: #10b981;
-              box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35);
+              border-color: #5c8042;
+              box-shadow: 0 3px 8px rgba(92, 128, 66, 0.35);
             }
           }
         }
@@ -654,13 +654,13 @@ watch(
       justify-content: center;
       gap: 6px;
       transition: all 0.2s;
-      background: var(--unity-primary, #047857);
+      background: var(--unity-primary, #415b2e);
       border: none;
       color: #ffffff;
-      box-shadow: 0 3px 10px rgba(4, 120, 87, 0.25);
+      box-shadow: 0 3px 10px rgba(65, 91, 46, 0.25);
 
       &:hover {
-        background: #065f46;
+        background: #364c26;
       }
     }
   }

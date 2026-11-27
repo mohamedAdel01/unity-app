@@ -194,11 +194,11 @@ const supportEmail = 'support@unity-health.app';
 
     &.ticket {
       .channel-icon-shell {
-        background: rgba(16, 185, 129, 0.12);
-        color: #059669;
+        background: rgba(92, 128, 66, 0.12);
+        color: #364c26;
       }
       &:hover {
-        border-color: rgba(16, 185, 129, 0.4);
+        border-color: rgba(92, 128, 66, 0.4);
       }
     }
 

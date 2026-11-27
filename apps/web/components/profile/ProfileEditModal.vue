@@ -403,8 +403,8 @@ onUnmounted(() => {
       i {
         font-size: 1.2rem;
         color: var(--unity-primary);
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
+        background: #f2f6ee;
+        border: 1px solid #c5d6b8;
         padding: 8px;
         border-radius: 12px;
       }
@@ -483,7 +483,7 @@ onUnmounted(() => {
         }
 
         .letter-avatar-initial {
-          background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+          background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
           color: #ffffff;
           display: flex;
           align-items: center;
@@ -499,7 +499,7 @@ onUnmounted(() => {
           width: 26px;
           height: 26px;
           border-radius: 50%;
-          background: var(--unity-primary, #047857);
+          background: var(--unity-primary, #415b2e);
           color: #ffffff;
           display: flex;
           align-items: center;
@@ -528,12 +528,12 @@ onUnmounted(() => {
           transition: all 0.2s;
 
           &.primary {
-            background: #ecfdf5;
+            background: #f2f6ee;
             color: var(--unity-primary);
-            border-color: #a7f3d0;
+            border-color: #c5d6b8;
 
             &:hover {
-              background: #d1fae5;
+              background: #dce6d3;
             }
           }
 
@@ -584,7 +584,7 @@ onUnmounted(() => {
 
         &:focus-within {
           border-color: var(--unity-primary);
-          box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
         }
 
         i {
@@ -635,9 +635,9 @@ onUnmounted(() => {
 
           &.active {
             border-color: var(--unity-primary);
-            background: #ecfdf5;
+            background: #f2f6ee;
             color: var(--unity-primary);
-            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.12);
+            box-shadow: 0 2px 8px rgba(65, 91, 46, 0.12);
           }
         }
       }
@@ -682,7 +682,7 @@ onUnmounted(() => {
           background: var(--unity-primary);
           border: none;
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+          box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
 
           &:disabled {
             opacity: 0.5;

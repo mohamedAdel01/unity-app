@@ -381,9 +381,9 @@ onUnmounted(() => {
     transition: all 0.2s;
 
     &.active {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: #10b981;
-      color: #10b981;
+      background: rgba(92, 128, 66, 0.12);
+      border-color: #5c8042;
+      color: #5c8042;
       font-weight: 600;
     }
   }
@@ -403,7 +403,7 @@ onUnmounted(() => {
     outline: none;
 
     &:focus {
-      border-color: #10b981;
+      border-color: #5c8042;
     }
   }
 }

@@ -205,7 +205,7 @@ const handleSubmit = async () => {
     &:focus-within {
       border-color: var(--unity-primary);
       background: var(--unity-surface);
-      box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
     }
 
     .field-icon {
@@ -265,7 +265,7 @@ const handleSubmit = async () => {
     color: #ffffff;
     width: 100%;
     margin-top: 6px;
-    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
 
     &:disabled {
       opacity: 0.55;

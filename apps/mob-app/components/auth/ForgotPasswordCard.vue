@@ -487,12 +487,12 @@ onBeforeUnmount(() => {
       opacity: 1;
 
       .step-num {
-        background: #059669;
+        background: #364c26;
         color: #ffffff;
       }
 
       .step-name {
-        color: #059669;
+        color: #364c26;
       }
     }
   }
@@ -529,8 +529,8 @@ onBeforeUnmount(() => {
     width: 48px;
     height: 48px;
     border-radius: 16px;
-    background: #ecfdf5;
-    color: #047857;
+    background: #f2f6ee;
+    color: #415b2e;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -744,7 +744,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 6px 18px rgba(4, 120, 87, 0.25);
+  box-shadow: 0 6px 18px rgba(65, 91, 46, 0.25);
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {

@@ -252,7 +252,7 @@ onMounted(() => {
   &:hover {
     transform: translateY(-4px);
     border-color: var(--unity-primary);
-    box-shadow: 0 12px 30px rgba(4, 120, 87, 0.08);
+    box-shadow: 0 12px 30px rgba(65, 91, 46, 0.08);
   }
 
   .offer-top-badge {
@@ -267,7 +267,7 @@ onMounted(() => {
       gap: 6px;
       padding: 4px 10px;
       border-radius: 9999px;
-      background: rgba(4, 120, 87, 0.1);
+      background: rgba(65, 91, 46, 0.1);
       color: var(--unity-primary);
       font-size: 0.76rem;
       font-weight: 700;
@@ -377,11 +377,11 @@ onMounted(() => {
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+      box-shadow: 0 4px 12px rgba(65, 91, 46, 0.2);
       transition: all 0.2s ease;
 
       &:hover {
-        background: var(--unity-primary-dark, #065f46);
+        background: var(--unity-primary-dark, #364c26);
         transform: translateY(-1px);
       }
     }

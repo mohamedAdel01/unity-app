@@ -260,14 +260,14 @@ watch(() => props.modelValue, (newVal) => {
   transition: all 0.2s ease;
 
   &:hover, &.is-open {
-    border-color: var(--unity-primary, #047857);
+    border-color: var(--unity-primary, #415b2e);
     background: var(--unity-surface, #ffffff);
-    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+    box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
   }
 
   .field-icon {
     font-size: 1.05rem;
-    color: var(--unity-primary, #047857);
+    color: var(--unity-primary, #415b2e);
     margin-inline-end: 10px;
   }
 
@@ -342,8 +342,8 @@ watch(() => props.modelValue, (newVal) => {
         width: 38px;
         height: 38px;
         border-radius: 12px;
-        background: #ecfdf5;
-        color: #047857;
+        background: #f2f6ee;
+        color: #415b2e;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -360,7 +360,7 @@ watch(() => props.modelValue, (newVal) => {
       small {
         font-size: 0.8rem;
         font-weight: 600;
-        color: #047857;
+        color: #415b2e;
       }
     }
 
@@ -416,7 +416,7 @@ watch(() => props.modelValue, (newVal) => {
         transition: border-color 0.2s;
 
         &:focus {
-          border-color: #047857;
+          border-color: #415b2e;
           background: #ffffff;
         }
       }
@@ -476,16 +476,16 @@ watch(() => props.modelValue, (newVal) => {
           }
 
           &.is-selected {
-            background: #047857 !important;
+            background: #415b2e !important;
             color: #ffffff !important;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(4, 120, 87, 0.35);
+            box-shadow: 0 4px 12px rgba(65, 91, 46, 0.35);
             transform: scale(1.05);
           }
 
           &.is-today:not(.is-selected) {
-            border: 1.5px solid #047857;
-            color: #047857;
+            border: 1.5px solid #415b2e;
+            color: #415b2e;
             font-weight: 700;
           }
         }
@@ -512,12 +512,12 @@ watch(() => props.modelValue, (newVal) => {
       align-items: center;
       justify-content: center;
       gap: 8px;
-      background: #047857;
+      background: #415b2e;
       color: #ffffff;
-      box-shadow: 0 6px 18px rgba(4, 120, 87, 0.28);
+      box-shadow: 0 6px 18px rgba(65, 91, 46, 0.28);
 
       &:hover {
-        background: #065f46;
+        background: #364c26;
       }
     }
   }

@@ -277,8 +277,8 @@ onUnmounted(() => {
       i {
         font-size: 1.25rem;
         color: var(--unity-primary);
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
+        background: #f2f6ee;
+        border: 1px solid #c5d6b8;
         padding: 8px;
         border-radius: 12px;
       }
@@ -376,10 +376,10 @@ onUnmounted(() => {
             }
 
             &.active {
-              background: #ecfdf5;
-              border-color: #047857;
-              color: #047857;
-              box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+              background: #f2f6ee;
+              border-color: #415b2e;
+              color: #415b2e;
+              box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
             }
           }
         }
@@ -442,7 +442,7 @@ onUnmounted(() => {
         flex: 1;
         background: var(--unity-primary);
         color: #fff;
-        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
 
         &:hover:not(:disabled) {
           background: var(--unity-primary-dark);

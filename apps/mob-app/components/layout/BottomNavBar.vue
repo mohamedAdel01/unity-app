@@ -174,13 +174,13 @@ const { isAnyModalOpen } = useModalState();
       justify-content: center;
       font-size: 1.35rem;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(4, 120, 87, 0.16);
+      box-shadow: 0 3px 10px rgba(65, 91, 46, 0.16);
       transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 
       &:hover {
         transform: scale(1.08) rotate(90deg);
         background: var(--unity-primary-dark);
-        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.22);
+        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.22);
       }
 
       &:active {

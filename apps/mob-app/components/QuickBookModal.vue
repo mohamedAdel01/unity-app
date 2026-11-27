@@ -205,7 +205,7 @@ const chooseService = () => {
 
   &:hover {
     border-color: var(--unity-primary);
-    box-shadow: 0 4px 12px rgba(4, 120, 87, 0.1);
+    box-shadow: 0 4px 12px rgba(65, 91, 46, 0.1);
   }
 }
 
@@ -237,20 +237,20 @@ const chooseService = () => {
 
   &.service {
     background: #f0fdf4;
-    color: #0f766e;
+    color: #415b2e;
   }
 
   :global([data-theme='dark']) &,
   :global(html.dark) & {
     &.clinic,
     &.doctor {
-      background: rgba(16, 185, 129, 0.18);
-      color: #34d399;
+      background: rgba(92, 128, 66, 0.18);
+      color: #8ab36b;
     }
 
     &.service {
-      background: rgba(20, 184, 166, 0.2);
-      color: #2dd4bf;
+      background: rgba(92, 128, 66, 0.2);
+      color: #8ab36b;
     }
 
     &.online {

@@ -335,7 +335,7 @@ onMounted(() => {
   &.is-focused {
     border-color: var(--unity-primary);
     background: var(--unity-surface);
-    box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+    box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
   }
 
   &.is-invalid {
@@ -451,7 +451,7 @@ onMounted(() => {
   flex-shrink: 0;
 
   .valid-icon {
-    color: #10b981;
+    color: #5c8042;
     font-size: 1rem;
     animation: popIn 0.2s ease;
   }
@@ -568,7 +568,7 @@ onMounted(() => {
     }
 
     &.selected {
-      background: rgba(16, 185, 129, 0.12);
+      background: rgba(92, 128, 66, 0.12);
       color: var(--unity-primary);
 
       .country-dial-code {
@@ -608,7 +608,7 @@ onMounted(() => {
 
       .default-badge {
         font-size: 0.72rem;
-        background: rgba(16, 185, 129, 0.16);
+        background: rgba(92, 128, 66, 0.16);
         color: var(--unity-primary);
         padding: 2px 6px;
         border-radius: 6px;

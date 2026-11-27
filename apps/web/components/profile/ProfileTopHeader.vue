@@ -86,7 +86,7 @@ const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
     .header-avatar-initial {
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+      background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
       color: #ffffff;
       display: flex;
       align-items: center;
@@ -108,8 +108,8 @@ const resolvedPhotoUrl = computed(() => resolveAvatarUrl(props.user?.avatar));
       gap: 4px;
       padding: 2px 8px;
       border-radius: 12px;
-      background: #ecfdf5;
-      color: #047857;
+      background: #f2f6ee;
+      color: #415b2e;
       font-size: 0.68rem;
       font-weight: 600;
 

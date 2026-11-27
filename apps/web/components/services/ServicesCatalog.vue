@@ -973,7 +973,7 @@ onMounted(() => {
 
     &:focus {
       border-color: var(--unity-primary);
-      box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
     }
   }
 }
@@ -1023,7 +1023,7 @@ onMounted(() => {
       border-color: var(--unity-primary);
       color: #ffffff;
       font-weight: 700;
-      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.22);
+      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.22);
 
       .chip-count {
         color: #ffffff;
@@ -1067,7 +1067,7 @@ onMounted(() => {
   &:hover {
     border-color: var(--unity-primary);
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.08);
+    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.08);
 
     .view-action-btn {
       opacity: 0.9;
@@ -1102,38 +1102,38 @@ onMounted(() => {
       }
 
       &.category {
-        background: var(--unity-primary-light, #ecfdf5);
-        color: var(--unity-primary, #047857);
-        border: 1px solid var(--unity-primary-tint, #a7f3d0);
+        background: var(--unity-primary-light, #f2f6ee);
+        color: var(--unity-primary, #415b2e);
+        border: 1px solid var(--unity-primary-tint, #c5d6b8);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(16, 185, 129, 0.14);
-          border-color: rgba(16, 185, 129, 0.28);
-          color: #34d399;
+          background: rgba(92, 128, 66, 0.14);
+          border-color: rgba(92, 128, 66, 0.28);
+          color: #8ab36b;
         }
       }
 
       &.clinic {
-        background: var(--unity-primary-light, #ecfdf5);
-        color: var(--unity-primary, #047857);
-        border: 1px solid var(--unity-primary-tint, #a7f3d0);
+        background: var(--unity-primary-light, #f2f6ee);
+        color: var(--unity-primary, #415b2e);
+        border: 1px solid var(--unity-primary-tint, #c5d6b8);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(16, 185, 129, 0.14);
-          border-color: rgba(16, 185, 129, 0.28);
-          color: #34d399;
+          background: rgba(92, 128, 66, 0.14);
+          border-color: rgba(92, 128, 66, 0.28);
+          color: #8ab36b;
         }
 
         svg {
           width: 22px;
           height: 22px;
-          color: var(--unity-primary, #047857);
+          color: var(--unity-primary, #415b2e);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            color: #34d399;
+            color: #8ab36b;
           }
         }
       }
@@ -1261,7 +1261,7 @@ onMounted(() => {
       font-weight: 700;
       padding: 3px 10px;
       border-radius: 9999px;
-      background: var(--unity-primary-light, #ecfdf5);
+      background: var(--unity-primary-light, #f2f6ee);
       color: var(--unity-primary);
     }
   }
@@ -1292,7 +1292,7 @@ onMounted(() => {
     font-weight: 700;
     padding: 3px 10px;
     border-radius: 9999px;
-    background: var(--unity-primary-light, #ecfdf5);
+    background: var(--unity-primary-light, #f2f6ee);
     color: var(--unity-primary);
   }
 }
@@ -1321,7 +1321,7 @@ onMounted(() => {
   &:hover {
     border-color: var(--unity-primary);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(4, 120, 87, 0.08);
+    box-shadow: 0 6px 16px rgba(65, 91, 46, 0.08);
   }
 
   &:active {
@@ -1332,7 +1332,7 @@ onMounted(() => {
     width: 44px;
     height: 44px;
     border-radius: 13px;
-    background: var(--unity-primary-light, #ecfdf5);
+    background: var(--unity-primary-light, #f2f6ee);
     color: var(--unity-primary);
     display: flex;
     align-items: center;
@@ -1399,7 +1399,7 @@ onMounted(() => {
     padding: 6px 12px;
     border-radius: 10px;
     border: 1.5px solid var(--unity-primary);
-    background: var(--unity-primary-light, #ecfdf5);
+    background: var(--unity-primary-light, #f2f6ee);
     color: var(--unity-primary);
     font-size: 0.78rem;
     font-weight: 700;
@@ -1433,7 +1433,7 @@ onMounted(() => {
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 9999px;
-      background: var(--unity-primary-light, #ecfdf5);
+      background: var(--unity-primary-light, #f2f6ee);
       color: var(--unity-primary);
     }
   }
@@ -1525,8 +1525,8 @@ onMounted(() => {
 
     .count-bubble {
       font-size: 0.65rem;
-      background: #ecfdf5;
-      color: #047857;
+      background: #f2f6ee;
+      color: #415b2e;
       padding: 1px 6px;
       border-radius: 8px;
       font-weight: 800;
@@ -1606,7 +1606,7 @@ onMounted(() => {
       &:hover {
         border-color: var(--unity-primary);
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(4, 120, 87, 0.12);
+        box-shadow: 0 6px 16px rgba(65, 91, 46, 0.12);
       }
 
       .card-icon-row {
@@ -1618,8 +1618,8 @@ onMounted(() => {
           width: 36px;
           height: 36px;
           border-radius: 10px;
-          background: #ecfdf5;
-          color: #047857;
+          background: #f2f6ee;
+          color: #415b2e;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1688,8 +1688,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ecfdf5;
-  border: 1px solid #d1fae5;
+  background: #f2f6ee;
+  border: 1px solid #dce6d3;
   border-radius: 14px;
   padding: 10px 14px;
 
@@ -1698,7 +1698,7 @@ onMounted(() => {
     align-items: center;
     gap: 6px;
     font-size: 0.78rem;
-    color: #065f46;
+    color: #364c26;
 
     i {
       color: var(--unity-primary);
@@ -1711,8 +1711,8 @@ onMounted(() => {
 
   .btn-clear-clinic {
     background: #fff;
-    border: 1px solid #a7f3d0;
-    color: #047857;
+    border: 1px solid #c5d6b8;
+    color: #415b2e;
     font-size: 0.72rem;
     font-weight: 700;
     padding: 4px 10px;
@@ -1824,7 +1824,7 @@ onMounted(() => {
       }
 
       .doc-initial-avatar {
-        background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+        background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -1874,7 +1874,7 @@ onMounted(() => {
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
+      box-shadow: 0 2px 6px rgba(65, 91, 46, 0.2);
       transition: all 0.2s;
 
       &:hover {
@@ -1906,8 +1906,8 @@ onMounted(() => {
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: #ecfdf5;
-      color: #047857;
+      background: #f2f6ee;
+      color: #415b2e;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2027,7 +2027,7 @@ onMounted(() => {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+  background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
   color: #ffffff;
   display: flex;
   align-items: center;

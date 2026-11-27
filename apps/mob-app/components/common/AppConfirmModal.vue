@@ -218,17 +218,17 @@ onUnmounted(() => {
     }
 
     &.info {
-      background: #f0fdfa;
-      color: #0d9488;
-      border: 2px solid #ccfbf1;
-      box-shadow: 0 6px 18px rgba(13, 148, 136, 0.15);
+      background: #f2f6ee;
+      color: #415b2e;
+      border: 2px solid #dce6d3;
+      box-shadow: 0 6px 18px rgba(65, 91, 46, 0.15);
     }
 
     &.success {
-      background: #ecfdf5;
-      color: #047857;
-      border: 2px solid #a7f3d0;
-      box-shadow: 0 6px 18px rgba(4, 120, 87, 0.15);
+      background: #f2f6ee;
+      color: #415b2e;
+      border: 2px solid #c5d6b8;
+      box-shadow: 0 6px 18px rgba(65, 91, 46, 0.15);
     }
   }
 
@@ -305,22 +305,22 @@ onUnmounted(() => {
       }
 
       &.info {
-        background: var(--unity-primary, #0d9488);
+        background: var(--unity-primary, #415b2e);
         color: #ffffff;
-        box-shadow: 0 6px 18px rgba(13, 148, 136, 0.28);
+        box-shadow: 0 6px 18px rgba(65, 91, 46, 0.28);
 
         &:hover:not(:disabled) {
-          background: var(--unity-primary-dark, #0f766e);
+          background: var(--unity-primary-dark, #415b2e);
         }
       }
 
       &.success {
-        background: var(--unity-primary, #047857);
+        background: var(--unity-primary, #415b2e);
         color: #ffffff;
-        box-shadow: 0 6px 18px rgba(4, 120, 87, 0.28);
+        box-shadow: 0 6px 18px rgba(65, 91, 46, 0.28);
 
         &:hover:not(:disabled) {
-          background: var(--unity-primary-dark, #065f46);
+          background: var(--unity-primary-dark, #364c26);
         }
       }
 

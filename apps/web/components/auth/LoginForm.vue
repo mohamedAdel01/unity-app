@@ -239,7 +239,7 @@ const handleSubmit = async () => {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 6px 18px rgba(4, 120, 87, 0.25);
+  box-shadow: 0 6px 18px rgba(65, 91, 46, 0.25);
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {

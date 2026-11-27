@@ -412,7 +412,7 @@ onUnmounted(() => {
           .avatar-initial {
             font-size: 1.05rem;
             font-weight: 800;
-            color: var(--unity-primary, #047857);
+            color: var(--unity-primary, #415b2e);
           }
         }
 
@@ -426,7 +426,7 @@ onUnmounted(() => {
           border: 2px solid var(--unity-surface, #ffffff);
 
           &.online {
-            background: #10b981;
+            background: #5c8042;
           }
 
           &.offline {
@@ -477,7 +477,7 @@ onUnmounted(() => {
             border-radius: 50%;
 
             &.online {
-              background: #10b981;
+              background: #5c8042;
             }
 
             &.offline {
@@ -502,7 +502,7 @@ onUnmounted(() => {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            color: var(--unity-primary, #047857);
+            color: var(--unity-primary, #415b2e);
             font-weight: 600;
 
             i {
@@ -558,15 +558,15 @@ onUnmounted(() => {
 
         &:hover,
         &.is-active {
-          background: var(--unity-primary-light, #ecfdf5);
-          border-color: var(--unity-primary, #047857);
-          color: var(--unity-primary, #047857);
+          background: var(--unity-primary-light, #f2f6ee);
+          border-color: var(--unity-primary, #415b2e);
+          color: var(--unity-primary, #415b2e);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(16, 185, 129, 0.14);
-            border-color: #10b981;
-            color: #34d399;
+            background: rgba(92, 128, 66, 0.14);
+            border-color: #5c8042;
+            color: #8ab36b;
           }
 
           i {
@@ -606,7 +606,7 @@ onUnmounted(() => {
         }
 
         &.active {
-          background: #059669;
+          background: #364c26;
 
           .switch-slider {
             transform: translateX(20px);
@@ -715,15 +715,15 @@ onUnmounted(() => {
         }
 
         &.icon-cases {
-          background: var(--unity-primary-light, #ecfdf5);
-          color: var(--unity-primary, #047857);
-          border: 1px solid var(--unity-primary-tint, #a7f3d0);
+          background: var(--unity-primary-light, #f2f6ee);
+          color: var(--unity-primary, #415b2e);
+          border: 1px solid var(--unity-primary-tint, #c5d6b8);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(16, 185, 129, 0.14);
-            border-color: rgba(16, 185, 129, 0.28);
-            color: #34d399;
+            background: rgba(92, 128, 66, 0.14);
+            border-color: rgba(92, 128, 66, 0.28);
+            color: #8ab36b;
           }
         }
 
@@ -783,12 +783,12 @@ onUnmounted(() => {
         }
 
         .item-title {
-          color: var(--unity-primary, #047857);
+          color: var(--unity-primary, #415b2e);
         }
 
         .item-chevron {
           opacity: 1;
-          color: var(--unity-primary, #047857);
+          color: var(--unity-primary, #415b2e);
         }
       }
     }

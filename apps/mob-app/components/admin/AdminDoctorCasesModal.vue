@@ -518,7 +518,7 @@ onUnmounted(() => {
           border: 2px solid #ffffff;
 
           &.online {
-            background: #10b981;
+            background: #5c8042;
           }
 
           &.offline {
@@ -603,12 +603,12 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
+      background: #f2f6ee;
+      border: 1px solid #c5d6b8;
       border-radius: 8px;
       padding: 4px 8px;
       font-size: 0.70rem;
-      color: #065f46;
+      color: #364c26;
 
       .date-banner-content {
         display: flex;
@@ -617,18 +617,18 @@ onUnmounted(() => {
 
         i {
           font-size: 0.74rem;
-          color: #059669;
+          color: #364c26;
         }
 
         strong {
-          color: #047857;
+          color: #415b2e;
         }
       }
 
       .btn-clear-date {
         background: transparent;
         border: none;
-        color: #059669;
+        color: #364c26;
         cursor: pointer;
         padding: 2px 4px;
         border-radius: 4px;
@@ -637,8 +637,8 @@ onUnmounted(() => {
         justify-content: center;
 
         &:hover {
-          background: #d1fae5;
-          color: #065f46;
+          background: #dce6d3;
+          color: #364c26;
         }
       }
     }
@@ -721,8 +721,8 @@ onUnmounted(() => {
       font-size: 0.68rem;
 
       &.confirmed.active {
-        background: #059669;
-        border-color: #059669;
+        background: #364c26;
+        border-color: #364c26;
         color: #fff;
       }
 
@@ -861,7 +861,7 @@ onUnmounted(() => {
 
           i {
             font-size: 0.75rem;
-            color: var(--unity-primary, #047857);
+            color: var(--unity-primary, #415b2e);
           }
 
           &.price {

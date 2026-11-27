@@ -96,7 +96,7 @@ onMounted(() => {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+        background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -112,7 +112,7 @@ onMounted(() => {
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: #10b981;
+        background: #5c8042;
         border: 2px solid var(--unity-surface, #ffffff);
       }
     }

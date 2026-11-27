@@ -265,7 +265,7 @@ const categoryName = computed(() => {
         }
 
         &.active {
-          background: #059669;
+          background: #364c26;
 
           .switch-slider {
             transform: translateX(20px);
@@ -273,7 +273,7 @@ const categoryName = computed(() => {
         }
 
         &:focus-visible {
-          box-shadow: 0 0 0 2px #fff, 0 0 0 4px #059669;
+          box-shadow: 0 0 0 2px #fff, 0 0 0 4px #364c26;
         }
       }
 
@@ -281,9 +281,9 @@ const categoryName = computed(() => {
         width: 38px;
         height: 38px;
         border-radius: 12px;
-        background: var(--unity-primary-light, #ecfdf5);
-        border: 1.5px solid var(--unity-primary-tint, #a7f3d0);
-        color: var(--unity-primary, #047857);
+        background: var(--unity-primary-light, #f2f6ee);
+        border: 1.5px solid var(--unity-primary-tint, #c5d6b8);
+        color: var(--unity-primary, #415b2e);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -293,37 +293,37 @@ const categoryName = computed(() => {
 
         i {
           font-size: 1.05rem;
-          color: var(--unity-primary, #047857);
+          color: var(--unity-primary, #415b2e);
         }
 
         &:hover {
-          background: #d1fae5;
-          border-color: #6ee7b7;
-          color: #065f46;
+          background: #dce6d3;
+          border-color: #a6bf94;
+          color: #364c26;
           transform: translateY(-1px);
 
           i {
-            color: #065f46;
+            color: #364c26;
           }
         }
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(16, 185, 129, 0.14);
-          border-color: rgba(16, 185, 129, 0.28);
-          color: #34d399;
+          background: rgba(92, 128, 66, 0.14);
+          border-color: rgba(92, 128, 66, 0.28);
+          color: #8ab36b;
 
           i {
-            color: #34d399;
+            color: #8ab36b;
           }
 
           &:hover {
-            background: rgba(16, 185, 129, 0.22);
-            border-color: rgba(16, 185, 129, 0.4);
-            color: #6ee7b7;
+            background: rgba(92, 128, 66, 0.22);
+            border-color: rgba(92, 128, 66, 0.4);
+            color: #a6bf94;
 
             i {
-              color: #6ee7b7;
+              color: #a6bf94;
             }
           }
         }
@@ -350,13 +350,13 @@ const categoryName = computed(() => {
       .srv-price {
         font-size: 0.96rem;
         font-weight: 800;
-        color: #047857;
+        color: #415b2e;
       }
 
       .srv-currency {
         font-size: 0.74rem;
         font-weight: 700;
-        color: #047857;
+        color: #415b2e;
         opacity: 0.85;
       }
     }

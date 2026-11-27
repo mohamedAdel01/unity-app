@@ -1375,7 +1375,7 @@ onUnmounted(() => {
       &:focus {
         border-color: var(--unity-primary);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
       }
     }
 
@@ -1485,7 +1485,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid rgba(4, 120, 87, 0.12);
+  border-bottom: 1px solid rgba(65, 91, 46, 0.12);
 
   .btn-change-patient {
     margin-right: auto;
@@ -1582,12 +1582,12 @@ onUnmounted(() => {
       background: var(--unity-primary);
       border-color: var(--unity-primary);
       color: #fff;
-      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.35);
+      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.35);
     }
 
     &.completed .step-bubble {
-      background: #10b981;
-      border-color: #10b981;
+      background: #5c8042;
+      border-color: #5c8042;
       color: #fff;
     }
   }
@@ -1637,7 +1637,7 @@ onUnmounted(() => {
     &.active {
       border-color: var(--unity-primary);
       background: var(--unity-primary-soft);
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.12);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.12);
     }
 
     .card-icon {
@@ -1787,7 +1787,7 @@ onUnmounted(() => {
     &.active {
       border-color: var(--unity-primary);
       background: var(--unity-primary-soft);
-      box-shadow: 0 3px 10px rgba(4, 120, 87, 0.12);
+      box-shadow: 0 3px 10px rgba(65, 91, 46, 0.12);
     }
 
     .item-avatar {
@@ -1960,9 +1960,9 @@ onUnmounted(() => {
       }
 
       &.active {
-        background: var(--unity-primary-light, #ecfdf5);
+        background: var(--unity-primary-light, #f2f6ee);
         border: 1.5px solid var(--unity-primary);
-        box-shadow: 0 2px 8px rgba(4, 120, 87, 0.15);
+        box-shadow: 0 2px 8px rgba(65, 91, 46, 0.15);
 
         .day-chip-title,
         .day-chip-num {
@@ -2215,7 +2215,7 @@ onUnmounted(() => {
     border-radius: 16px;
     background: var(--unity-surface);
     border: 1.5px solid var(--unity-primary);
-    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.1);
+    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.1);
 
     .method-icon-cell {
       width: 44px;
@@ -2296,7 +2296,7 @@ onUnmounted(() => {
     background: var(--unity-primary);
     color: #fff;
     border: none;
-    box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
 
     &:hover:not(:disabled) {
       background: var(--unity-primary-dark);
@@ -2309,7 +2309,7 @@ onUnmounted(() => {
 
     &.btn-confirm {
       flex: 2;
-      background: #059669;
+      background: #364c26;
     }
   }
 }

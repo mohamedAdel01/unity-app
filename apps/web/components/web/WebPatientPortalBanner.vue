@@ -96,7 +96,7 @@ const authStore = useAuthStore();
 }
 
 .banner-card {
-  background: linear-gradient(135deg, rgba(4, 120, 87, 0.12) 0%, rgba(4, 120, 87, 0.03) 100%),
+  background: linear-gradient(135deg, rgba(65, 91, 46, 0.12) 0%, rgba(65, 91, 46, 0.03) 100%),
               var(--unity-surface);
   border: 1.5px solid var(--unity-border);
   border-radius: 24px;
@@ -124,7 +124,7 @@ const authStore = useAuthStore();
     gap: 8px;
     padding: 5px 14px;
     border-radius: 9999px;
-    background: rgba(4, 120, 87, 0.12);
+    background: rgba(65, 91, 46, 0.12);
     color: var(--unity-primary);
     font-size: 0.78rem;
     font-weight: 700;
@@ -170,11 +170,11 @@ const authStore = useAuthStore();
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
       transition: all 0.2s ease;
 
       &:hover {
-        background: var(--unity-primary-dark, #065f46);
+        background: var(--unity-primary-dark, #364c26);
         transform: translateY(-1px);
       }
     }

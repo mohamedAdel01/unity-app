@@ -328,8 +328,8 @@ watch(() => route.path, () => {
         }
 
         &.icon-profile {
-          background: #ecfdf5;
-          color: #047857;
+          background: #f2f6ee;
+          color: #415b2e;
         }
 
         &.icon-logout {

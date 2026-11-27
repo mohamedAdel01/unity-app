@@ -618,11 +618,11 @@ onMounted(() => {
       :global([data-theme='dark']) &,
       :global(html.dark) & {
         background: #111827;
-        color: #34d399;
+        color: #8ab36b;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 
         .count-pill {
-          color: #34d399;
+          color: #8ab36b;
         }
       }
     }
@@ -695,9 +695,9 @@ onMounted(() => {
       }
 
       &.pill-consult {
-        background: #ecfdf5;
-        color: #047857;
-        border: 1px solid #a7f3d0;
+        background: #f2f6ee;
+        color: #415b2e;
+        border: 1px solid #c5d6b8;
       }
 
       &.pill-exam {
@@ -714,10 +714,10 @@ onMounted(() => {
 
       &.status-badge {
         &.status-confirmed {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
-          .dot { background: #10b981; }
+          background: #f2f6ee;
+          color: #415b2e;
+          border: 1px solid #c5d6b8;
+          .dot { background: #5c8042; }
         }
 
         &.status-completed {
@@ -744,9 +744,9 @@ onMounted(() => {
 
       &.payment-tag {
         &.is-paid {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1px solid #a7f3d0;
+          background: #f2f6ee;
+          color: #415b2e;
+          border: 1px solid #c5d6b8;
         }
 
         &.is-unpaid {
@@ -759,9 +759,9 @@ onMounted(() => {
       :global([data-theme='dark']) &,
       :global(html.dark) & {
         &.pill-consult {
-          background: rgba(16, 185, 129, 0.16);
-          color: #34d399;
-          border-color: rgba(16, 185, 129, 0.35);
+          background: rgba(92, 128, 66, 0.16);
+          color: #8ab36b;
+          border-color: rgba(92, 128, 66, 0.35);
         }
 
         &.pill-exam {
@@ -778,10 +778,10 @@ onMounted(() => {
 
         &.status-badge {
           &.status-confirmed {
-            background: rgba(16, 185, 129, 0.16);
-            color: #34d399;
-            border-color: rgba(16, 185, 129, 0.35);
-            .dot { background: #34d399; }
+            background: rgba(92, 128, 66, 0.16);
+            color: #8ab36b;
+            border-color: rgba(92, 128, 66, 0.35);
+            .dot { background: #8ab36b; }
           }
 
           &.status-completed {
@@ -808,9 +808,9 @@ onMounted(() => {
 
         &.payment-tag {
           &.is-paid {
-            background: rgba(16, 185, 129, 0.16);
-            color: #34d399;
-            border-color: rgba(16, 185, 129, 0.35);
+            background: rgba(92, 128, 66, 0.16);
+            color: #8ab36b;
+            border-color: rgba(92, 128, 66, 0.35);
           }
 
           &.is-unpaid {
@@ -838,7 +838,7 @@ onMounted(() => {
     }
 
     .doc-avatar-initial {
-      background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+      background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
       color: #ffffff;
       display: flex;
       align-items: center;
@@ -847,9 +847,9 @@ onMounted(() => {
       font-weight: 700;
 
       &.is-exam {
-        background: rgba(16, 185, 129, 0.12);
+        background: rgba(92, 128, 66, 0.12);
         color: var(--unity-primary);
-        border: 1.5px solid rgba(16, 185, 129, 0.4);
+        border: 1.5px solid rgba(92, 128, 66, 0.4);
 
         i {
           font-size: 1.3rem;
@@ -1003,9 +1003,9 @@ onMounted(() => {
       }
 
       &.btn-reschedule {
-        background: rgba(4, 120, 87, 0.08);
+        background: rgba(65, 91, 46, 0.08);
         color: var(--unity-primary);
-        border: 1.5px solid rgba(4, 120, 87, 0.25);
+        border: 1.5px solid rgba(65, 91, 46, 0.25);
 
         &:hover {
           background: var(--unity-primary);
@@ -1015,9 +1015,9 @@ onMounted(() => {
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(16, 185, 129, 0.16);
-          color: #34d399;
-          border-color: rgba(16, 185, 129, 0.35);
+          background: rgba(92, 128, 66, 0.16);
+          color: #8ab36b;
+          border-color: rgba(92, 128, 66, 0.35);
         }
       }
     }
@@ -1061,25 +1061,25 @@ onMounted(() => {
       gap: 8px;
       padding: 10px 16px;
       border-radius: 12px;
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
+      background: #f2f6ee;
+      color: #415b2e;
+      border: 1px solid #c5d6b8;
       font-size: 0.8rem;
       font-weight: 700;
 
       i {
         font-size: 0.9rem;
-        color: #10b981;
+        color: #5c8042;
       }
 
       :global([data-theme='dark']) &,
       :global(html.dark) & {
-        background: rgba(16, 185, 129, 0.12);
-        color: #34d399;
-        border-color: rgba(16, 185, 129, 0.25);
+        background: rgba(92, 128, 66, 0.12);
+        color: #8ab36b;
+        border-color: rgba(92, 128, 66, 0.25);
 
         i {
-          color: #34d399;
+          color: #8ab36b;
         }
       }
     }
@@ -1170,7 +1170,7 @@ onMounted(() => {
         color: #e5e7eb;
 
         i {
-          color: #34d399;
+          color: #8ab36b;
         }
       }
     }
@@ -1224,7 +1224,7 @@ onMounted(() => {
 
       i {
         font-size: 0.8rem;
-        color: var(--unity-primary, #0d9488);
+        color: var(--unity-primary, #415b2e);
       }
 
       &.full {

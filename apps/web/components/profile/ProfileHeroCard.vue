@@ -145,7 +145,7 @@ const handleEditClick = (e?: Event) => {
       }
 
       .letter-avatar-initial {
-        background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+        background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -162,7 +162,7 @@ const handleEditClick = (e?: Event) => {
         width: 13px;
         height: 13px;
         border-radius: 50%;
-        background: #10b981;
+        background: #5c8042;
         border: 2px solid #fff;
       }
 
@@ -173,7 +173,7 @@ const handleEditClick = (e?: Event) => {
         width: 22px;
         height: 22px;
         border-radius: 50%;
-        background: var(--unity-primary, #047857);
+        background: var(--unity-primary, #415b2e);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -194,9 +194,9 @@ const handleEditClick = (e?: Event) => {
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: #ecfdf5;
-    border: 1.5px solid #a7f3d0;
-    color: #047857;
+    background: #f2f6ee;
+    border: 1.5px solid #c5d6b8;
+    color: #415b2e;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -214,9 +214,9 @@ const handleEditClick = (e?: Event) => {
     }
 
     &:hover {
-      background: #d1fae5;
-      border-color: #6ee7b7;
-      color: #065f46;
+      background: #dce6d3;
+      border-color: #a6bf94;
+      color: #364c26;
       transform: translateY(-1px);
     }
 

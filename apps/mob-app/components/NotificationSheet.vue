@@ -565,8 +565,8 @@ onMounted(() => {
     :global([data-theme='dark']) &,
     :global(html.dark) & {
       &.icon-green {
-        background: rgba(16, 185, 129, 0.18);
-        color: #34d399;
+        background: rgba(92, 128, 66, 0.18);
+        color: #8ab36b;
       }
       &.icon-blue {
         background: rgba(2, 132, 199, 0.18);

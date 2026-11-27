@@ -330,7 +330,7 @@ onMounted(() => {
       gap: 5px;
 
       .verified-icon {
-        color: #10b981;
+        color: #5c8042;
         font-size: 0.90rem;
       }
     }
@@ -448,7 +448,7 @@ onMounted(() => {
       }
 
       .doc-initial-avatar {
-        background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+        background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -498,7 +498,7 @@ onMounted(() => {
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
+      box-shadow: 0 2px 6px rgba(65, 91, 46, 0.2);
       transition: all 0.2s;
 
       &:hover {

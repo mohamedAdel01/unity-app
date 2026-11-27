@@ -138,7 +138,7 @@ const currentRevenue = computed(() => {
       border-radius: 20px;
       font-size: 0.78rem;
       font-weight: 700;
-      color: var(--unity-primary, #059669);
+      color: var(--unity-primary, #364c26);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
       i {
@@ -212,13 +212,13 @@ const currentRevenue = computed(() => {
       }
 
       &.primary .metric-icon {
-        background: #ecfdf5;
-        color: #047857;
+        background: #f2f6ee;
+        color: #415b2e;
       }
 
       &.success .metric-icon {
-        background: rgba(16, 185, 129, 0.12);
-        color: #10b981;
+        background: rgba(92, 128, 66, 0.12);
+        color: #5c8042;
       }
 
       &.warning .metric-icon {

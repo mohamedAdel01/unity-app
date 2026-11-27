@@ -306,15 +306,15 @@ const { t, isRtl } = useI18n();
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.22);
+  background: rgba(92, 128, 66, 0.08);
+  border: 1px solid rgba(92, 128, 66, 0.22);
   border-radius: 16px;
 
   .meta-badge-icon {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: #10b981;
+    background: #5c8042;
     color: #fff;
     display: flex;
     align-items: center;
@@ -427,7 +427,7 @@ const { t, isRtl } = useI18n();
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    border-color: rgba(4, 120, 87, 0.35);
+    border-color: rgba(65, 91, 46, 0.35);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
   }
 

@@ -350,7 +350,7 @@ onUnmounted(() => {
       .amount-number {
         font-size: 1.25rem;
         font-weight: 800;
-        color: var(--unity-primary, #047857);
+        color: var(--unity-primary, #415b2e);
       }
 
       .amount-currency {
@@ -447,11 +447,11 @@ onUnmounted(() => {
 
     // Colors
     &.opt-paid {
-      .option-icon-wrap { background: #ecfdf5; color: #047857; }
+      .option-icon-wrap { background: #f2f6ee; color: #415b2e; }
       &.is-active {
-        border-color: #047857;
+        border-color: #415b2e;
         background: #f0fdf4;
-        .active-check { color: #047857; }
+        .active-check { color: #415b2e; }
       }
     }
 
@@ -499,11 +499,11 @@ onUnmounted(() => {
       }
 
       &.opt-paid {
-        .option-icon-wrap { background: rgba(16, 185, 129, 0.16) !important; color: #34d399 !important; }
+        .option-icon-wrap { background: rgba(92, 128, 66, 0.16) !important; color: #8ab36b !important; }
         &.is-active {
-          border-color: #10b981 !important;
-          background: rgba(16, 185, 129, 0.14) !important;
-          .active-check { color: #34d399 !important; }
+          border-color: #5c8042 !important;
+          background: rgba(92, 128, 66, 0.14) !important;
+          .active-check { color: #8ab36b !important; }
         }
       }
       &.opt-pending {
@@ -559,9 +559,9 @@ onUnmounted(() => {
       }
 
       &.is-active {
-        border-color: var(--unity-primary, #047857);
-        background: #ecfdf5;
-        color: var(--unity-primary, #047857);
+        border-color: var(--unity-primary, #415b2e);
+        background: #f2f6ee;
+        color: var(--unity-primary, #415b2e);
         font-weight: 800;
       }
 
@@ -582,9 +582,9 @@ onUnmounted(() => {
         }
 
         &.is-active {
-          border-color: #10b981 !important;
-          background: rgba(16, 185, 129, 0.16) !important;
-          color: #34d399 !important;
+          border-color: #5c8042 !important;
+          background: rgba(92, 128, 66, 0.16) !important;
+          color: #8ab36b !important;
         }
       }
     }
@@ -602,14 +602,14 @@ onUnmounted(() => {
     flex: 1;
     height: 44px;
     border-radius: 12px;
-    background: var(--unity-primary, #047857);
+    background: var(--unity-primary, #415b2e);
     border: none;
     color: #ffffff;
     font-size: 0.88rem;
     font-weight: 800;
     cursor: pointer;
     font-family: inherit;
-    box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+    box-shadow: 0 4px 12px rgba(65, 91, 46, 0.2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -617,7 +617,7 @@ onUnmounted(() => {
     transition: all 0.15s ease;
 
     &:hover:not(:disabled) {
-      background: var(--unity-primary-dark, #065f46);
+      background: var(--unity-primary-dark, #364c26);
       transform: translateY(-1px);
     }
 

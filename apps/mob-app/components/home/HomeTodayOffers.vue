@@ -281,21 +281,21 @@ onMounted(() => {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #ecfdf5 0%, #e0f2fe 100%);
+          background: linear-gradient(135deg, #f2f6ee 0%, #e0f2fe 100%);
 
           .placeholder-icon {
             font-size: 1.8rem;
-            color: var(--unity-primary, #047857);
+            color: var(--unity-primary, #415b2e);
             opacity: 0.75;
           }
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(2, 132, 199, 0.15) 100%);
+            background: linear-gradient(135deg, rgba(92, 128, 66, 0.12) 0%, rgba(2, 132, 199, 0.15) 100%);
             border-bottom: 1px solid #1f2937;
 
             .placeholder-icon {
-              color: #34d399;
+              color: #8ab36b;
               opacity: 0.85;
             }
           }
@@ -398,7 +398,7 @@ onMounted(() => {
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 2px 5px rgba(4, 120, 87, 0.16);
+          box-shadow: 0 2px 5px rgba(65, 91, 46, 0.16);
           transition: all 0.2s ease;
           margin-top: 2px;
 

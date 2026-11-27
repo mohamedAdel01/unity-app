@@ -20,12 +20,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { Toast } = await import('@capacitor/toast');
   const { PushNotifications } = await import('@capacitor/push-notifications');
 
-  // ─── 1. Status Bar Setup (Unity Medical Emerald Green) ───────────────
+  // ─── 1. Status Bar Setup (Unity Medical Olive Green) ─────────────────
   try {
     await StatusBar.setOverlaysWebView({ overlay: false });
     await StatusBar.setStyle({ style: Style.Dark });
-    await StatusBar.setBackgroundColor({ color: '#047857' });
-    console.log('🎨 [PUSH-STEP-1: STATUS_BAR] Status bar colored #047857 successfully.');
+    await StatusBar.setBackgroundColor({ color: '#415b2e' });
+    console.log('🎨 [PUSH-STEP-1: STATUS_BAR] Status bar colored #415b2e successfully.');
   } catch (err) {
     console.warn('⚠️ [PUSH-STEP-1: STATUS_BAR_ERROR]', err);
   }
@@ -46,7 +46,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           sound: 'default',
           vibration: true,
           lights: true,
-          lightColor: '#047857',
+          lightColor: '#415b2e',
         });
 
         // 2. Unity Clinics Channel
@@ -59,7 +59,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           sound: 'default',
           vibration: true,
           lights: true,
-          lightColor: '#047857',
+          lightColor: '#415b2e',
         });
 
         console.log('✅ [PUSH-STEP-2: ANDROID_CHANNELS_READY] Default & Unity high-priority channels active.');

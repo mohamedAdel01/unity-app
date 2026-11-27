@@ -348,8 +348,8 @@ const resolveImageUrl = (url?: string) => {
         width: 48px;
         height: 48px;
         border-radius: 12px;
-        background: #ecfdf5;
-        border: 1.5px dashed #059669;
+        background: #f2f6ee;
+        border: 1.5px dashed #364c26;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -357,7 +357,7 @@ const resolveImageUrl = (url?: string) => {
 
         i {
           font-size: 1.25rem;
-          color: #059669;
+          color: #364c26;
         }
       }
 
@@ -418,7 +418,7 @@ const resolveImageUrl = (url?: string) => {
             }
 
             &.active {
-              background: var(--unity-primary, #047857);
+              background: var(--unity-primary, #415b2e);
 
               .switch-slider {
                 transform: translateX(20px);
@@ -560,14 +560,14 @@ const resolveImageUrl = (url?: string) => {
         }
 
         &.edit-btn {
-          background: #ecfdf5;
-          color: #047857;
-          border: 1.5px solid #a7f3d0;
+          background: #f2f6ee;
+          color: #415b2e;
+          border: 1.5px solid #c5d6b8;
 
           &:hover {
-            background: #d1fae5;
-            border-color: #6ee7b7;
-            color: #065f46;
+            background: #dce6d3;
+            border-color: #a6bf94;
+            color: #364c26;
             transform: translateY(-1px);
           }
         }

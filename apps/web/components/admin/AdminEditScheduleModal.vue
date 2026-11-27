@@ -486,9 +486,9 @@ onUnmounted(() => {
         width: 42px;
         height: 42px;
         border-radius: 14px;
-        background: var(--unity-primary-light, #ecfdf5);
-        border: 1px solid var(--unity-primary-tint, #a7f3d0);
-        color: var(--unity-primary, #047857);
+        background: var(--unity-primary-light, #f2f6ee);
+        border: 1px solid var(--unity-primary-tint, #c5d6b8);
+        color: var(--unity-primary, #415b2e);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -496,9 +496,9 @@ onUnmounted(() => {
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(16, 185, 129, 0.14);
-          border-color: rgba(16, 185, 129, 0.28);
-          color: #34d399;
+          background: rgba(92, 128, 66, 0.14);
+          border-color: rgba(92, 128, 66, 0.28);
+          color: #8ab36b;
         }
       }
 
@@ -592,7 +592,7 @@ onUnmounted(() => {
           background: var(--unity-primary);
           color: #ffffff;
           border-color: var(--unity-primary);
-          box-shadow: 0 2px 6px rgba(4, 120, 87, 0.2);
+          box-shadow: 0 2px 6px rgba(65, 91, 46, 0.2);
 
           .slots-count-dot {
             background: rgba(255, 255, 255, 0.25);
@@ -650,26 +650,26 @@ onUnmounted(() => {
           gap: 4px;
           padding: 5px 10px;
           border-radius: 12px;
-          background: var(--unity-primary-light, #ecfdf5);
-          border: 1px solid var(--unity-primary-tint, #a7f3d0);
-          color: var(--unity-primary, #047857);
+          background: var(--unity-primary-light, #f2f6ee);
+          border: 1px solid var(--unity-primary-tint, #c5d6b8);
+          color: var(--unity-primary, #415b2e);
           font-size: 0.74rem;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
 
           &:hover {
-            background: var(--unity-primary-tint, #d1fae5);
+            background: var(--unity-primary-tint, #dce6d3);
           }
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(16, 185, 129, 0.14);
-            border-color: rgba(16, 185, 129, 0.28);
-            color: #34d399;
+            background: rgba(92, 128, 66, 0.14);
+            border-color: rgba(92, 128, 66, 0.28);
+            color: #8ab36b;
 
             &:hover {
-              background: rgba(16, 185, 129, 0.22);
+              background: rgba(92, 128, 66, 0.22);
             }
           }
         }
@@ -833,7 +833,7 @@ onUnmounted(() => {
                 }
 
                 &.active {
-                  background: #059669;
+                  background: #364c26;
 
                   .switch-slider {
                     transform: translateX(18px);
@@ -950,7 +950,7 @@ onUnmounted(() => {
         background: var(--unity-primary);
         border: none;
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
 
         &:disabled {
           opacity: 0.6;

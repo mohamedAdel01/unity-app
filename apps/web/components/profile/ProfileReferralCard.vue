@@ -223,7 +223,7 @@ onMounted(() => {
 
       &:active {
         border-color: var(--unity-primary);
-        background: rgba(4, 120, 87, 0.03);
+        background: rgba(65, 91, 46, 0.03);
       }
 
       .code-info {
@@ -267,7 +267,7 @@ onMounted(() => {
         }
 
         &.copied {
-          background: rgba(4, 120, 87, 0.1);
+          background: rgba(65, 91, 46, 0.1);
           border-color: var(--unity-primary);
           color: var(--unity-primary);
         }

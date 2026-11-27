@@ -103,11 +103,11 @@ const { t, isRtl } = useI18n();
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
+    background: rgba(92, 128, 66, 0.1);
+    color: #364c26;
     padding: 6px 12px;
     border-radius: 20px;
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(92, 128, 66, 0.2);
     font-size: 0.75rem;
     font-weight: 700;
     flex-shrink: 0;
@@ -116,8 +116,8 @@ const { t, isRtl } = useI18n();
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35);
+      background: #5c8042;
+      box-shadow: 0 0 0 2px rgba(92, 128, 66, 0.35);
       animation: pulse 1.8s infinite;
     }
   }
@@ -125,13 +125,13 @@ const { t, isRtl } = useI18n();
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 rgba(92, 128, 66, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 6px rgba(92, 128, 66, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(92, 128, 66, 0);
   }
 }
 </style>

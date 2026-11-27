@@ -252,7 +252,7 @@ const getStackStyle = (stackIndex: number) => {
     }
 
     .toast-progress-bar {
-      background: #10b981;
+      background: #5c8042;
     }
   }
 
@@ -318,7 +318,7 @@ const getStackStyle = (stackIndex: number) => {
     }
     &.toast-success {
       background: rgba(6, 78, 59, 0.95);
-      border-color: #065f46;
+      border-color: #364c26;
       .toast-title { color: #bbf7d0; }
       .toast-message { color: #86efac; }
     }

@@ -1509,8 +1509,8 @@ onUnmounted(() => {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #ecfdf5;
-    color: #047857;
+    background: #f2f6ee;
+    color: #415b2e;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1557,7 +1557,7 @@ onUnmounted(() => {
       .circle {
         background: var(--unity-primary);
         color: #fff;
-        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.2);
+        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.2);
       }
       .label {
         color: var(--unity-primary);
@@ -1567,11 +1567,11 @@ onUnmounted(() => {
 
     &.done {
       .circle {
-        background: #10b981;
+        background: #5c8042;
         color: #fff;
       }
       .label {
-        color: #065f46;
+        color: #364c26;
       }
     }
   }
@@ -1603,14 +1603,14 @@ onUnmounted(() => {
     align-items: center;
     gap: 8px;
     font-size: 0.74rem;
-    color: #047857;
+    color: #415b2e;
     font-weight: 600;
 
     .live-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #10b981;
+      background: #5c8042;
       animation: pulse 1.5s infinite;
     }
   }
@@ -1621,7 +1621,7 @@ onUnmounted(() => {
     gap: 4px;
     font-size: 0.82rem;
     font-weight: 800;
-    color: #047857;
+    color: #415b2e;
   }
 }
 
@@ -1661,15 +1661,15 @@ onUnmounted(() => {
     position: absolute;
     top: 14px;
     inset-inline-end: 14px;
-    background: #ecfdf5;
-    color: #047857;
+    background: #f2f6ee;
+    color: #415b2e;
     font-size: 0.75rem;
     font-weight: 600;
     padding: 3px 8px;
     border-radius: 12px;
 
     &.exam-badge {
-      background: rgba(4, 120, 87, 0.12);
+      background: rgba(65, 91, 46, 0.12);
       color: var(--unity-primary);
       display: inline-flex;
       align-items: center;
@@ -1707,7 +1707,7 @@ onUnmounted(() => {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+          background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
           color: #ffffff;
           display: flex;
           align-items: center;
@@ -1720,7 +1720,7 @@ onUnmounted(() => {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background: linear-gradient(135deg, rgba(4, 120, 87, 0.12) 0%, rgba(16, 185, 129, 0.22) 100%);
+          background: linear-gradient(135deg, rgba(65, 91, 46, 0.12) 0%, rgba(92, 128, 66, 0.22) 100%);
           color: var(--unity-primary);
           display: flex;
           align-items: center;
@@ -1737,7 +1737,7 @@ onUnmounted(() => {
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: #10b981;
+        background: #5c8042;
         color: #fff;
         display: flex;
         align-items: center;
@@ -1843,7 +1843,7 @@ onUnmounted(() => {
 
       &.active {
         border-color: var(--unity-primary);
-        background: rgba(4, 120, 87, 0.08);
+        background: rgba(65, 91, 46, 0.08);
         color: var(--unity-primary);
         font-weight: 700;
       }
@@ -1973,7 +1973,7 @@ onUnmounted(() => {
         line-height: 1.3;
 
         &.unlocked-sub {
-          color: #047857;
+          color: #415b2e;
           font-weight: 700;
           display: inline-flex;
           align-items: center;
@@ -1989,7 +1989,7 @@ onUnmounted(() => {
       &.selected {
         border-color: var(--unity-primary);
         background: #f0fdf4;
-        box-shadow: 0 4px 12px -2px rgba(4, 120, 87, 0.15);
+        box-shadow: 0 4px 12px -2px rgba(65, 91, 46, 0.15);
 
         .opt-radio {
           border-color: var(--unity-primary);
@@ -2043,7 +2043,7 @@ onUnmounted(() => {
         font-size: 0.72rem;
         color: var(--unity-primary);
         font-weight: 700;
-        background: #ecfdf5;
+        background: #f2f6ee;
         padding: 3px 8px;
         border-radius: 8px;
       }
@@ -2156,7 +2156,7 @@ onUnmounted(() => {
         border-style: dashed;
         border-color: var(--unity-primary);
         color: var(--unity-primary);
-        background: rgba(16, 185, 129, 0.05);
+        background: rgba(92, 128, 66, 0.05);
 
         i {
           font-size: 0.95rem;
@@ -2282,7 +2282,7 @@ onUnmounted(() => {
         background: var(--unity-primary);
         border-color: var(--unity-primary);
         color: #fff;
-        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+        box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
       }
     }
   }
@@ -2330,7 +2330,7 @@ onUnmounted(() => {
       .doc-initial-avatar {
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+        background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -2343,7 +2343,7 @@ onUnmounted(() => {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(4, 120, 87, 0.12) 0%, rgba(16, 185, 129, 0.22) 100%);
+        background: linear-gradient(135deg, rgba(65, 91, 46, 0.12) 0%, rgba(92, 128, 66, 0.22) 100%);
         color: var(--unity-primary);
         display: flex;
         align-items: center;
@@ -2372,8 +2372,8 @@ onUnmounted(() => {
         display: inline-block;
         font-size: 0.68rem;
         font-weight: 700;
-        color: #047857;
-        background: #ecfdf5;
+        color: #415b2e;
+        background: #f2f6ee;
         padding: 2px 8px;
         border-radius: 8px;
         margin-top: 4px;
@@ -2510,7 +2510,7 @@ onUnmounted(() => {
       padding: 0 4px;
 
       &.success {
-        color: #047857;
+        color: #415b2e;
       }
 
       &.error {
@@ -2542,8 +2542,8 @@ onUnmounted(() => {
 
     .tax-badge {
       font-size: 0.7rem;
-      color: #047857;
-      background: #ecfdf5;
+      color: #415b2e;
+      background: #f2f6ee;
       padding: 3px 8px;
       border-radius: 8px;
       font-weight: 600;
@@ -2564,7 +2564,7 @@ onUnmounted(() => {
     }
 
     &.promo-discount-row {
-      color: #047857;
+      color: #415b2e;
 
       .discount-label {
         display: flex;
@@ -2574,7 +2574,7 @@ onUnmounted(() => {
       }
 
       .discount-val {
-        color: #047857;
+        color: #415b2e;
         font-weight: 800;
       }
     }
@@ -2649,7 +2649,7 @@ onUnmounted(() => {
 
     .secure-tag {
       font-size: 0.7rem;
-      color: #047857;
+      color: #415b2e;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -2848,7 +2848,7 @@ onUnmounted(() => {
       }
 
       .simulate-success-btn {
-        background: #047857;
+        background: #415b2e;
         color: #ffffff;
         border: none;
         padding: 5px 12px;
@@ -2859,7 +2859,7 @@ onUnmounted(() => {
         transition: all 0.2s;
 
         &:hover {
-          background: #065f46;
+          background: #364c26;
         }
 
         &:disabled {
@@ -2915,13 +2915,13 @@ onUnmounted(() => {
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+      background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.8rem;
-      box-shadow: 0 8px 24px rgba(4, 120, 87, 0.35);
+      box-shadow: 0 8px 24px rgba(65, 91, 46, 0.35);
       animation: scalePop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
   }
@@ -3008,8 +3008,8 @@ onUnmounted(() => {
           font-weight: 700;
 
           &.type-highlight {
-            color: #047857;
-            background: #ecfdf5;
+            color: #415b2e;
+            background: #f2f6ee;
             padding: 2px 8px;
             border-radius: 6px;
           }
@@ -3039,7 +3039,7 @@ onUnmounted(() => {
       justify-content: center;
       gap: 8px;
       transition: all 0.2s;
-      box-shadow: 0 6px 16px rgba(4, 120, 87, 0.3);
+      box-shadow: 0 6px 16px rgba(65, 91, 46, 0.3);
 
       &:hover {
         background: var(--unity-primary-dark);
@@ -3085,7 +3085,7 @@ onUnmounted(() => {
     justify-content: center;
     gap: 8px;
     transition: all 0.25s;
-    box-shadow: 0 6px 20px -3px rgba(4, 120, 87, 0.4);
+    box-shadow: 0 6px 20px -3px rgba(65, 91, 46, 0.4);
 
     &:hover:not(:disabled) {
       background: #022c22;
@@ -3106,7 +3106,7 @@ onUnmounted(() => {
     justify-content: center;
     gap: 6px;
     font-size: 0.72rem;
-    color: #047857;
+    color: #415b2e;
     margin-top: 10px;
     font-weight: 700;
   }

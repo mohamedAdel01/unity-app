@@ -146,7 +146,7 @@ onMounted(() => {
 .web-hero-section {
   position: relative;
   padding: 56px 20px 48px;
-  background: radial-gradient(circle at 50% 20%, rgba(4, 120, 87, 0.08) 0%, rgba(0, 0, 0, 0) 70%),
+  background: radial-gradient(circle at 50% 20%, rgba(65, 91, 46, 0.08) 0%, rgba(0, 0, 0, 0) 70%),
               linear-gradient(180deg, var(--unity-surface) 0%, var(--unity-bg) 100%);
   display: flex;
   justify-content: center;
@@ -169,8 +169,8 @@ onMounted(() => {
   gap: 8px;
   padding: 6px 16px;
   border-radius: 9999px;
-  background: rgba(4, 120, 87, 0.1);
-  border: 1px solid rgba(4, 120, 87, 0.25);
+  background: rgba(65, 91, 46, 0.1);
+  border: 1px solid rgba(65, 91, 46, 0.25);
   color: var(--unity-primary);
   font-size: 0.82rem;
   font-weight: 700;
@@ -258,7 +258,7 @@ onMounted(() => {
       &:focus {
         border-color: var(--unity-primary);
         background: var(--unity-surface);
-        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
       }
     }
   }
@@ -278,12 +278,12 @@ onMounted(() => {
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
       transition: all 0.2s ease;
       white-space: nowrap;
 
       &:hover {
-        background: var(--unity-primary-dark, #065f46);
+        background: var(--unity-primary-dark, #364c26);
         transform: translateY(-1px);
       }
 

@@ -713,11 +713,11 @@ onUnmounted(() => {
     &.active {
       background: var(--unity-primary);
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.35);
     }
 
     &.completed {
-      background: #10b981;
+      background: #5c8042;
       color: #ffffff;
     }
   }
@@ -730,7 +730,7 @@ onUnmounted(() => {
     transition: all 0.25s ease;
 
     &.active {
-      background: #10b981;
+      background: #5c8042;
     }
   }
 
@@ -747,27 +747,27 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
+  background: #f2f6ee;
+  border: 1px solid #c5d6b8;
   border-radius: 12px;
   padding: 10px 12px;
 
   i {
     font-size: 1.3rem;
-    color: #059669;
+    color: #364c26;
   }
 
   h6 {
     margin: 0;
     font-size: 0.82rem;
     font-weight: 700;
-    color: #065f46;
+    color: #364c26;
   }
 
   small {
     display: block;
     font-size: 0.72rem;
-    color: #047857;
+    color: #415b2e;
     margin-top: 2px;
     line-height: 1.3;
   }
@@ -932,12 +932,12 @@ onUnmounted(() => {
     &:focus {
       border-color: var(--unity-primary);
       background: var(--unity-surface);
-      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.15);
       transform: translateY(-2px);
     }
 
     &.filled {
-      border-color: #10b981;
+      border-color: #5c8042;
       background: var(--unity-surface);
     }
   }
@@ -1060,18 +1060,18 @@ onUnmounted(() => {
       border-radius: 50%;
       object-fit: cover;
       border: 2.5px solid var(--unity-primary);
-      box-shadow: 0 4px 12px rgba(4, 120, 87, 0.2);
+      box-shadow: 0 4px 12px rgba(65, 91, 46, 0.2);
     }
 
     .avatar-initial-badge {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+      background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.3);
       border: 2.5px solid #ffffff;
 
       .initial-char {
@@ -1166,7 +1166,7 @@ onUnmounted(() => {
       line-height: 1.35;
 
       &.success {
-        color: #059669;
+        color: #364c26;
         display: flex;
         align-items: center;
         gap: 4px;

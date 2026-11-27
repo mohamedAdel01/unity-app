@@ -296,7 +296,7 @@ const handleFinalDelete = async () => {
 
 .success-banner {
   background: var(--unity-surface);
-  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border: 1.5px solid rgba(92, 128, 66, 0.4);
   border-radius: 20px;
   padding: 48px 32px;
   display: flex;
@@ -309,7 +309,7 @@ const handleFinalDelete = async () => {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: #10b981;
+    background: #5c8042;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -550,7 +550,7 @@ const handleFinalDelete = async () => {
 
         &:focus {
           border-color: var(--unity-primary);
-          box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
         }
       }
     }
@@ -602,7 +602,7 @@ const handleFinalDelete = async () => {
 
     &:focus {
       border-color: var(--unity-primary);
-      box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
     }
   }
 

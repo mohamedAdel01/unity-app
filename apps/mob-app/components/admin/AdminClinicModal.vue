@@ -292,7 +292,7 @@ const saveClinic = async () => {
       transition: all 0.2s;
       background: var(--unity-primary);
       color: #fff;
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
 
       &:hover:not(:disabled) {
         background: var(--unity-primary-dark);

@@ -274,8 +274,8 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
       &:focus {
-        border-color: var(--unity-primary, #059669);
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        border-color: var(--unity-primary, #364c26);
+        box-shadow: 0 0 0 3px rgba(54, 76, 38, 0.1);
       }
     }
 
@@ -328,10 +328,10 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       }
 
       &.active {
-        background: var(--unity-primary, #059669);
+        background: var(--unity-primary, #364c26);
         color: #ffffff;
-        border-color: var(--unity-primary, #059669);
-        box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25);
+        border-color: var(--unity-primary, #364c26);
+        box-shadow: 0 2px 6px rgba(54, 76, 38, 0.25);
       }
     }
   }
@@ -358,7 +358,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &.expanded {
-      border-color: rgba(5, 150, 105, 0.35);
+      border-color: rgba(54, 76, 38, 0.35);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
@@ -378,7 +378,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       color: inherit;
 
       .question-prefix-icon {
-        color: var(--unity-primary, #059669);
+        color: var(--unity-primary, #364c26);
         font-size: 1.1rem;
         flex-shrink: 0;
       }
@@ -442,9 +442,9 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
               transition: all 0.15s ease;
 
               &.selected {
-                background: rgba(5, 150, 105, 0.1);
-                color: #059669;
-                border-color: #059669;
+                background: rgba(54, 76, 38, 0.1);
+                color: #364c26;
+                border-color: #364c26;
                 font-weight: 700;
               }
             }

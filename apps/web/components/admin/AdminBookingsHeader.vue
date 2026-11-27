@@ -195,7 +195,7 @@ watch(
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
-        border-color: var(--unity-primary-light, #a7f3d0);
+        border-color: var(--unity-primary-light, #c5d6b8);
         transform: translateY(-1px);
       }
 
@@ -220,9 +220,9 @@ watch(
           font-size: 0.95rem;
 
           &.primary {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1px solid #a7f3d0;
+            background: #f2f6ee;
+            color: #415b2e;
+            border: 1px solid #c5d6b8;
           }
 
           &.success {
@@ -234,15 +234,15 @@ watch(
           :global([data-theme='dark']) &,
           :global(html.dark) & {
             &.primary {
-              background: rgba(16, 185, 129, 0.14);
-              border-color: rgba(16, 185, 129, 0.28);
-              color: #34d399;
+              background: rgba(92, 128, 66, 0.14);
+              border-color: rgba(92, 128, 66, 0.28);
+              color: #8ab36b;
             }
 
             &.success {
-              background: rgba(16, 185, 129, 0.14);
-              border-color: rgba(16, 185, 129, 0.28);
-              color: #34d399;
+              background: rgba(92, 128, 66, 0.14);
+              border-color: rgba(92, 128, 66, 0.28);
+              color: #8ab36b;
             }
           }
         }

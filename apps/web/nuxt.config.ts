@@ -67,7 +67,7 @@ export default defineNuxtConfig({
           name: 'viewport',
           content: 'width=device-width, initial-scale=1',
         },
-        { name: 'theme-color', content: '#007663' },
+        { name: 'theme-color', content: '#415b2e' },
         { name: 'description', content: 'البوابة الرسمية لعيادات يونيتي التخصصية — الشروط وسياسة الخصوصية وطلب إدارة وحذف البيانات والحساب.' },
       ],
       link: [

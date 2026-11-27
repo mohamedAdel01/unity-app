@@ -160,10 +160,10 @@ const navigate = (path: string) => {
     font-size: 1.15rem;
     flex-shrink: 0;
 
-    &.mint { background: #ecfdf5; color: #047857; }
-    &.teal { background: #f0fdfa; color: #0f766e; }
+    &.mint { background: #f2f6ee; color: #415b2e; }
+    &.teal { background: #f2f6ee; color: #415b2e; }
     &.green { background: #dcfce7; color: #15803d; }
-    &.emerald { background: #ecfdf5; color: #059669; }
+    &.emerald { background: #f2f6ee; color: #364c26; }
     &.cyan { background: #e0f2fe; color: #0284c7; }
     &.light-green { background: #f0fdf4; color: #16a34a; }
     &.slate { background: #f1f5f9; color: #475569; }
@@ -184,7 +184,7 @@ const navigate = (path: string) => {
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: #10b981;
+        background: #5c8042;
       }
     }
 
@@ -204,8 +204,8 @@ const navigate = (path: string) => {
   .balance-pill {
     padding: 3px 8px;
     border-radius: 10px;
-    background: #ecfdf5;
-    color: #047857;
+    background: #f2f6ee;
+    color: #415b2e;
     font-size: 0.75rem;
     font-weight: 600;
     margin-inline-end: 4px;

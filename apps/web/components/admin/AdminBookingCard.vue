@@ -449,9 +449,9 @@ onUnmounted(() => {
         // 1. Type Badges
         &.badge-type {
           &.type-consult {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1.5px solid #a7f3d0;
+            background: #f2f6ee;
+            color: #415b2e;
+            border: 1.5px solid #c5d6b8;
           }
 
           &.type-exam {
@@ -463,9 +463,9 @@ onUnmounted(() => {
           :global([data-theme='dark']) &,
           :global(html.dark) & {
             &.type-consult {
-              background: rgba(16, 185, 129, 0.16);
-              color: #34d399;
-              border-color: rgba(16, 185, 129, 0.35);
+              background: rgba(92, 128, 66, 0.16);
+              color: #8ab36b;
+              border-color: rgba(92, 128, 66, 0.35);
             }
 
             &.type-exam {
@@ -490,13 +490,13 @@ onUnmounted(() => {
           }
 
           &.status-confirmed {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1.5px solid #6ee7b7;
+            background: #f2f6ee;
+            color: #415b2e;
+            border: 1.5px solid #a6bf94;
 
             .dot {
-              background: #10b981;
-              box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+              background: #5c8042;
+              box-shadow: 0 0 0 2px rgba(92, 128, 66, 0.2);
             }
           }
 
@@ -536,12 +536,12 @@ onUnmounted(() => {
             }
 
             &.status-confirmed {
-              background: rgba(16, 185, 129, 0.16);
-              color: #34d399;
-              border-color: rgba(16, 185, 129, 0.35);
+              background: rgba(92, 128, 66, 0.16);
+              color: #8ab36b;
+              border-color: rgba(92, 128, 66, 0.35);
 
               .dot {
-                background: #34d399;
+                background: #8ab36b;
                 box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25);
               }
             }
@@ -573,9 +573,9 @@ onUnmounted(() => {
         // 3. Payment Status Badges
         &.badge-payment {
           &.paid {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1.5px solid #6ee7b7;
+            background: #f2f6ee;
+            color: #415b2e;
+            border: 1.5px solid #a6bf94;
           }
 
           &.pending {
@@ -599,9 +599,9 @@ onUnmounted(() => {
           :global([data-theme='dark']) &,
           :global(html.dark) & {
             &.paid {
-              background: rgba(16, 185, 129, 0.16);
-              color: #34d399;
-              border-color: rgba(16, 185, 129, 0.35);
+              background: rgba(92, 128, 66, 0.16);
+              color: #8ab36b;
+              border-color: rgba(92, 128, 66, 0.35);
             }
 
             &.pending {
@@ -669,9 +669,9 @@ onUnmounted(() => {
           .initial-avatar {
             width: 100%;
             height: 100%;
-            background: #ecfdf5;
-            color: #047857;
-            border: 1px solid #a7f3d0;
+            background: #f2f6ee;
+            color: #415b2e;
+            border: 1px solid #c5d6b8;
             border-radius: 14px;
             display: flex;
             align-items: center;
@@ -681,9 +681,9 @@ onUnmounted(() => {
 
             :global([data-theme='dark']) &,
             :global(html.dark) & {
-              background: rgba(16, 185, 129, 0.14);
-              border-color: rgba(16, 185, 129, 0.28);
-              color: #34d399;
+              background: rgba(92, 128, 66, 0.14);
+              border-color: rgba(92, 128, 66, 0.28);
+              color: #8ab36b;
             }
           }
         }
@@ -719,7 +719,7 @@ onUnmounted(() => {
 
             .phone-sub-icon {
               font-size: 0.72rem;
-              color: var(--unity-primary, #047857);
+              color: var(--unity-primary, #415b2e);
               flex-shrink: 0;
             }
 
@@ -761,9 +761,9 @@ onUnmounted(() => {
               }
 
               &.copied {
-                background: #ecfdf5;
-                color: #047857;
-                border-color: #a7f3d0;
+                background: #f2f6ee;
+                color: #415b2e;
+                border-color: #c5d6b8;
               }
 
               :global([data-theme='dark']) &,
@@ -778,9 +778,9 @@ onUnmounted(() => {
                 }
 
                 &.copied {
-                  background: rgba(16, 185, 129, 0.16);
-                  color: #34d399;
-                  border-color: rgba(16, 185, 129, 0.35);
+                  background: rgba(92, 128, 66, 0.16);
+                  color: #8ab36b;
+                  border-color: rgba(92, 128, 66, 0.35);
                 }
               }
             }
@@ -949,21 +949,21 @@ onUnmounted(() => {
 
           &:hover {
             background: var(--unity-bg, #f1f5f9);
-            color: var(--unity-primary, #047857);
+            color: var(--unity-primary, #415b2e);
 
             :global([data-theme='dark']) &,
             :global(html.dark) & {
               background: #1f2937;
-              color: #34d399;
+              color: #8ab36b;
             }
 
             .edit-icon-subtle {
               opacity: 1;
-              color: var(--unity-primary, #047857);
+              color: var(--unity-primary, #415b2e);
 
               :global([data-theme='dark']) &,
               :global(html.dark) & {
-                color: #34d399;
+                color: #8ab36b;
               }
             }
           }
@@ -978,7 +978,7 @@ onUnmounted(() => {
         }
 
         i {
-          color: #10b981;
+          color: #5c8042;
           font-size: 0.9rem;
         }
 
@@ -990,9 +990,9 @@ onUnmounted(() => {
           margin-inline-start: 4px;
 
           &.paid {
-            background: #ecfdf5;
-            color: #047857;
-            border: 1px solid #a7f3d0;
+            background: #f2f6ee;
+            color: #415b2e;
+            border: 1px solid #c5d6b8;
           }
 
           &.pending {
@@ -1015,7 +1015,7 @@ onUnmounted(() => {
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            &.paid { background: rgba(16, 185, 129, 0.16); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
+            &.paid { background: rgba(92, 128, 66, 0.16); color: #8ab36b; border-color: rgba(92, 128, 66, 0.35); }
             &.pending { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); }
             &.refunded { background: rgba(59, 130, 246, 0.16); color: #60a5fa; border-color: rgba(59, 130, 246, 0.35); }
             &.failed { background: rgba(239, 68, 68, 0.16); color: #f87171; border-color: rgba(239, 68, 68, 0.35); }

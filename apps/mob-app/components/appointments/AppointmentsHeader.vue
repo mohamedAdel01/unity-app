@@ -74,7 +74,7 @@ const { t, isRtl } = useI18n();
     &.loading {
       cursor: wait;
       opacity: 0.9;
-      background: rgba(16, 185, 129, 0.08);
+      background: rgba(92, 128, 66, 0.08);
       border-color: var(--unity-primary);
       color: var(--unity-primary);
     }

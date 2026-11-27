@@ -299,7 +299,7 @@ const resolveAvatar = (url?: string) => {
           width: 11px;
           height: 11px;
           border-radius: 50%;
-          background: #10b981;
+          background: #5c8042;
           border: 2px solid #ffffff;
         }
       }
@@ -367,9 +367,9 @@ const resolveAvatar = (url?: string) => {
             }
 
             &.badge-today {
-              background: #ecfdf5;
-              color: #047857;
-              border: 1px solid #a7f3d0;
+              background: #f2f6ee;
+              color: #415b2e;
+              border: 1px solid #c5d6b8;
             }
 
             &.badge-medgulf {
@@ -383,8 +383,8 @@ const resolveAvatar = (url?: string) => {
             }
 
             &.badge-green {
-              background: #d1fae5;
-              color: #065f46;
+              background: #dce6d3;
+              color: #364c26;
             }
           }
         }
@@ -416,7 +416,7 @@ const resolveAvatar = (url?: string) => {
         padding: 5px 10px;
         border-radius: 10px;
         border: 1px solid var(--unity-primary);
-        background: var(--unity-primary-light, #ecfdf5);
+        background: var(--unity-primary-light, #f2f6ee);
         color: var(--unity-primary);
         font-size: 0.76rem;
         font-weight: 700;
@@ -530,7 +530,7 @@ const resolveAvatar = (url?: string) => {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #10b981;
+          background: #5c8042;
           flex-shrink: 0;
         }
       }
@@ -605,32 +605,32 @@ const resolveAvatar = (url?: string) => {
         }
 
         &.btn-book {
-          background: var(--unity-primary-light, #ecfdf5);
-          border: 1.5px solid var(--unity-primary-tint, #a7f3d0);
-          color: var(--unity-primary, #047857);
+          background: var(--unity-primary-light, #f2f6ee);
+          border: 1.5px solid var(--unity-primary-tint, #c5d6b8);
+          color: var(--unity-primary, #415b2e);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(16, 185, 129, 0.14);
-            border-color: rgba(16, 185, 129, 0.28);
-            color: #34d399;
+            background: rgba(92, 128, 66, 0.14);
+            border-color: rgba(92, 128, 66, 0.28);
+            color: #8ab36b;
           }
 
           &:hover {
-            background: #d1fae5;
-            border-color: #6ee7b7;
+            background: #dce6d3;
+            border-color: #a6bf94;
             transform: translateY(-1px);
           }
         }
 
         &.btn-file {
-          background: var(--unity-primary, #047857);
+          background: var(--unity-primary, #415b2e);
           border: none;
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.22);
+          box-shadow: 0 4px 12px rgba(65, 91, 46, 0.22);
 
           &:hover {
-            background: var(--unity-primary-dark, #065f46);
+            background: var(--unity-primary-dark, #364c26);
             transform: translateY(-1px);
           }
         }

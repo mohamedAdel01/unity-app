@@ -144,27 +144,27 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
     // ─── 1. Clinic Reservation Card (Emerald Green Theme) ───
     &.clinic-card {
       .icon-clinic {
-        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+        background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
       }
 
       .clinic-pill {
-        background: rgba(16, 185, 129, 0.10);
-        color: #047857;
-        border: 1px solid rgba(16, 185, 129, 0.20);
+        background: rgba(92, 128, 66, 0.10);
+        color: #415b2e;
+        border: 1px solid rgba(92, 128, 66, 0.20);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(16, 185, 129, 0.16);
-          color: #34d399;
-          border-color: rgba(16, 185, 129, 0.32);
+          background: rgba(92, 128, 66, 0.16);
+          color: #8ab36b;
+          border-color: rgba(92, 128, 66, 0.32);
         }
 
         &:hover {
-          background: #047857;
+          background: #415b2e;
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+          box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
         }
       }
     }
@@ -228,27 +228,27 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
     // ─── 4. Lab & Diagnostic Tests Card (Deep Medical Teal / Sea-Green Theme) ───
     &.lab-card {
       .icon-lab {
-        background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
+        background: linear-gradient(135deg, #415b2e 0%, #415b2e 50%, #5c8042 100%);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
       }
 
       .lab-pill {
-        background: rgba(13, 148, 136, 0.10);
-        color: #0f766e;
-        border: 1px solid rgba(13, 148, 136, 0.20);
+        background: rgba(65, 91, 46, 0.10);
+        color: #415b2e;
+        border: 1px solid rgba(65, 91, 46, 0.20);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(20, 184, 166, 0.16);
-          color: #2dd4bf;
-          border-color: rgba(20, 184, 166, 0.32);
+          background: rgba(92, 128, 66, 0.16);
+          color: #8ab36b;
+          border-color: rgba(92, 128, 66, 0.32);
         }
 
         &:hover {
-          background: #0f766e;
+          background: #415b2e;
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+          box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
         }
       }
     }

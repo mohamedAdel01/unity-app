@@ -277,8 +277,8 @@ onUnmounted(() => {
       width: 42px;
       height: 42px;
       border-radius: 12px;
-      background: rgba(16, 185, 129, 0.12);
-      color: #059669;
+      background: rgba(92, 128, 66, 0.12);
+      color: #364c26;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -380,7 +380,7 @@ onUnmounted(() => {
         transition: border-color 0.15s ease;
 
         &:focus {
-          border-color: var(--unity-primary, #059669);
+          border-color: var(--unity-primary, #364c26);
           background: #ffffff;
         }
       }
@@ -406,7 +406,7 @@ onUnmounted(() => {
         cursor: pointer;
 
         &:focus {
-          border-color: var(--unity-primary, #059669);
+          border-color: var(--unity-primary, #364c26);
           background: #ffffff;
         }
       }
@@ -433,7 +433,7 @@ onUnmounted(() => {
       font-family: inherit;
 
       &:focus {
-        border-color: var(--unity-primary, #059669);
+        border-color: var(--unity-primary, #364c26);
         background: #ffffff;
       }
     }
@@ -455,7 +455,7 @@ onUnmounted(() => {
       flex: 1;
       height: 48px;
       border-radius: 12px;
-      background: var(--unity-primary, #059669);
+      background: var(--unity-primary, #364c26);
       border: none;
       color: #ffffff;
       font-size: 0.90rem;
@@ -465,11 +465,11 @@ onUnmounted(() => {
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+      box-shadow: 0 4px 14px rgba(54, 76, 38, 0.25);
       transition: all 0.2s ease;
 
       &:hover:not(:disabled) {
-        background: var(--unity-primary-dark, #047857);
+        background: var(--unity-primary-dark, #415b2e);
       }
 
       &:disabled {
@@ -491,8 +491,8 @@ onUnmounted(() => {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: rgba(16, 185, 129, 0.12);
-    color: #10b981;
+    background: rgba(92, 128, 66, 0.12);
+    color: #5c8042;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -515,7 +515,7 @@ onUnmounted(() => {
 
   .ticket-ref-box {
     background: var(--unity-surface-muted, #f8fafc);
-    border: 1px dashed var(--unity-primary, #059669);
+    border: 1px dashed var(--unity-primary, #364c26);
     padding: 8px 18px;
     border-radius: 10px;
     margin-bottom: 12px;
@@ -523,7 +523,7 @@ onUnmounted(() => {
     .ref-code {
       font-size: 1.15rem;
       font-weight: 800;
-      color: var(--unity-primary, #059669);
+      color: var(--unity-primary, #364c26);
       letter-spacing: 1px;
     }
   }
@@ -540,7 +540,7 @@ onUnmounted(() => {
     width: 100%;
     height: 44px;
     border-radius: 12px;
-    background: var(--unity-primary, #059669);
+    background: var(--unity-primary, #364c26);
     border: none;
     color: #ffffff;
     font-size: 0.9rem;

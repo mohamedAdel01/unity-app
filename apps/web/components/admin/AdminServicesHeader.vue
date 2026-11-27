@@ -192,7 +192,7 @@ watch(() => props.activeFilter, (newVal) => {
 
       &:focus {
         border-color: var(--unity-primary);
-        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
       }
     }
 

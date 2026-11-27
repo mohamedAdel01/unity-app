@@ -377,7 +377,7 @@ const onTouchEnd = (e: TouchEvent) => {
 
       &.active {
         width: 28px;
-        background: #00b074; // Emerald green matching mockup
+        background: #415b2e; // Emerald green matching mockup
       }
     }
   }
@@ -395,7 +395,7 @@ const onTouchEnd = (e: TouchEvent) => {
       width: 100%;
       height: 54px;
       border-radius: 16px;
-      background: #00b074; // Emerald green matching mockup
+      background: #415b2e; // Emerald green matching mockup
       color: #ffffff;
       font-size: 1.05rem;
       font-weight: 700;
@@ -405,7 +405,7 @@ const onTouchEnd = (e: TouchEvent) => {
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 8px 24px rgba(0, 176, 116, 0.38);
+      box-shadow: 0 8px 24px rgba(65, 91, 46, 0.38);
       transition: all 0.25s ease;
 
       .action-arrow {
@@ -417,7 +417,7 @@ const onTouchEnd = (e: TouchEvent) => {
       }
 
       &:hover {
-        background: #009c66;
+        background: #364c26;
         transform: translateY(-1px);
 
         .action-arrow {
@@ -449,13 +449,13 @@ const onTouchEnd = (e: TouchEvent) => {
         }
 
         .auth-action {
-          color: #00b074;
+          color: #415b2e;
           font-weight: 700;
           transition: color 0.2s;
         }
 
         &:hover .auth-action {
-          color: #10b981;
+          color: #5c8042;
           text-decoration: underline;
         }
       }

@@ -704,8 +704,8 @@ onUnmounted(() => {
       i {
         font-size: 1.25rem;
         color: var(--unity-primary);
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
+        background: #f2f6ee;
+        border: 1px solid #c5d6b8;
         padding: 8px;
         border-radius: 12px;
       }
@@ -790,7 +790,7 @@ onUnmounted(() => {
           border-radius: 50%;
           object-fit: cover;
           border: 2px solid var(--unity-primary);
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+          box-shadow: 0 4px 12px rgba(92, 128, 66, 0.15);
         }
 
         .avatar-preview-placeholder {
@@ -1012,7 +1012,7 @@ onUnmounted(() => {
 
         &.is-open .select-trigger-btn {
           border-color: var(--unity-primary);
-          box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
         }
 
         .dropdown-menu-list {
@@ -1080,7 +1080,7 @@ onUnmounted(() => {
             }
 
             &.is-selected {
-              background: rgba(4, 120, 87, 0.08);
+              background: rgba(65, 91, 46, 0.08);
 
               .clinic-bullet {
                 background: var(--unity-primary);
@@ -1136,7 +1136,7 @@ onUnmounted(() => {
       width: 100%;
       background: var(--unity-primary);
       color: #fff;
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
 
       &:hover:not(:disabled) {
         background: var(--unity-primary-dark);

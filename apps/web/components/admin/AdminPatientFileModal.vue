@@ -405,8 +405,8 @@ onUnmounted(() => {
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: #ecfdf5;
-        border: 2px solid #a7f3d0;
+        background: #f2f6ee;
+        border: 2px solid #c5d6b8;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -421,7 +421,7 @@ onUnmounted(() => {
         .avatar-letter {
           font-size: 1.25rem;
           font-weight: 800;
-          color: #047857;
+          color: #415b2e;
         }
       }
 
@@ -542,7 +542,7 @@ onUnmounted(() => {
         font-size: 0.72rem;
         font-weight: 700;
         color: var(--unity-primary);
-        background: #ecfdf5;
+        background: #f2f6ee;
         padding: 1px 6px;
         border-radius: 6px;
       }
@@ -600,7 +600,7 @@ onUnmounted(() => {
         flex-shrink: 0;
 
         &.upcoming {
-          background: #10b981;
+          background: #5c8042;
         }
 
         &.past {
@@ -626,8 +626,8 @@ onUnmounted(() => {
             border-radius: 6px;
 
             &.pill-consult {
-              background: #ecfdf5;
-              color: #047857;
+              background: #f2f6ee;
+              color: #415b2e;
             }
 
             &.pill-exam {
@@ -652,8 +652,8 @@ onUnmounted(() => {
           align-items: center;
           gap: 5px;
           font-size: 0.70rem;
-          color: #047857;
-          background: #ecfdf5;
+          color: #415b2e;
+          background: #f2f6ee;
           padding: 2px 8px;
           border-radius: 6px;
           margin-top: 2px;
@@ -675,8 +675,8 @@ onUnmounted(() => {
           font-weight: 700;
           padding: 2px 8px;
           border-radius: 10px;
-          background: #d1fae5;
-          color: #065f46;
+          background: #dce6d3;
+          color: #364c26;
 
           &.completed {
             background: #e0f2fe;
@@ -725,7 +725,7 @@ onUnmounted(() => {
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.22);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.22);
       transition: all 0.2s ease;
 
       &:hover {

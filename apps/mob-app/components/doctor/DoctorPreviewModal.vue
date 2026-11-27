@@ -283,7 +283,7 @@ onUnmounted(() => {
         width: 36px;
         height: 36px;
         border-radius: 12px;
-        background: rgba(4, 120, 87, 0.1);
+        background: rgba(65, 91, 46, 0.1);
         color: var(--unity-primary);
         display: flex;
         align-items: center;
@@ -361,7 +361,7 @@ onUnmounted(() => {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, rgba(4, 120, 87, 0.12), rgba(16, 185, 129, 0.06));
+        background: linear-gradient(135deg, rgba(65, 91, 46, 0.12), rgba(92, 128, 66, 0.06));
 
         .placeholder-initial {
           font-size: 4rem;
@@ -375,7 +375,7 @@ onUnmounted(() => {
         position: absolute;
         bottom: 12px;
         inset-inline-start: 12px;
-        background: rgba(4, 120, 87, 0.9);
+        background: rgba(65, 91, 46, 0.9);
         backdrop-filter: blur(8px);
         color: #ffffff;
         font-size: 0.74rem;
@@ -426,9 +426,9 @@ onUnmounted(() => {
           }
 
           &.clinic-tag {
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
-            color: #047857;
+            background: #f2f6ee;
+            border: 1px solid #c5d6b8;
+            color: #415b2e;
           }
         }
       }
@@ -528,7 +528,7 @@ onUnmounted(() => {
       width: 100%;
       height: 48px;
       border-radius: 14px;
-      background: var(--unity-primary, #047857);
+      background: var(--unity-primary, #415b2e);
       color: #ffffff;
       border: none;
       font-size: 0.92rem;
@@ -538,13 +538,13 @@ onUnmounted(() => {
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.25);
+      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
-        background: var(--unity-primary-dark, #065f46);
+        background: var(--unity-primary-dark, #364c26);
         transform: translateY(-1px);
-        box-shadow: 0 6px 18px rgba(4, 120, 87, 0.3);
+        box-shadow: 0 6px 18px rgba(65, 91, 46, 0.3);
       }
 
       &:active {

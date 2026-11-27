@@ -102,11 +102,11 @@ const currentStepSubTitle = computed(() => {
     &.active {
       background: var(--unity-primary);
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.35);
     }
 
     &.completed {
-      background: #10b981;
+      background: #5c8042;
       color: #ffffff;
     }
   }
@@ -119,7 +119,7 @@ const currentStepSubTitle = computed(() => {
     transition: all 0.25s ease;
 
     &.active {
-      background: #10b981;
+      background: #5c8042;
     }
   }
 

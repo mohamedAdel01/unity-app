@@ -216,8 +216,8 @@ const { t } = useI18n();
 
       &.ready,
       &.completed {
-        background: #ecfdf5;
-        color: #059669;
+        background: #f2f6ee;
+        color: #364c26;
       }
     }
   }
@@ -280,12 +280,12 @@ const { t } = useI18n();
       transition: all 0.2s ease;
 
       &.book-action-btn {
-        background: rgba(16, 185, 129, 0.12);
-        color: #047857;
-        border: 1px solid rgba(16, 185, 129, 0.35);
+        background: rgba(92, 128, 66, 0.12);
+        color: #415b2e;
+        border: 1px solid rgba(92, 128, 66, 0.35);
 
         &:hover {
-          background: #047857;
+          background: #415b2e;
           color: #ffffff;
         }
       }

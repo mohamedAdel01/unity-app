@@ -205,7 +205,7 @@ watch(() => props.activeFilter, (newVal) => {
       font-weight: 700;
       white-space: nowrap;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.25);
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       flex-shrink: 0;
 
@@ -257,7 +257,7 @@ watch(() => props.activeFilter, (newVal) => {
 
       &:focus {
         border-color: var(--unity-primary);
-        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
       }
     }
 

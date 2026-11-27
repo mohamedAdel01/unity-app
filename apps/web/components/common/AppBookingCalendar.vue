@@ -267,7 +267,7 @@ watch(
 
     .cal-header-icon {
       font-size: 1.05rem;
-      color: var(--unity-primary, #059669);
+      color: var(--unity-primary, #364c26);
     }
 
     .month-title {
@@ -299,9 +299,9 @@ watch(
       transition: all 0.2s ease;
 
       &:hover:not(:disabled) {
-        background: var(--unity-primary, #059669);
+        background: var(--unity-primary, #364c26);
         color: #ffffff;
-        border-color: var(--unity-primary, #059669);
+        border-color: var(--unity-primary, #364c26);
       }
 
       &:disabled {
@@ -362,28 +362,28 @@ watch(
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background: #10b981;
+        background: #5c8042;
         margin-top: 3px;
         transition: transform 0.2s ease;
       }
 
       &.is-available {
-        background: rgba(16, 185, 129, 0.08);
-        border: 1px solid rgba(16, 185, 129, 0.35);
-        color: #065f46;
+        background: rgba(92, 128, 66, 0.08);
+        border: 1px solid rgba(92, 128, 66, 0.35);
+        color: #364c26;
 
         &:hover {
-          background: rgba(16, 185, 129, 0.18);
-          border-color: #10b981;
+          background: rgba(92, 128, 66, 0.18);
+          border-color: #5c8042;
           transform: translateY(-1px);
         }
       }
 
       &.is-selected {
-        background: var(--unity-primary, #059669) !important;
-        border-color: var(--unity-primary, #059669) !important;
+        background: var(--unity-primary, #364c26) !important;
+        border-color: var(--unity-primary, #364c26) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+        box-shadow: 0 4px 12px rgba(54, 76, 38, 0.35);
         transform: scale(1.04);
 
         .avail-dot {
@@ -433,8 +433,8 @@ watch(
       border-radius: 50%;
 
       &.green {
-        background: #10b981;
-        box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+        background: #5c8042;
+        box-shadow: 0 0 6px rgba(92, 128, 66, 0.4);
       }
 
       &.gray {

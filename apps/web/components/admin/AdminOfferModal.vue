@@ -502,7 +502,7 @@ onUnmounted(() => {
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      background: rgba(4, 120, 87, 0.1);
+      background: rgba(65, 91, 46, 0.1);
       color: var(--unity-primary);
       display: flex;
       align-items: center;
@@ -610,7 +610,7 @@ onUnmounted(() => {
         &:focus {
           border-color: var(--unity-primary);
           background: var(--unity-surface);
-          box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
         }
 
         &::placeholder {
@@ -619,7 +619,7 @@ onUnmounted(() => {
         }
 
         &.highlight-price {
-          border-color: rgba(4, 120, 87, 0.4);
+          border-color: rgba(65, 91, 46, 0.4);
           font-weight: 700;
           color: var(--unity-primary);
         }
@@ -644,7 +644,7 @@ onUnmounted(() => {
         &:focus {
           border-color: var(--unity-primary);
           background: var(--unity-surface);
-          box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
         }
 
         &::placeholder {
@@ -682,8 +682,8 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(4, 120, 87, 0.08);
-      border: 1px solid rgba(4, 120, 87, 0.2);
+      background: rgba(65, 91, 46, 0.08);
+      border: 1px solid rgba(65, 91, 46, 0.2);
       border-radius: 10px;
       padding: 6px 12px;
 
@@ -737,14 +737,14 @@ onUnmounted(() => {
 
       &:hover, &.is-dragover {
         border-color: var(--unity-primary);
-        background: rgba(4, 120, 87, 0.04);
+        background: rgba(65, 91, 46, 0.04);
       }
 
       .dropzone-icon {
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: rgba(4, 120, 87, 0.08);
+        background: rgba(65, 91, 46, 0.08);
         color: var(--unity-primary);
         display: flex;
         align-items: center;
