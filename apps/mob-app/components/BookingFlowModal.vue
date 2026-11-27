@@ -107,8 +107,7 @@
                   </div>
                 </div>
 
-                <!-- Online Consultation Mode Selector - Hidden temporarily -->
-                <!--
+                <!-- Online Consultation Mode Selector -->
                 <div v-if="!isExamination && hasOnlineConsultation" class="consultation-mode-toggle">
                   <button 
                     type="button" 
@@ -129,7 +128,6 @@
                     <span>{{ t('Google Meet Online') }}</span>
                   </button>
                 </div>
-                -->
               </div>
 
               <!-- Date Picker Chips & Full Calendar Mode -->

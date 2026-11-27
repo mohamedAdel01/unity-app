@@ -1271,6 +1271,8 @@ export default {
   "Join Video Meeting": "انضمام إلى الاستشارة المرئية",
   "Copy Meeting Link": "نسخ رابط الاجتماع",
   "Online Video Consultation": "كشف أونلاين",
+  "In-Clinic Visit": "كشف بالعيادة",
+  "Google Meet Online": "أونلاين (Google Meet)",
   "Examination / Service": "الخدمة الطبية",
   "Medical Examinations & Labs": "خدمات وتحاليل طبية",
   "Examination Fee": "سعر الكشف",

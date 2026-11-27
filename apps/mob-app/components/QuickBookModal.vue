@@ -28,6 +28,32 @@
               <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>
             </button>
 
+            <!-- 2. Online Video Consultation -->
+            <button class="option" @click="chooseOnline">
+              <div class="option-icon online">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="6" width="14" height="12" rx="2"/>
+                  <path d="m16 10 6-3v10l-6-3Z"/>
+                </svg>
+              </div>
+              <span class="option-label">{{ t('Online Video Consultation') }}</span>
+              <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>
+            </button>
+
+            <!-- 3. Home Visit Reservation -->
+            <button class="option" @click="chooseHome">
+              <div class="option-icon home">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 10.5 12 3l9 7.5"/>
+                  <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/>
+                  <path d="M12 11v6"/>
+                  <path d="M9 14h6"/>
+                </svg>
+              </div>
+              <span class="option-label">{{ t('Home Visit Reservation') }}</span>
+              <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'option-chevron']"></i>
+            </button>
+
             <!-- 4. Medical Service / Lab -->
             <button class="option" @click="chooseService">
               <div class="option-icon service">
@@ -226,18 +252,18 @@ const chooseService = () => {
   }
 
   &.online {
-    background: #e0f2fe;
-    color: #0284c7;
+    background: rgba(var(--unity-slate-rgb), 0.12);
+    color: var(--unity-slate);
   }
 
   &.home {
-    background: #fef3c7;
-    color: #d97706;
+    background: rgba(var(--unity-terracotta-rgb), 0.12);
+    color: var(--unity-terracotta);
   }
 
   &.service {
-    background: #f0fdf4;
-    color: var(--unity-primary);
+    background: rgba(var(--unity-sage-rgb), 0.12);
+    color: var(--unity-sage);
   }
 
   :global([data-theme='dark']) &,
@@ -248,19 +274,19 @@ const chooseService = () => {
       color: var(--unity-accent-light);
     }
 
-    &.service {
-      background: rgba(var(--unity-accent-rgb), 0.2);
-      color: var(--unity-accent-light);
-    }
-
     &.online {
-      background: rgba(2, 132, 199, 0.18);
-      color: #38bdf8;
+      background: rgba(var(--unity-slate-rgb), 0.18);
+      color: var(--unity-slate-light);
     }
 
     &.home {
-      background: rgba(245, 158, 11, 0.18);
-      color: #fbbf24;
+      background: rgba(var(--unity-terracotta-rgb), 0.18);
+      color: var(--unity-terracotta-light);
+    }
+
+    &.service {
+      background: rgba(var(--unity-sage-rgb), 0.18);
+      color: var(--unity-sage-light);
     }
   }
 }

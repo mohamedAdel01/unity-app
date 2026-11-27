@@ -30,7 +30,53 @@
         </div>
       </div>
 
-      <!-- 4. Lab & Diagnostic Tests Card (Harmonious Teal-Green Medical Palette) -->
+      <!-- 2. Online Video Consultation Card -->
+      <div 
+        class="category-card online-card" 
+        @click="navigateToCategory('online')"
+      >
+        <div class="cat-icon-wrap icon-online">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="14" height="12" rx="2"/>
+            <path d="m16 10 6-3v10l-6-3Z"/>
+          </svg>
+        </div>
+
+        <div class="cat-content">
+          <h5>{{ t('Online Video Consultation') }}</h5>
+          <p>{{ t('Virtual consultations via Google Meet') }}</p>
+        </div>
+
+        <div class="card-action-pill online-pill">
+          <span>{{ t('Book Video Call') }}</span>
+        </div>
+      </div>
+
+      <!-- 3. Home Visit Reservation Card -->
+      <div 
+        class="category-card home-card" 
+        @click="navigateToCategory('home')"
+      >
+        <div class="cat-icon-wrap icon-home">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/>
+            <path d="M12 11v6"/>
+            <path d="M9 14h6"/>
+          </svg>
+        </div>
+
+        <div class="cat-content">
+          <h5>{{ t('Home Visit Reservation') }}</h5>
+          <p>{{ t('Doctor & nursing visits at your doorstep') }}</p>
+        </div>
+
+        <div class="card-action-pill home-pill">
+          <span>{{ t('Book Home Visit') }}</span>
+        </div>
+      </div>
+
+      <!-- 4. Lab & Diagnostic Tests Card (Harmonious Olive-Green Medical Palette) -->
       <div 
         class="category-card lab-card" 
         @click="navigateToCategory('lab')"
@@ -169,86 +215,86 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
       }
     }
 
-    // ─── 2. Online Video Consultation Card (Sky / Cyan Blue Theme) ───
+    // ─── 2. Online Video Consultation Card (Muted Slate Blue) ───
     &.online-card {
       .icon-online {
-        background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+        background: linear-gradient(135deg, var(--unity-slate) 0%, var(--unity-slate-light) 100%);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-slate-rgb), 0.25);
       }
 
       .online-pill {
-        background: rgba(2, 132, 199, 0.10);
-        color: #0284c7;
-        border: 1px solid rgba(2, 132, 199, 0.20);
+        background: rgba(var(--unity-slate-rgb), 0.10);
+        color: var(--unity-slate);
+        border: 1px solid rgba(var(--unity-slate-rgb), 0.20);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(2, 132, 199, 0.16);
-          color: #38bdf8;
-          border-color: rgba(2, 132, 199, 0.32);
+          background: rgba(var(--unity-slate-rgb), 0.16);
+          color: var(--unity-slate-light);
+          border-color: rgba(var(--unity-slate-rgb), 0.32);
         }
 
         &:hover {
-          background: #0284c7;
+          background: var(--unity-slate);
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+          box-shadow: 0 4px 12px rgba(var(--unity-slate-rgb), 0.25);
         }
       }
     }
 
-    // ─── 3. Home Visit Reservation Card (Warm Amber Theme) ───
+    // ─── 3. Home Visit Reservation Card (Warm Muted Terracotta) ───
     &.home-card {
       .icon-home {
-        background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        background: linear-gradient(135deg, var(--unity-terracotta) 0%, var(--unity-terracotta-light) 100%);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-terracotta-rgb), 0.25);
       }
 
       .home-pill {
-        background: rgba(217, 119, 6, 0.10);
-        color: #d97706;
-        border: 1px solid rgba(217, 119, 6, 0.20);
+        background: rgba(var(--unity-terracotta-rgb), 0.10);
+        color: var(--unity-terracotta);
+        border: 1px solid rgba(var(--unity-terracotta-rgb), 0.20);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(245, 158, 11, 0.16);
-          color: #fbbf24;
-          border-color: rgba(245, 158, 11, 0.32);
+          background: rgba(var(--unity-terracotta-rgb), 0.16);
+          color: var(--unity-terracotta-light);
+          border-color: rgba(var(--unity-terracotta-rgb), 0.32);
         }
 
         &:hover {
-          background: #d97706;
+          background: var(--unity-terracotta);
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+          box-shadow: 0 4px 12px rgba(var(--unity-terracotta-rgb), 0.25);
         }
       }
     }
 
-    // ─── 4. Lab & Diagnostic Tests Card (Deep Medical Teal / Sea-Green Theme) ───
+    // ─── 4. Lab & Diagnostic Tests Card (Deep Eucalyptus Sage) ───
     &.lab-card {
       .icon-lab {
-        background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary) 50%, var(--unity-accent) 100%);
+        background: linear-gradient(135deg, var(--unity-sage) 0%, var(--unity-sage-light) 100%);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-sage-rgb), 0.25);
       }
 
       .lab-pill {
-        background: rgba(var(--unity-primary-rgb), 0.10);
-        color: var(--unity-primary);
-        border: 1px solid rgba(var(--unity-primary-rgb), 0.20);
+        background: rgba(var(--unity-sage-rgb), 0.10);
+        color: var(--unity-sage);
+        border: 1px solid rgba(var(--unity-sage-rgb), 0.20);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(var(--unity-accent-rgb), 0.16);
-          color: var(--unity-accent-light);
-          border-color: rgba(var(--unity-accent-rgb), 0.32);
+          background: rgba(var(--unity-sage-rgb), 0.16);
+          color: var(--unity-sage-light);
+          border-color: rgba(var(--unity-sage-rgb), 0.32);
         }
 
         &:hover {
-          background: var(--unity-primary);
+          background: var(--unity-sage);
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.25);
+          box-shadow: 0 4px 12px rgba(var(--unity-sage-rgb), 0.25);
         }
       }
     }

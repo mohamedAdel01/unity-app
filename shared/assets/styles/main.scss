@@ -21,6 +21,17 @@
   --unity-accent-rgb: 92, 128, 66;
   --unity-accent-light: #8ab36b;
   --unity-accent-glow: rgba(var(--unity-accent-rgb), 0.25);
+
+  // Complementary Earthy Palette (harmonizes with #415b2e)
+  --unity-slate: #3b6978;             // Muted Slate Blue (Online / Telehealth)
+  --unity-slate-rgb: 59, 105, 120;
+  --unity-slate-light: #4f8496;
+  --unity-terracotta: #9c6644;        // Warm Muted Bronze / Terracotta (Home Visit)
+  --unity-terracotta-rgb: 156, 102, 68;
+  --unity-terracotta-light: #b57c56;
+  --unity-sage: #4a6b53;              // Deep Eucalyptus Sage (Lab & Services)
+  --unity-sage-rgb: 74, 107, 83;
+  --unity-sage-light: #5d8267;
   
   --unity-bg: #f8fafc;                // Clean mobile background
   --unity-surface: #ffffff;           // Card surface
@@ -92,6 +103,16 @@
   --unity-accent-rgb: 138, 179, 107;
   --unity-accent-light: #a6bf94;
   --unity-accent-glow: rgba(var(--unity-accent-rgb), 0.25);
+
+  --unity-slate: #6ea4b5;
+  --unity-slate-rgb: 110, 164, 181;
+  --unity-slate-light: #89bac9;
+  --unity-terracotta: #d49b76;
+  --unity-terracotta-rgb: 212, 155, 118;
+  --unity-terracotta-light: #e0b294;
+  --unity-sage: #73997d;
+  --unity-sage-rgb: 115, 153, 125;
+  --unity-sage-light: #8fb398;
   --unity-shadow-subtle: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
   --unity-shadow-card: 0 4px 14px -3px rgba(0, 0, 0, 0.5);
   --web-outer-bg: var(--unity-bg);
