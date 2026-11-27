@@ -243,7 +243,7 @@ watch(
 
 <style scoped lang="scss">
 .booking-calendar-root {
-  background: var(--unity-surface, #ffffff);
+  background: var(--unity-surface);
   border: 1px solid var(--unity-border, rgba(226, 232, 240, 0.9));
   border-radius: 16px;
   padding: 16px 14px 14px;
@@ -267,13 +267,13 @@ watch(
 
     .cal-header-icon {
       font-size: 1.05rem;
-      color: var(--unity-primary, #364c26);
+      color: var(--unity-primary);
     }
 
     .month-title {
       font-size: 0.96rem;
       font-weight: 700;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       margin: 0;
       text-transform: capitalize;
     }
@@ -289,8 +289,8 @@ watch(
       height: 32px;
       border-radius: 10px;
       border: 1px solid var(--unity-border, rgba(226, 232, 240, 0.8));
-      background: var(--unity-bg, #f8fafc);
-      color: var(--unity-text-main, #334155);
+      background: var(--unity-bg);
+      color: var(--unity-text-main);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -299,9 +299,9 @@ watch(
       transition: all 0.2s ease;
 
       &:hover:not(:disabled) {
-        background: var(--unity-primary, #364c26);
+        background: var(--unity-primary);
         color: #ffffff;
-        border-color: var(--unity-primary, #364c26);
+        border-color: var(--unity-primary);
       }
 
       &:disabled {
@@ -321,7 +321,7 @@ watch(
   .weekday-label {
     font-size: 0.74rem;
     font-weight: 600;
-    color: var(--unity-text-muted, #94a3b8);
+    color: var(--unity-text-muted);
     padding: 4px 0;
   }
 }
@@ -351,7 +351,7 @@ watch(
     &.day-cell {
       cursor: pointer;
       font-weight: 600;
-      color: var(--unity-text-main, #1e293b);
+      color: var(--unity-text-main);
 
       .day-num {
         line-height: 1;
@@ -362,28 +362,28 @@ watch(
         width: 5px;
         height: 5px;
         border-radius: 50%;
-        background: #5c8042;
+        background: var(--unity-accent);
         margin-top: 3px;
         transition: transform 0.2s ease;
       }
 
       &.is-available {
-        background: rgba(92, 128, 66, 0.08);
-        border: 1px solid rgba(92, 128, 66, 0.35);
-        color: #364c26;
+        background: rgba(var(--unity-accent-rgb), 0.08);
+        border: 1px solid rgba(var(--unity-accent-rgb), 0.35);
+        color: var(--unity-primary-hover);
 
         &:hover {
-          background: rgba(92, 128, 66, 0.18);
-          border-color: #5c8042;
+          background: rgba(var(--unity-accent-rgb), 0.18);
+          border-color: var(--unity-accent);
           transform: translateY(-1px);
         }
       }
 
       &.is-selected {
-        background: var(--unity-primary, #364c26) !important;
-        border-color: var(--unity-primary, #364c26) !important;
+        background: var(--unity-primary) !important;
+        border-color: var(--unity-primary) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(54, 76, 38, 0.35);
+        box-shadow: 0 4px 12px rgba(var(--unity-primary-hover-rgb), 0.35);
         transform: scale(1.04);
 
         .avail-dot {
@@ -394,7 +394,7 @@ watch(
       &.is-disabled {
         opacity: 0.25;
         cursor: not-allowed;
-        color: var(--unity-text-muted, #94a3b8);
+        color: var(--unity-text-muted);
         background: transparent !important;
         border: none !important;
 
@@ -420,7 +420,7 @@ watch(
   padding-top: 8px;
   border-top: 1px dashed var(--unity-border, rgba(226, 232, 240, 0.7));
   font-size: 0.76rem;
-  color: var(--unity-text-muted, #64748b);
+  color: var(--unity-text-muted);
 
   .legend-item {
     display: flex;
@@ -433,8 +433,8 @@ watch(
       border-radius: 50%;
 
       &.green {
-        background: #5c8042;
-        box-shadow: 0 0 6px rgba(92, 128, 66, 0.4);
+        background: var(--unity-accent);
+        box-shadow: 0 0 6px rgba(var(--unity-accent-rgb), 0.4);
       }
 
       &.gray {

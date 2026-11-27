@@ -160,10 +160,10 @@ const navigate = (path: string) => {
     font-size: 1.15rem;
     flex-shrink: 0;
 
-    &.mint { background: #f2f6ee; color: #415b2e; }
-    &.teal { background: #f2f6ee; color: #415b2e; }
+    &.mint { background: var(--unity-primary-light); color: var(--unity-primary); }
+    &.teal { background: var(--unity-primary-light); color: var(--unity-primary); }
     &.green { background: #dcfce7; color: #15803d; }
-    &.emerald { background: #f2f6ee; color: #364c26; }
+    &.emerald { background: var(--unity-primary-light); color: var(--unity-primary-hover); }
     &.cyan { background: #e0f2fe; color: #0284c7; }
     &.light-green { background: #f0fdf4; color: #16a34a; }
     &.slate { background: #f1f5f9; color: #475569; }
@@ -184,7 +184,7 @@ const navigate = (path: string) => {
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: #5c8042;
+        background: var(--unity-accent);
       }
     }
 
@@ -204,8 +204,8 @@ const navigate = (path: string) => {
   .balance-pill {
     padding: 3px 8px;
     border-radius: 10px;
-    background: #f2f6ee;
-    color: #415b2e;
+    background: var(--unity-primary-light);
+    color: var(--unity-primary);
     font-size: 0.75rem;
     font-weight: 600;
     margin-inline-end: 4px;

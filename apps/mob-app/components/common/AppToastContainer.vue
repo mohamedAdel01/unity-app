@@ -175,7 +175,7 @@ const getStackStyle = (stackIndex: number) => {
   gap: 7px;
   padding: 5px 9px 5px 10px;
   border-radius: 999px;
-  background: var(--unity-surface, #ffffff);
+  background: var(--unity-surface);
   border: 1px solid var(--unity-border, rgba(0, 0, 0, 0.08));
   box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(12px);
@@ -252,7 +252,7 @@ const getStackStyle = (stackIndex: number) => {
     }
 
     .toast-progress-bar {
-      background: #5c8042;
+      background: var(--unity-accent);
     }
   }
 
@@ -318,7 +318,7 @@ const getStackStyle = (stackIndex: number) => {
     }
     &.toast-success {
       background: rgba(6, 78, 59, 0.95);
-      border-color: #364c26;
+      border-color: var(--unity-primary-hover);
       .toast-title { color: #bbf7d0; }
       .toast-message { color: #86efac; }
     }
@@ -387,7 +387,7 @@ const getStackStyle = (stackIndex: number) => {
     border-radius: 50%;
     background: transparent;
     border: none;
-    color: var(--unity-text-dim, #94a3b8);
+    color: var(--unity-text-dim);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -398,7 +398,7 @@ const getStackStyle = (stackIndex: number) => {
 
     &:hover {
       background: rgba(0, 0, 0, 0.08);
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
     }
   }
 

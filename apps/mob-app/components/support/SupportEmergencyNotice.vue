@@ -75,7 +75,7 @@ const { t } = useI18n();
 
     .notice-desc {
       font-size: 0.72rem;
-      color: var(--unity-text-secondary, #64748b);
+      color: var(--unity-text-secondary);
       margin: 0;
       line-height: 1.35;
     }

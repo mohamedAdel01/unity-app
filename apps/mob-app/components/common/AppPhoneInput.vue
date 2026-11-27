@@ -335,7 +335,7 @@ onMounted(() => {
   &.is-focused {
     border-color: var(--unity-primary);
     background: var(--unity-surface);
-    box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+    box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
   }
 
   &.is-invalid {
@@ -434,7 +434,7 @@ onMounted(() => {
     box-sizing: border-box;
 
     &::placeholder {
-      color: var(--unity-text-dim, #94a3b8);
+      color: var(--unity-text-dim);
       font-size: 0.84rem;
       font-weight: 400;
       letter-spacing: normal;
@@ -451,13 +451,13 @@ onMounted(() => {
   flex-shrink: 0;
 
   .valid-icon {
-    color: #5c8042;
+    color: var(--unity-accent);
     font-size: 1rem;
     animation: popIn 0.2s ease;
   }
 
   .phone-icon-placeholder {
-    color: var(--unity-text-dim, #94a3b8);
+    color: var(--unity-text-dim);
     font-size: 0.95rem;
   }
 }
@@ -568,7 +568,7 @@ onMounted(() => {
     }
 
     &.selected {
-      background: rgba(92, 128, 66, 0.12);
+      background: rgba(var(--unity-accent-rgb), 0.12);
       color: var(--unity-primary);
 
       .country-dial-code {
@@ -608,7 +608,7 @@ onMounted(() => {
 
       .default-badge {
         font-size: 0.72rem;
-        background: rgba(92, 128, 66, 0.16);
+        background: rgba(var(--unity-accent-rgb), 0.16);
         color: var(--unity-primary);
         padding: 2px 6px;
         border-radius: 6px;

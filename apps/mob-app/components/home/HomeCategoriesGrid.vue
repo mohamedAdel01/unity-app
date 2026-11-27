@@ -103,7 +103,7 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
     h4 {
       font-size: 0.86rem;
       font-weight: 700;
-      color: var(--unity-text-main, #334155);
+      color: var(--unity-text-main);
       opacity: 0.9;
       margin: 0;
       line-height: 1.3;
@@ -144,27 +144,27 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
     // ─── 1. Clinic Reservation Card (Emerald Green Theme) ───
     &.clinic-card {
       .icon-clinic {
-        background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
+        background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-accent) 100%);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
       }
 
       .clinic-pill {
-        background: rgba(92, 128, 66, 0.10);
-        color: #415b2e;
-        border: 1px solid rgba(92, 128, 66, 0.20);
+        background: rgba(var(--unity-accent-rgb), 0.10);
+        color: var(--unity-primary);
+        border: 1px solid rgba(var(--unity-accent-rgb), 0.20);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(92, 128, 66, 0.16);
-          color: #8ab36b;
-          border-color: rgba(92, 128, 66, 0.32);
+          background: rgba(var(--unity-accent-rgb), 0.16);
+          color: var(--unity-accent-light);
+          border-color: rgba(var(--unity-accent-rgb), 0.32);
         }
 
         &:hover {
-          background: #415b2e;
+          background: var(--unity-primary);
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
+          box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.25);
         }
       }
     }
@@ -228,27 +228,27 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
     // ─── 4. Lab & Diagnostic Tests Card (Deep Medical Teal / Sea-Green Theme) ───
     &.lab-card {
       .icon-lab {
-        background: linear-gradient(135deg, #415b2e 0%, #415b2e 50%, #5c8042 100%);
+        background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary) 50%, var(--unity-accent) 100%);
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
       }
 
       .lab-pill {
-        background: rgba(65, 91, 46, 0.10);
-        color: #415b2e;
-        border: 1px solid rgba(65, 91, 46, 0.20);
+        background: rgba(var(--unity-primary-rgb), 0.10);
+        color: var(--unity-primary);
+        border: 1px solid rgba(var(--unity-primary-rgb), 0.20);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(92, 128, 66, 0.16);
-          color: #8ab36b;
-          border-color: rgba(92, 128, 66, 0.32);
+          background: rgba(var(--unity-accent-rgb), 0.16);
+          color: var(--unity-accent-light);
+          border-color: rgba(var(--unity-accent-rgb), 0.32);
         }
 
         &:hover {
-          background: #415b2e;
+          background: var(--unity-primary);
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
+          box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.25);
         }
       }
     }
@@ -287,7 +287,7 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
       h5 {
         font-size: 0.82rem;
         font-weight: 700;
-        color: var(--unity-text-main, #334155);
+        color: var(--unity-text-main);
         margin: 0 0 4px;
         line-height: 1.35;
       }

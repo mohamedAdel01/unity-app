@@ -251,14 +251,14 @@ const openDetails = (apt: any) => {
       h4 {
         font-size: 0.86rem;
         font-weight: 700;
-        color: var(--unity-text-main, #334155);
+        color: var(--unity-text-main);
         opacity: 0.9;
         margin: 0;
         line-height: 1.3;
       }
 
       .count-pill {
-        background: rgba(65, 91, 46, 0.15);
+        background: rgba(var(--unity-primary-rgb), 0.15);
         color: var(--unity-primary);
         font-size: 0.65rem;
         font-weight: 700;
@@ -439,8 +439,8 @@ const openDetails = (apt: any) => {
         flex-shrink: 0;
 
         &.confirmed {
-          background: rgba(92, 128, 66, 0.12);
-          color: #364c26;
+          background: rgba(var(--unity-accent-rgb), 0.12);
+          color: var(--unity-primary-hover);
         }
 
         &.pending {
@@ -553,7 +553,7 @@ const openDetails = (apt: any) => {
       .empty-single-title {
         font-size: 0.80rem;
         font-weight: 600;
-        color: var(--unity-text-main, #334155);
+        color: var(--unity-text-main);
         margin: 0;
         white-space: nowrap;
       }
@@ -561,9 +561,9 @@ const openDetails = (apt: any) => {
   }
 
   .empty-action-pill {
-    background: var(--unity-primary-light, #f2f6ee);
-    color: var(--unity-primary, #415b2e);
-    border: 1px solid rgba(65, 91, 46, 0.2);
+    background: var(--unity-primary-light);
+    color: var(--unity-primary);
+    border: 1px solid rgba(var(--unity-primary-rgb), 0.2);
     padding: 5px 12px;
     border-radius: 12px;
     font-size: 0.72rem;
@@ -578,14 +578,14 @@ const openDetails = (apt: any) => {
 
     :global([data-theme='dark']) &,
     :global(html.dark) & {
-      background: rgba(92, 128, 66, 0.16);
-      color: #8ab36b;
-      border-color: rgba(92, 128, 66, 0.3);
+      background: rgba(var(--unity-accent-rgb), 0.16);
+      color: var(--unity-accent-light);
+      border-color: rgba(var(--unity-accent-rgb), 0.3);
     }
 
     &:hover {
-      background: rgba(65, 91, 46, 0.12);
-      border-color: rgba(65, 91, 46, 0.35);
+      background: rgba(var(--unity-primary-rgb), 0.12);
+      border-color: rgba(var(--unity-primary-rgb), 0.35);
     }
   }
 }

@@ -217,7 +217,7 @@ onMounted(() => {
 
   &:hover {
     border-color: var(--unity-primary);
-    box-shadow: 0 10px 24px rgba(65, 91, 46, 0.08);
+    box-shadow: 0 10px 24px rgba(var(--unity-primary-rgb), 0.08);
   }
 
   .doctor-top-row {
@@ -250,7 +250,7 @@ onMounted(() => {
       width: 100%;
       height: 100%;
       border-radius: 18px;
-      background: rgba(65, 91, 46, 0.12);
+      background: rgba(var(--unity-primary-rgb), 0.12);
       color: var(--unity-primary);
       display: flex;
       align-items: center;
@@ -348,11 +348,11 @@ onMounted(() => {
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(65, 91, 46, 0.2);
+      box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.2);
       transition: all 0.2s ease;
 
       &:hover {
-        background: var(--unity-primary-dark, #364c26);
+        background: var(--unity-primary-dark);
         transform: translateY(-1px);
       }
     }

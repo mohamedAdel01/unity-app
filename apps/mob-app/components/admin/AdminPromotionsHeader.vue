@@ -154,7 +154,7 @@ const { t, isRtl } = useI18n();
   .segmented-control {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    background: var(--unity-surface-muted, #f1f5f9);
+    background: var(--unity-surface-muted);
     border: 1px solid var(--unity-border);
     border-radius: 12px;
     padding: 3px;
@@ -186,7 +186,7 @@ const { t, isRtl } = useI18n();
       }
 
       &.active {
-        background: var(--unity-surface, #ffffff);
+        background: var(--unity-surface);
         color: var(--unity-primary);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 

@@ -451,7 +451,7 @@ onUnmounted(() => {
 }
 
 .doctor-cases-modal-sheet {
-  background: var(--unity-surface, #ffffff);
+  background: var(--unity-surface);
   width: 100%;
   max-width: 520px;
   max-height: 88vh;
@@ -474,7 +474,7 @@ onUnmounted(() => {
     align-items: center;
     justify-content: space-between;
     padding: 18px 20px 14px;
-    border-bottom: 1px solid var(--unity-border, #f1f5f9);
+    border-bottom: 1px solid var(--unity-border);
 
     .doctor-info-head {
       display: flex;
@@ -518,7 +518,7 @@ onUnmounted(() => {
           border: 2px solid #ffffff;
 
           &.online {
-            background: #5c8042;
+            background: var(--unity-accent);
           }
 
           &.offline {
@@ -540,7 +540,7 @@ onUnmounted(() => {
           h3 {
             font-size: 1.05rem;
             font-weight: 800;
-            color: var(--unity-text-main, #0f172a);
+            color: var(--unity-text-main);
             margin: 0;
           }
 
@@ -556,7 +556,7 @@ onUnmounted(() => {
 
         .doctor-clinic {
           font-size: 0.76rem;
-          color: var(--unity-text-muted, #64748b);
+          color: var(--unity-text-muted);
           margin: 0;
 
           .dot {
@@ -571,9 +571,9 @@ onUnmounted(() => {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: var(--unity-bg, #f8fafc);
-      border: 1px solid var(--unity-border, #e2e8f0);
-      color: var(--unity-text-muted, #64748b);
+      background: var(--unity-bg);
+      border: 1px solid var(--unity-border);
+      color: var(--unity-text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -596,19 +596,19 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 6px;
     padding: 10px 16px 8px;
-    background: var(--unity-bg, #f8fafc);
-    border-bottom: 1px solid var(--unity-border, #f1f5f9);
+    background: var(--unity-bg);
+    border-bottom: 1px solid var(--unity-border);
 
     .active-date-banner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #f2f6ee;
-      border: 1px solid #c5d6b8;
+      background: var(--unity-primary-light);
+      border: 1px solid var(--unity-primary-border);
       border-radius: 8px;
       padding: 4px 8px;
       font-size: 0.70rem;
-      color: #364c26;
+      color: var(--unity-primary-hover);
 
       .date-banner-content {
         display: flex;
@@ -617,18 +617,18 @@ onUnmounted(() => {
 
         i {
           font-size: 0.74rem;
-          color: #364c26;
+          color: var(--unity-primary-hover);
         }
 
         strong {
-          color: #415b2e;
+          color: var(--unity-primary);
         }
       }
 
       .btn-clear-date {
         background: transparent;
         border: none;
-        color: #364c26;
+        color: var(--unity-primary-hover);
         cursor: pointer;
         padding: 2px 4px;
         border-radius: 4px;
@@ -637,8 +637,8 @@ onUnmounted(() => {
         justify-content: center;
 
         &:hover {
-          background: #dce6d3;
-          color: #364c26;
+          background: var(--unity-primary-tint);
+          color: var(--unity-primary-hover);
         }
       }
     }
@@ -670,9 +670,9 @@ onUnmounted(() => {
       border-radius: 9999px;
       font-size: 0.74rem;
       font-weight: 600;
-      background: var(--unity-surface, #ffffff);
-      border: 1px solid var(--unity-border, #e2e8f0);
-      color: var(--unity-text-muted, #64748b);
+      background: var(--unity-surface);
+      border: 1px solid var(--unity-border);
+      color: var(--unity-text-muted);
       cursor: pointer;
       transition: all 0.15s ease;
 
@@ -721,8 +721,8 @@ onUnmounted(() => {
       font-size: 0.68rem;
 
       &.confirmed.active {
-        background: #364c26;
-        border-color: #364c26;
+        background: var(--unity-primary-hover);
+        border-color: var(--unity-primary-hover);
         color: #fff;
       }
 
@@ -757,8 +757,8 @@ onUnmounted(() => {
     -webkit-overflow-scrolling: touch;
 
     .case-card {
-      background: var(--unity-surface, #ffffff);
-      border: 1px solid var(--unity-border, #e2e8f0);
+      background: var(--unity-surface);
+      border: 1px solid var(--unity-border);
       border-radius: 16px;
       padding: 14px 16px;
       display: flex;
@@ -801,13 +801,13 @@ onUnmounted(() => {
             .patient-name {
               font-size: 0.88rem;
               font-weight: 800;
-              color: var(--unity-text-main, #0f172a);
+              color: var(--unity-text-main);
               margin: 0;
             }
 
             .patient-meta {
               font-size: 0.7rem;
-              color: var(--unity-text-muted, #64748b);
+              color: var(--unity-text-muted);
               margin: 1px 0 0;
             }
           }
@@ -848,11 +848,11 @@ onUnmounted(() => {
         align-items: center;
         gap: 12px;
         padding: 8px 10px;
-        background: var(--unity-bg, #f8fafc);
+        background: var(--unity-bg);
         border-radius: 10px;
         font-size: 0.74rem;
         font-weight: 600;
-        color: var(--unity-text-main, #1e293b);
+        color: var(--unity-text-main);
 
         .detail-item {
           display: inline-flex;
@@ -861,7 +861,7 @@ onUnmounted(() => {
 
           i {
             font-size: 0.75rem;
-            color: var(--unity-primary, #415b2e);
+            color: var(--unity-primary);
           }
 
           &.price {
@@ -898,7 +898,7 @@ onUnmounted(() => {
         align-items: flex-start;
         gap: 6px;
         font-size: 0.72rem;
-        color: var(--unity-text-muted, #64748b);
+        color: var(--unity-text-muted);
         line-height: 1.4;
 
         i {

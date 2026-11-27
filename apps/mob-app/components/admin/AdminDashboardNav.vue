@@ -133,7 +133,7 @@ const { t, isRtl } = useI18n();
 
       &:hover {
         border-color: var(--unity-primary);
-        box-shadow: 0 4px 14px -3px rgba(65, 91, 46, 0.12);
+        box-shadow: 0 4px 14px -3px rgba(var(--unity-primary-rgb), 0.12);
       }
 
       &:last-child:nth-child(odd) {

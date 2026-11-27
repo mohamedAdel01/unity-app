@@ -96,9 +96,9 @@
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    var(--unity-border-subtle, #f1f5f9) 25%,
-    var(--unity-border, #e2e8f0) 50%,
-    var(--unity-border-subtle, #f1f5f9) 75%
+    var(--unity-border-subtle) 25%,
+    var(--unity-border) 50%,
+    var(--unity-border-subtle) 75%
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s infinite ease-in-out;

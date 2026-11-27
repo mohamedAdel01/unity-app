@@ -487,12 +487,12 @@ onBeforeUnmount(() => {
       opacity: 1;
 
       .step-num {
-        background: #364c26;
+        background: var(--unity-primary-hover);
         color: #ffffff;
       }
 
       .step-name {
-        color: #364c26;
+        color: var(--unity-primary-hover);
       }
     }
   }
@@ -529,8 +529,8 @@ onBeforeUnmount(() => {
     width: 48px;
     height: 48px;
     border-radius: 16px;
-    background: #f2f6ee;
-    color: #415b2e;
+    background: var(--unity-primary-light);
+    color: var(--unity-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -744,7 +744,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 6px 18px rgba(65, 91, 46, 0.25);
+  box-shadow: 0 6px 18px rgba(var(--unity-primary-rgb), 0.25);
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {

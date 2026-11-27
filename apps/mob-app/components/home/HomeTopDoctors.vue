@@ -318,7 +318,7 @@ onMounted(() => {
     h4 {
       font-size: 0.86rem;
       font-weight: 700;
-      color: var(--unity-text-main, #334155);
+      color: var(--unity-text-main);
       opacity: 0.9;
       margin: 0;
       line-height: 1.3;
@@ -330,7 +330,7 @@ onMounted(() => {
       gap: 5px;
 
       .verified-icon {
-        color: #5c8042;
+        color: var(--unity-accent);
         font-size: 0.90rem;
       }
     }
@@ -416,7 +416,7 @@ onMounted(() => {
         h5 {
           font-size: 0.94rem;
           font-weight: 700;
-          color: var(--unity-text-main, #334155);
+          color: var(--unity-text-main);
         }
 
         p {
@@ -448,7 +448,7 @@ onMounted(() => {
       }
 
       .doc-initial-avatar {
-        background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
+        background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-hover) 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -484,7 +484,7 @@ onMounted(() => {
         font-weight: 600;
 
         i {
-          color: var(--unity-text-dim, #64748b);
+          color: var(--unity-text-dim);
         }
       }
     }
@@ -498,7 +498,7 @@ onMounted(() => {
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(65, 91, 46, 0.2);
+      box-shadow: 0 2px 6px rgba(var(--unity-primary-rgb), 0.2);
       transition: all 0.2s;
 
       &:hover {

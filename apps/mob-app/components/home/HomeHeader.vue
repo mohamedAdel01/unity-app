@@ -96,7 +96,7 @@ onMounted(() => {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
+        background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-accent) 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -112,8 +112,8 @@ onMounted(() => {
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: #5c8042;
-        border: 2px solid var(--unity-surface, #ffffff);
+        background: var(--unity-accent);
+        border: 2px solid var(--unity-surface);
       }
     }
 
@@ -132,12 +132,12 @@ onMounted(() => {
 
         .greeting-prefix {
           font-weight: 500;
-          color: var(--unity-text-muted, #94a3b8);
+          color: var(--unity-text-muted);
         }
 
         .greeting-user {
           font-weight: 700;
-          color: var(--unity-text-main, #334155);
+          color: var(--unity-text-main);
         }
       }
     }

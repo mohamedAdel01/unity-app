@@ -192,15 +192,15 @@ const { t, isRtl } = useI18n();
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: rgba(92, 128, 66, 0.08);
-  border: 1px solid rgba(92, 128, 66, 0.22);
+  background: rgba(var(--unity-accent-rgb), 0.08);
+  border: 1px solid rgba(var(--unity-accent-rgb), 0.22);
   border-radius: 14px;
 
   .badge-icon {
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: #5c8042;
+    background: var(--unity-accent);
     color: #fff;
     display: flex;
     align-items: center;
@@ -239,7 +239,7 @@ const { t, isRtl } = useI18n();
     gap: 8px;
 
     i {
-      color: #5c8042;
+      color: var(--unity-accent);
       font-size: 0.95rem;
     }
   }

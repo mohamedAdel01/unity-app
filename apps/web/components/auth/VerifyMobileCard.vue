@@ -291,7 +291,7 @@ onUnmounted(() => {
     width: 52px;
     height: 52px;
     border-radius: 16px;
-    background: rgba(65, 91, 46, 0.08);
+    background: rgba(var(--unity-primary-rgb), 0.08);
     color: var(--unity-primary);
     display: flex;
     align-items: center;
@@ -346,7 +346,7 @@ onUnmounted(() => {
     &:focus {
       border-color: var(--unity-primary);
       background: var(--unity-surface);
-      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+      box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
     }
 
     &.filled {
@@ -394,7 +394,7 @@ onUnmounted(() => {
     transition: background 0.2s;
 
     &:hover:not(:disabled) {
-      background: rgba(65, 91, 46, 0.08);
+      background: rgba(var(--unity-primary-rgb), 0.08);
     }
 
     &:disabled {
@@ -437,7 +437,7 @@ onUnmounted(() => {
   gap: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(65, 91, 46, 0.2);
+  box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.2);
 
   &:hover:not(:disabled) {
     filter: brightness(1.05);

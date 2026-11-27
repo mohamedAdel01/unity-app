@@ -186,7 +186,7 @@ const currentYear = computed(() => new Date().getFullYear());
     gap: 8px;
     padding: 5px 12px;
     border-radius: 9999px;
-    background: rgba(65, 91, 46, 0.08);
+    background: rgba(var(--unity-primary-rgb), 0.08);
     color: var(--unity-primary);
     font-size: 0.76rem;
     font-weight: 700;

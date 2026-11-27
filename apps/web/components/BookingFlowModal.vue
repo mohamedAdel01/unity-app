@@ -1513,8 +1513,8 @@ onUnmounted(() => {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: #f2f6ee;
-    color: #415b2e;
+    background: var(--unity-primary-light);
+    color: var(--unity-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1561,7 +1561,7 @@ onUnmounted(() => {
       .circle {
         background: var(--unity-primary);
         color: #fff;
-        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.2);
+        box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.2);
       }
       .label {
         color: var(--unity-primary);
@@ -1571,11 +1571,11 @@ onUnmounted(() => {
 
     &.done {
       .circle {
-        background: #5c8042;
+        background: var(--unity-accent);
         color: #fff;
       }
       .label {
-        color: #364c26;
+        color: var(--unity-primary-hover);
       }
     }
   }
@@ -1607,14 +1607,14 @@ onUnmounted(() => {
     align-items: center;
     gap: 8px;
     font-size: 0.74rem;
-    color: #415b2e;
+    color: var(--unity-primary);
     font-weight: 600;
 
     .live-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #5c8042;
+      background: var(--unity-accent);
       animation: pulse 1.5s infinite;
     }
   }
@@ -1625,7 +1625,7 @@ onUnmounted(() => {
     gap: 4px;
     font-size: 0.82rem;
     font-weight: 800;
-    color: #415b2e;
+    color: var(--unity-primary);
   }
 }
 
@@ -1665,15 +1665,15 @@ onUnmounted(() => {
     position: absolute;
     top: 14px;
     inset-inline-end: 14px;
-    background: #f2f6ee;
-    color: #415b2e;
+    background: var(--unity-primary-light);
+    color: var(--unity-primary);
     font-size: 0.75rem;
     font-weight: 600;
     padding: 3px 8px;
     border-radius: 12px;
 
     &.exam-badge {
-      background: rgba(65, 91, 46, 0.12);
+      background: rgba(var(--unity-primary-rgb), 0.12);
       color: var(--unity-primary);
       display: inline-flex;
       align-items: center;
@@ -1711,7 +1711,7 @@ onUnmounted(() => {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
+          background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-accent) 100%);
           color: #ffffff;
           display: flex;
           align-items: center;
@@ -1724,7 +1724,7 @@ onUnmounted(() => {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background: linear-gradient(135deg, rgba(65, 91, 46, 0.12) 0%, rgba(92, 128, 66, 0.22) 100%);
+          background: linear-gradient(135deg, rgba(var(--unity-primary-rgb), 0.12) 0%, rgba(var(--unity-accent-rgb), 0.22) 100%);
           color: var(--unity-primary);
           display: flex;
           align-items: center;
@@ -1741,7 +1741,7 @@ onUnmounted(() => {
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: #5c8042;
+        background: var(--unity-accent);
         color: #fff;
         display: flex;
         align-items: center;
@@ -1847,7 +1847,7 @@ onUnmounted(() => {
 
       &.active {
         border-color: var(--unity-primary);
-        background: rgba(65, 91, 46, 0.08);
+        background: rgba(var(--unity-primary-rgb), 0.08);
         color: var(--unity-primary);
         font-weight: 700;
       }
@@ -1977,7 +1977,7 @@ onUnmounted(() => {
         line-height: 1.3;
 
         &.unlocked-sub {
-          color: #415b2e;
+          color: var(--unity-primary);
           font-weight: 700;
           display: inline-flex;
           align-items: center;
@@ -1993,7 +1993,7 @@ onUnmounted(() => {
       &.selected {
         border-color: var(--unity-primary);
         background: #f0fdf4;
-        box-shadow: 0 4px 12px -2px rgba(65, 91, 46, 0.15);
+        box-shadow: 0 4px 12px -2px rgba(var(--unity-primary-rgb), 0.15);
 
         .opt-radio {
           border-color: var(--unity-primary);
@@ -2047,7 +2047,7 @@ onUnmounted(() => {
         font-size: 0.72rem;
         color: var(--unity-primary);
         font-weight: 700;
-        background: #f2f6ee;
+        background: var(--unity-primary-light);
         padding: 3px 8px;
         border-radius: 8px;
       }
@@ -2160,7 +2160,7 @@ onUnmounted(() => {
         border-style: dashed;
         border-color: var(--unity-primary);
         color: var(--unity-primary);
-        background: rgba(92, 128, 66, 0.05);
+        background: rgba(var(--unity-accent-rgb), 0.05);
 
         i {
           font-size: 0.95rem;
@@ -2273,9 +2273,9 @@ onUnmounted(() => {
 
       &.is-booked,
       &:disabled {
-        background: var(--unity-surface-muted, #f1f5f9);
+        background: var(--unity-surface-muted);
         border-color: var(--unity-border);
-        color: var(--unity-text-dim, #94a3b8);
+        color: var(--unity-text-dim);
         cursor: not-allowed;
         opacity: 0.45;
         pointer-events: none;
@@ -2286,7 +2286,7 @@ onUnmounted(() => {
         background: var(--unity-primary);
         border-color: var(--unity-primary);
         color: #fff;
-        box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
+        box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.25);
       }
     }
   }
@@ -2334,7 +2334,7 @@ onUnmounted(() => {
       .doc-initial-avatar {
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
+        background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-accent) 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -2347,7 +2347,7 @@ onUnmounted(() => {
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(65, 91, 46, 0.12) 0%, rgba(92, 128, 66, 0.22) 100%);
+        background: linear-gradient(135deg, rgba(var(--unity-primary-rgb), 0.12) 0%, rgba(var(--unity-accent-rgb), 0.22) 100%);
         color: var(--unity-primary);
         display: flex;
         align-items: center;
@@ -2376,8 +2376,8 @@ onUnmounted(() => {
         display: inline-block;
         font-size: 0.68rem;
         font-weight: 700;
-        color: #415b2e;
-        background: #f2f6ee;
+        color: var(--unity-primary);
+        background: var(--unity-primary-light);
         padding: 2px 8px;
         border-radius: 8px;
         margin-top: 4px;
@@ -2514,7 +2514,7 @@ onUnmounted(() => {
       padding: 0 4px;
 
       &.success {
-        color: #415b2e;
+        color: var(--unity-primary);
       }
 
       &.error {
@@ -2546,8 +2546,8 @@ onUnmounted(() => {
 
     .tax-badge {
       font-size: 0.7rem;
-      color: #415b2e;
-      background: #f2f6ee;
+      color: var(--unity-primary);
+      background: var(--unity-primary-light);
       padding: 3px 8px;
       border-radius: 8px;
       font-weight: 600;
@@ -2568,7 +2568,7 @@ onUnmounted(() => {
     }
 
     &.promo-discount-row {
-      color: #415b2e;
+      color: var(--unity-primary);
 
       .discount-label {
         display: flex;
@@ -2578,7 +2578,7 @@ onUnmounted(() => {
       }
 
       .discount-val {
-        color: #415b2e;
+        color: var(--unity-primary);
         font-weight: 800;
       }
     }
@@ -2653,7 +2653,7 @@ onUnmounted(() => {
 
     .secure-tag {
       font-size: 0.7rem;
-      color: #415b2e;
+      color: var(--unity-primary);
       display: flex;
       align-items: center;
       gap: 4px;
@@ -2747,7 +2747,7 @@ onUnmounted(() => {
         opacity: 0.5;
         cursor: not-allowed;
         pointer-events: none;
-        background: var(--unity-surface-muted, #f8fafc);
+        background: var(--unity-surface-muted);
 
         .paymob-pill-tag {
           background: #64748b !important;
@@ -2755,7 +2755,7 @@ onUnmounted(() => {
         }
 
         strong, small, .opt-brand {
-          color: var(--unity-text-dim, #94a3b8) !important;
+          color: var(--unity-text-dim) !important;
         }
       }
     }
@@ -2852,7 +2852,7 @@ onUnmounted(() => {
       }
 
       .simulate-success-btn {
-        background: #415b2e;
+        background: var(--unity-primary);
         color: #ffffff;
         border: none;
         padding: 5px 12px;
@@ -2863,7 +2863,7 @@ onUnmounted(() => {
         transition: all 0.2s;
 
         &:hover {
-          background: #364c26;
+          background: var(--unity-primary-hover);
         }
 
         &:disabled {
@@ -2919,13 +2919,13 @@ onUnmounted(() => {
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #415b2e 0%, #5c8042 100%);
+      background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-accent) 100%);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.8rem;
-      box-shadow: 0 8px 24px rgba(65, 91, 46, 0.35);
+      box-shadow: 0 8px 24px rgba(var(--unity-primary-rgb), 0.35);
       animation: scalePop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
   }
@@ -3012,8 +3012,8 @@ onUnmounted(() => {
           font-weight: 700;
 
           &.type-highlight {
-            color: #415b2e;
-            background: #f2f6ee;
+            color: var(--unity-primary);
+            background: var(--unity-primary-light);
             padding: 2px 8px;
             border-radius: 6px;
           }
@@ -3043,7 +3043,7 @@ onUnmounted(() => {
       justify-content: center;
       gap: 8px;
       transition: all 0.2s;
-      box-shadow: 0 6px 16px rgba(65, 91, 46, 0.3);
+      box-shadow: 0 6px 16px rgba(var(--unity-primary-rgb), 0.3);
 
       &:hover {
         background: var(--unity-primary-dark);
@@ -3089,7 +3089,7 @@ onUnmounted(() => {
     justify-content: center;
     gap: 8px;
     transition: all 0.25s;
-    box-shadow: 0 6px 20px -3px rgba(65, 91, 46, 0.4);
+    box-shadow: 0 6px 20px -3px rgba(var(--unity-primary-rgb), 0.4);
 
     &:hover:not(:disabled) {
       background: #022c22;
@@ -3110,7 +3110,7 @@ onUnmounted(() => {
     justify-content: center;
     gap: 6px;
     font-size: 0.72rem;
-    color: #415b2e;
+    color: var(--unity-primary);
     margin-top: 10px;
     font-weight: 700;
   }

@@ -62,9 +62,9 @@ const { t, isRtl } = useI18n();
     width: 42px;
     height: 42px;
     border-radius: 12px;
-    background: var(--unity-surface, #ffffff);
-    border: 1px solid var(--unity-border, #e2e8f0);
-    color: var(--unity-text-main, #0f172a);
+    background: var(--unity-surface);
+    border: 1px solid var(--unity-border);
+    color: var(--unity-text-main);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -75,7 +75,7 @@ const { t, isRtl } = useI18n();
 
     &:active {
       transform: scale(0.95);
-      background: var(--unity-surface-muted, #f8fafc);
+      background: var(--unity-surface-muted);
     }
   }
 
@@ -86,14 +86,14 @@ const { t, isRtl } = useI18n();
     .page-title {
       font-size: 1.15rem;
       font-weight: 800;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       margin: 0;
       line-height: 1.3;
     }
 
     .page-subtitle {
       font-size: 0.8rem;
-      color: var(--unity-text-secondary, #64748b);
+      color: var(--unity-text-secondary);
       margin: 2px 0 0;
       line-height: 1.2;
     }
@@ -103,11 +103,11 @@ const { t, isRtl } = useI18n();
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(92, 128, 66, 0.1);
-    color: #364c26;
+    background: rgba(var(--unity-accent-rgb), 0.1);
+    color: var(--unity-primary-hover);
     padding: 6px 12px;
     border-radius: 20px;
-    border: 1px solid rgba(92, 128, 66, 0.2);
+    border: 1px solid rgba(var(--unity-accent-rgb), 0.2);
     font-size: 0.75rem;
     font-weight: 700;
     flex-shrink: 0;
@@ -116,8 +116,8 @@ const { t, isRtl } = useI18n();
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #5c8042;
-      box-shadow: 0 0 0 2px rgba(92, 128, 66, 0.35);
+      background: var(--unity-accent);
+      box-shadow: 0 0 0 2px rgba(var(--unity-accent-rgb), 0.35);
       animation: pulse 1.8s infinite;
     }
   }
@@ -125,13 +125,13 @@ const { t, isRtl } = useI18n();
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(92, 128, 66, 0.7);
+    box-shadow: 0 0 0 0 rgba(var(--unity-accent-rgb), 0.7);
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(92, 128, 66, 0);
+    box-shadow: 0 0 0 6px rgba(var(--unity-accent-rgb), 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(92, 128, 66, 0);
+    box-shadow: 0 0 0 0 rgba(var(--unity-accent-rgb), 0);
   }
 }
 </style>

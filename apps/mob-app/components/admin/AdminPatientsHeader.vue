@@ -110,7 +110,7 @@ const clearSearch = () => {
       &:focus {
         outline: none;
         border-color: var(--unity-primary);
-        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+        box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
       }
 
       &::placeholder {

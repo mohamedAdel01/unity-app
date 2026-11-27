@@ -230,8 +230,8 @@ watch(() => route.path, () => {
   transform: translateX(-50%);
   width: calc(100% - 32px);
   max-width: 520px;
-  background: var(--unity-surface, #ffffff);
-  border: 1.5px solid var(--unity-border, #e2e8f0);
+  background: var(--unity-surface);
+  border: 1.5px solid var(--unity-border);
   border-radius: 24px;
   padding: 14px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.06);
@@ -251,7 +251,7 @@ watch(() => route.path, () => {
     align-items: center;
     justify-content: space-between;
     padding-bottom: 10px;
-    border-bottom: 1px solid var(--unity-border, #e2e8f0);
+    border-bottom: 1px solid var(--unity-border);
 
     .header-chip {
       display: inline-flex;
@@ -271,7 +271,7 @@ watch(() => route.path, () => {
       height: 28px;
       border-radius: 50%;
       border: none;
-      background: var(--unity-surface-muted, #f1f5f9);
+      background: var(--unity-surface-muted);
       color: var(--unity-text-muted);
       display: flex;
       align-items: center;
@@ -328,8 +328,8 @@ watch(() => route.path, () => {
         }
 
         &.icon-profile {
-          background: #f2f6ee;
-          color: #415b2e;
+          background: var(--unity-primary-light);
+          color: var(--unity-primary);
         }
 
         &.icon-logout {
@@ -367,7 +367,7 @@ watch(() => route.path, () => {
 
       &:hover,
       &.is-active {
-        background: var(--unity-surface-muted, #f8fafc);
+        background: var(--unity-surface-muted);
         transform: translateX(-2px);
 
         .link-arrow {
@@ -388,7 +388,7 @@ watch(() => route.path, () => {
 
     .menu-divider {
       height: 1px;
-      background: var(--unity-border, #e2e8f0);
+      background: var(--unity-border);
       margin: 4px 6px;
     }
   }

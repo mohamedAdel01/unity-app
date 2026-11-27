@@ -486,9 +486,9 @@ onUnmounted(() => {
         width: 42px;
         height: 42px;
         border-radius: 14px;
-        background: var(--unity-primary-light, #f2f6ee);
-        border: 1px solid var(--unity-primary-tint, #c5d6b8);
-        color: var(--unity-primary, #415b2e);
+        background: var(--unity-primary-light);
+        border: 1px solid var(--unity-primary-tint);
+        color: var(--unity-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -496,9 +496,9 @@ onUnmounted(() => {
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(92, 128, 66, 0.14);
-          border-color: rgba(92, 128, 66, 0.28);
-          color: #8ab36b;
+          background: rgba(var(--unity-accent-rgb), 0.14);
+          border-color: rgba(var(--unity-accent-rgb), 0.28);
+          color: var(--unity-accent-light);
         }
       }
 
@@ -592,7 +592,7 @@ onUnmounted(() => {
           background: var(--unity-primary);
           color: #ffffff;
           border-color: var(--unity-primary);
-          box-shadow: 0 2px 6px rgba(65, 91, 46, 0.2);
+          box-shadow: 0 2px 6px rgba(var(--unity-primary-rgb), 0.2);
 
           .slots-count-dot {
             background: rgba(255, 255, 255, 0.25);
@@ -650,26 +650,26 @@ onUnmounted(() => {
           gap: 4px;
           padding: 5px 10px;
           border-radius: 12px;
-          background: var(--unity-primary-light, #f2f6ee);
-          border: 1px solid var(--unity-primary-tint, #c5d6b8);
-          color: var(--unity-primary, #415b2e);
+          background: var(--unity-primary-light);
+          border: 1px solid var(--unity-primary-tint);
+          color: var(--unity-primary);
           font-size: 0.74rem;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
 
           &:hover {
-            background: var(--unity-primary-tint, #dce6d3);
+            background: var(--unity-primary-tint);
           }
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(92, 128, 66, 0.14);
-            border-color: rgba(92, 128, 66, 0.28);
-            color: #8ab36b;
+            background: rgba(var(--unity-accent-rgb), 0.14);
+            border-color: rgba(var(--unity-accent-rgb), 0.28);
+            color: var(--unity-accent-light);
 
             &:hover {
-              background: rgba(92, 128, 66, 0.22);
+              background: rgba(var(--unity-accent-rgb), 0.22);
             }
           }
         }
@@ -721,8 +721,8 @@ onUnmounted(() => {
         gap: 10px;
 
         .slot-card {
-          background: var(--unity-surface, #ffffff);
-          border: 1px solid var(--unity-border, #e2e8f0);
+          background: var(--unity-surface);
+          border: 1px solid var(--unity-border);
           border-radius: 18px;
           padding: 12px 14px;
           display: flex;
@@ -833,7 +833,7 @@ onUnmounted(() => {
                 }
 
                 &.active {
-                  background: #364c26;
+                  background: var(--unity-primary-hover);
 
                   .switch-slider {
                     transform: translateX(18px);
@@ -950,7 +950,7 @@ onUnmounted(() => {
         background: var(--unity-primary);
         border: none;
         color: #ffffff;
-        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
 
         &:disabled {
           opacity: 0.6;

@@ -299,7 +299,7 @@ const resolveAvatar = (url?: string) => {
           width: 11px;
           height: 11px;
           border-radius: 50%;
-          background: #5c8042;
+          background: var(--unity-accent);
           border: 2px solid #ffffff;
         }
       }
@@ -367,9 +367,9 @@ const resolveAvatar = (url?: string) => {
             }
 
             &.badge-today {
-              background: #f2f6ee;
-              color: #415b2e;
-              border: 1px solid #c5d6b8;
+              background: var(--unity-primary-light);
+              color: var(--unity-primary);
+              border: 1px solid var(--unity-primary-border);
             }
 
             &.badge-medgulf {
@@ -383,8 +383,8 @@ const resolveAvatar = (url?: string) => {
             }
 
             &.badge-green {
-              background: #dce6d3;
-              color: #364c26;
+              background: var(--unity-primary-tint);
+              color: var(--unity-primary-hover);
             }
           }
         }
@@ -416,7 +416,7 @@ const resolveAvatar = (url?: string) => {
         padding: 5px 10px;
         border-radius: 10px;
         border: 1px solid var(--unity-primary);
-        background: var(--unity-primary-light, #f2f6ee);
+        background: var(--unity-primary-light);
         color: var(--unity-primary);
         font-size: 0.76rem;
         font-weight: 700;
@@ -530,7 +530,7 @@ const resolveAvatar = (url?: string) => {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #5c8042;
+          background: var(--unity-accent);
           flex-shrink: 0;
         }
       }
@@ -592,45 +592,45 @@ const resolveAvatar = (url?: string) => {
         }
 
         &.btn-edit {
-          background: var(--unity-surface, #ffffff);
-          border: 1.5px solid var(--unity-border, #e2e8f0);
-          color: var(--unity-text-muted, #64748b);
+          background: var(--unity-surface);
+          border: 1.5px solid var(--unity-border);
+          color: var(--unity-text-muted);
 
           &:hover {
-            background: var(--unity-surface-muted, #f8fafc);
+            background: var(--unity-surface-muted);
             border-color: #cbd5e1;
-            color: var(--unity-text-main, #0f172a);
+            color: var(--unity-text-main);
             transform: translateY(-1px);
           }
         }
 
         &.btn-book {
-          background: var(--unity-primary-light, #f2f6ee);
-          border: 1.5px solid var(--unity-primary-tint, #c5d6b8);
-          color: var(--unity-primary, #415b2e);
+          background: var(--unity-primary-light);
+          border: 1.5px solid var(--unity-primary-tint);
+          color: var(--unity-primary);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(92, 128, 66, 0.14);
-            border-color: rgba(92, 128, 66, 0.28);
-            color: #8ab36b;
+            background: rgba(var(--unity-accent-rgb), 0.14);
+            border-color: rgba(var(--unity-accent-rgb), 0.28);
+            color: var(--unity-accent-light);
           }
 
           &:hover {
-            background: #dce6d3;
-            border-color: #a6bf94;
+            background: var(--unity-primary-tint);
+            border-color: var(--unity-primary-muted);
             transform: translateY(-1px);
           }
         }
 
         &.btn-file {
-          background: var(--unity-primary, #415b2e);
+          background: var(--unity-primary);
           border: none;
           color: #ffffff;
-          box-shadow: 0 4px 12px rgba(65, 91, 46, 0.22);
+          box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.22);
 
           &:hover {
-            background: var(--unity-primary-dark, #364c26);
+            background: var(--unity-primary-dark);
             transform: translateY(-1px);
           }
         }

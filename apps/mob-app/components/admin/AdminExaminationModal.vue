@@ -940,8 +940,8 @@ onUnmounted(() => {
           flex-shrink: 0;
 
           .slots-count-dot {
-            background: rgba(92, 128, 66, 0.15);
-            color: #415b2e;
+            background: rgba(var(--unity-accent-rgb), 0.15);
+            color: var(--unity-primary);
             border-radius: 12px;
             padding: 1px 6px;
             font-size: 0.68rem;
@@ -957,7 +957,7 @@ onUnmounted(() => {
             background: var(--unity-primary);
             color: #ffffff;
             border-color: var(--unity-primary);
-            box-shadow: 0 2px 6px rgba(65, 91, 46, 0.2);
+            box-shadow: 0 2px 6px rgba(var(--unity-primary-rgb), 0.2);
 
             .slots-count-dot {
               background: rgba(255, 255, 255, 0.25);
@@ -1005,16 +1005,16 @@ onUnmounted(() => {
           gap: 4px;
           padding: 5px 10px;
           border-radius: 12px;
-          background: #f2f6ee;
-          border: 1px solid #c5d6b8;
-          color: #415b2e;
+          background: var(--unity-primary-light);
+          border: 1px solid var(--unity-primary-border);
+          color: var(--unity-primary);
           font-size: 0.74rem;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
 
           &:hover {
-            background: #dce6d3;
+            background: var(--unity-primary-tint);
           }
         }
       }
@@ -1146,7 +1146,7 @@ onUnmounted(() => {
                 }
 
                 &.active {
-                  background: #364c26;
+                  background: var(--unity-primary-hover);
 
                   .switch-slider {
                     transform: translateX(18px);
@@ -1264,7 +1264,7 @@ onUnmounted(() => {
       flex: 1;
       background: var(--unity-primary);
       color: #fff;
-      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+      box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
 
       &:hover:not(:disabled) {
         background: var(--unity-primary-dark);

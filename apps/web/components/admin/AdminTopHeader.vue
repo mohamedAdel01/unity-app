@@ -107,9 +107,9 @@ const { t, isRtl } = useI18n();
       width: 42px;
       height: 42px;
       border-radius: 14px;
-      background: var(--unity-primary-light, #f2f6ee);
-      border: 1.5px solid var(--unity-primary-tint, #c5d6b8);
-      color: var(--unity-primary, #415b2e);
+      background: var(--unity-primary-light);
+      border: 1.5px solid var(--unity-primary-tint);
+      color: var(--unity-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -118,9 +118,9 @@ const { t, isRtl } = useI18n();
 
       :global([data-theme='dark']) &,
       :global(html.dark) & {
-        background: rgba(92, 128, 66, 0.14);
-        border-color: rgba(92, 128, 66, 0.28);
-        color: #8ab36b;
+        background: rgba(var(--unity-accent-rgb), 0.14);
+        border-color: rgba(var(--unity-accent-rgb), 0.28);
+        color: var(--unity-accent-light);
       }
     }
 
@@ -167,14 +167,14 @@ const { t, isRtl } = useI18n();
     width: 42px;
     height: 42px;
     border-radius: 14px;
-    background: var(--unity-primary, #415b2e);
+    background: var(--unity-primary);
     border: none;
     color: #ffffff;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(65, 91, 46, 0.22);
+    box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.22);
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     flex-shrink: 0;
 
@@ -185,9 +185,9 @@ const { t, isRtl } = useI18n();
     }
 
     &:hover {
-      background: var(--unity-primary-dark, #364c26);
+      background: var(--unity-primary-dark);
       transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(65, 91, 46, 0.28);
+      box-shadow: 0 6px 16px rgba(var(--unity-primary-rgb), 0.28);
     }
 
     &:active {

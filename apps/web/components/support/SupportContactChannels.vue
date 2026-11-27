@@ -112,13 +112,13 @@ const supportEmail = 'support@unity-health.app';
     .section-title {
       font-size: 0.95rem;
       font-weight: 800;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       margin: 0;
     }
 
     .section-subtitle {
       font-size: 0.76rem;
-      color: var(--unity-text-secondary, #64748b);
+      color: var(--unity-text-secondary);
       margin: 3px 0 0;
     }
   }
@@ -142,8 +142,8 @@ const supportEmail = 'support@unity-health.app';
     align-items: center;
     gap: 12px;
     padding: 14px 16px;
-    background: var(--unity-surface, #ffffff);
-    border: 1px solid var(--unity-border, #e2e8f0);
+    background: var(--unity-surface);
+    border: 1px solid var(--unity-border);
     border-radius: 16px;
     text-decoration: none;
     color: inherit;
@@ -158,7 +158,7 @@ const supportEmail = 'support@unity-health.app';
 
     &:active {
       transform: scale(0.98);
-      background: var(--unity-surface-muted, #f8fafc);
+      background: var(--unity-surface-muted);
     }
 
     .channel-icon-shell {
@@ -194,11 +194,11 @@ const supportEmail = 'support@unity-health.app';
 
     &.ticket {
       .channel-icon-shell {
-        background: rgba(92, 128, 66, 0.12);
-        color: #364c26;
+        background: rgba(var(--unity-accent-rgb), 0.12);
+        color: var(--unity-primary-hover);
       }
       &:hover {
-        border-color: rgba(92, 128, 66, 0.4);
+        border-color: rgba(var(--unity-accent-rgb), 0.4);
       }
     }
 
@@ -222,12 +222,12 @@ const supportEmail = 'support@unity-health.app';
       .channel-name {
         font-size: 0.88rem;
         font-weight: 700;
-        color: var(--unity-text-main, #0f172a);
+        color: var(--unity-text-main);
       }
 
       .channel-status {
         font-size: 0.74rem;
-        color: var(--unity-text-secondary, #64748b);
+        color: var(--unity-text-secondary);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -236,7 +236,7 @@ const supportEmail = 'support@unity-health.app';
 
     .channel-arrow {
       font-size: 0.82rem;
-      color: var(--unity-text-secondary, #94a3b8);
+      color: var(--unity-text-secondary);
       flex-shrink: 0;
     }
   }

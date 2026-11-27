@@ -215,7 +215,7 @@ onMounted(() => {
   &:hover {
     transform: translateY(-4px);
     border-color: var(--unity-primary);
-    box-shadow: 0 12px 28px rgba(65, 91, 46, 0.08);
+    box-shadow: 0 12px 28px rgba(var(--unity-primary-rgb), 0.08);
 
     .clinic-icon-badge {
       background: var(--unity-primary);
@@ -231,7 +231,7 @@ onMounted(() => {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: rgba(65, 91, 46, 0.08);
+    background: rgba(var(--unity-primary-rgb), 0.08);
     color: var(--unity-primary);
     display: flex;
     align-items: center;

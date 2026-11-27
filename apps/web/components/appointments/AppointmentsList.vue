@@ -551,7 +551,7 @@ onMounted(() => {
 .status-tabs-nav {
   display: flex;
   align-items: center;
-  background: var(--unity-surface-muted, #f1f5f9);
+  background: var(--unity-surface-muted);
   border: 1px solid var(--unity-border);
   border-radius: 12px;
   padding: 3px;
@@ -605,7 +605,7 @@ onMounted(() => {
     }
 
     &.active {
-      background: var(--unity-surface, #ffffff);
+      background: var(--unity-surface);
       color: var(--unity-primary);
       font-weight: 700;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -618,11 +618,11 @@ onMounted(() => {
       :global([data-theme='dark']) &,
       :global(html.dark) & {
         background: #111827;
-        color: #8ab36b;
+        color: var(--unity-accent-light);
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 
         .count-pill {
-          color: #8ab36b;
+          color: var(--unity-accent-light);
         }
       }
     }
@@ -695,9 +695,9 @@ onMounted(() => {
       }
 
       &.pill-consult {
-        background: #f2f6ee;
-        color: #415b2e;
-        border: 1px solid #c5d6b8;
+        background: var(--unity-primary-light);
+        color: var(--unity-primary);
+        border: 1px solid var(--unity-primary-border);
       }
 
       &.pill-exam {
@@ -714,10 +714,10 @@ onMounted(() => {
 
       &.status-badge {
         &.status-confirmed {
-          background: #f2f6ee;
-          color: #415b2e;
-          border: 1px solid #c5d6b8;
-          .dot { background: #5c8042; }
+          background: var(--unity-primary-light);
+          color: var(--unity-primary);
+          border: 1px solid var(--unity-primary-border);
+          .dot { background: var(--unity-accent); }
         }
 
         &.status-completed {
@@ -744,9 +744,9 @@ onMounted(() => {
 
       &.payment-tag {
         &.is-paid {
-          background: #f2f6ee;
-          color: #415b2e;
-          border: 1px solid #c5d6b8;
+          background: var(--unity-primary-light);
+          color: var(--unity-primary);
+          border: 1px solid var(--unity-primary-border);
         }
 
         &.is-unpaid {
@@ -759,9 +759,9 @@ onMounted(() => {
       :global([data-theme='dark']) &,
       :global(html.dark) & {
         &.pill-consult {
-          background: rgba(92, 128, 66, 0.16);
-          color: #8ab36b;
-          border-color: rgba(92, 128, 66, 0.35);
+          background: rgba(var(--unity-accent-rgb), 0.16);
+          color: var(--unity-accent-light);
+          border-color: rgba(var(--unity-accent-rgb), 0.35);
         }
 
         &.pill-exam {
@@ -778,10 +778,10 @@ onMounted(() => {
 
         &.status-badge {
           &.status-confirmed {
-            background: rgba(92, 128, 66, 0.16);
-            color: #8ab36b;
-            border-color: rgba(92, 128, 66, 0.35);
-            .dot { background: #8ab36b; }
+            background: rgba(var(--unity-accent-rgb), 0.16);
+            color: var(--unity-accent-light);
+            border-color: rgba(var(--unity-accent-rgb), 0.35);
+            .dot { background: var(--unity-accent-light); }
           }
 
           &.status-completed {
@@ -808,9 +808,9 @@ onMounted(() => {
 
         &.payment-tag {
           &.is-paid {
-            background: rgba(92, 128, 66, 0.16);
-            color: #8ab36b;
-            border-color: rgba(92, 128, 66, 0.35);
+            background: rgba(var(--unity-accent-rgb), 0.16);
+            color: var(--unity-accent-light);
+            border-color: rgba(var(--unity-accent-rgb), 0.35);
           }
 
           &.is-unpaid {
@@ -838,7 +838,7 @@ onMounted(() => {
     }
 
     .doc-avatar-initial {
-      background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
+      background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-hover) 100%);
       color: #ffffff;
       display: flex;
       align-items: center;
@@ -847,9 +847,9 @@ onMounted(() => {
       font-weight: 700;
 
       &.is-exam {
-        background: rgba(92, 128, 66, 0.12);
+        background: rgba(var(--unity-accent-rgb), 0.12);
         color: var(--unity-primary);
-        border: 1.5px solid rgba(92, 128, 66, 0.4);
+        border: 1.5px solid rgba(var(--unity-accent-rgb), 0.4);
 
         i {
           font-size: 1.3rem;
@@ -914,7 +914,7 @@ onMounted(() => {
     align-items: center;
     gap: 12px;
     margin-bottom: 14px;
-    border: 1px solid var(--unity-border-light, #f1f5f9);
+    border: 1px solid var(--unity-border-light);
 
     :global([data-theme='dark']) &,
     :global(html.dark) & {
@@ -1003,9 +1003,9 @@ onMounted(() => {
       }
 
       &.btn-reschedule {
-        background: rgba(65, 91, 46, 0.08);
+        background: rgba(var(--unity-primary-rgb), 0.08);
         color: var(--unity-primary);
-        border: 1.5px solid rgba(65, 91, 46, 0.25);
+        border: 1.5px solid rgba(var(--unity-primary-rgb), 0.25);
 
         &:hover {
           background: var(--unity-primary);
@@ -1015,9 +1015,9 @@ onMounted(() => {
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(92, 128, 66, 0.16);
-          color: #8ab36b;
-          border-color: rgba(92, 128, 66, 0.35);
+          background: rgba(var(--unity-accent-rgb), 0.16);
+          color: var(--unity-accent-light);
+          border-color: rgba(var(--unity-accent-rgb), 0.35);
         }
       }
     }
@@ -1061,25 +1061,25 @@ onMounted(() => {
       gap: 8px;
       padding: 10px 16px;
       border-radius: 12px;
-      background: #f2f6ee;
-      color: #415b2e;
-      border: 1px solid #c5d6b8;
+      background: var(--unity-primary-light);
+      color: var(--unity-primary);
+      border: 1px solid var(--unity-primary-border);
       font-size: 0.8rem;
       font-weight: 700;
 
       i {
         font-size: 0.9rem;
-        color: #5c8042;
+        color: var(--unity-accent);
       }
 
       :global([data-theme='dark']) &,
       :global(html.dark) & {
-        background: rgba(92, 128, 66, 0.12);
-        color: #8ab36b;
-        border-color: rgba(92, 128, 66, 0.25);
+        background: rgba(var(--unity-accent-rgb), 0.12);
+        color: var(--unity-accent-light);
+        border-color: rgba(var(--unity-accent-rgb), 0.25);
 
         i {
-          color: #8ab36b;
+          color: var(--unity-accent-light);
         }
       }
     }
@@ -1137,8 +1137,8 @@ onMounted(() => {
 
 // Cancel Summary Box inside Confirm Modal
 .cancel-summary-box {
-  background: var(--unity-surface-muted, #f8fafc);
-  border: 1px solid var(--unity-border, #e2e8f0);
+  background: var(--unity-surface-muted);
+  border: 1px solid var(--unity-border);
   border-radius: 18px;
   padding: 12px 14px;
   display: flex;
@@ -1170,7 +1170,7 @@ onMounted(() => {
         color: #e5e7eb;
 
         i {
-          color: #8ab36b;
+          color: var(--unity-accent-light);
         }
       }
     }
@@ -1197,12 +1197,12 @@ onMounted(() => {
         margin: 0;
         font-size: 0.88rem;
         font-weight: 800;
-        color: var(--unity-text, #0f172a);
+        color: var(--unity-text);
       }
 
       small {
         font-size: 0.72rem;
-        color: var(--unity-text-muted, #64748b);
+        color: var(--unity-text-muted);
       }
     }
   }
@@ -1212,7 +1212,7 @@ onMounted(() => {
     flex-wrap: wrap;
     gap: 8px 12px;
     padding-top: 8px;
-    border-top: 1px dashed var(--unity-border, #e2e8f0);
+    border-top: 1px dashed var(--unity-border);
 
     .summary-item {
       display: flex;
@@ -1220,11 +1220,11 @@ onMounted(() => {
       gap: 6px;
       font-size: 0.76rem;
       font-weight: 600;
-      color: var(--unity-text, #334155);
+      color: var(--unity-text);
 
       i {
         font-size: 0.8rem;
-        color: var(--unity-primary, #415b2e);
+        color: var(--unity-primary);
       }
 
       &.full {

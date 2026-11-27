@@ -104,7 +104,7 @@ const handleTopAction = () => {
   .clinics-mode-tabs {
     display: flex;
     gap: 4px;
-    background: var(--unity-surface-muted, #f1f5f9);
+    background: var(--unity-surface-muted);
     border: 1px solid var(--unity-border);
     padding: 3px;
     border-radius: 12px;
@@ -143,7 +143,7 @@ const handleTopAction = () => {
       }
 
       &.active {
-        background: var(--unity-surface, #ffffff);
+        background: var(--unity-surface);
         color: var(--unity-primary);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 

@@ -5,14 +5,22 @@
 
 :root, [data-theme='light'], [data-theme='emerald'] {
   --unity-primary: #415b2e;           // Unity Clinics Olive Green (from brand logo)
+  --unity-primary-rgb: 65, 91, 46;
   --unity-primary-dark: #2d4020;      // Deep Forest Olive
+  --unity-primary-dark-rgb: 45, 64, 32;
   --unity-primary-hover: #364c26;
+  --unity-primary-hover-rgb: 54, 76, 38;
   --unity-primary-light: #f2f6ee;     // Soft olive-tinted background
   --unity-primary-tint: #dce6d3;
-  --unity-primary-gradient: linear-gradient(135deg, #415b2e 0%, #2d4020 100%);
+  --unity-primary-border: #c5d6b8;
+  --unity-primary-muted: #a6bf94;
+  --unity-primary-soft: rgba(65, 91, 46, 0.1);
+  --unity-primary-gradient: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-dark) 100%);
   
   --unity-accent: #5c8042;            // Bright Olive / Status indicator
-  --unity-accent-glow: rgba(92, 128, 66, 0.25);
+  --unity-accent-rgb: 92, 128, 66;
+  --unity-accent-light: #8ab36b;
+  --unity-accent-glow: rgba(var(--unity-accent-rgb), 0.25);
   
   --unity-bg: #f8fafc;                // Clean mobile background
   --unity-surface: #ffffff;           // Card surface
@@ -70,12 +78,20 @@
   --unity-border-light: #374151;
   --unity-border-subtle: #1f2937;
   --unity-primary: #6b944d;
+  --unity-primary-rgb: 107, 148, 77;
   --unity-primary-dark: #8ab36b;
+  --unity-primary-dark-rgb: 138, 179, 107;
   --unity-primary-hover: #56783d;
+  --unity-primary-hover-rgb: 86, 120, 61;
   --unity-primary-light: rgba(107, 148, 77, 0.18);
   --unity-primary-tint: rgba(107, 148, 77, 0.3);
+  --unity-primary-border: rgba(138, 179, 107, 0.32);
+  --unity-primary-muted: #a6bf94;
+  --unity-primary-soft: rgba(107, 148, 77, 0.16);
   --unity-accent: #8ab36b;
-  --unity-accent-glow: rgba(138, 179, 107, 0.25);
+  --unity-accent-rgb: 138, 179, 107;
+  --unity-accent-light: #a6bf94;
+  --unity-accent-glow: rgba(var(--unity-accent-rgb), 0.25);
   --unity-shadow-subtle: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
   --unity-shadow-card: 0 4px 14px -3px rgba(0, 0, 0, 0.5);
   --web-outer-bg: var(--unity-bg);
@@ -103,12 +119,12 @@
   .initial-avatar,
   .icon-bubble.primary,
   .icon-bubble.success {
-    background: rgba(107, 148, 77, 0.14) !important;
-    border-color: rgba(107, 148, 77, 0.28) !important;
-    color: #8ab36b !important;
+    background: rgba(var(--unity-primary-rgb), 0.14) !important;
+    border-color: rgba(var(--unity-primary-rgb), 0.28) !important;
+    color: var(--unity-accent-light) !important;
 
     i, svg {
-      color: #8ab36b !important;
+      color: var(--unity-accent-light) !important;
     }
   }
 

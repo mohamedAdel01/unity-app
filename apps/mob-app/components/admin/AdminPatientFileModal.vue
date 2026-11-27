@@ -405,8 +405,8 @@ onUnmounted(() => {
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: #f2f6ee;
-        border: 2px solid #c5d6b8;
+        background: var(--unity-primary-light);
+        border: 2px solid var(--unity-primary-border);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -421,7 +421,7 @@ onUnmounted(() => {
         .avatar-letter {
           font-size: 1.25rem;
           font-weight: 800;
-          color: #415b2e;
+          color: var(--unity-primary);
         }
       }
 
@@ -542,7 +542,7 @@ onUnmounted(() => {
         font-size: 0.72rem;
         font-weight: 700;
         color: var(--unity-primary);
-        background: #f2f6ee;
+        background: var(--unity-primary-light);
         padding: 1px 6px;
         border-radius: 6px;
       }
@@ -600,7 +600,7 @@ onUnmounted(() => {
         flex-shrink: 0;
 
         &.upcoming {
-          background: #5c8042;
+          background: var(--unity-accent);
         }
 
         &.past {
@@ -626,8 +626,8 @@ onUnmounted(() => {
             border-radius: 6px;
 
             &.pill-consult {
-              background: #f2f6ee;
-              color: #415b2e;
+              background: var(--unity-primary-light);
+              color: var(--unity-primary);
             }
 
             &.pill-exam {
@@ -652,8 +652,8 @@ onUnmounted(() => {
           align-items: center;
           gap: 5px;
           font-size: 0.70rem;
-          color: #415b2e;
-          background: #f2f6ee;
+          color: var(--unity-primary);
+          background: var(--unity-primary-light);
           padding: 2px 8px;
           border-radius: 6px;
           margin-top: 2px;
@@ -675,8 +675,8 @@ onUnmounted(() => {
           font-weight: 700;
           padding: 2px 8px;
           border-radius: 10px;
-          background: #dce6d3;
-          color: #364c26;
+          background: var(--unity-primary-tint);
+          color: var(--unity-primary-hover);
 
           &.completed {
             background: #e0f2fe;
@@ -725,7 +725,7 @@ onUnmounted(() => {
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.22);
+      box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.22);
       transition: all 0.2s ease;
 
       &:hover {

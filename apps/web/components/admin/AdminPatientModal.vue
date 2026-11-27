@@ -280,8 +280,8 @@ onUnmounted(() => {
       i {
         font-size: 1.25rem;
         color: var(--unity-primary);
-        background: #f2f6ee;
-        border: 1px solid #c5d6b8;
+        background: var(--unity-primary-light);
+        border: 1px solid var(--unity-primary-border);
         padding: 8px;
         border-radius: 12px;
       }
@@ -361,9 +361,9 @@ onUnmounted(() => {
             justify-content: center;
             gap: 8px;
             border-radius: 12px;
-            border: 1.5px solid var(--unity-border, #e2e8f0);
-            background: var(--unity-bg, #f8fafc);
-            color: var(--unity-text-muted, #64748b);
+            border: 1.5px solid var(--unity-border);
+            background: var(--unity-bg);
+            color: var(--unity-text-muted);
             font-size: 0.86rem;
             font-weight: 700;
             cursor: pointer;
@@ -375,14 +375,14 @@ onUnmounted(() => {
 
             &:hover {
               border-color: #cbd5e1;
-              color: var(--unity-text-main, #0f172a);
+              color: var(--unity-text-main);
             }
 
             &.active {
-              background: #f2f6ee;
-              border-color: #415b2e;
-              color: #415b2e;
-              box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+              background: var(--unity-primary-light);
+              border-color: var(--unity-primary);
+              color: var(--unity-primary);
+              box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
             }
           }
         }
@@ -454,7 +454,7 @@ onUnmounted(() => {
       .btn-submit {
         background: var(--unity-primary);
         color: #fff;
-        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
 
         &:hover:not(:disabled) {
           background: var(--unity-primary-dark);

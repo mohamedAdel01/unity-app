@@ -268,27 +268,27 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #f2f6ee;
-  border: 1px solid #c5d6b8;
+  background: var(--unity-primary-light);
+  border: 1px solid var(--unity-primary-border);
   border-radius: 12px;
   padding: 10px 12px;
 
   i {
     font-size: 1.3rem;
-    color: #364c26;
+    color: var(--unity-primary-hover);
   }
 
   h6 {
     margin: 0;
     font-size: 0.82rem;
     font-weight: 700;
-    color: #364c26;
+    color: var(--unity-primary-hover);
   }
 
   small {
     display: block;
     font-size: 0.72rem;
-    color: #415b2e;
+    color: var(--unity-primary);
     margin-top: 2px;
     line-height: 1.3;
   }
@@ -333,7 +333,7 @@ const handleSubmit = async () => {
 
     &.selected {
       border-color: var(--unity-primary);
-      background: rgba(65, 91, 46, 0.08);
+      background: rgba(var(--unity-primary-rgb), 0.08);
       color: var(--unity-primary);
 
       i {
@@ -365,18 +365,18 @@ const handleSubmit = async () => {
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid var(--unity-primary);
-      box-shadow: 0 4px 12px rgba(65, 91, 46, 0.2);
+      box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.2);
     }
 
     .avatar-initial-badge {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
+      background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-hover) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.3);
+      box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.3);
       border: 2px solid #ffffff;
 
       .initial-char {
@@ -444,7 +444,7 @@ const handleSubmit = async () => {
         }
 
         &:hover {
-          background: rgba(65, 91, 46, 0.08);
+          background: rgba(var(--unity-primary-rgb), 0.08);
           border-color: var(--unity-primary);
         }
       }
@@ -471,7 +471,7 @@ const handleSubmit = async () => {
       line-height: 1.35;
 
       &.success {
-        color: #364c26;
+        color: var(--unity-primary-hover);
         display: flex;
         align-items: center;
         gap: 4px;
@@ -519,7 +519,7 @@ const handleSubmit = async () => {
     flex: 2;
     background: var(--unity-primary);
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+    box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
 
     &:disabled {
       opacity: 0.55;

@@ -216,8 +216,8 @@ const { t } = useI18n();
 
       &.ready,
       &.completed {
-        background: #f2f6ee;
-        color: #364c26;
+        background: var(--unity-primary-light);
+        color: var(--unity-primary-hover);
       }
     }
   }
@@ -253,7 +253,7 @@ const { t } = useI18n();
       color: var(--unity-text);
       line-height: 1.4;
       margin: 4px 0 0;
-      background: var(--unity-surface-muted, #f8fafc);
+      background: var(--unity-surface-muted);
       padding: 8px 10px;
       border-radius: 8px;
     }
@@ -280,12 +280,12 @@ const { t } = useI18n();
       transition: all 0.2s ease;
 
       &.book-action-btn {
-        background: rgba(92, 128, 66, 0.12);
-        color: #415b2e;
-        border: 1px solid rgba(92, 128, 66, 0.35);
+        background: rgba(var(--unity-accent-rgb), 0.12);
+        color: var(--unity-primary);
+        border: 1px solid rgba(var(--unity-accent-rgb), 0.35);
 
         &:hover {
-          background: #415b2e;
+          background: var(--unity-primary);
           color: #ffffff;
         }
       }

@@ -357,11 +357,11 @@ const openModalFromDrawer = () => {
     font-weight: 700;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+    box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
     transition: all 0.2s ease;
 
     &:hover {
-      background: var(--unity-primary-dark, #364c26);
+      background: var(--unity-primary-dark);
       transform: translateY(-1px);
     }
 

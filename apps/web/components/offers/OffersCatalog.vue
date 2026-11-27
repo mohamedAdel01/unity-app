@@ -237,7 +237,7 @@ onMounted(() => {
     .search-icon {
       position: absolute;
       right: 14px;
-      color: var(--unity-text-dim, #94a3b8);
+      color: var(--unity-text-dim);
       font-size: 0.92rem;
       pointer-events: none;
 
@@ -252,22 +252,22 @@ onMounted(() => {
       width: 100%;
       height: 46px;
       padding: 0 40px;
-      background: var(--unity-surface, #ffffff);
-      border: 1.5px solid var(--unity-border, #e2e8f0);
+      background: var(--unity-surface);
+      border: 1.5px solid var(--unity-border);
       border-radius: 14px;
       font-size: 0.88rem;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       outline: none;
       transition: all 0.2s ease;
 
       &::placeholder {
-        color: var(--unity-text-dim, #94a3b8);
+        color: var(--unity-text-dim);
         font-size: 0.84rem;
       }
 
       &:focus {
-        border-color: var(--unity-primary, #415b2e);
-        box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+        border-color: var(--unity-primary);
+        box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
       }
     }
 
@@ -305,8 +305,8 @@ onMounted(() => {
 
   .offer-card {
     position: relative;
-    background: var(--unity-surface, #ffffff);
-    border: 1.5px solid var(--unity-border, #e2e8f0);
+    background: var(--unity-surface);
+    border: 1.5px solid var(--unity-border);
     border-radius: 20px;
     overflow: hidden;
     margin-bottom: 14px;
@@ -345,21 +345,21 @@ onMounted(() => {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #f2f6ee 0%, #e0f2fe 100%);
+        background: linear-gradient(135deg, var(--unity-primary-light) 0%, #e0f2fe 100%);
 
         .placeholder-icon {
           font-size: 2.8rem;
-          color: var(--unity-primary, #415b2e);
+          color: var(--unity-primary);
           opacity: 0.7;
         }
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: linear-gradient(135deg, rgba(92, 128, 66, 0.12) 0%, rgba(2, 132, 199, 0.15) 100%);
+          background: linear-gradient(135deg, rgba(var(--unity-accent-rgb), 0.12) 0%, rgba(2, 132, 199, 0.15) 100%);
           border-bottom: 1px solid #1f2937;
 
           .placeholder-icon {
-            color: #8ab36b;
+            color: var(--unity-accent-light);
             opacity: 0.85;
           }
         }
@@ -418,14 +418,14 @@ onMounted(() => {
         .offer-title {
           font-size: 1.02rem;
           font-weight: 800;
-          color: var(--unity-text-main, #0f172a);
+          color: var(--unity-text-main);
           margin: 0;
           line-height: 1.35;
         }
 
         .offer-desc {
           font-size: 0.84rem;
-          color: var(--unity-text-muted, #64748b);
+          color: var(--unity-text-muted);
           margin: 0;
           line-height: 1.5;
           display: -webkit-box;
@@ -440,7 +440,7 @@ onMounted(() => {
         align-items: center;
         justify-content: space-between;
         padding-top: 10px;
-        border-top: 1px dashed var(--unity-border, #e2e8f0);
+        border-top: 1px dashed var(--unity-border);
 
         .pricing-wrap {
           display: flex;
@@ -455,13 +455,13 @@ onMounted(() => {
             .price-val {
               font-size: 1.25rem;
               font-weight: 900;
-              color: var(--unity-primary, #415b2e);
+              color: var(--unity-primary);
             }
 
             .currency-val {
               font-size: 0.75rem;
               font-weight: 700;
-              color: var(--unity-text-muted, #64748b);
+              color: var(--unity-text-muted);
             }
           }
 
@@ -479,7 +479,7 @@ onMounted(() => {
           gap: 6px;
           height: 38px;
           padding: 0 16px;
-          background: var(--unity-primary, #415b2e);
+          background: var(--unity-primary);
           color: #ffffff;
           border: none;
           border-radius: 12px;
@@ -487,10 +487,10 @@ onMounted(() => {
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: 0 3px 10px rgba(65, 91, 46, 0.25);
+          box-shadow: 0 3px 10px rgba(var(--unity-primary-rgb), 0.25);
 
           &:hover {
-            background: var(--unity-primary-dark, #364c26);
+            background: var(--unity-primary-dark);
             transform: translateY(-1px);
           }
 
@@ -537,13 +537,13 @@ onMounted(() => {
     h4 {
       font-size: 1.05rem;
       font-weight: 800;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       margin: 0;
     }
 
     p {
       font-size: 0.84rem;
-      color: var(--unity-text-muted, #64748b);
+      color: var(--unity-text-muted);
       margin: 0;
       max-width: 260px;
       line-height: 1.5;

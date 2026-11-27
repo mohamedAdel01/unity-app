@@ -195,7 +195,7 @@ watch(
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
       &:hover {
-        border-color: var(--unity-primary-light, #c5d6b8);
+        border-color: var(--unity-primary-light);
         transform: translateY(-1px);
       }
 
@@ -220,9 +220,9 @@ watch(
           font-size: 0.95rem;
 
           &.primary {
-            background: #f2f6ee;
-            color: #415b2e;
-            border: 1px solid #c5d6b8;
+            background: var(--unity-primary-light);
+            color: var(--unity-primary);
+            border: 1px solid var(--unity-primary-border);
           }
 
           &.success {
@@ -234,15 +234,15 @@ watch(
           :global([data-theme='dark']) &,
           :global(html.dark) & {
             &.primary {
-              background: rgba(92, 128, 66, 0.14);
-              border-color: rgba(92, 128, 66, 0.28);
-              color: #8ab36b;
+              background: rgba(var(--unity-accent-rgb), 0.14);
+              border-color: rgba(var(--unity-accent-rgb), 0.28);
+              color: var(--unity-accent-light);
             }
 
             &.success {
-              background: rgba(92, 128, 66, 0.14);
-              border-color: rgba(92, 128, 66, 0.28);
-              color: #8ab36b;
+              background: rgba(var(--unity-accent-rgb), 0.14);
+              border-color: rgba(var(--unity-accent-rgb), 0.28);
+              color: var(--unity-accent-light);
             }
           }
         }
@@ -273,7 +273,7 @@ watch(
         display: flex;
         align-items: center;
         gap: 4px;
-        border-top: 1px dashed var(--unity-border-light, #f1f5f9);
+        border-top: 1px dashed var(--unity-border-light);
         padding-top: 4px;
 
         :global([data-theme='dark']) &,

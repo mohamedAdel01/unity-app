@@ -248,8 +248,8 @@ watch(() => props.modelValue, (newVal) => {
 .date-trigger-shell {
   width: 100%;
   height: 48px;
-  background: var(--unity-surface-muted, #f8fafc);
-  border: 1px solid var(--unity-border, #e2e8f0);
+  background: var(--unity-surface-muted);
+  border: 1px solid var(--unity-border);
   border-radius: 14px;
   padding: 0 14px;
   display: flex;
@@ -260,14 +260,14 @@ watch(() => props.modelValue, (newVal) => {
   transition: all 0.2s ease;
 
   &:hover, &.is-open {
-    border-color: var(--unity-primary, #415b2e);
-    background: var(--unity-surface, #ffffff);
-    box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+    border-color: var(--unity-primary);
+    background: var(--unity-surface);
+    box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
   }
 
   .field-icon {
     font-size: 1.05rem;
-    color: var(--unity-primary, #415b2e);
+    color: var(--unity-primary);
     margin-inline-end: 10px;
   }
 
@@ -275,13 +275,13 @@ watch(() => props.modelValue, (newVal) => {
     flex: 1;
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--unity-text, #0f172a);
+    color: var(--unity-text);
     font-family: inherit;
   }
 
   .chevron-icon {
     font-size: 0.8rem;
-    color: var(--unity-text-dim, #94a3b8);
+    color: var(--unity-text-dim);
     transition: transform 0.2s ease;
   }
 
@@ -342,8 +342,8 @@ watch(() => props.modelValue, (newVal) => {
         width: 38px;
         height: 38px;
         border-radius: 12px;
-        background: #f2f6ee;
-        color: #415b2e;
+        background: var(--unity-primary-light);
+        color: var(--unity-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -360,7 +360,7 @@ watch(() => props.modelValue, (newVal) => {
       small {
         font-size: 0.8rem;
         font-weight: 600;
-        color: #415b2e;
+        color: var(--unity-primary);
       }
     }
 
@@ -416,7 +416,7 @@ watch(() => props.modelValue, (newVal) => {
         transition: border-color 0.2s;
 
         &:focus {
-          border-color: #415b2e;
+          border-color: var(--unity-primary);
           background: #ffffff;
         }
       }
@@ -476,16 +476,16 @@ watch(() => props.modelValue, (newVal) => {
           }
 
           &.is-selected {
-            background: #415b2e !important;
+            background: var(--unity-primary) !important;
             color: #ffffff !important;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(65, 91, 46, 0.35);
+            box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.35);
             transform: scale(1.05);
           }
 
           &.is-today:not(.is-selected) {
-            border: 1.5px solid #415b2e;
-            color: #415b2e;
+            border: 1.5px solid var(--unity-primary);
+            color: var(--unity-primary);
             font-weight: 700;
           }
         }
@@ -512,12 +512,12 @@ watch(() => props.modelValue, (newVal) => {
       align-items: center;
       justify-content: center;
       gap: 8px;
-      background: #415b2e;
+      background: var(--unity-primary);
       color: #ffffff;
-      box-shadow: 0 6px 18px rgba(65, 91, 46, 0.28);
+      box-shadow: 0 6px 18px rgba(var(--unity-primary-rgb), 0.28);
 
       &:hover {
-        background: #364c26;
+        background: var(--unity-primary-hover);
       }
     }
   }

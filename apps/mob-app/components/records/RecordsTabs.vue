@@ -63,7 +63,7 @@ const { t } = useI18n();
 <style scoped lang="scss">
 .records-tabs {
   display: flex;
-  background: var(--unity-surface-muted, #f1f5f9);
+  background: var(--unity-surface-muted);
   padding: 3px;
   border: 1px solid var(--unity-border);
   border-radius: 12px;
@@ -91,7 +91,7 @@ const { t } = useI18n();
     }
 
     &.active {
-      background: var(--unity-surface, #ffffff);
+      background: var(--unity-surface);
       color: var(--unity-primary);
       font-weight: 700;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);

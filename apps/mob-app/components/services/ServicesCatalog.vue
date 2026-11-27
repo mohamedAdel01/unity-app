@@ -973,7 +973,7 @@ onMounted(() => {
 
     &:focus {
       border-color: var(--unity-primary);
-      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+      box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
     }
   }
 }
@@ -1023,7 +1023,7 @@ onMounted(() => {
       border-color: var(--unity-primary);
       color: #ffffff;
       font-weight: 700;
-      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.22);
+      box-shadow: 0 2px 8px rgba(var(--unity-primary-rgb), 0.22);
 
       .chip-count {
         color: #ffffff;
@@ -1067,7 +1067,7 @@ onMounted(() => {
   &:hover {
     border-color: var(--unity-primary);
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.08);
+    box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.08);
 
     .view-action-btn {
       opacity: 0.9;
@@ -1102,38 +1102,38 @@ onMounted(() => {
       }
 
       &.category {
-        background: var(--unity-primary-light, #f2f6ee);
-        color: var(--unity-primary, #415b2e);
-        border: 1px solid var(--unity-primary-tint, #c5d6b8);
+        background: var(--unity-primary-light);
+        color: var(--unity-primary);
+        border: 1px solid var(--unity-primary-tint);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(92, 128, 66, 0.14);
-          border-color: rgba(92, 128, 66, 0.28);
-          color: #8ab36b;
+          background: rgba(var(--unity-accent-rgb), 0.14);
+          border-color: rgba(var(--unity-accent-rgb), 0.28);
+          color: var(--unity-accent-light);
         }
       }
 
       &.clinic {
-        background: var(--unity-primary-light, #f2f6ee);
-        color: var(--unity-primary, #415b2e);
-        border: 1px solid var(--unity-primary-tint, #c5d6b8);
+        background: var(--unity-primary-light);
+        color: var(--unity-primary);
+        border: 1px solid var(--unity-primary-tint);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
-          background: rgba(92, 128, 66, 0.14);
-          border-color: rgba(92, 128, 66, 0.28);
-          color: #8ab36b;
+          background: rgba(var(--unity-accent-rgb), 0.14);
+          border-color: rgba(var(--unity-accent-rgb), 0.28);
+          color: var(--unity-accent-light);
         }
 
         svg {
           width: 22px;
           height: 22px;
-          color: var(--unity-primary, #415b2e);
+          color: var(--unity-primary);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            color: #8ab36b;
+            color: var(--unity-accent-light);
           }
         }
       }
@@ -1261,7 +1261,7 @@ onMounted(() => {
       font-weight: 700;
       padding: 3px 10px;
       border-radius: 9999px;
-      background: var(--unity-primary-light, #f2f6ee);
+      background: var(--unity-primary-light);
       color: var(--unity-primary);
     }
   }
@@ -1292,7 +1292,7 @@ onMounted(() => {
     font-weight: 700;
     padding: 3px 10px;
     border-radius: 9999px;
-    background: var(--unity-primary-light, #f2f6ee);
+    background: var(--unity-primary-light);
     color: var(--unity-primary);
   }
 }
@@ -1321,7 +1321,7 @@ onMounted(() => {
   &:hover {
     border-color: var(--unity-primary);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(65, 91, 46, 0.08);
+    box-shadow: 0 6px 16px rgba(var(--unity-primary-rgb), 0.08);
   }
 
   &:active {
@@ -1332,7 +1332,7 @@ onMounted(() => {
     width: 44px;
     height: 44px;
     border-radius: 13px;
-    background: var(--unity-primary-light, #f2f6ee);
+    background: var(--unity-primary-light);
     color: var(--unity-primary);
     display: flex;
     align-items: center;
@@ -1399,7 +1399,7 @@ onMounted(() => {
     padding: 6px 12px;
     border-radius: 10px;
     border: 1.5px solid var(--unity-primary);
-    background: var(--unity-primary-light, #f2f6ee);
+    background: var(--unity-primary-light);
     color: var(--unity-primary);
     font-size: 0.78rem;
     font-weight: 700;
@@ -1433,7 +1433,7 @@ onMounted(() => {
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 9999px;
-      background: var(--unity-primary-light, #f2f6ee);
+      background: var(--unity-primary-light);
       color: var(--unity-primary);
     }
   }
@@ -1525,8 +1525,8 @@ onMounted(() => {
 
     .count-bubble {
       font-size: 0.65rem;
-      background: #f2f6ee;
-      color: #415b2e;
+      background: var(--unity-primary-light);
+      color: var(--unity-primary);
       padding: 1px 6px;
       border-radius: 8px;
       font-weight: 800;
@@ -1606,7 +1606,7 @@ onMounted(() => {
       &:hover {
         border-color: var(--unity-primary);
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(65, 91, 46, 0.12);
+        box-shadow: 0 6px 16px rgba(var(--unity-primary-rgb), 0.12);
       }
 
       .card-icon-row {
@@ -1618,8 +1618,8 @@ onMounted(() => {
           width: 36px;
           height: 36px;
           border-radius: 10px;
-          background: #f2f6ee;
-          color: #415b2e;
+          background: var(--unity-primary-light);
+          color: var(--unity-primary);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1688,8 +1688,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f2f6ee;
-  border: 1px solid #dce6d3;
+  background: var(--unity-primary-light);
+  border: 1px solid var(--unity-primary-tint);
   border-radius: 14px;
   padding: 10px 14px;
 
@@ -1698,7 +1698,7 @@ onMounted(() => {
     align-items: center;
     gap: 6px;
     font-size: 0.78rem;
-    color: #364c26;
+    color: var(--unity-primary-hover);
 
     i {
       color: var(--unity-primary);
@@ -1711,8 +1711,8 @@ onMounted(() => {
 
   .btn-clear-clinic {
     background: #fff;
-    border: 1px solid #c5d6b8;
-    color: #415b2e;
+    border: 1px solid var(--unity-primary-border);
+    color: var(--unity-primary);
     font-size: 0.72rem;
     font-weight: 700;
     padding: 4px 10px;
@@ -1776,7 +1776,7 @@ onMounted(() => {
         h5 {
           font-size: 0.94rem;
           font-weight: 700;
-          color: var(--unity-text-main, #334155);
+          color: var(--unity-text-main);
           margin: 0;
         }
 
@@ -1808,7 +1808,7 @@ onMounted(() => {
             color: var(--unity-primary);
 
             .dot-sep {
-              color: var(--unity-border-dark, #cbd5e1);
+              color: var(--unity-border-dark);
             }
           }
         }
@@ -1824,7 +1824,7 @@ onMounted(() => {
       }
 
       .doc-initial-avatar {
-        background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
+        background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-hover) 100%);
         color: #ffffff;
         display: flex;
         align-items: center;
@@ -1839,7 +1839,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid var(--unity-border-light, #f1f5f9);
+    border-top: 1px solid var(--unity-border-light);
     padding-top: 12px;
 
     .doc-availability {
@@ -1860,7 +1860,7 @@ onMounted(() => {
         font-weight: 600;
 
         i {
-          color: var(--unity-text-dim, #64748b);
+          color: var(--unity-text-dim);
         }
       }
     }
@@ -1874,7 +1874,7 @@ onMounted(() => {
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(65, 91, 46, 0.2);
+      box-shadow: 0 2px 6px rgba(var(--unity-primary-rgb), 0.2);
       transition: all 0.2s;
 
       &:hover {
@@ -1906,8 +1906,8 @@ onMounted(() => {
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: #f2f6ee;
-      color: #415b2e;
+      background: var(--unity-primary-light);
+      color: var(--unity-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2027,7 +2027,7 @@ onMounted(() => {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
+  background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-hover) 100%);
   color: #ffffff;
   display: flex;
   align-items: center;

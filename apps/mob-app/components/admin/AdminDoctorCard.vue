@@ -401,18 +401,18 @@ onUnmounted(() => {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          background: var(--unity-surface-soft, #f1f5f9);
-          border: 1.5px solid var(--unity-border, #e2e8f0);
+          background: var(--unity-surface-soft);
+          border: 1.5px solid var(--unity-border);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--unity-text-dim, #94a3b8);
+          color: var(--unity-text-dim);
           font-size: 1.25rem;
 
           .avatar-initial {
             font-size: 1.05rem;
             font-weight: 800;
-            color: var(--unity-primary, #415b2e);
+            color: var(--unity-primary);
           }
         }
 
@@ -423,10 +423,10 @@ onUnmounted(() => {
           width: 12px;
           height: 12px;
           border-radius: 50%;
-          border: 2px solid var(--unity-surface, #ffffff);
+          border: 2px solid var(--unity-surface);
 
           &.online {
-            background: #5c8042;
+            background: var(--unity-accent);
           }
 
           &.offline {
@@ -477,7 +477,7 @@ onUnmounted(() => {
             border-radius: 50%;
 
             &.online {
-              background: #5c8042;
+              background: var(--unity-accent);
             }
 
             &.offline {
@@ -502,7 +502,7 @@ onUnmounted(() => {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            color: var(--unity-primary, #415b2e);
+            color: var(--unity-primary);
             font-weight: 600;
 
             i {
@@ -513,7 +513,7 @@ onUnmounted(() => {
 
         .doctor-description-line {
           font-size: 0.76rem;
-          color: var(--unity-text-muted, #64748b);
+          color: var(--unity-text-muted);
           line-height: 1.4;
           margin-top: 3px;
           display: -webkit-box;
@@ -542,9 +542,9 @@ onUnmounted(() => {
         width: 40px;
         height: 40px;
         border-radius: 12px;
-        background: var(--unity-surface, #ffffff);
-        border: 1.5px solid var(--unity-border, #e2e8f0);
-        color: var(--unity-text-muted, #64748b);
+        background: var(--unity-surface);
+        border: 1.5px solid var(--unity-border);
+        color: var(--unity-text-muted);
         font-size: 1.1rem;
         cursor: pointer;
         display: flex;
@@ -558,15 +558,15 @@ onUnmounted(() => {
 
         &:hover,
         &.is-active {
-          background: var(--unity-primary-light, #f2f6ee);
-          border-color: var(--unity-primary, #415b2e);
-          color: var(--unity-primary, #415b2e);
+          background: var(--unity-primary-light);
+          border-color: var(--unity-primary);
+          color: var(--unity-primary);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(92, 128, 66, 0.14);
-            border-color: #5c8042;
-            color: #8ab36b;
+            background: rgba(var(--unity-accent-rgb), 0.14);
+            border-color: var(--unity-accent);
+            color: var(--unity-accent-light);
           }
 
           i {
@@ -606,7 +606,7 @@ onUnmounted(() => {
         }
 
         &.active {
-          background: #364c26;
+          background: var(--unity-primary-hover);
 
           .switch-slider {
             transform: translateX(20px);
@@ -639,7 +639,7 @@ onUnmounted(() => {
     position: absolute;
     top: calc(100% + 8px);
     min-width: 220px;
-    background: var(--unity-surface, #ffffff);
+    background: var(--unity-surface);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--unity-border, rgba(226, 232, 240, 0.95));
@@ -694,7 +694,7 @@ onUnmounted(() => {
       border: none;
       background: transparent;
       border-radius: 12px;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       cursor: pointer;
       width: 100%;
       text-align: inherit;
@@ -715,15 +715,15 @@ onUnmounted(() => {
         }
 
         &.icon-cases {
-          background: var(--unity-primary-light, #f2f6ee);
-          color: var(--unity-primary, #415b2e);
-          border: 1px solid var(--unity-primary-tint, #c5d6b8);
+          background: var(--unity-primary-light);
+          color: var(--unity-primary);
+          border: 1px solid var(--unity-primary-tint);
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            background: rgba(92, 128, 66, 0.14);
-            border-color: rgba(92, 128, 66, 0.28);
-            color: #8ab36b;
+            background: rgba(var(--unity-accent-rgb), 0.14);
+            border-color: rgba(var(--unity-accent-rgb), 0.28);
+            color: var(--unity-accent-light);
           }
         }
 
@@ -757,7 +757,7 @@ onUnmounted(() => {
       .item-title {
         font-size: 0.86rem;
         font-weight: 700;
-        color: var(--unity-text-main, #0f172a);
+        color: var(--unity-text-main);
         white-space: nowrap;
         flex: 1;
       }
@@ -783,12 +783,12 @@ onUnmounted(() => {
         }
 
         .item-title {
-          color: var(--unity-primary, #415b2e);
+          color: var(--unity-primary);
         }
 
         .item-chevron {
           opacity: 1;
-          color: var(--unity-primary, #415b2e);
+          color: var(--unity-primary);
         }
       }
     }

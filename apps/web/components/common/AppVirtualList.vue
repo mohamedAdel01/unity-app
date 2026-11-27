@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
 
       i {
         font-size: 0.75rem;
-        color: #5c8042;
+        color: var(--unity-accent);
       }
     }
   }

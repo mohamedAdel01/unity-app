@@ -106,7 +106,7 @@ const { t } = useI18n();
       width: 48px;
       height: 48px;
       border-radius: 14px;
-      background: var(--unity-primary-light, #f2f6ee);
+      background: var(--unity-primary-light);
       color: var(--unity-primary);
       display: flex;
       align-items: center;

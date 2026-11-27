@@ -499,7 +499,7 @@ onUnmounted(() => {
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      background: rgba(65, 91, 46, 0.1);
+      background: rgba(var(--unity-primary-rgb), 0.1);
       color: var(--unity-primary);
       display: flex;
       align-items: center;
@@ -541,7 +541,7 @@ onUnmounted(() => {
       transition: all 0.2s;
 
       &:hover {
-        background: var(--unity-surface-muted, #f1f5f9);
+        background: var(--unity-surface-muted);
         color: var(--unity-text-main);
       }
     }
@@ -607,7 +607,7 @@ onUnmounted(() => {
         &:focus {
           border-color: var(--unity-primary);
           background: var(--unity-surface);
-          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+          box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
         }
 
         &::placeholder {
@@ -616,7 +616,7 @@ onUnmounted(() => {
         }
 
         &.highlight-price {
-          border-color: rgba(65, 91, 46, 0.4);
+          border-color: rgba(var(--unity-primary-rgb), 0.4);
           font-weight: 700;
           color: var(--unity-primary);
         }
@@ -641,7 +641,7 @@ onUnmounted(() => {
         &:focus {
           border-color: var(--unity-primary);
           background: var(--unity-surface);
-          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+          box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
         }
 
         &::placeholder {
@@ -679,8 +679,8 @@ onUnmounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(65, 91, 46, 0.08);
-      border: 1px solid rgba(65, 91, 46, 0.2);
+      background: rgba(var(--unity-primary-rgb), 0.08);
+      border: 1px solid rgba(var(--unity-primary-rgb), 0.2);
       border-radius: 10px;
       padding: 6px 12px;
 
@@ -734,14 +734,14 @@ onUnmounted(() => {
 
       &:hover, &.is-dragover {
         border-color: var(--unity-primary);
-        background: rgba(65, 91, 46, 0.04);
+        background: rgba(var(--unity-primary-rgb), 0.04);
       }
 
       .dropzone-icon {
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: rgba(65, 91, 46, 0.08);
+        background: rgba(var(--unity-primary-rgb), 0.08);
         color: var(--unity-primary);
         display: flex;
         align-items: center;

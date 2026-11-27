@@ -219,7 +219,7 @@ onUnmounted(() => {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: rgba(65, 91, 46, 0.08);
+    background: rgba(var(--unity-primary-rgb), 0.08);
     color: var(--unity-primary);
     display: flex;
     align-items: center;
@@ -260,7 +260,7 @@ onUnmounted(() => {
     transition: background 0.2s;
 
     &:hover {
-      background: rgba(65, 91, 46, 0.08);
+      background: rgba(var(--unity-primary-rgb), 0.08);
     }
   }
 }
@@ -288,12 +288,12 @@ onUnmounted(() => {
     &:focus {
       border-color: var(--unity-primary);
       background: var(--unity-surface);
-      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+      box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
       transform: translateY(-2px);
     }
 
     &.filled {
-      border-color: #5c8042;
+      border-color: var(--unity-accent);
       background: var(--unity-surface);
     }
   }
@@ -332,7 +332,7 @@ onUnmounted(() => {
     transition: background 0.2s;
 
     &:hover {
-      background: rgba(65, 91, 46, 0.08);
+      background: rgba(var(--unity-primary-rgb), 0.08);
     }
   }
 }
@@ -371,7 +371,7 @@ onUnmounted(() => {
     color: #ffffff;
     width: 100%;
     margin-top: 4px;
-    box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+    box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
 
     &:disabled {
       opacity: 0.55;

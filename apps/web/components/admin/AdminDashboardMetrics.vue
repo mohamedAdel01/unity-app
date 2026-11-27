@@ -132,13 +132,13 @@ const currentRevenue = computed(() => {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: var(--unity-surface, #ffffff);
-      border: 1px solid var(--unity-border, #e2e8f0);
+      background: var(--unity-surface);
+      border: 1px solid var(--unity-border);
       padding: 5px 12px;
       border-radius: 20px;
       font-size: 0.78rem;
       font-weight: 700;
-      color: var(--unity-primary, #364c26);
+      color: var(--unity-primary);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
       i {
@@ -152,7 +152,7 @@ const currentRevenue = computed(() => {
 
     .metrics-context-label {
       font-size: 0.74rem;
-      color: var(--unity-text-muted, #64748b);
+      color: var(--unity-text-muted);
       font-weight: 600;
     }
   }
@@ -212,13 +212,13 @@ const currentRevenue = computed(() => {
       }
 
       &.primary .metric-icon {
-        background: #f2f6ee;
-        color: #415b2e;
+        background: var(--unity-primary-light);
+        color: var(--unity-primary);
       }
 
       &.success .metric-icon {
-        background: rgba(92, 128, 66, 0.12);
-        color: #5c8042;
+        background: rgba(var(--unity-accent-rgb), 0.12);
+        color: var(--unity-accent);
       }
 
       &.warning .metric-icon {

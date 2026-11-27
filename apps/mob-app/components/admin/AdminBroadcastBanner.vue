@@ -174,7 +174,7 @@ onUnmounted(() => {
 .broadcast-banner {
   padding: 16px;
   border-radius: 20px;
-  background: linear-gradient(135deg, rgba(92, 128, 66, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+  background: linear-gradient(135deg, rgba(var(--unity-accent-rgb), 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
   border: 1px solid var(--unity-border-subtle);
   display: flex;
   align-items: center;
@@ -401,7 +401,7 @@ onUnmounted(() => {
           &:focus {
             border-color: var(--unity-primary);
             background: var(--unity-surface);
-            box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+            box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
           }
 
           &.textarea {
@@ -441,10 +441,10 @@ onUnmounted(() => {
       justify-content: center;
       gap: 6px;
       transition: all 0.2s;
-      background: var(--unity-primary-gradient, linear-gradient(135deg, #415b2e 0%, #2d4020 100%));
+      background: var(--unity-primary-gradient);
       border: none;
       color: #fff;
-      box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
+      box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.25);
 
         &:hover:not(:disabled) {
           opacity: 0.95;

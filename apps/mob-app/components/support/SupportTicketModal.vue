@@ -243,7 +243,7 @@ onUnmounted(() => {
 }
 
 .modal-sheet {
-  background: var(--unity-surface, #ffffff);
+  background: var(--unity-surface);
   width: 100%;
   max-width: 480px;
   max-height: 88vh;
@@ -265,8 +265,8 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px 14px;
-  border-bottom: 1px solid var(--unity-border, #e2e8f0);
-  background: var(--unity-surface, #ffffff);
+  border-bottom: 1px solid var(--unity-border);
+  background: var(--unity-surface);
 
   .header-title-box {
     display: flex;
@@ -277,8 +277,8 @@ onUnmounted(() => {
       width: 42px;
       height: 42px;
       border-radius: 12px;
-      background: rgba(92, 128, 66, 0.12);
-      color: #364c26;
+      background: rgba(var(--unity-accent-rgb), 0.12);
+      color: var(--unity-primary-hover);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -289,13 +289,13 @@ onUnmounted(() => {
     .modal-title {
       font-size: 1rem;
       font-weight: 800;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       margin: 0;
     }
 
     .modal-subtitle {
       font-size: 0.74rem;
-      color: var(--unity-text-secondary, #64748b);
+      color: var(--unity-text-secondary);
       margin: 2px 0 0;
     }
   }
@@ -304,9 +304,9 @@ onUnmounted(() => {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    background: var(--unity-surface-muted, #f8fafc);
-    border: 1px solid var(--unity-border, #e2e8f0);
-    color: var(--unity-text-secondary, #64748b);
+    background: var(--unity-surface-muted);
+    border: 1px solid var(--unity-border);
+    color: var(--unity-text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -345,7 +345,7 @@ onUnmounted(() => {
     .form-label {
       font-size: 0.78rem;
       font-weight: 700;
-      color: var(--unity-text-main, #334155);
+      color: var(--unity-text-main);
 
       .req {
         color: #ef4444;
@@ -361,7 +361,7 @@ onUnmounted(() => {
       .input-icon {
         position: absolute;
         inset-inline-start: 12px;
-        color: var(--unity-text-secondary, #94a3b8);
+        color: var(--unity-text-secondary);
         font-size: 0.85rem;
         pointer-events: none;
       }
@@ -372,15 +372,15 @@ onUnmounted(() => {
         padding-inline-start: 36px;
         padding-inline-end: 14px;
         border-radius: 12px;
-        border: 1px solid var(--unity-border, #e2e8f0);
-        background: var(--unity-surface-muted, #f8fafc);
-        color: var(--unity-text-main, #0f172a);
+        border: 1px solid var(--unity-border);
+        background: var(--unity-surface-muted);
+        color: var(--unity-text-main);
         font-size: 0.85rem;
         outline: none;
         transition: border-color 0.15s ease;
 
         &:focus {
-          border-color: var(--unity-primary, #364c26);
+          border-color: var(--unity-primary);
           background: #ffffff;
         }
       }
@@ -397,16 +397,16 @@ onUnmounted(() => {
         padding-inline-start: 14px;
         padding-inline-end: 34px;
         border-radius: 12px;
-        border: 1px solid var(--unity-border, #e2e8f0);
-        background: var(--unity-surface-muted, #f8fafc);
-        color: var(--unity-text-main, #0f172a);
+        border: 1px solid var(--unity-border);
+        background: var(--unity-surface-muted);
+        color: var(--unity-text-main);
         font-size: 0.85rem;
         outline: none;
         appearance: none;
         cursor: pointer;
 
         &:focus {
-          border-color: var(--unity-primary, #364c26);
+          border-color: var(--unity-primary);
           background: #ffffff;
         }
       }
@@ -414,7 +414,7 @@ onUnmounted(() => {
       .select-chevron {
         position: absolute;
         inset-inline-end: 14px;
-        color: var(--unity-text-secondary, #94a3b8);
+        color: var(--unity-text-secondary);
         font-size: 0.78rem;
         pointer-events: none;
       }
@@ -424,16 +424,16 @@ onUnmounted(() => {
       width: 100%;
       padding: 10px 14px;
       border-radius: 12px;
-      border: 1px solid var(--unity-border, #e2e8f0);
-      background: var(--unity-surface-muted, #f8fafc);
-      color: var(--unity-text-main, #0f172a);
+      border: 1px solid var(--unity-border);
+      background: var(--unity-surface-muted);
+      color: var(--unity-text-main);
       font-size: 0.85rem;
       outline: none;
       resize: vertical;
       font-family: inherit;
 
       &:focus {
-        border-color: var(--unity-primary, #364c26);
+        border-color: var(--unity-primary);
         background: #ffffff;
       }
     }
@@ -443,8 +443,8 @@ onUnmounted(() => {
   .form-actions {
     flex-shrink: 0;
     padding: 14px 20px 20px;
-    border-top: 1px solid var(--unity-border, #e2e8f0);
-    background: var(--unity-surface, #ffffff);
+    border-top: 1px solid var(--unity-border);
+    background: var(--unity-surface);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -455,7 +455,7 @@ onUnmounted(() => {
       flex: 1;
       height: 48px;
       border-radius: 12px;
-      background: var(--unity-primary, #364c26);
+      background: var(--unity-primary);
       border: none;
       color: #ffffff;
       font-size: 0.90rem;
@@ -465,11 +465,11 @@ onUnmounted(() => {
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(54, 76, 38, 0.25);
+      box-shadow: 0 4px 14px rgba(var(--unity-primary-hover-rgb), 0.25);
       transition: all 0.2s ease;
 
       &:hover:not(:disabled) {
-        background: var(--unity-primary-dark, #415b2e);
+        background: var(--unity-primary-dark);
       }
 
       &:disabled {
@@ -491,8 +491,8 @@ onUnmounted(() => {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: rgba(92, 128, 66, 0.12);
-    color: #5c8042;
+    background: rgba(var(--unity-accent-rgb), 0.12);
+    color: var(--unity-accent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -503,19 +503,19 @@ onUnmounted(() => {
   .success-title {
     font-size: 1.05rem;
     font-weight: 800;
-    color: var(--unity-text-main, #0f172a);
+    color: var(--unity-text-main);
     margin: 0 0 6px;
   }
 
   .success-desc {
     font-size: 0.82rem;
-    color: var(--unity-text-secondary, #64748b);
+    color: var(--unity-text-secondary);
     margin: 0 0 10px;
   }
 
   .ticket-ref-box {
-    background: var(--unity-surface-muted, #f8fafc);
-    border: 1px dashed var(--unity-primary, #364c26);
+    background: var(--unity-surface-muted);
+    border: 1px dashed var(--unity-primary);
     padding: 8px 18px;
     border-radius: 10px;
     margin-bottom: 12px;
@@ -523,14 +523,14 @@ onUnmounted(() => {
     .ref-code {
       font-size: 1.15rem;
       font-weight: 800;
-      color: var(--unity-primary, #364c26);
+      color: var(--unity-primary);
       letter-spacing: 1px;
     }
   }
 
   .success-hint {
     font-size: 0.76rem;
-    color: var(--unity-text-secondary, #64748b);
+    color: var(--unity-text-secondary);
     line-height: 1.5;
     margin: 0 0 18px;
     max-width: 320px;
@@ -540,7 +540,7 @@ onUnmounted(() => {
     width: 100%;
     height: 44px;
     border-radius: 12px;
-    background: var(--unity-primary, #364c26);
+    background: var(--unity-primary);
     border: none;
     color: #ffffff;
     font-size: 0.9rem;

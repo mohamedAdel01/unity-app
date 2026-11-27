@@ -400,8 +400,8 @@ onUnmounted(() => {
       i {
         font-size: 1.2rem;
         color: var(--unity-primary);
-        background: #f2f6ee;
-        border: 1px solid #c5d6b8;
+        background: var(--unity-primary-light);
+        border: 1px solid var(--unity-primary-border);
         padding: 8px;
         border-radius: 12px;
       }
@@ -480,7 +480,7 @@ onUnmounted(() => {
         }
 
         .letter-avatar-initial {
-          background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
+          background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-hover) 100%);
           color: #ffffff;
           display: flex;
           align-items: center;
@@ -496,7 +496,7 @@ onUnmounted(() => {
           width: 26px;
           height: 26px;
           border-radius: 50%;
-          background: var(--unity-primary, #415b2e);
+          background: var(--unity-primary);
           color: #ffffff;
           display: flex;
           align-items: center;
@@ -525,12 +525,12 @@ onUnmounted(() => {
           transition: all 0.2s;
 
           &.primary {
-            background: #f2f6ee;
+            background: var(--unity-primary-light);
             color: var(--unity-primary);
-            border-color: #c5d6b8;
+            border-color: var(--unity-primary-border);
 
             &:hover {
-              background: #dce6d3;
+              background: var(--unity-primary-tint);
             }
           }
 
@@ -581,7 +581,7 @@ onUnmounted(() => {
 
         &:focus-within {
           border-color: var(--unity-primary);
-          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+          box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
         }
 
         i {
@@ -632,9 +632,9 @@ onUnmounted(() => {
 
           &.active {
             border-color: var(--unity-primary);
-            background: #f2f6ee;
+            background: var(--unity-primary-light);
             color: var(--unity-primary);
-            box-shadow: 0 2px 8px rgba(65, 91, 46, 0.12);
+            box-shadow: 0 2px 8px rgba(var(--unity-primary-rgb), 0.12);
           }
         }
       }
@@ -667,7 +667,7 @@ onUnmounted(() => {
         background: var(--unity-primary);
         border: none;
         color: #ffffff;
-        box-shadow: 0 4px 12px rgba(65, 91, 46, 0.25);
+        box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.25);
 
         &:disabled {
           opacity: 0.5;

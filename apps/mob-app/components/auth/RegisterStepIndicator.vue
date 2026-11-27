@@ -94,7 +94,7 @@ const currentStepSubTitle = computed(() => {
     justify-content: center;
     font-size: 0.8rem;
     font-weight: 700;
-    background: var(--unity-surface-muted, #e2e8f0);
+    background: var(--unity-surface-muted);
     color: var(--unity-text-muted);
     transition: all 0.25s ease;
     flex-shrink: 0;
@@ -102,11 +102,11 @@ const currentStepSubTitle = computed(() => {
     &.active {
       background: var(--unity-primary);
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.35);
+      box-shadow: 0 2px 8px rgba(var(--unity-primary-rgb), 0.35);
     }
 
     &.completed {
-      background: #5c8042;
+      background: var(--unity-accent);
       color: #ffffff;
     }
   }
@@ -114,12 +114,12 @@ const currentStepSubTitle = computed(() => {
   .step-connector {
     flex: 1;
     height: 3px;
-    background: var(--unity-surface-muted, #e2e8f0);
+    background: var(--unity-surface-muted);
     border-radius: 2px;
     transition: all 0.25s ease;
 
     &.active {
-      background: #5c8042;
+      background: var(--unity-accent);
     }
   }
 

@@ -74,7 +74,7 @@ const { t, locale, setLocale } = useI18n();
       justify-content: center;
       font-size: 1.1rem;
 
-      &.icon-cyan { background: #f2f6ee; color: #415b2e; }
+      &.icon-cyan { background: var(--unity-primary-light); color: var(--unity-primary); }
     }
 
     .head-text {

@@ -260,7 +260,7 @@ watch(
           font-weight: 700;
           padding: 2px 8px;
           border-radius: 999px;
-          background: rgba(65, 91, 46, 0.08);
+          background: rgba(var(--unity-primary-rgb), 0.08);
           color: var(--unity-primary);
         }
       }
@@ -312,8 +312,8 @@ watch(
 
         &.is-selected {
           border-color: var(--unity-primary);
-          background: linear-gradient(135deg, rgba(65, 91, 46, 0.04) 0%, rgba(65, 91, 46, 0.01) 100%), var(--unity-surface);
-          box-shadow: 0 4px 14px rgba(65, 91, 46, 0.10);
+          background: linear-gradient(135deg, rgba(var(--unity-primary-rgb), 0.04) 0%, rgba(var(--unity-primary-rgb), 0.01) 100%), var(--unity-surface);
+          box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.10);
 
           .cat-icon-bubble {
             background: var(--unity-primary);
@@ -341,7 +341,7 @@ watch(
             width: 38px;
             height: 38px;
             border-radius: 10px;
-            background: rgba(65, 91, 46, 0.08);
+            background: rgba(var(--unity-primary-rgb), 0.08);
             color: var(--unity-primary);
             display: flex;
             align-items: center;
@@ -351,7 +351,7 @@ watch(
             transition: all 0.2s ease;
 
             &.all-bubble {
-              background: rgba(65, 91, 46, 0.12);
+              background: rgba(var(--unity-primary-rgb), 0.12);
               color: var(--unity-primary);
             }
           }
@@ -415,7 +415,7 @@ watch(
             transition: all 0.18s ease;
 
             &:hover {
-              background: rgba(65, 91, 46, 0.1);
+              background: rgba(var(--unity-primary-rgb), 0.1);
               color: var(--unity-primary);
               border-color: var(--unity-primary);
             }

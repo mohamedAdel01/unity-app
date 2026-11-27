@@ -705,7 +705,7 @@ onUnmounted(() => {
     justify-content: center;
     font-size: 0.8rem;
     font-weight: 700;
-    background: var(--unity-surface-muted, #e2e8f0);
+    background: var(--unity-surface-muted);
     color: var(--unity-text-muted);
     transition: all 0.25s ease;
     flex-shrink: 0;
@@ -713,11 +713,11 @@ onUnmounted(() => {
     &.active {
       background: var(--unity-primary);
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(65, 91, 46, 0.35);
+      box-shadow: 0 2px 8px rgba(var(--unity-primary-rgb), 0.35);
     }
 
     &.completed {
-      background: #5c8042;
+      background: var(--unity-accent);
       color: #ffffff;
     }
   }
@@ -725,12 +725,12 @@ onUnmounted(() => {
   .step-connector {
     flex: 1;
     height: 3px;
-    background: var(--unity-surface-muted, #e2e8f0);
+    background: var(--unity-surface-muted);
     border-radius: 2px;
     transition: all 0.25s ease;
 
     &.active {
-      background: #5c8042;
+      background: var(--unity-accent);
     }
   }
 
@@ -747,27 +747,27 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #f2f6ee;
-  border: 1px solid #c5d6b8;
+  background: var(--unity-primary-light);
+  border: 1px solid var(--unity-primary-border);
   border-radius: 12px;
   padding: 10px 12px;
 
   i {
     font-size: 1.3rem;
-    color: #364c26;
+    color: var(--unity-primary-hover);
   }
 
   h6 {
     margin: 0;
     font-size: 0.82rem;
     font-weight: 700;
-    color: #364c26;
+    color: var(--unity-primary-hover);
   }
 
   small {
     display: block;
     font-size: 0.72rem;
-    color: #415b2e;
+    color: var(--unity-primary);
     margin-top: 2px;
     line-height: 1.3;
   }
@@ -795,7 +795,7 @@ onUnmounted(() => {
     position: relative;
     display: flex;
     align-items: center;
-    background: var(--unity-surface-muted, #f8fafc);
+    background: var(--unity-surface-muted);
     border: 1px solid var(--unity-border);
     border-radius: 14px;
     padding: 0 12px;
@@ -854,7 +854,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--unity-surface-muted, #f8fafc);
+  background: var(--unity-surface-muted);
   border: 1px solid var(--unity-border);
   border-radius: 14px;
   padding: 10px 14px;
@@ -863,7 +863,7 @@ onUnmounted(() => {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: var(--unity-primary-light, #e6fffa);
+    background: var(--unity-primary-light);
     color: var(--unity-primary);
     display: flex;
     align-items: center;
@@ -904,7 +904,7 @@ onUnmounted(() => {
     transition: background 0.2s;
 
     &:hover {
-      background: var(--unity-primary-light, #e6fffa);
+      background: var(--unity-primary-light);
     }
   }
 }
@@ -920,7 +920,7 @@ onUnmounted(() => {
     height: 56px;
     border-radius: 14px;
     border: 1.5px solid var(--unity-border);
-    background: var(--unity-surface-muted, #f8fafc);
+    background: var(--unity-surface-muted);
     text-align: center;
     font-size: 1.4rem;
     font-weight: 700;
@@ -932,12 +932,12 @@ onUnmounted(() => {
     &:focus {
       border-color: var(--unity-primary);
       background: var(--unity-surface);
-      box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.15);
+      box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.15);
       transform: translateY(-2px);
     }
 
     &.filled {
-      border-color: #5c8042;
+      border-color: var(--unity-accent);
       background: var(--unity-surface);
     }
   }
@@ -976,7 +976,7 @@ onUnmounted(() => {
     transition: background 0.2s;
 
     &:hover {
-      background: var(--unity-primary-light, #e6fffa);
+      background: var(--unity-primary-light);
     }
   }
 }
@@ -1013,7 +1013,7 @@ onUnmounted(() => {
     padding: 10px;
     border-radius: 12px;
     border: 1px solid var(--unity-border);
-    background: var(--unity-surface-muted, #f8fafc);
+    background: var(--unity-surface-muted);
     color: var(--unity-text);
     font-size: 0.82rem;
     font-weight: 600;
@@ -1042,7 +1042,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: var(--unity-surface-muted, #f8fafc);
+  background: var(--unity-surface-muted);
   border: 1px solid var(--unity-border);
   border-radius: 18px;
   padding: 14px 14px;
@@ -1060,18 +1060,18 @@ onUnmounted(() => {
       border-radius: 50%;
       object-fit: cover;
       border: 2.5px solid var(--unity-primary);
-      box-shadow: 0 4px 12px rgba(65, 91, 46, 0.2);
+      box-shadow: 0 4px 12px rgba(var(--unity-primary-rgb), 0.2);
     }
 
     .avatar-initial-badge {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: linear-gradient(135deg, #415b2e 0%, #364c26 100%);
+      background: linear-gradient(135deg, var(--unity-primary) 0%, var(--unity-primary-hover) 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(65, 91, 46, 0.3);
+      box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.3);
       border: 2.5px solid #ffffff;
 
       .initial-char {
@@ -1130,7 +1130,7 @@ onUnmounted(() => {
       transition: all 0.2s;
 
       &.upload {
-        background: var(--unity-surface, #ffffff);
+        background: var(--unity-surface);
         border: 1px solid var(--unity-border);
         color: var(--unity-primary-dark);
 
@@ -1161,12 +1161,12 @@ onUnmounted(() => {
 
     .avatar-hint-note {
       font-size: 0.7rem;
-      color: var(--unity-text-dim, #94a3b8);
+      color: var(--unity-text-dim);
       font-weight: 500;
       line-height: 1.35;
 
       &.success {
-        color: #364c26;
+        color: var(--unity-primary-hover);
         display: flex;
         align-items: center;
         gap: 4px;
@@ -1217,7 +1217,7 @@ onUnmounted(() => {
 
   .skip-btn {
     flex: 1;
-    background: var(--unity-surface-muted, #f1f5f9);
+    background: var(--unity-surface-muted);
     border: 1px solid var(--unity-border);
     color: var(--unity-text-muted);
 

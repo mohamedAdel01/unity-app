@@ -228,13 +228,13 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       .section-title {
         font-size: 0.95rem;
         font-weight: 800;
-        color: var(--unity-text-main, #0f172a);
+        color: var(--unity-text-main);
         margin: 0;
       }
 
       .section-subtitle {
         font-size: 0.76rem;
-        color: var(--unity-text-secondary, #64748b);
+        color: var(--unity-text-secondary);
         margin: 3px 0 0;
       }
     }
@@ -252,7 +252,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     .search-icon {
       position: absolute;
       inset-inline-start: 14px;
-      color: var(--unity-text-secondary, #94a3b8);
+      color: var(--unity-text-secondary);
       font-size: 0.9rem;
       pointer-events: none;
     }
@@ -266,16 +266,16 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       padding-inline-start: 38px;
       padding-inline-end: 36px;
       border-radius: 12px;
-      border: 1px solid var(--unity-border, #e2e8f0);
-      background: var(--unity-surface, #ffffff);
-      color: var(--unity-text-main, #0f172a);
+      border: 1px solid var(--unity-border);
+      background: var(--unity-surface);
+      color: var(--unity-text-main);
       font-size: 0.85rem;
       outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
       &:focus {
-        border-color: var(--unity-primary, #364c26);
-        box-shadow: 0 0 0 3px rgba(54, 76, 38, 0.1);
+        border-color: var(--unity-primary);
+        box-shadow: 0 0 0 3px rgba(var(--unity-primary-hover-rgb), 0.1);
       }
     }
 
@@ -284,7 +284,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       inset-inline-end: 12px;
       background: none;
       border: none;
-      color: var(--unity-text-secondary, #94a3b8);
+      color: var(--unity-text-secondary);
       cursor: pointer;
       padding: 4px;
       font-size: 0.8rem;
@@ -313,9 +313,9 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       gap: 6px;
       padding: 7px 12px;
       border-radius: 20px;
-      background: var(--unity-surface, #ffffff);
-      border: 1px solid var(--unity-border, #e2e8f0);
-      color: var(--unity-text-secondary, #64748b);
+      background: var(--unity-surface);
+      border: 1px solid var(--unity-border);
+      color: var(--unity-text-secondary);
       font-size: 0.76rem;
       font-weight: 600;
       white-space: nowrap;
@@ -328,10 +328,10 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       }
 
       &.active {
-        background: var(--unity-primary, #364c26);
+        background: var(--unity-primary);
         color: #ffffff;
-        border-color: var(--unity-primary, #364c26);
-        box-shadow: 0 2px 6px rgba(54, 76, 38, 0.25);
+        border-color: var(--unity-primary);
+        box-shadow: 0 2px 6px rgba(var(--unity-primary-hover-rgb), 0.25);
       }
     }
   }
@@ -347,8 +347,8 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
   }
 
   .faq-item {
-    background: var(--unity-surface, #ffffff);
-    border: 1px solid var(--unity-border, #e2e8f0);
+    background: var(--unity-surface);
+    border: 1px solid var(--unity-border);
     border-radius: 14px;
     overflow: hidden;
     width: 100%;
@@ -358,7 +358,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
     &.expanded {
-      border-color: rgba(54, 76, 38, 0.35);
+      border-color: rgba(var(--unity-primary-hover-rgb), 0.35);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
@@ -378,7 +378,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       color: inherit;
 
       .question-prefix-icon {
-        color: var(--unity-primary, #364c26);
+        color: var(--unity-primary);
         font-size: 1.1rem;
         flex-shrink: 0;
       }
@@ -387,13 +387,13 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
         flex: 1;
         font-size: 0.88rem;
         font-weight: 700;
-        color: var(--unity-text-main, #0f172a);
+        color: var(--unity-text-main);
         line-height: 1.35;
       }
 
       .toggle-icon {
         font-size: 0.8rem;
-        color: var(--unity-text-secondary, #94a3b8);
+        color: var(--unity-text-secondary);
         flex-shrink: 0;
       }
     }
@@ -403,11 +403,11 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
 
       .answer-content {
         padding-top: 6px;
-        border-top: 1px dashed var(--unity-border, #e2e8f0);
+        border-top: 1px dashed var(--unity-border);
 
         .answer-text {
           font-size: 0.8rem;
-          color: var(--unity-text-secondary, #475569);
+          color: var(--unity-text-secondary);
           line-height: 1.6;
           margin: 0 0 12px;
         }
@@ -421,7 +421,7 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
 
           .prompt-text {
             font-size: 0.72rem;
-            color: var(--unity-text-secondary, #64748b);
+            color: var(--unity-text-secondary);
           }
 
           .feedback-actions {
@@ -434,17 +434,17 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
               gap: 4px;
               padding: 4px 10px;
               border-radius: 8px;
-              background: var(--unity-surface-muted, #f8fafc);
-              border: 1px solid var(--unity-border, #e2e8f0);
-              color: var(--unity-text-secondary, #64748b);
+              background: var(--unity-surface-muted);
+              border: 1px solid var(--unity-border);
+              color: var(--unity-text-secondary);
               font-size: 0.72rem;
               cursor: pointer;
               transition: all 0.15s ease;
 
               &.selected {
-                background: rgba(54, 76, 38, 0.1);
-                color: #364c26;
-                border-color: #364c26;
+                background: rgba(var(--unity-primary-hover-rgb), 0.1);
+                color: var(--unity-primary-hover);
+                border-color: var(--unity-primary-hover);
                 font-weight: 700;
               }
             }
@@ -460,8 +460,8 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     align-items: center;
     justify-content: center;
     padding: 30px 16px;
-    background: var(--unity-surface, #ffffff);
-    border: 1px dashed var(--unity-border, #e2e8f0);
+    background: var(--unity-surface);
+    border: 1px dashed var(--unity-border);
     border-radius: 16px;
     text-align: center;
 
@@ -469,8 +469,8 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
       width: 48px;
       height: 48px;
       border-radius: 12px;
-      background: var(--unity-surface-muted, #f8fafc);
-      color: var(--unity-text-secondary, #94a3b8);
+      background: var(--unity-surface-muted);
+      color: var(--unity-text-secondary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -481,13 +481,13 @@ const onRateFeedback = (id: string, rating: 'yes' | 'no') => {
     .empty-title {
       font-size: 0.88rem;
       font-weight: 700;
-      color: var(--unity-text-main, #0f172a);
+      color: var(--unity-text-main);
       margin: 0 0 4px;
     }
 
     .empty-desc {
       font-size: 0.75rem;
-      color: var(--unity-text-secondary, #64748b);
+      color: var(--unity-text-secondary);
       margin: 0;
       max-width: 260px;
     }

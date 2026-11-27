@@ -74,7 +74,7 @@ const { t } = useI18n();
       justify-content: center;
       font-size: 1.1rem;
 
-      &.icon-emerald { background: #f2f6ee; color: #415b2e; }
+      &.icon-emerald { background: var(--unity-primary-light); color: var(--unity-primary); }
     }
 
     .head-text {
@@ -115,7 +115,7 @@ const { t } = useI18n();
       height: 16px;
       border-radius: 50%;
 
-      &.bg-light { background: #415b2e; }
+      &.bg-light { background: var(--unity-primary); }
       &.bg-dark { background: #111827; border: 1px solid #4b5563; }
     }
 

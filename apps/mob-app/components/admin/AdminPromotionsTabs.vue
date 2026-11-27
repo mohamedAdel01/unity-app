@@ -348,8 +348,8 @@ const resolveImageUrl = (url?: string) => {
         width: 48px;
         height: 48px;
         border-radius: 12px;
-        background: #f2f6ee;
-        border: 1.5px dashed #364c26;
+        background: var(--unity-primary-light);
+        border: 1.5px dashed var(--unity-primary-hover);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -357,7 +357,7 @@ const resolveImageUrl = (url?: string) => {
 
         i {
           font-size: 1.25rem;
-          color: #364c26;
+          color: var(--unity-primary-hover);
         }
       }
 
@@ -396,7 +396,7 @@ const resolveImageUrl = (url?: string) => {
             width: 44px;
             height: 24px;
             border-radius: 9999px;
-            background: var(--unity-border, #cbd5e1);
+            background: var(--unity-border);
             border: none;
             padding: 2px;
             cursor: pointer;
@@ -418,7 +418,7 @@ const resolveImageUrl = (url?: string) => {
             }
 
             &.active {
-              background: var(--unity-primary, #415b2e);
+              background: var(--unity-primary);
 
               .switch-slider {
                 transform: translateX(20px);
@@ -501,17 +501,17 @@ const resolveImageUrl = (url?: string) => {
             align-items: center;
             gap: 4px;
             font-size: 0.76rem;
-            color: var(--unity-text-muted, #64748b);
+            color: var(--unity-text-muted);
             font-weight: 600;
 
             .dot-sep {
-              color: var(--unity-border, #cbd5e1);
+              color: var(--unity-border);
               margin-inline-end: 2px;
             }
 
             i {
               font-size: 0.72rem;
-              color: var(--unity-text-dim, #94a3b8);
+              color: var(--unity-text-dim);
             }
           }
 
@@ -560,14 +560,14 @@ const resolveImageUrl = (url?: string) => {
         }
 
         &.edit-btn {
-          background: #f2f6ee;
-          color: #415b2e;
-          border: 1.5px solid #c5d6b8;
+          background: var(--unity-primary-light);
+          color: var(--unity-primary);
+          border: 1.5px solid var(--unity-primary-border);
 
           &:hover {
-            background: #dce6d3;
-            border-color: #a6bf94;
-            color: #364c26;
+            background: var(--unity-primary-tint);
+            border-color: var(--unity-primary-muted);
+            color: var(--unity-primary-hover);
             transform: translateY(-1px);
           }
         }
@@ -588,9 +588,9 @@ const resolveImageUrl = (url?: string) => {
             opacity: 0.45;
             cursor: not-allowed;
             pointer-events: none;
-            background: var(--unity-surface-muted, #f1f5f9);
-            color: var(--unity-text-dim, #94a3b8);
-            border-color: var(--unity-border, #e2e8f0);
+            background: var(--unity-surface-muted);
+            color: var(--unity-text-dim);
+            border-color: var(--unity-border);
           }
         }
 

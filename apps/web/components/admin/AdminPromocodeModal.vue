@@ -314,7 +314,7 @@ onUnmounted(() => {
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      background: rgba(65, 91, 46, 0.1);
+      background: rgba(var(--unity-primary-rgb), 0.1);
       color: var(--unity-primary);
       display: flex;
       align-items: center;
@@ -356,7 +356,7 @@ onUnmounted(() => {
       transition: all 0.2s;
 
       &:hover {
-        background: var(--unity-surface-muted, #f1f5f9);
+        background: var(--unity-surface-muted);
         color: var(--unity-text-main);
       }
     }
@@ -424,7 +424,7 @@ onUnmounted(() => {
         &:focus {
           border-color: var(--unity-primary);
           background: var(--unity-surface);
-          box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+          box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
         }
 
         &::placeholder {
@@ -437,7 +437,7 @@ onUnmounted(() => {
           font-weight: 800;
           font-size: 0.95rem;
           letter-spacing: 1px;
-          color: #415b2e;
+          color: var(--unity-primary);
           text-transform: uppercase;
         }
       }
@@ -467,7 +467,7 @@ onUnmounted(() => {
           &:focus {
             border-color: var(--unity-primary);
             background: var(--unity-surface);
-            box-shadow: 0 0 0 3px rgba(65, 91, 46, 0.12);
+            box-shadow: 0 0 0 3px rgba(var(--unity-primary-rgb), 0.12);
           }
         }
 
@@ -568,7 +568,7 @@ onUnmounted(() => {
         color: var(--unity-text-muted);
 
         &:hover {
-          background: var(--unity-surface-muted, #f1f5f9);
+          background: var(--unity-surface-muted);
           color: var(--unity-text-main);
         }
       }
@@ -577,10 +577,10 @@ onUnmounted(() => {
         background: var(--unity-primary);
         color: #fff;
         border: none;
-        box-shadow: 0 4px 14px rgba(65, 91, 46, 0.25);
+        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.25);
 
         &:hover:not(:disabled) {
-          background: var(--unity-primary-dark, #364c26);
+          background: var(--unity-primary-dark);
           transform: translateY(-1px);
         }
 

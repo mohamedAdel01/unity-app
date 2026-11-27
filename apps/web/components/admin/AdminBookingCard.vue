@@ -449,9 +449,9 @@ onUnmounted(() => {
         // 1. Type Badges
         &.badge-type {
           &.type-consult {
-            background: #f2f6ee;
-            color: #415b2e;
-            border: 1.5px solid #c5d6b8;
+            background: var(--unity-primary-light);
+            color: var(--unity-primary);
+            border: 1.5px solid var(--unity-primary-border);
           }
 
           &.type-exam {
@@ -463,9 +463,9 @@ onUnmounted(() => {
           :global([data-theme='dark']) &,
           :global(html.dark) & {
             &.type-consult {
-              background: rgba(92, 128, 66, 0.16);
-              color: #8ab36b;
-              border-color: rgba(92, 128, 66, 0.35);
+              background: rgba(var(--unity-accent-rgb), 0.16);
+              color: var(--unity-accent-light);
+              border-color: rgba(var(--unity-accent-rgb), 0.35);
             }
 
             &.type-exam {
@@ -490,13 +490,13 @@ onUnmounted(() => {
           }
 
           &.status-confirmed {
-            background: #f2f6ee;
-            color: #415b2e;
-            border: 1.5px solid #a6bf94;
+            background: var(--unity-primary-light);
+            color: var(--unity-primary);
+            border: 1.5px solid var(--unity-primary-muted);
 
             .dot {
-              background: #5c8042;
-              box-shadow: 0 0 0 2px rgba(92, 128, 66, 0.2);
+              background: var(--unity-accent);
+              box-shadow: 0 0 0 2px rgba(var(--unity-accent-rgb), 0.2);
             }
           }
 
@@ -536,12 +536,12 @@ onUnmounted(() => {
             }
 
             &.status-confirmed {
-              background: rgba(92, 128, 66, 0.16);
-              color: #8ab36b;
-              border-color: rgba(92, 128, 66, 0.35);
+              background: rgba(var(--unity-accent-rgb), 0.16);
+              color: var(--unity-accent-light);
+              border-color: rgba(var(--unity-accent-rgb), 0.35);
 
               .dot {
-                background: #8ab36b;
+                background: var(--unity-accent-light);
                 box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25);
               }
             }
@@ -573,9 +573,9 @@ onUnmounted(() => {
         // 3. Payment Status Badges
         &.badge-payment {
           &.paid {
-            background: #f2f6ee;
-            color: #415b2e;
-            border: 1.5px solid #a6bf94;
+            background: var(--unity-primary-light);
+            color: var(--unity-primary);
+            border: 1.5px solid var(--unity-primary-muted);
           }
 
           &.pending {
@@ -599,9 +599,9 @@ onUnmounted(() => {
           :global([data-theme='dark']) &,
           :global(html.dark) & {
             &.paid {
-              background: rgba(92, 128, 66, 0.16);
-              color: #8ab36b;
-              border-color: rgba(92, 128, 66, 0.35);
+              background: rgba(var(--unity-accent-rgb), 0.16);
+              color: var(--unity-accent-light);
+              border-color: rgba(var(--unity-accent-rgb), 0.35);
             }
 
             &.pending {
@@ -669,9 +669,9 @@ onUnmounted(() => {
           .initial-avatar {
             width: 100%;
             height: 100%;
-            background: #f2f6ee;
-            color: #415b2e;
-            border: 1px solid #c5d6b8;
+            background: var(--unity-primary-light);
+            color: var(--unity-primary);
+            border: 1px solid var(--unity-primary-border);
             border-radius: 14px;
             display: flex;
             align-items: center;
@@ -681,9 +681,9 @@ onUnmounted(() => {
 
             :global([data-theme='dark']) &,
             :global(html.dark) & {
-              background: rgba(92, 128, 66, 0.14);
-              border-color: rgba(92, 128, 66, 0.28);
-              color: #8ab36b;
+              background: rgba(var(--unity-accent-rgb), 0.14);
+              border-color: rgba(var(--unity-accent-rgb), 0.28);
+              color: var(--unity-accent-light);
             }
           }
         }
@@ -719,14 +719,14 @@ onUnmounted(() => {
 
             .phone-sub-icon {
               font-size: 0.72rem;
-              color: var(--unity-primary, #415b2e);
+              color: var(--unity-primary);
               flex-shrink: 0;
             }
 
             .phone-number {
               font-size: 0.78rem;
               font-weight: 700;
-              color: var(--unity-text-muted, #475569);
+              color: var(--unity-text-muted);
               letter-spacing: 0.3px;
 
               :global([data-theme='dark']) &,
@@ -737,7 +737,7 @@ onUnmounted(() => {
 
             .phone-number-empty {
               font-size: 0.74rem;
-              color: var(--unity-text-dim, #94a3b8);
+              color: var(--unity-text-dim);
             }
 
             .phone-copy-btn {
@@ -761,9 +761,9 @@ onUnmounted(() => {
               }
 
               &.copied {
-                background: #f2f6ee;
-                color: #415b2e;
-                border-color: #c5d6b8;
+                background: var(--unity-primary-light);
+                color: var(--unity-primary);
+                border-color: var(--unity-primary-border);
               }
 
               :global([data-theme='dark']) &,
@@ -778,9 +778,9 @@ onUnmounted(() => {
                 }
 
                 &.copied {
-                  background: rgba(92, 128, 66, 0.16);
-                  color: #8ab36b;
-                  border-color: rgba(92, 128, 66, 0.35);
+                  background: rgba(var(--unity-accent-rgb), 0.16);
+                  color: var(--unity-accent-light);
+                  border-color: rgba(var(--unity-accent-rgb), 0.35);
                 }
               }
             }
@@ -808,9 +808,9 @@ onUnmounted(() => {
           transition: all 0.2s ease;
 
           &:hover {
-            background: var(--unity-bg, #f8fafc);
-            border-color: var(--unity-border, #e2e8f0);
-            color: var(--unity-text-main, #0f172a);
+            background: var(--unity-bg);
+            border-color: var(--unity-border);
+            color: var(--unity-text-main);
           }
 
           &:active {
@@ -831,8 +831,8 @@ onUnmounted(() => {
     gap: 12px;
 
     .details-info-box {
-      background: var(--unity-bg, #f8fafc);
-      border: 1px solid var(--unity-border, #e2e8f0);
+      background: var(--unity-bg);
+      border: 1px solid var(--unity-border);
       border-radius: 14px;
       padding: 10px 14px;
       display: grid;
@@ -876,7 +876,7 @@ onUnmounted(() => {
 
           .info-label {
             font-size: 0.68rem;
-            color: var(--unity-text-dim, #64748b);
+            color: var(--unity-text-dim);
             font-weight: 600;
 
             :global([data-theme='dark']) &,
@@ -887,7 +887,7 @@ onUnmounted(() => {
 
           .info-val {
             font-size: 0.84rem;
-            color: var(--unity-text-main, #0f172a);
+            color: var(--unity-text-main);
             font-weight: 800;
             white-space: nowrap;
             overflow: hidden;
@@ -901,7 +901,7 @@ onUnmounted(() => {
 
           .info-subval {
             font-size: 0.70rem;
-            color: var(--unity-text-dim, #64748b);
+            color: var(--unity-text-dim);
             font-weight: 600;
 
             :global([data-theme='dark']) &,
@@ -934,7 +934,7 @@ onUnmounted(() => {
         gap: 6px;
         font-size: 0.8rem;
         font-weight: 700;
-        color: var(--unity-text-main, #0f172a);
+        color: var(--unity-text-main);
 
         :global([data-theme='dark']) &,
         :global(html.dark) & {
@@ -948,22 +948,22 @@ onUnmounted(() => {
           transition: all 0.15s ease;
 
           &:hover {
-            background: var(--unity-bg, #f1f5f9);
-            color: var(--unity-primary, #415b2e);
+            background: var(--unity-bg);
+            color: var(--unity-primary);
 
             :global([data-theme='dark']) &,
             :global(html.dark) & {
               background: #1f2937;
-              color: #8ab36b;
+              color: var(--unity-accent-light);
             }
 
             .edit-icon-subtle {
               opacity: 1;
-              color: var(--unity-primary, #415b2e);
+              color: var(--unity-primary);
 
               :global([data-theme='dark']) &,
               :global(html.dark) & {
-                color: #8ab36b;
+                color: var(--unity-accent-light);
               }
             }
           }
@@ -971,14 +971,14 @@ onUnmounted(() => {
 
         .edit-icon-subtle {
           font-size: 0.72rem;
-          color: var(--unity-text-dim, #94a3b8);
+          color: var(--unity-text-dim);
           opacity: 0.65;
           margin-inline-start: 2px;
           transition: all 0.15s ease;
         }
 
         i {
-          color: #5c8042;
+          color: var(--unity-accent);
           font-size: 0.9rem;
         }
 
@@ -990,9 +990,9 @@ onUnmounted(() => {
           margin-inline-start: 4px;
 
           &.paid {
-            background: #f2f6ee;
-            color: #415b2e;
-            border: 1px solid #c5d6b8;
+            background: var(--unity-primary-light);
+            color: var(--unity-primary);
+            border: 1px solid var(--unity-primary-border);
           }
 
           &.pending {
@@ -1015,7 +1015,7 @@ onUnmounted(() => {
 
           :global([data-theme='dark']) &,
           :global(html.dark) & {
-            &.paid { background: rgba(92, 128, 66, 0.16); color: #8ab36b; border-color: rgba(92, 128, 66, 0.35); }
+            &.paid { background: rgba(var(--unity-accent-rgb), 0.16); color: var(--unity-accent-light); border-color: rgba(var(--unity-accent-rgb), 0.35); }
             &.pending { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); }
             &.refunded { background: rgba(59, 130, 246, 0.16); color: #60a5fa; border-color: rgba(59, 130, 246, 0.35); }
             &.failed { background: rgba(239, 68, 68, 0.16); color: #f87171; border-color: rgba(239, 68, 68, 0.35); }
@@ -1037,7 +1037,7 @@ onUnmounted(() => {
         .currency {
           font-size: 0.72rem;
           font-weight: 700;
-          color: var(--unity-text-dim, #64748b);
+          color: var(--unity-text-dim);
         }
       }
     }
