@@ -73,7 +73,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       const detailedMsg = `[HTTP ${response.status}] ${serverMsg} (${method} ${cleanEndpoint})`;
       console.error(`❌ ${detailedMsg}`, errorBody);
 
-      const err = new Error(detailedMsg);
+      const err = new Error(serverMsg);
+      (err as any).detailedMessage = detailedMsg;
       (err as any).status = response.status;
       (err as any).data = errorBody;
       (err as any).serverMessage = serverMsg;
