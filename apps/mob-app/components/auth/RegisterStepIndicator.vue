@@ -9,15 +9,8 @@
       <div class="step-connector" :class="{ 'active': currentStep >= 2 }"></div>
       
       <!-- Step 2 Badge -->
-      <div class="step-badge" :class="{ 'active': currentStep === 2, 'completed': currentStep > 2 }">
-        <i v-if="currentStep > 2" class="pi pi-check"></i>
-        <span v-else>2</span>
-      </div>
-      <div class="step-connector" :class="{ 'active': currentStep >= 3 }"></div>
-      
-      <!-- Step 3 Badge -->
-      <div class="step-badge" :class="{ 'active': currentStep === 3 }">
-        <span>3</span>
+      <div class="step-badge" :class="{ 'active': currentStep === 2 }">
+        <span>2</span>
       </div>
     </div>
 
@@ -49,14 +42,12 @@ const { t } = useI18n();
 
 // 3. Computed (computed properties)
 const currentStepText = computed(() => {
-  if (props.currentStep === 1) return t('Step 1 of 3');
-  if (props.currentStep === 2) return t('Step 2 of 3');
-  return t('Step 3 of 3');
+  if (props.currentStep === 1) return t('Step 1 of 2');
+  return t('Step 2 of 2');
 });
 
 const currentStepSubTitle = computed(() => {
   if (props.currentStep === 1) return t('Account Information');
-  if (props.currentStep === 2) return t('Mobile Verification');
   return t('Personal Details');
 });
 

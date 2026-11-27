@@ -13,14 +13,8 @@
           :initial-data="registrationData"
           @success="handleStep1Success" 
         />
-        <RegisterStep2Otp 
-          v-else-if="currentStep === 2" 
-          :phone="registrationData.phone" 
-          @verified="handleStep2Verified" 
-          @change-phone="handleStep2ChangePhone" 
-        />
         <RegisterStep3Profile 
-          v-else-if="currentStep === 3" 
+          v-else-if="currentStep === 2" 
           :user-name="registrationData.name" 
           @completed="handleRegistrationComplete" 
           @skip="handleRegistrationComplete" 
@@ -39,7 +33,6 @@ import { useI18n } from '../../composables/useI18n';
 import AuthHeader from '../../components/auth/AuthHeader.vue';
 import RegisterStepIndicator from '../../components/auth/RegisterStepIndicator.vue';
 import RegisterStep1Account from '../../components/auth/RegisterStep1Account.vue';
-import RegisterStep2Otp from '../../components/auth/RegisterStep2Otp.vue';
 import RegisterStep3Profile from '../../components/auth/RegisterStep3Profile.vue';
 import AuthFooterLink from '../../components/auth/AuthFooterLink.vue';
 
@@ -62,7 +55,6 @@ const registrationData = ref({
 // 3. Computed (computed properties)
 const headerTitle = computed(() => {
   if (currentStep.value === 1) return t('Create New Account');
-  if (currentStep.value === 2) return t('Mobile Verification');
   return t('Complete Profile');
 });
 
@@ -78,16 +70,7 @@ const handleStepBack = () => {
 const handleStep1Success = (data: { name: string; phone: string }) => {
   registrationData.value.name = data.name;
   registrationData.value.phone = data.phone;
-  // Phone verification temporarily disabled - navigate directly to profile completion
-  currentStep.value = 3;
-};
-
-const handleStep2Verified = () => {
-  currentStep.value = 3;
-};
-
-const handleStep2ChangePhone = () => {
-  currentStep.value = 1;
+  currentStep.value = 2;
 };
 
 const handleRegistrationComplete = () => {

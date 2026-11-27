@@ -69,15 +69,15 @@
         </div>
         <h4 class="step-title">{{ t('Verification Code') }}</h4>
         <p class="step-description">
-          {{ t('Enter the 6-digit code sent to') }}
+          {{ t('Enter the 4-digit code sent to') }}
           <strong class="phone-highlight ltr-inline">{{ phone }}</strong>
         </p>
       </div>
 
-      <!-- 6-digit OTP Box -->
+      <!-- 4-digit OTP Box -->
       <div class="otp-inputs-row" dir="ltr">
         <input 
-          v-for="idx in 6"
+          v-for="idx in 4"
           :key="idx"
           :ref="el => otpInputRefs[idx - 1] = el"
           v-model="otpDigits[idx - 1]"
@@ -98,7 +98,7 @@
       <div class="resend-countdown-row">
         <span v-if="resendCountdown > 0" class="countdown-text">
           <i class="pi pi-clock"></i>
-          {{ t('Resend code in') }} <strong>{{ resendCountdown }}s</strong>
+          {{ t('Resend code in') }} <strong class="ltr-inline">{{ formattedCountdown }}</strong>
         </span>
         <button 
           v-else 
@@ -115,7 +115,7 @@
       <button 
         type="submit" 
         class="submit-action-btn" 
-        :disabled="loading || fullOtp.length !== 6"
+        :disabled="loading || fullOtp.length !== 4"
       >
         <i v-if="loading" class="pi pi-spin pi-spinner"></i>
         <span v-else>{{ t('Verify Code') }}</span>
@@ -252,7 +252,7 @@ const phone = ref('');
 const isPhoneValid = ref(false);
 
 // Step 2: OTP
-const otpDigits = ref<string[]>(['', '', '', '', '', '']);
+const otpDigits = ref<string[]>(['', '', '', '']);
 const otpInputRefs = ref<any[]>([]);
 const resendCountdown = ref(0);
 let countdownTimer: any = null;
@@ -269,8 +269,14 @@ const fullOtp = computed(() => {
   return otpDigits.value.join('');
 });
 
+const formattedCountdown = computed(() => {
+  const mins = Math.floor(resendCountdown.value / 60);
+  const secs = resendCountdown.value % 60;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+});
+
 // 4. Methods (functions, handlers)
-const startCountdown = (seconds = 60) => {
+const startCountdown = (seconds = 120) => {
   clearInterval(countdownTimer);
   resendCountdown.value = seconds;
   countdownTimer = setInterval(() => {
@@ -293,23 +299,17 @@ const handleRequestOtp = async () => {
       payload: { phone: phone.value },
     });
 
-    toast.success(res?.message || t('Verification code sent successfully'));
-    if (res?.dev_otp) {
-      // Auto-fill in dev mode for supreme convenience
-      const digits = String(res.dev_otp).split('');
-      otpDigits.value = digits.slice(0, 6);
-    } else {
-      otpDigits.value = ['', '', '', '', '', ''];
-    }
+    toast.success(res?.message ? t(res.message) : t('Verification code sent successfully'));
+    otpDigits.value = ['', '', '', ''];
 
     currentStep.value = 2;
-    startCountdown(60);
+    startCountdown(res?.retry_after ? Number(res.retry_after) : 120);
 
     nextTick(() => {
       otpInputRefs.value[0]?.focus();
     });
   } catch (err: any) {
-    toast.error(err?.message || t('Failed to send verification code'));
+    toast.error(err?.message ? t(err.message) : t('Failed to send verification code'));
   } finally {
     loading.value = false;
   }
@@ -321,8 +321,12 @@ const onOtpInput = (index: number, e: Event) => {
   const val = target.value.replace(/\D/g, '');
   otpDigits.value[index] = val ? val.slice(-1) : '';
 
-  if (val && index < 5) {
+  if (val && index < 3) {
     otpInputRefs.value[index + 1]?.focus();
+  }
+
+  if (fullOtp.value.length === 4 && /^\d{4}$/.test(fullOtp.value)) {
+    handleVerifyOtp();
   }
 };
 
@@ -335,20 +339,24 @@ const onOtpKeydown = (index: number, e: KeyboardEvent) => {
 const onOtpPaste = (e: ClipboardEvent) => {
   e.preventDefault();
   const pasteData = e.clipboardData?.getData('text') || '';
-  const cleanDigits = pasteData.replace(/\D/g, '').slice(0, 6);
+  const cleanDigits = pasteData.replace(/\D/g, '').slice(0, 4);
   if (!cleanDigits) return;
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 4; i++) {
     otpDigits.value[i] = cleanDigits[i] || '';
   }
 
-  const focusIndex = Math.min(cleanDigits.length, 5);
+  const focusIndex = Math.min(cleanDigits.length, 3);
   otpInputRefs.value[focusIndex]?.focus();
+
+  if (cleanDigits.length === 4) {
+    handleVerifyOtp();
+  }
 };
 
 // Step 2: Verify OTP
 const handleVerifyOtp = async () => {
-  if (fullOtp.value.length !== 6 || loading.value) return;
+  if (fullOtp.value.length !== 4 || loading.value) return;
 
   loading.value = true;
   try {

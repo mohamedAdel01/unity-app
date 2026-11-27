@@ -476,7 +476,7 @@ watch(() => route.path, () => {
         align-items: center;
         justify-content: center;
         font-size: 1.25rem;
-        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.35);
+        box-shadow: none;
         transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
 
@@ -492,7 +492,7 @@ watch(() => route.path, () => {
         .reception-fab-btn {
           background: var(--unity-primary-dark);
           transform: scale(1.06);
-          box-shadow: 0 6px 18px rgba(var(--unity-primary-rgb), 0.42);
+          box-shadow: none;
         }
 
         .reception-fab-label {
