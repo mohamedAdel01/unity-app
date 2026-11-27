@@ -100,8 +100,8 @@ export default {
   // ==========================================
   // 2. CLIENT CLINIC & MEDICAL SERVICES
   // ==========================================
-  async CLINICS({ API }: { API: any }) {
-    return await API('client/clinics', {
+  async CLINICS({ API, filter }: { API: any; filter?: { type?: string } }) {
+    return await API(`client/clinics${toQuery(filter)}`, {
       method: 'GET',
     });
   },
@@ -160,16 +160,22 @@ export default {
     });
   },
 
-  async DOCTOR_SLOTS({ API, filter }: { API: any; filter: { id: string | number; date: string } }) {
-    const query = filter?.date ? `?date=${encodeURIComponent(filter.date)}` : '';
-    return await API(`client/doctors/${filter.id}/slots${query}`, {
+  async DOCTOR_SLOTS({ API, filter }: { API: any; filter: { id: string | number; date: string; type?: string } }) {
+    const params = new URLSearchParams();
+    if (filter?.date) params.set('date', filter.date);
+    if (filter?.type) params.set('type', filter.type);
+    const qs = params.toString();
+    return await API(`client/doctors/${filter.id}/slots${qs ? `?${qs}` : ''}`, {
       method: 'GET',
     });
   },
 
-  async DOCTOR_AVAILABLE_DAYS({ API, filter }: { API: any; filter: { id: string | number; days?: number } }) {
-    const query = filter?.days ? `?days=${encodeURIComponent(filter.days)}` : '';
-    return await API(`client/doctors/${filter.id}/available-days${query}`, {
+  async DOCTOR_AVAILABLE_DAYS({ API, filter }: { API: any; filter: { id: string | number; days?: number; type?: string } }) {
+    const params = new URLSearchParams();
+    if (filter?.days) params.set('days', String(filter.days));
+    if (filter?.type) params.set('type', filter.type);
+    const qs = params.toString();
+    return await API(`client/doctors/${filter.id}/available-days${qs ? `?${qs}` : ''}`, {
       method: 'GET',
     });
   },

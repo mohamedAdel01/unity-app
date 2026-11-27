@@ -106,28 +106,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Online Consultation Mode Selector -->
-                <div v-if="!isExamination && hasOnlineConsultation" class="consultation-mode-toggle">
-                  <button 
-                    type="button" 
-                    class="mode-btn" 
-                    :class="{ active: selectedConsultationMode === 'clinic' }"
-                    @click="selectedConsultationMode = 'clinic'"
-                  >
-                    <i class="pi pi-building"></i>
-                    <span>{{ t('In-Clinic Visit') }}</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    class="mode-btn" 
-                    :class="{ active: selectedConsultationMode === 'online' }"
-                    @click="selectedConsultationMode = 'online'"
-                  >
-                    <i class="pi pi-video"></i>
-                    <span>{{ t('Google Meet Online') }}</span>
-                  </button>
-                </div>
               </div>
 
               <!-- Date Picker Chips & Full Calendar Mode -->
@@ -137,46 +115,13 @@
                     <h5 class="box-title"><i class="pi pi-calendar"></i> {{ t('Select Day') }}</h5>
                     <span v-if="nextDays.length > 0" class="date-current-badge">{{ appointmentDateFormatted }}</span>
                   </div>
-
-                  <!-- Quick View vs Calendar View Toggle -->
-                  <div class="view-mode-toggle-group">
-                    <button
-                      type="button"
-                      class="view-toggle-pill"
-                      :class="{ 'active': dateViewMode === 'chips' }"
-                      :title="t('Quick View')"
-                      @click="dateViewMode = 'chips'"
-                    >
-                      <i class="pi pi-bars"></i>
-                      <span>{{ t('Quick View') }}</span>
-                    </button>
-                    <button
-                      type="button"
-                      class="view-toggle-pill"
-                      :class="{ 'active': dateViewMode === 'calendar' }"
-                      :title="t('Calendar View')"
-                      @click="dateViewMode = 'calendar'"
-                    >
-                      <i class="pi pi-calendar"></i>
-                      <span>{{ t('Calendar View') }}</span>
-                    </button>
-                  </div>
                 </div>
 
                 <div v-if="daysLoading" class="days-loading">
                   <i class="pi pi-spin pi-spinner"></i> {{ t('Checking available days...') }}
                 </div>
 
-                <!-- Mode 1: Full Month Calendar (Only available days enabled & clickable) -->
-                <div v-else-if="dateViewMode === 'calendar'" class="calendar-view-wrap">
-                  <AppBookingCalendar
-                    v-model="selectedBookingDate"
-                    :available-dates="onlyAvailableDates"
-                    @select="selectDate"
-                  />
-                </div>
-
-                <!-- Mode 2: Horizontal Scrollable Quick Chips -->
+                <!-- Horizontal Scrollable Quick Chips -->
                 <div v-else-if="nextDays.length > 0" class="days-scroll-row">
                   <button
                     v-for="d in nextDays"
@@ -187,16 +132,6 @@
                   >
                     <span class="day-lbl">{{ d.label }}</span>
                     <strong class="day-num">{{ d.dayNum }}</strong>
-                  </button>
-
-                  <button
-                    type="button"
-                    class="day-chip-btn open-cal-chip"
-                    :title="t('Calendar View')"
-                    @click="dateViewMode = 'calendar'"
-                  >
-                    <i class="pi pi-calendar"></i>
-                    <span class="day-lbl">{{ t('Calendar View') }}</span>
                   </button>
                 </div>
 
@@ -347,7 +282,6 @@
               <div class="summary-card">
                 <div class="card-head">
                   <h5>{{ t('Fee Summary') }}</h5>
-                  <span class="tax-badge">{{ t('Incl. 15% VAT') }}</span>
                 </div>
 
                 <div class="fee-row">
@@ -368,7 +302,6 @@
                 <div class="total-row">
                   <div class="total-info">
                     <span class="total-label">{{ t('Total Payable Amount') }}</span>
-                    <small class="total-note">{{ t('Final approved fees') }}</small>
                   </div>
                   <div class="total-price">
                     <span class="currency">{{ t('EGP') }}</span>
@@ -523,11 +456,6 @@
               <span v-else>{{ isAdmin || selectedMethod === 'cash' ? t('Confirm Booking') : t('Pay with Paymob') }} ({{ totalFee }} {{ t('EGP') }})</span>
               <i :class="isRtl ? 'pi pi-arrow-left' : 'pi pi-arrow-right'"></i>
             </button>
-
-            <div class="cancel-policy">
-              <i class="pi pi-calendar-times"></i>
-              <span>{{ t('Free cancellation up to 2 hours before visit') }}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -738,6 +666,7 @@ const hasOnlineConsultation = computed(() => {
 const feeLabel = computed(() => {
   if (isOffer.value) return t('Special Offer Price');
   if (isExamination.value || props.service?.price) return t('Medical Examination Fee');
+  if (props.consultationType === 'home') return t('Home Visit Fee');
   if (selectedConsultationMode.value === 'online') return t('Google Meet Consultation');
   return t('Consultation Fee');
 });
@@ -748,6 +677,12 @@ const subtotalFee = computed(() => {
   const doc = detailedDoctor.value || props.doctor || props.appointment?.doctor;
   const apt = props.appointment;
   if (doc) {
+    if (props.consultationType === 'home') {
+      const homeFee = doc.home_consultation_fee ?? doc.doctor?.home_consultation_fee;
+      if (homeFee !== undefined && homeFee !== null && !isNaN(Number(homeFee)) && Number(homeFee) > 0) {
+        return Number(homeFee);
+      }
+    }
     if (selectedConsultationMode.value === 'online') {
       const onlineFee = doc.online_consultation_fee ?? doc.doctor?.online_consultation_fee;
       if (onlineFee !== undefined && onlineFee !== null && !isNaN(Number(onlineFee)) && Number(onlineFee) > 0) {
@@ -833,6 +768,14 @@ const bookingItemDescription = computed(() => {
 });
 
 // 4. Methods (functions, handlers)
+const translatePromoError = (rawMsg: string): string => {
+  const minMatch = rawMsg.match(/Minimum order amount to apply this code is\s*([\d.]+)\s*EGP/i);
+  if (minMatch) {
+    return `${t('Minimum order amount to apply this code is')} ${minMatch[1]} ${t('EGP')}`;
+  }
+  return t(rawMsg);
+};
+
 const applyPromo = async () => {
   if (!promoCodeInput.value.trim()) return;
   try {
@@ -854,12 +797,12 @@ const applyPromo = async () => {
       toast.success(promoMessage.value);
     } else {
       const msg = res?.message || 'Invalid or expired promo code';
-      promoError.value = t(msg);
+      promoError.value = translatePromoError(msg);
       toast.error(promoError.value);
     }
   } catch (err: any) {
     const msg = err?.data?.message || err?.message || 'Invalid or expired promo code';
-    promoError.value = t(msg);
+    promoError.value = translatePromoError(msg);
     toast.error(promoError.value);
   } finally {
     checkingPromo.value = false;
@@ -1029,9 +972,10 @@ const DOCTOR_AVAILABLE_DAYS = async () => {
 
   try {
     daysLoading.value = true;
+    const activeType = props.consultationType === 'home' ? 'home' : selectedConsultationMode.value;
     const res = await api.apiRequest({
       service: 'DOCTOR_AVAILABLE_DAYS',
-      filter: { id: props.doctor.id, days: 60 },
+      filter: { id: props.doctor.id, days: 60, type: activeType },
     });
 
     if (res?.status && Array.isArray(res.data) && res.data.length > 0) {
@@ -1166,9 +1110,10 @@ const DOCTOR_SLOTS = async () => {
   try {
     slotsLoading.value = true;
     const dateStr = selectedBookingDate.value || props.selectedDate || new Date().toISOString().split('T')[0];
+    const activeType = props.consultationType === 'home' ? 'home' : selectedConsultationMode.value;
     const res = await api.apiRequest({
       service: 'DOCTOR_SLOTS',
-      filter: { id: docId, date: dateStr, no_cache: 1 },
+      filter: { id: docId, date: dateStr, type: activeType, no_cache: 1 },
     });
     if (res.status && Array.isArray(res.data?.slots)) {
       availableSlots.value = res.data.slots;
@@ -1261,34 +1206,26 @@ const submitBooking = async () => {
       date: dateStr,
       start_time: to24Hour(slot.start_time),
       end_time: slot.end_time ? to24Hour(slot.end_time) : to24Hour(slot.start_time),
-      type: isExamination.value ? 'consultation' : selectedType.value,
-      consultation_type: (!isExamination.value && !isOffer.value && hasOnlineConsultation.value) ? selectedConsultationMode.value : 'clinic',
+      type: selectedType.value === 'follow_up' ? 'follow_up' : 'consultation',
+      consultation_type: (!isExamination.value && !isOffer.value)
+        ? (props.consultationType === 'home' ? 'home' : (hasOnlineConsultation.value ? selectedConsultationMode.value : 'clinic'))
+        : 'clinic',
       payment_method: selectedMethod.value === 'cash' ? 'cash' : 'paymob',
       promocode: promoApplied.value ? appliedPromoCode.value : undefined,
       discount: promoDiscount.value,
       notes: isOffer 
         ? `حجز عرض طبي: ${props.service?.name}` 
-        : (isExamination.value ? `حجز خدمة طبية: ${props.service?.name || props.examination?.name}` : (selectedConsultationMode.value === 'online' ? 'استشارة طبية أونلاين عبر Google Meet' : 'حجز كشف طبي')),
+        : (isExamination.value
+          ? `حجز خدمة طبية: ${props.service?.name || props.examination?.name}`
+          : (props.consultationType === 'home'
+            ? 'حجز زيارة منزلية'
+            : (selectedConsultationMode.value === 'online' ? 'استشارة طبية أونلاين عبر Google Meet' : 'حجز كشف طبي'))),
     };
 
-    let appointmentRes: any = null;
-    try {
-      appointmentRes = await api.apiRequest({
-        service: 'BOOK_APPOINTMENT',
-        payload: payload as any,
-      });
-    } catch (e) {
-      appointmentRes = {
-        status: true,
-        data: {
-          id: 'apt-' + Date.now(),
-          doctor: props.doctor,
-          date: dateStr,
-          start_time: slot.start_time,
-          total: totalFee.value,
-        },
-      };
-    }
+    const appointmentRes = await api.apiRequest({
+      service: 'BOOK_APPOINTMENT',
+      payload: payload as any,
+    });
 
     const createdAppointment = appointmentRes?.data?.appointment || appointmentRes?.data;
     const createdInvoice = appointmentRes?.data?.invoice;
@@ -1376,6 +1313,15 @@ const close = () => {
 };
 
 // 5. Watches (watch, watchEffect)
+watch(
+  () => selectedConsultationMode.value,
+  () => {
+    if (props.isOpen && props.doctor?.id && !isExamination.value) {
+      currentSlot.value = null;
+      DOCTOR_AVAILABLE_DAYS();
+    }
+  }
+);
 watch(
   () => [props.modelValue, props.doctor, props.service, props.examination, props.appointment],
   async ([isOpen]) => {
@@ -2672,6 +2618,9 @@ onUnmounted(() => {
 
       .opt-radio {
         margin-inline-end: 12px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
 
         .circle-check {
           width: 20px;
@@ -2686,32 +2635,37 @@ onUnmounted(() => {
         }
 
         .circle-empty {
+          display: block;
           width: 20px;
           height: 20px;
           border-radius: 50%;
           border: 1.5px solid var(--unity-border);
-          background: #fff;
+          background: var(--unity-surface);
         }
       }
 
       .opt-info {
         flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
+        gap: 3px;
 
         .opt-brand-title {
           display: flex;
           align-items: center;
+          flex-wrap: wrap;
           gap: 6px;
 
           .paymob-pill-tag {
-            background: #0284c7;
+            background: var(--unity-slate);
             color: #fff;
-            font-size: 0.65rem;
-            font-weight: 800;
-            padding: 1px 6px;
-            border-radius: 6px;
-            letter-spacing: 0.4px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            white-space: nowrap;
+            line-height: 1.3;
           }
         }
 
@@ -2722,29 +2676,32 @@ onUnmounted(() => {
         }
 
         small {
-          font-size: 0.7rem;
+          font-size: 0.72rem;
           color: var(--unity-text-dim);
+          line-height: 1.4;
         }
       }
 
       .opt-brand {
+        flex-shrink: 0;
+        margin-inline-start: 10px;
         font-size: 1.25rem;
         color: var(--unity-text-muted);
       }
 
       &.selected {
         border-color: var(--unity-primary);
-        background: #f0fdf4;
+        background: var(--unity-primary-light);
       }
 
       &.is-disabled {
-        opacity: 0.5;
+        opacity: 0.55;
         cursor: not-allowed;
         pointer-events: none;
-        background: var(--unity-surface-muted);
+        background: var(--unity-surface-soft);
 
         .paymob-pill-tag {
-          background: #64748b !important;
+          background: var(--unity-text-muted) !important;
           color: #fff !important;
         }
 
@@ -3064,7 +3021,7 @@ onUnmounted(() => {
 
 // Bottom Action Bar
 .booking-bottom-action {
-  padding: 14px 20px 24px;
+  padding: 14px 20px max(48px, calc(env(safe-area-inset-bottom, 24px) + 24px));
   border-top: 1px solid var(--unity-border-light);
   background: var(--unity-surface);
 
@@ -3086,7 +3043,7 @@ onUnmounted(() => {
     box-shadow: 0 6px 20px -3px rgba(var(--unity-primary-rgb), 0.4);
 
     &:hover:not(:disabled) {
-      background: #022c22;
+      background: var(--unity-primary-hover);
       transform: translateY(-2px);
     }
 
@@ -3096,17 +3053,6 @@ onUnmounted(() => {
       box-shadow: none;
       transform: none;
     }
-  }
-
-  .cancel-policy {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 0.72rem;
-    color: var(--unity-primary);
-    margin-top: 10px;
-    font-weight: 700;
   }
 }
 </style>

@@ -319,7 +319,7 @@ const navigateToCategory = (type: 'clinic' | 'online' | 'home' | 'lab') => {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 10px;
+      margin-bottom: 16px;
       flex-shrink: 0;
       transition: transform 0.25s ease;
     }

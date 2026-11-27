@@ -18,6 +18,24 @@
         </button>
       </div>
 
+      <!-- Schedule Type Tabs (Clinic / Home / Online) -->
+      <div class="schedule-type-tabs">
+        <button
+          v-for="st in scheduleTypes"
+          :key="st.key"
+          type="button"
+          class="type-tab-btn"
+          :class="{ active: selectedType === st.key }"
+          @click="selectedType = st.key"
+        >
+          <i :class="st.icon"></i>
+          <span>{{ t(st.label) }}</span>
+          <span v-if="countActiveSlotsForType(st.key) > 0" class="type-count-badge">
+            {{ countActiveSlotsForType(st.key) }}
+          </span>
+        </button>
+      </div>
+
       <!-- Days of Week Tabs (Horizontal Pills) -->
       <div class="days-tabs-wrapper">
         <div class="days-tabs-scroll">
@@ -159,6 +177,7 @@ import AppTimePicker from '../common/AppTimePicker.vue';
 
 interface ScheduleSlot {
   id?: string;
+  type?: 'clinic' | 'home' | 'online';
   start_time: string;
   end_time: string;
   is_active: boolean;
@@ -181,7 +200,15 @@ const globalStore = useGlobalStore();
 const { registerModalOpen, registerModalClose } = useModalState();
 
 // 2. Data (refs, reactive state)
+type ScheduleType = 'clinic' | 'home' | 'online';
+const selectedType = ref<ScheduleType>('clinic');
 const selectedDay = ref('saturday');
+
+const scheduleTypes: Array<{ key: ScheduleType; label: string; icon: string }> = [
+  { key: 'clinic', label: 'In-Clinic Consultation', icon: 'pi pi-building' },
+  { key: 'home', label: 'Home Visit', icon: 'pi pi-home' },
+  { key: 'online', label: 'Online Video Consultation', icon: 'pi pi-video' },
+];
 
 const weekDays = [
   { key: 'saturday', label: 'Saturday' },
@@ -193,7 +220,7 @@ const weekDays = [
   { key: 'friday', label: 'Friday' },
 ];
 
-const schedulesByDay = ref<Record<string, ScheduleSlot[]>>({
+const createEmptyDaysMap = (): Record<string, ScheduleSlot[]> => ({
   saturday: [],
   sunday: [],
   monday: [],
@@ -203,7 +230,15 @@ const schedulesByDay = ref<Record<string, ScheduleSlot[]>>({
   friday: [],
 });
 
+const schedulesByType = ref<Record<ScheduleType, Record<string, ScheduleSlot[]>>>({
+  clinic: createEmptyDaysMap(),
+  home: createEmptyDaysMap(),
+  online: createEmptyDaysMap(),
+});
+
 // 3. Computed (computed properties)
+const schedulesByDay = computed(() => schedulesByType.value[selectedType.value]);
+
 const loading = computed(() => {
   return globalStore.loading.includes('ADMIN_UPDATE_DOCTOR_SCHEDULES');
 });
@@ -235,8 +270,8 @@ const isSlotTimeInvalid = (slot: ScheduleSlot): boolean => {
   return timeToMinutes(slot.end_time) <= timeToMinutes(slot.start_time);
 };
 
-const isSlotOverlapping = (dayKey: string, slotIndex: number): boolean => {
-  const slots = schedulesByDay.value[dayKey] || [];
+const isSlotOverlapping = (dayKey: string, slotIndex: number, typeKey: ScheduleType = selectedType.value): boolean => {
+  const slots = schedulesByType.value[typeKey]?.[dayKey] || [];
   const current = slots[slotIndex];
   if (!current || !current.is_active || !current.start_time || !current.end_time) return false;
 
@@ -261,25 +296,29 @@ const isSlotOverlapping = (dayKey: string, slotIndex: number): boolean => {
 };
 
 const hasAnyScheduleOverlap = computed(() => {
-  for (const day of weekDays) {
-    const slots = schedulesByDay.value[day.key] || [];
-    for (let i = 0; i < slots.length; i++) {
-      if (isSlotOverlapping(day.key, i)) return true;
+  for (const st of scheduleTypes) {
+    for (const day of weekDays) {
+      const slots = schedulesByType.value[st.key]?.[day.key] || [];
+      for (let i = 0; i < slots.length; i++) {
+        if (isSlotOverlapping(day.key, i, st.key)) return true;
+      }
     }
   }
   return false;
 });
 
 // 4. Methods (functions, handlers)
+const countActiveSlotsForType = (typeKey: ScheduleType): number => {
+  const daysMap = schedulesByType.value[typeKey];
+  if (!daysMap) return 0;
+  return Object.values(daysMap).reduce((sum, arr) => sum + arr.filter(s => s.is_active).length, 0);
+};
+
 const resetSchedulesState = () => {
-  schedulesByDay.value = {
-    saturday: [],
-    sunday: [],
-    monday: [],
-    tuesday: [],
-    wednesday: [],
-    thursday: [],
-    friday: [],
+  schedulesByType.value = {
+    clinic: createEmptyDaysMap(),
+    home: createEmptyDaysMap(),
+    online: createEmptyDaysMap(),
   };
 };
 
@@ -287,10 +326,13 @@ const populateSchedules = (schedulesList: any[]) => {
   resetSchedulesState();
   if (Array.isArray(schedulesList)) {
     schedulesList.forEach((s) => {
+      const rawType = String(s.type || 'clinic').toLowerCase();
+      const sType: ScheduleType = (rawType === 'home' || rawType === 'online') ? rawType : 'clinic';
       const day = String(s.day_of_week).toLowerCase();
-      if (schedulesByDay.value[day]) {
-        schedulesByDay.value[day].push({
+      if (schedulesByType.value[sType]?.[day]) {
+        schedulesByType.value[sType][day].push({
           id: s.id,
+          type: sType,
           start_time: s.start_time || '09:00',
           end_time: s.end_time || '17:00',
           is_active: s.is_active !== false,
@@ -301,10 +343,11 @@ const populateSchedules = (schedulesList: any[]) => {
 };
 
 const addSlot = (day: string) => {
-  if (!schedulesByDay.value[day]) {
-    schedulesByDay.value[day] = [];
+  const targetMap = schedulesByType.value[selectedType.value];
+  if (!targetMap[day]) {
+    targetMap[day] = [];
   }
-  const currentSlots = schedulesByDay.value[day];
+  const currentSlots = targetMap[day];
   let defaultStart = '09:00';
   let defaultEnd = '17:00';
 
@@ -314,7 +357,8 @@ const addSlot = (day: string) => {
     defaultEnd = '22:00';
   }
 
-  schedulesByDay.value[day].push({
+  targetMap[day].push({
+    type: selectedType.value,
     start_time: defaultStart,
     end_time: defaultEnd,
     is_active: true,
@@ -322,8 +366,9 @@ const addSlot = (day: string) => {
 };
 
 const removeSlot = (day: string, idx: number) => {
-  if (schedulesByDay.value[day]) {
-    schedulesByDay.value[day].splice(idx, 1);
+  const targetMap = schedulesByType.value[selectedType.value];
+  if (targetMap[day]) {
+    targetMap[day].splice(idx, 1);
   }
 };
 
@@ -341,23 +386,27 @@ const saveSchedule = async () => {
 
   try {
     const allSchedules: Array<{
+      type: ScheduleType;
       day_of_week: string;
       start_time: string;
       end_time: string;
       is_active: boolean;
     }> = [];
 
-    weekDays.forEach((d) => {
-      const slots = schedulesByDay.value[d.key] || [];
-      slots.forEach((s) => {
-        if (s.start_time && s.end_time) {
-          allSchedules.push({
-            day_of_week: d.key,
-            start_time: s.start_time,
-            end_time: s.end_time,
-            is_active: s.is_active !== false,
-          });
-        }
+    scheduleTypes.forEach((st) => {
+      weekDays.forEach((d) => {
+        const slots = schedulesByType.value[st.key]?.[d.key] || [];
+        slots.forEach((s) => {
+          if (s.start_time && s.end_time) {
+            allSchedules.push({
+              type: st.key,
+              day_of_week: d.key,
+              start_time: s.start_time,
+              end_time: s.end_time,
+              is_active: s.is_active !== false,
+            });
+          }
+        });
       });
     });
 
@@ -538,6 +587,59 @@ onUnmounted(() => {
   }
 
   // Days Tabs Wrapper
+  .schedule-type-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--unity-surface);
+    border-bottom: 1px solid var(--unity-border-light);
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .type-tab-btn {
+      flex: 1;
+      min-width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1.5px solid var(--unity-border);
+      background: var(--unity-bg);
+      color: var(--unity-text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+
+      .type-count-badge {
+        background: rgba(var(--unity-primary-rgb), 0.14);
+        color: var(--unity-primary);
+        padding: 1px 6px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 800;
+      }
+
+      &.active {
+        border-color: var(--unity-primary);
+        background: var(--unity-primary);
+        color: #ffffff;
+
+        .type-count-badge {
+          background: rgba(255, 255, 255, 0.22);
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
   .days-tabs-wrapper {
     flex-shrink: 0;
     width: 100%;

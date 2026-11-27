@@ -47,6 +47,10 @@
                 <i class="pi pi-video"></i>
                 <span>{{ t('Online Video') }}</span>
               </span>
+              <span v-else-if="apt.consultation_type === 'home'" class="floating-badge pill-consult">
+                <i class="pi pi-home"></i>
+                <span>{{ t('Home Visit') }}</span>
+              </span>
               <span v-else-if="isOfferAppointment(apt)" class="floating-badge pill-offer">
                 <i class="pi pi-tag"></i>
                 <span>{{ t('Special Offer') }}</span>
@@ -103,19 +107,6 @@
             <i class="pi pi-clock"></i>
             <span>{{ formatSlotRange(apt.start_time, apt.end_time) }}</span>
           </div>
-        </div>
-
-        <!-- Google Meet Video Consultation Action Button -->
-        <div v-if="apt.meeting_link" class="meet-action-strip">
-          <a 
-            :href="apt.meeting_link" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            class="btn-join-meet"
-          >
-            <i class="pi pi-video"></i>
-            <span>{{ t('Join Google Meet') }}</span>
-          </a>
         </div>
 
         <!-- Actions -->
@@ -307,6 +298,7 @@ const PATIENT_APPOINTMENTS = async (page = 1) => {
     const res = await api.apiRequest({ 
       service: 'PATIENT_APPOINTMENTS',
       filter: { page, limit: 10 },
+      bypassCache: true,
     });
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
     if (page === 1) {

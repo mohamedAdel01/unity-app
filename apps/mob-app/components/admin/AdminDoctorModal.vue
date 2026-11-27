@@ -167,27 +167,79 @@
           </div>
         </div>
 
-        <!-- Fees (Two-Col Grid: Consultation Fee & Follow-up Fee) -->
-        <div class="two-col-grid">
+        <!-- Section 1: In-Clinic Consultation -->
+        <div class="consult-section-card">
+          <div class="consult-section-header">
+            <div class="section-title-group">
+              <span class="section-icon clinic"><i class="pi pi-building"></i></span>
+              <span class="section-title">{{ t('In-Clinic Consultation') }}</span>
+            </div>
+          </div>
+
+          <div class="two-col-grid">
+            <div class="form-group">
+              <label>{{ t('Consultation Fee') }} ({{ t('EGP') }}) <span class="required">*</span></label>
+              <div class="input-shell">
+                <i class="pi pi-wallet"></i>
+                <input 
+                  v-model="form.consultation_fee" 
+                  type="number" 
+                  min="0"
+                  step="1"
+                  placeholder="0" 
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>{{ t('Follow-up Fee') }} ({{ t('EGP') }})</label>
+              <div class="input-shell">
+                <i class="pi pi-wallet"></i>
+                <input 
+                  v-model="form.follow_up_fee" 
+                  type="number" 
+                  min="0"
+                  step="1"
+                  placeholder="0" 
+                />
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>{{ t('Consultation Fee') }} ({{ t('EGP') }}) <span class="required">*</span></label>
+            <label>{{ t('Consultation Duration') }}</label>
             <div class="input-shell">
-              <i class="pi pi-wallet"></i>
+              <i class="pi pi-clock"></i>
               <input 
-                v-model="form.consultation_fee" 
+                v-model="form.slot_duration" 
                 type="number" 
-                min="0"
-                step="1"
-                placeholder="0" 
+                min="5"
+                max="120"
+                step="5"
+                placeholder="15" 
               />
             </div>
           </div>
-          <div class="form-group">
-            <label>{{ t('Follow-up Fee') }} ({{ t('EGP') }})</label>
+        </div>
+
+        <!-- Section 2: Home Visit Reservation -->
+        <div class="consult-section-card" :class="{ 'is-enabled': form.home_consultation_status }">
+          <div class="consult-section-header">
+            <div class="section-title-group">
+              <span class="section-icon home"><i class="pi pi-home"></i></span>
+              <span class="section-title">{{ t('Home Visit Reservation') }}</span>
+            </div>
+            <label class="unity-switch">
+              <input type="checkbox" v-model="form.home_consultation_status" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div v-if="form.home_consultation_status" class="form-group">
+            <label>{{ t('Home Visit Fee') }} ({{ t('EGP') }})</label>
             <div class="input-shell">
               <i class="pi pi-wallet"></i>
               <input 
-                v-model="form.follow_up_fee" 
+                v-model="form.home_consultation_fee" 
                 type="number" 
                 min="0"
                 step="1"
@@ -197,19 +249,31 @@
           </div>
         </div>
 
-        <!-- Consultation Duration -->
-        <div class="form-group">
-          <label>{{ t('Consultation Duration') }}</label>
-          <div class="input-shell">
-            <i class="pi pi-clock"></i>
-            <input 
-              v-model="form.slot_duration" 
-              type="number" 
-              min="5"
-              max="120"
-              step="5"
-              placeholder="15" 
-            />
+        <!-- Section 3: Online Video Consultation -->
+        <div class="consult-section-card" :class="{ 'is-enabled': form.online_consultation_status }">
+          <div class="consult-section-header">
+            <div class="section-title-group">
+              <span class="section-icon online"><i class="pi pi-video"></i></span>
+              <span class="section-title">{{ t('Online Video Consultation') }}</span>
+            </div>
+            <label class="unity-switch">
+              <input type="checkbox" v-model="form.online_consultation_status" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div v-if="form.online_consultation_status" class="form-group">
+            <label>{{ t('Online Consultation Fee') }} ({{ t('EGP') }})</label>
+            <div class="input-shell">
+              <i class="pi pi-wallet"></i>
+              <input 
+                v-model="form.online_consultation_fee" 
+                type="number" 
+                min="0"
+                step="1"
+                placeholder="0" 
+              />
+            </div>
           </div>
         </div>
 
@@ -320,6 +384,10 @@ const form = ref<{
   clinic_id: string | number;
   consultation_fee: number | string;
   follow_up_fee: number | string;
+  home_consultation_status: boolean;
+  home_consultation_fee: number | string;
+  online_consultation_status: boolean;
+  online_consultation_fee: number | string;
   slot_duration: number | string;
   description_ar: string;
   description_en: string;
@@ -332,6 +400,10 @@ const form = ref<{
   clinic_id: '',
   consultation_fee: '',
   follow_up_fee: '',
+  home_consultation_status: false,
+  home_consultation_fee: '',
+  online_consultation_status: false,
+  online_consultation_fee: '',
   slot_duration: '',
   description_ar: '',
   description_en: '',
@@ -412,6 +484,10 @@ const close = () => {
     clinic_id: '',
     consultation_fee: '',
     follow_up_fee: '',
+    home_consultation_status: false,
+    home_consultation_fee: '',
+    online_consultation_status: false,
+    online_consultation_fee: '',
     slot_duration: '',
     description_ar: '',
     description_en: '',
@@ -468,6 +544,10 @@ const handleSubmit = async () => {
 
     const numConsultation = form.value.consultation_fee !== '' && form.value.consultation_fee !== null ? Number(form.value.consultation_fee) : 0;
     const numFollowUp = form.value.follow_up_fee !== '' && form.value.follow_up_fee !== null ? Number(form.value.follow_up_fee) : 0;
+    const homeStatus = Boolean(form.value.home_consultation_status);
+    const numHomeFee = homeStatus && form.value.home_consultation_fee !== '' && form.value.home_consultation_fee !== null ? Number(form.value.home_consultation_fee) : 0;
+    const onlineStatus = Boolean(form.value.online_consultation_status);
+    const numOnlineFee = onlineStatus && form.value.online_consultation_fee !== '' && form.value.online_consultation_fee !== null ? Number(form.value.online_consultation_fee) : 0;
     const numSlotDuration = form.value.slot_duration !== '' && form.value.slot_duration !== null ? Number(form.value.slot_duration) : 15;
     const cleanDescAr = form.value.description_ar?.trim() || '';
     const cleanDescEn = form.value.description_en?.trim() || '';
@@ -481,6 +561,10 @@ const handleSubmit = async () => {
       clinic_id: form.value.clinic_id,
       consultation_fee: numConsultation,
       follow_up_fee: numFollowUp,
+      home_consultation_status: homeStatus,
+      home_consultation_fee: numHomeFee,
+      online_consultation_status: onlineStatus,
+      online_consultation_fee: numOnlineFee,
       slot_duration: numSlotDuration,
       description_ar: cleanDescAr || null,
       description_en: cleanDescEn || null,
@@ -513,6 +597,10 @@ const handleSubmit = async () => {
         clinic_id: form.value.clinic_id,
         consultation_fee: numConsultation,
         follow_up_fee: numFollowUp,
+        home_consultation_status: homeStatus,
+        home_consultation_fee: numHomeFee,
+        online_consultation_status: onlineStatus,
+        online_consultation_fee: numOnlineFee,
         slot_duration: numSlotDuration,
         description_ar: cleanDescAr,
         description_en: cleanDescEn,
@@ -554,6 +642,10 @@ watch(
         clinic_id: val.clinic?.id || val.clinic_id || '',
         consultation_fee: val.consultation_fee !== undefined && val.consultation_fee !== null ? Number(val.consultation_fee) : '',
         follow_up_fee: val.follow_up_fee !== undefined && val.follow_up_fee !== null ? Number(val.follow_up_fee) : '',
+        home_consultation_status: Boolean(val.home_consultation_status),
+        home_consultation_fee: val.home_consultation_fee !== undefined && val.home_consultation_fee !== null ? Number(val.home_consultation_fee) : '',
+        online_consultation_status: Boolean(val.online_consultation_status),
+        online_consultation_fee: val.online_consultation_fee !== undefined && val.online_consultation_fee !== null ? Number(val.online_consultation_fee) : '',
         slot_duration: val.slot_duration !== undefined && val.slot_duration !== null ? Number(val.slot_duration) : '',
         description_ar: val.description_ar || '',
         description_en: val.description_en || '',
@@ -568,6 +660,10 @@ watch(
         clinic_id: clinics.value[0]?.id || '',
         consultation_fee: '',
         follow_up_fee: '',
+        home_consultation_status: false,
+        home_consultation_fee: '',
+        online_consultation_status: false,
+        online_consultation_fee: '',
         slot_duration: '',
         description_ar: '',
         description_en: '',
@@ -600,10 +696,16 @@ watch(
         form.value = {
           name_ar: props.doctor.name_ar || props.doctor.name || '',
           name_en: props.doctor.name_en || '',
+          phone: props.doctor.user?.phone || props.doctor.phone || '',
+          password: '',
           avatar: props.doctor.avatar || props.doctor.user?.avatar || props.doctor.avatar_url || '',
           clinic_id: props.doctor.clinic?.id || props.doctor.clinic_id || '',
           consultation_fee: props.doctor.consultation_fee !== undefined && props.doctor.consultation_fee !== null ? Number(props.doctor.consultation_fee) : '',
           follow_up_fee: props.doctor.follow_up_fee !== undefined && props.doctor.follow_up_fee !== null ? Number(props.doctor.follow_up_fee) : '',
+          home_consultation_status: Boolean(props.doctor.home_consultation_status),
+          home_consultation_fee: props.doctor.home_consultation_fee !== undefined && props.doctor.home_consultation_fee !== null ? Number(props.doctor.home_consultation_fee) : '',
+          online_consultation_status: Boolean(props.doctor.online_consultation_status),
+          online_consultation_fee: props.doctor.online_consultation_fee !== undefined && props.doctor.online_consultation_fee !== null ? Number(props.doctor.online_consultation_fee) : '',
           slot_duration: props.doctor.slot_duration !== undefined && props.doctor.slot_duration !== null ? Number(props.doctor.slot_duration) : '',
           description_ar: props.doctor.description_ar || '',
           description_en: props.doctor.description_en || '',
@@ -613,10 +715,16 @@ watch(
         form.value = {
           name_ar: '',
           name_en: '',
+          phone: '',
+          password: '',
           avatar: '',
           clinic_id: defaultClinicId,
           consultation_fee: '',
           follow_up_fee: '',
+          home_consultation_status: false,
+          home_consultation_fee: '',
+          online_consultation_status: false,
+          online_consultation_fee: '',
           slot_duration: '',
           description_ar: '',
           description_en: '',
@@ -1099,6 +1207,110 @@ onUnmounted(() => {
             font-size: 0.8rem;
             color: var(--unity-text-muted);
           }
+        }
+      }
+    }
+  }
+
+  .consult-section-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1.5px solid var(--unity-border);
+    background: var(--unity-bg);
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    &.is-enabled {
+      border-color: rgba(var(--unity-primary-rgb), 0.35);
+      background: var(--unity-surface);
+    }
+
+    .consult-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+
+      .section-title-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .section-icon {
+          width: 30px;
+          height: 30px;
+          border-radius: 9px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.85rem;
+
+          &.clinic {
+            background: var(--unity-primary-light);
+            color: var(--unity-primary);
+          }
+
+          &.home {
+            background: rgba(var(--unity-terracotta-rgb), 0.14);
+            color: var(--unity-terracotta);
+          }
+
+          &.online {
+            background: rgba(var(--unity-slate-rgb), 0.14);
+            color: var(--unity-slate);
+          }
+        }
+
+        .section-title {
+          font-size: 0.84rem;
+          font-weight: 700;
+          color: var(--unity-text-main);
+        }
+      }
+    }
+
+    .unity-switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 24px;
+      flex-shrink: 0;
+      cursor: pointer;
+
+      input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .switch-slider {
+        position: absolute;
+        inset: 0;
+        background: var(--unity-border);
+        border-radius: 999px;
+        transition: 0.2s ease;
+
+        &::before {
+          content: '';
+          position: absolute;
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background: #ffffff;
+          border-radius: 50%;
+          transition: 0.2s ease;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+      }
+
+      input:checked + .switch-slider {
+        background: var(--unity-primary);
+
+        &::before {
+          transform: translateX(18px);
         }
       }
     }

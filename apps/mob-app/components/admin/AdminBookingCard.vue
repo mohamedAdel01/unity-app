@@ -118,19 +118,6 @@
         </div>
       </div>
 
-      <!-- Google Meet Consultation Link for Doctor & Admin -->
-      <div v-if="booking.meeting_link" class="meet-admin-strip">
-        <a 
-          :href="booking.meeting_link" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          class="btn-join-meet-admin"
-        >
-          <i class="pi pi-video"></i>
-          <span>{{ t('Join Google Meet') }}</span>
-        </a>
-      </div>
-
       <!-- Finance & Payment Bar -->
       <div class="finance-bar">
         <div 

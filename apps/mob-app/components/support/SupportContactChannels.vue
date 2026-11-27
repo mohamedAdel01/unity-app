@@ -23,48 +23,17 @@
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'channel-arrow']"></i>
       </a>
 
-      <!-- Channel 2: Phone Hotline -->
+      <!-- Channel 2: Call Center -->
       <a 
-        :href="`tel:${hotlinePhone}`" 
+        :href="`tel:${centerPhone}`" 
         class="channel-card phone"
       >
         <div class="channel-icon-shell">
           <i class="pi pi-phone"></i>
         </div>
         <div class="channel-details">
-          <span class="channel-name">{{ t('Direct Hotline') }}</span>
-          <span class="channel-status">{{ hotlinePhone }} • {{ t('Available 24 Hours') }}</span>
-        </div>
-        <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'channel-arrow']"></i>
-      </a>
-
-      <!-- Channel 3: Submit Support Ticket -->
-      <button 
-        type="button" 
-        class="channel-card ticket" 
-        @click="emit('open-ticket')"
-      >
-        <div class="channel-icon-shell">
-          <i class="pi pi-ticket"></i>
-        </div>
-        <div class="channel-details">
-          <span class="channel-name">{{ t('Open Support Ticket') }}</span>
-          <span class="channel-status">{{ t('Submit detailed inquiry or issue report') }}</span>
-        </div>
-        <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'channel-arrow']"></i>
-      </button>
-
-      <!-- Channel 4: Email -->
-      <a 
-        :href="`mailto:${supportEmail}?subject=${encodeURIComponent(t('Support Request'))}`" 
-        class="channel-card email"
-      >
-        <div class="channel-icon-shell">
-          <i class="pi pi-envelope"></i>
-        </div>
-        <div class="channel-details">
-          <span class="channel-name">{{ t('Email Support') }}</span>
-          <span class="channel-status">{{ supportEmail }}</span>
+          <span class="channel-name">{{ t('Call the Center') }}</span>
+          <span class="channel-status">{{ t('Available 24 Hours') }}</span>
         </div>
         <i :class="[isRtl ? 'pi pi-chevron-left' : 'pi pi-chevron-right', 'channel-arrow']"></i>
       </a>
@@ -83,7 +52,7 @@ const emit = defineEmits<{
 const { t, isRtl } = useI18n();
 
 // 2. Data (refs, reactive state)
-const hotlinePhone = '19011';
+const centerPhone = '+201000000000';
 const whatsappUrl = 'https://wa.me/201000000000';
 const supportEmail = 'support@unity-health.app';
 

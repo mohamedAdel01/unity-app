@@ -90,16 +90,18 @@
     <!-- Bottom Nav Bar -->
     <nav class="admin-bottom-nav" :class="{ 'is-modal-hidden': isAnyModalOpen, 'reception-nav': authStore.isReceptionist }">
       <template v-if="authStore.isReceptionist">
-        <!-- Reception Tab 1: Bookings / الحجوزات -->
-        <NuxtLink to="/admin/appointments" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
-          <i class="pi pi-calendar"></i>
-          <span>{{ t('Bookings') }}</span>
-        </NuxtLink>
-
-        <!-- Reception Tab 2: Patients / المرضى -->
+        <!-- Reception Tab 1: Patients / المرضى -->
         <NuxtLink to="/admin/patients" class="admin-nav-btn" :class="{ 'active': route.path.startsWith('/admin/patients') }">
           <i class="pi pi-users"></i>
           <span>{{ t('Patients') }}</span>
+        </NuxtLink>
+
+        <!-- Reception Tab 2 (Center Raised Primary): Bookings / حجوزات -->
+        <NuxtLink to="/admin/appointments" class="reception-center-fab" :class="{ 'active': route.path.startsWith('/admin/appointments') }">
+          <div class="reception-fab-btn">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <span class="reception-fab-label">{{ t('Bookings') }}</span>
         </NuxtLink>
 
         <!-- Reception Tab 3: Profile / حسابي -->
@@ -449,6 +451,58 @@ watch(() => route.path, () => {
       min-width: 80px;
       max-width: 100px;
       font-size: 0.68rem;
+    }
+
+    .reception-center-fab {
+      position: relative;
+      top: -14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      text-decoration: none;
+      cursor: pointer;
+      min-width: 80px;
+
+      .reception-fab-btn {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--unity-primary);
+        color: #ffffff;
+        border: 4px solid var(--unity-navbar-fab-border, rgba(255, 255, 255, 0.85));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 14px rgba(var(--unity-primary-rgb), 0.35);
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .reception-fab-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--unity-text-muted);
+        white-space: nowrap;
+        transition: color 0.2s ease;
+      }
+
+      &.active {
+        .reception-fab-btn {
+          background: var(--unity-primary-dark);
+          transform: scale(1.06);
+          box-shadow: 0 6px 18px rgba(var(--unity-primary-rgb), 0.42);
+        }
+
+        .reception-fab-label {
+          color: var(--unity-primary-dark);
+        }
+      }
+
+      &:active .reception-fab-btn {
+        transform: scale(0.95);
+      }
     }
   }
 

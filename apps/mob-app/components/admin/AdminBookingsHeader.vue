@@ -43,36 +43,8 @@
       </div>
     </div>
 
-    <!-- 3. Quick Time Filters -->
+    <!-- 3. Quick Status Filters -->
     <div class="quick-filters-row">
-      <button 
-        type="button" 
-        class="time-filter-pill" 
-        :class="{ 'active': activePeriod === 'all' }"
-        @click="selectPeriod('all')"
-      >
-        <span>{{ t('All') }} ({{ totalCount || 0 }})</span>
-      </button>
-
-      <button 
-        type="button" 
-        class="time-filter-pill" 
-        :class="{ 'active': activePeriod === 'today' }"
-        @click="selectPeriod('today')"
-      >
-        <i class="pi pi-clock"></i>
-        <span>{{ t('Today') }} ({{ stats.today_appointments ?? todayCount ?? 0 }})</span>
-      </button>
-
-      <button 
-        type="button" 
-        class="time-filter-pill" 
-        :class="{ 'active': activePeriod === 'week' }"
-        @click="selectPeriod('week')"
-      >
-        <span>{{ t('This Week') }}</span>
-      </button>
-
       <button 
         type="button" 
         class="time-filter-pill with-red-dot" 
@@ -80,7 +52,25 @@
         @click="selectPeriod('pending')"
       >
         <span v-if="(pendingCount || 0) > 0" class="red-alert-dot"></span>
-        <span>{{ t('Awaiting Confirmation') }} ({{ pendingCount || 0 }})</span>
+        <span>{{ t('Under Review') }} ({{ pendingCount || 0 }})</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="time-filter-pill" 
+        :class="{ 'active': activePeriod === 'confirmed' }"
+        @click="selectPeriod('confirmed')"
+      >
+        <span>{{ t('Confirmed') }} ({{ confirmedCount || 0 }})</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="time-filter-pill" 
+        :class="{ 'active': activePeriod === 'all' }"
+        @click="selectPeriod('all')"
+      >
+        <span>{{ t('All') }} ({{ totalCount || 0 }})</span>
       </button>
     </div>
   </div>
@@ -104,8 +94,9 @@ const props = withDefaults(
     totalCount?: number;
     todayCount?: number;
     pendingCount?: number;
+    confirmedCount?: number;
     totalPaidAmount?: number;
-    activePeriod?: 'all' | 'today' | 'week' | 'pending';
+    activePeriod?: 'all' | 'pending' | 'confirmed';
   }>(),
   {
     stats: () => ({
@@ -118,6 +109,7 @@ const props = withDefaults(
     totalCount: 0,
     todayCount: 0,
     pendingCount: 0,
+    confirmedCount: 0,
     totalPaidAmount: 0,
     activePeriod: 'all',
   }

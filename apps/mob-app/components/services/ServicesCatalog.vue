@@ -296,9 +296,9 @@
                         <i class="pi pi-building"></i>
                         <span>{{ getLocalizedName(doc.clinic) }}</span>
                       </span>
-                      <span v-if="doc.consultation_fee" class="doc-fee-inline">
+                      <span v-if="getDoctorDisplayFee(doc)" class="doc-fee-inline">
                         <span class="dot-sep">•</span>
-                        <span>{{ doc.consultation_fee }} {{ t('EGP') }}</span>
+                        <span>{{ getDoctorDisplayFee(doc) }} {{ t('EGP') }}</span>
                       </span>
                     </div>
                   </div>
@@ -438,6 +438,19 @@ const activeClinicName = computed(() => {
   return c ? getLocalizedName(c) : '';
 });
 
+const getDoctorDisplayFee = (doc: any) => {
+  if (!doc) return 0;
+  if (selectedConsultationType.value === 'home') {
+    const h = Number(doc.home_consultation_fee);
+    if (!isNaN(h) && h > 0) return h;
+  }
+  if (selectedConsultationType.value === 'online') {
+    const o = Number(doc.online_consultation_fee);
+    if (!isNaN(o) && o > 0) return o;
+  }
+  return Number(doc.consultation_fee) || 0;
+};
+
 const getClinicDoctorsCount = (clinic: any) => {
   if (clinic.doctors_count !== undefined && clinic.doctors_count !== null) {
     return clinic.doctors_count;
@@ -528,13 +541,19 @@ const filteredDoctors = computed(() => {
   if (selectedClinicId.value && selectedClinicId.value !== 'all') {
     list = list.filter(d => String(d.clinic_id || d.clinic?.id) === String(selectedClinicId.value));
   }
-  return list;
+  return [...list].sort((a, b) => {
+    const offsetDiff = (a.availabilityOffset ?? 999) - (b.availabilityOffset ?? 999);
+    if (offsetDiff !== 0) return offsetDiff;
+    return (a.earliestStartMins ?? 9999) - (b.earliestStartMins ?? 9999);
+  });
 });
 
 // 4. Methods (functions, handlers)
 const selectConsultationType = (type: string) => {
   selectedConsultationType.value = type;
   router.replace({ query: { ...route.query, type: type === 'all' ? undefined : type } });
+  CLINICS();
+  DOCTORS(1);
 };
 
 const selectClinic = (clinicId: string | null) => {
@@ -568,7 +587,14 @@ const clearCategory = () => {
 const CLINICS = async () => {
   try {
     clinicsLoading.value = true;
-    const res = await api.apiRequest({ service: 'CLINICS' });
+    const filter = selectedConsultationType.value && selectedConsultationType.value !== 'all'
+      ? { type: selectedConsultationType.value }
+      : undefined;
+    const res = await api.apiRequest({
+      service: 'CLINICS',
+      filter,
+      bypassCache: Boolean(filter),
+    });
     if (res?.data && Array.isArray(res.data)) {
       clinics.value = res.data;
     }
@@ -637,22 +663,36 @@ const timeToMinutes = (timeStr?: string): number => {
 
 const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
-const computeDoctorAvailability = (doctor: any): { text: string; isToday: boolean } => {
+const getEarliestShiftStart = (shifts: any[]): number => {
+  const times = shifts.map((s: any) => timeToMinutes(s.start_time)).filter((m: number) => m >= 0);
+  return times.length > 0 ? Math.min(...times) : 9999;
+};
+
+const computeDoctorAvailability = (doctor: any): { text: string; isToday: boolean; offset: number; earliestStartMins: number } => {
   const isDoctorActive = doctor.status !== false && doctor.is_active !== false;
   if (!isDoctorActive) {
     return {
       text: t('Not available currently'),
       isToday: false,
+      offset: 999,
+      earliestStartMins: 9999,
     };
   }
 
+  const activeType = selectedConsultationType.value === 'online'
+    ? 'online'
+    : (selectedConsultationType.value === 'home' ? 'home' : 'clinic');
   const rawSchedules = doctor.schedules;
-  const schedules = Array.isArray(rawSchedules) ? rawSchedules.filter((s: any) => s.is_active !== false) : [];
+  const schedules = Array.isArray(rawSchedules)
+    ? rawSchedules.filter((s: any) => s.is_active !== false && (s.type || 'clinic') === activeType)
+    : [];
 
   if (schedules.length === 0) {
     return {
       text: t('Not available currently'),
       isToday: false,
+      offset: 999,
+      earliestStartMins: 9999,
     };
   }
 
@@ -682,33 +722,45 @@ const computeDoctorAvailability = (doctor: any): { text: string; isToday: boolea
 
   if (schedulesByDay.has(todayKey)) {
     const todayShifts = schedulesByDay.get(todayKey)!;
-    const hasActiveShift = todayShifts.some((s: any) => {
+    const activeTodayShifts = todayShifts.filter((s: any) => {
       const endMins = timeToMinutes(s.end_time);
       return endMins > 0 ? endMins > currentMinutes : false;
     });
 
-    if (hasActiveShift) {
+    if (activeTodayShifts.length > 0) {
+      const dd = String(now.getDate()).padStart(2, '0');
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
       return {
-        text: t('Available Today'),
+        text: `${t('Earliest')}: ${t('Today')} - ${dd}/${mm}`,
         isToday: true,
+        offset: 0,
+        earliestStartMins: getEarliestShiftStart(activeTodayShifts),
       };
     }
   }
 
   for (let offset = 1; offset <= 7; offset++) {
-    const nextIndex = (currentDayIndex + offset) % 7;
+    const checkDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+    const nextIndex = checkDate.getDay();
     const nextKey = DAY_NAMES[nextIndex];
     if (schedulesByDay.has(nextKey)) {
+      const dayShifts = schedulesByDay.get(nextKey) || [];
+      const dd = String(checkDate.getDate()).padStart(2, '0');
+      const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
       if (offset === 1) {
         return {
-          text: t('Available Tomorrow'),
+          text: `${t('Earliest')}: ${t('Tomorrow')} - ${dd}/${mm}`,
           isToday: false,
+          offset: 1,
+          earliestStartMins: getEarliestShiftStart(dayShifts),
         };
       }
       const dayLabel = dayNamesMap[nextKey] || nextKey;
       return {
-        text: `${t('Available')} ${dayLabel}`,
+        text: `${t('Earliest')}: ${dayLabel} - ${dd}/${mm}`,
         isToday: false,
+        offset,
+        earliestStartMins: getEarliestShiftStart(dayShifts),
       };
     }
   }
@@ -716,6 +768,8 @@ const computeDoctorAvailability = (doctor: any): { text: string; isToday: boolea
   return {
     text: t('Not available currently'),
     isToday: false,
+    offset: 999,
+    earliestStartMins: 9999,
   };
 };
 
@@ -726,6 +780,9 @@ const DOCTORS = async (page = 1) => {
     globalStore.setLoading(['doctors', true]);
 
     const filter: any = { page, limit: 10 };
+    if (selectedConsultationType.value && selectedConsultationType.value !== 'all') {
+      filter.type = selectedConsultationType.value;
+    }
     if (selectedClinicId.value && selectedClinicId.value !== 'all') {
       filter.clinic_id = selectedClinicId.value;
     }
@@ -737,16 +794,16 @@ const DOCTORS = async (page = 1) => {
     const res = await api.apiRequest({ 
       service: 'DOCTORS',
       filter,
-      bypassCache: !!search,
+      bypassCache: !!search || selectedConsultationType.value !== 'all',
     });
     const raw = Array.isArray(res?.data) ? res.data : (res?.data?.items || []);
 
     let enriched = raw;
-    const missingSchedules = raw.some((d: any) => !d.schedules || !Array.isArray(d.schedules) || d.schedules.length === 0);
+    const missingSchedules = raw.some((d: any) => !Array.isArray(d.schedules));
     if (missingSchedules) {
       enriched = await Promise.all(
         raw.map(async (doc: any) => {
-          if (doc.schedules && Array.isArray(doc.schedules) && doc.schedules.length > 0) return doc;
+          if (Array.isArray(doc.schedules)) return doc;
           try {
             const single = await api.apiRequest({ service: 'DOCTOR_BY_ID', filter: { id: doc.id } });
             return { ...doc, schedules: single?.data?.schedules || [] };
@@ -759,6 +816,8 @@ const DOCTORS = async (page = 1) => {
 
     const items = enriched.map((d: any) => {
       const avail = computeDoctorAvailability(d);
+      const hasBackendOffset = typeof d.availability_offset === 'number';
+      const backendText = isRtl.value ? d.availability_text_ar : d.availability_text_en;
       return {
         ...d,
         id: d.id,
@@ -774,8 +833,10 @@ const DOCTORS = async (page = 1) => {
         description_ar: d.description_ar,
         description_en: d.description_en,
         schedules: d.schedules || [],
-        isAvailableToday: avail.isToday,
-        availabilityText: avail.text,
+        isAvailableToday: hasBackendOffset ? Boolean(d.is_available_today) : avail.isToday,
+        availabilityOffset: hasBackendOffset ? d.availability_offset : avail.offset,
+        earliestStartMins: typeof d.earliest_start_mins === 'number' ? d.earliest_start_mins : avail.earliestStartMins,
+        availabilityText: (hasBackendOffset && backendText) ? backendText : avail.text,
       };
     });
 
@@ -1845,13 +1906,13 @@ onMounted(() => {
     .doc-availability {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.76rem;
+      gap: 5px;
+      font-size: 0.68rem;
       color: var(--unity-primary);
       font-weight: 700;
 
       i {
-        font-size: 0.85rem;
+        font-size: 0.76rem;
         color: var(--unity-primary);
       }
 

@@ -6,6 +6,7 @@
       :total-count="bookings.length"
       :today-count="todayBookingsCount"
       :pending-count="pendingCount"
+      :confirmed-count="confirmedCount"
       :total-paid-amount="totalPaidRevenue"
       :active-period="activePeriod"
       @period-change="onPeriodChange"
@@ -91,7 +92,7 @@ const api = useUnityApi();
 const toast = useAppToast();
 
 // 2. Data (refs, reactive state)
-const activePeriod = ref<'all' | 'today' | 'week' | 'pending'>('all');
+const activePeriod = ref<'all' | 'pending' | 'confirmed'>('all');
 const isRescheduleModalOpen = ref(false);
 const isNewBookingModalOpen = ref(false);
 const selectedBookingForReschedule = ref<any>(null);
@@ -131,6 +132,10 @@ const pendingCount = computed(() => {
   return bookings.value.filter(b => b.status === 'pending').length;
 });
 
+const confirmedCount = computed(() => {
+  return bookings.value.filter(b => b.status === 'confirmed').length;
+});
+
 const totalPaidRevenue = computed(() => {
   if (stats.value?.total_revenue && Number(stats.value.total_revenue) > 0) {
     return Number(stats.value.total_revenue);
@@ -140,24 +145,27 @@ const totalPaidRevenue = computed(() => {
     .reduce((acc: number, curr: any) => acc + (Number(curr.price) || 0), 0);
 });
 
+const STATUS_PRIORITY: Record<string, number> = {
+  pending: 0,
+  confirmed: 1,
+  completed: 2,
+  cancelled: 3,
+};
+
 const filteredBookings = computed(() => {
   let list = bookings.value;
 
   if (activePeriod.value === 'pending') {
     list = list.filter(b => b.status === 'pending');
-  } else if (activePeriod.value === 'today') {
-    list = list.filter(b => b.is_today || b.period === 'today');
-  } else if (activePeriod.value === 'week') {
-    const now = new Date();
-    const weekAhead = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    list = list.filter(b => {
-      if (!b.date) return false;
-      const d = new Date(b.date);
-      return d >= now && d <= weekAhead;
-    });
+  } else if (activePeriod.value === 'confirmed') {
+    list = list.filter(b => b.status === 'confirmed');
   }
 
-  return list;
+  return [...list].sort((a, b) => {
+    const pA = STATUS_PRIORITY[a.status] ?? 9;
+    const pB = STATUS_PRIORITY[b.status] ?? 9;
+    return pA - pB;
+  });
 });
 
 const confirmModalTitle = computed(() => {
